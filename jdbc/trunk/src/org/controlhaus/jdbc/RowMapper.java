@@ -45,7 +45,7 @@ public abstract class RowMapper {
     protected final Calendar _cal;
 
     /** Class to map ResultSet Rows to. */
-    protected final Class _returnTypeClass;
+    protected final Class<?> _returnTypeClass;
 
     /**
      * Create a new RowMapper for the specified ResultSet and return type Class.
@@ -53,7 +53,7 @@ public abstract class RowMapper {
      * @param returnTypeClass Class to map ResultSet rows to.
      * @param cal Calendar instance for date/time values.
      */
-    protected RowMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) {
+    protected RowMapper(ResultSet resultSet, Class<?> returnTypeClass, Calendar cal) {
         _resultSet = resultSet;
         _returnTypeClass = returnTypeClass;
         _cal = cal;

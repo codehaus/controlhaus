@@ -170,7 +170,7 @@ public final class TypeMappingsFactory {
         _typeSqlMap.put(java.util.GregorianCalendar.class, new Integer(Types.TIMESTAMP));
 
         // String to java.sql.Types
-        _typeSqlNameMap = new ResultSetHashMap(TYPE_MAX * 2);
+        _typeSqlNameMap = new HashMap<String, Integer>(TYPE_MAX * 2);
         _typeSqlNameMap.put("BIT", new Integer(Types.BIT));
         _typeSqlNameMap.put("TINYINT", new Integer(Types.TINYINT));
         _typeSqlNameMap.put("SMALLINT", new Integer(Types.SMALLINT));

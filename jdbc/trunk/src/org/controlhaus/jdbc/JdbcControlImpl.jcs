@@ -56,9 +56,9 @@ import java.util.Vector;
     // contexts provided by the beehive controls runtime
     //
     @org.apache.beehive.controls.api.context.Context
-            protected ControlBeanContext _context;
+    protected ControlBeanContext _context;
     @org.apache.beehive.controls.api.context.Context
-            protected ResourceContext _resourceContext;
+    protected ResourceContext _resourceContext;
 
     protected transient Connection _connection;
     protected transient ConnectionDataSource _connectionDataSource;
@@ -66,7 +66,7 @@ import java.util.Vector;
     protected transient ConnectionDriver _connectionDriver;
 
     private transient Calendar _cal;
-    private transient Vector _resources = new Vector();
+    private transient Vector<PreparedStatement> _resources = new Vector<PreparedStatement>();
 
     private static final String EMPTY_STRING = "";
     private static final Logger logger = Logger.getLogger(JdbcControlImpl.class);
@@ -74,7 +74,7 @@ import java.util.Vector;
     private static final SqlParser _sqlParser = new SqlParser();
 
     protected static final HashMap<Class, ResultSetMapper> _resultMappers = new HashMap<Class, ResultSetMapper>();
-    protected static Class _xmlObjectClass;
+    protected static Class<?> _xmlObjectClass;
 
     //
     // initialize the result mapper table
@@ -115,16 +115,10 @@ import java.util.Vector;
     public void onRelease() throws ControlException {
         logger.info("onRelease() invoked.");
 
-        for (int i = 0; i < _resources.size(); i++) {
-
-            Object o = _resources.get(i);
-            if (o instanceof PreparedStatement) {
-                try {
-                    ((PreparedStatement) o).close();
-                } catch (SQLException sqe) {
-                }
-            } else {
-                throw new ControlException("Unexpected resource type: " + o.getClass().toString());
+        for (PreparedStatement ps : _resources) {
+            try {
+                ps.close();
+            } catch (SQLException sqe) {
             }
         }
         _resources.clear();

@@ -184,9 +184,13 @@ limitations under the License.
                 <path refid="test.classpath"/>
             </classpath>
             <containerset>
-                <tomcat5x dir="${catalina.home}" if="tomcat5x">
+
+                <!-- tomcat5x -->
+                <!-- <tomcat5x dir="${catalina.home}" port="8080" if="tomcat5x"> -->
+                <tomcat5x dir="${catalina.home}">
                    <conf dir="${my.home}/webapp/conf"/>
                 </tomcat5x>
+
             </containerset>
             <formatter type="brief" usefile="false"/>
             <formatter type="xml"/>

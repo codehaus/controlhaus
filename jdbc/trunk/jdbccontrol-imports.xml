@@ -22,6 +22,7 @@
 
     <property name="jdbcc.jar.name" value="jdbc-control.jar"/>
     <property name="compiler.debug" value="true"/>
+    <property name="compiler.nowarn" value="on"/>
 
     <property name="ant.home" location="${os.ANT_HOME}"/>
     <property name="beehive.home" location="${os.BEEHIVE_HOME}"/>

@@ -32,7 +32,7 @@ import java.util.HashMap;
  * Note: only the row associated with the current cursor position
  * is used.
  */
-public class ResultSetHashMap extends HashMap {
+public class ResultSetHashMap extends HashMap<String, Object> {
 
     ResultSetHashMap() {
         super();
@@ -66,35 +66,23 @@ public class ResultSetHashMap extends HashMap {
     }
 
 
-    public boolean containsKey(Object key) {
-        if (key instanceof String) {
-            key = ((String) key).toUpperCase();
-        }
-        return super.containsKey(key);
+    public boolean containsKey(String key) {
+        return super.containsKey(key.toUpperCase());
     }
 
 
-    public Object get(Object key) {
-        if (key instanceof String) {
-            key = ((String) key).toUpperCase();
-        }
-        return super.get(key);
+    public Object get(String key) {
+        return super.get(key.toUpperCase());
     }
 
 
-    public Object put(Object key, Object value) {
-        if (key instanceof String) {
-            key = ((String) key).toUpperCase();
-        }
-        return super.put(key, value);
+    public Object put(String key, Object value) {
+        return super.put(key.toUpperCase(), value);
     }
 
 
-    public Object remove(Object key) {
-        if (key instanceof String) {
-            key = ((String) key).toUpperCase();
-        }
-        return super.remove(key);
+    public Object remove(String key) {
+        return super.remove(key.toUpperCase());
     }
 }
 
