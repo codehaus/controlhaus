@@ -9,9 +9,13 @@
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
-    <property name="build.jar" value="jmsControl.jar"/>
+    <property name="build.jar" value="jms-control.jar"/>
     <property environment="env"/>
-	<property name="controls.jar" location="${env.BEEHIVE_HOME}/trunk/controls/build/jars/controls.jar"/>
+    <property name="controls.jar" location="${env.BEEHIVE_HOME}/controls/build/jars/controls.jar"/>
+    <property name="velocity.jar" location="${env.BEEHIVE_HOME}/external/velocity/velocity-1.4.jar"/>
+    <property name="velocity-dep.jar" location="${env.BEEHIVE_HOME}/external/velocity/velocity-dep-1.4.jar"/>
+    <property name="log4j.jar" location="${env.BEEHIVE_HOME}/external/log4j/log4j-1.2.8.jar"/>
+    <property name="xmlbeans.jar" location="${env.BEEHIVE_HOME}/external/xmlbeans/apache-xbean.jar"/>
 
 
     <target name="usage">
@@ -30,34 +34,27 @@
     </target>
 
     <target name="gatherDeps" description="Gathers Dependencies">
-        <get src="http://www.ibiblio.org/maven/velocity/jars/velocity-1.4.jar"
-              dest="${basedir}/lib/velocity.jar"
-              usetimestamp="true"/>
-        <get src="http://www.ibiblio.org/maven/commons-collections/jars/commons-collections-3.0.jar"
-              dest="${basedir}/lib/commons-collections.jar"
-              usetimestamp="true"/>
-        <get src="http://www.ibiblio.org/maven/log4j/jars/log4j-1.2.8.jar"
-              dest="${basedir}/lib/log4j.jar"
-              usetimestamp="true"/>
-    	
+
         <get src="http://www.ibiblio.org/maven/geronimo-spec/jars/geronimo-spec-jms-1.0-M1.jar"
               dest="${basedir}/lib/jms.jar"
               usetimestamp="true"/>    
-                       
-        <get src="http://www.ibiblio.org/maven/xmlbeans/jars/xbean-1.0.3.jar"
-              dest="${basedir}/lib/xbean.jar"
-              usetimestamp="true"/> 
+     
    </target>
    <target name="init">
     	<path id="build.classpath">
         	<fileset dir="lib">
-            	<include name="**/*.jar" />
+            		<include name="**/*.jar" />
         	</fileset>
         	<pathelement path="${build.classes}" />
         	<pathelement path="../play/classes" />
         	<pathelement path="${controls.jar}" />
+        	<pathelement path="${velocity.jar}" />
+        	<pathelement path="${velocity-dep.jar}" />
+        	<pathelement path="${log4j.jar}" />
+        	<pathelement path="${xmlbeans.jar}" />
     	</path>
-  		<taskdef name="apt" 
+
+  	<taskdef name="apt" 
                  classname="org.apache.beehive.controls.runtime.generator.AptTask" 
                  onerror="report"
                  classpathref="build.classpath"/>
@@ -82,6 +79,7 @@
     </target>
 
     <target name="build" depends="dirs,gatherDeps,init" description="Builds controls sources">
+
         <apt srcdir="${source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
              classpathref="build.classpath"
              debug="on"
@@ -97,11 +95,11 @@
         	 destdir="${build.classes}" 
         	 gendir="${build.beansrc}"
         	 excludes="**/Test*.java"
-             classpathref="build.classpath"
-             debug="on"
-             compileByExtension="true"
-             srcExtensions="*.java,*.jcx,*.jcs"
-             target="1.5">
+             	classpathref="build.classpath"
+             	debug="on"
+             	compileByExtension="true"
+             	srcExtensions="*.java,*.jcx,*.jcs"
+             	target="1.5">
         </apt>
 		<javac 
 			destdir="${build.classes}" 
@@ -112,6 +110,7 @@
 			<src path="${sample.source.dir}" />
 		</javac>
     </target>
+
     <target name="docs" depends="init">
     	<property name="classpath" refid="build.classpath"/>
     	<echo message="${classpath}"/>

@@ -1,8 +1,10 @@
 package org.controlhaus.jms;
 
 import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.bean.AnnotationMemberTypes;
 import org.apache.beehive.controls.api.bean.Control;
 import org.apache.beehive.controls.api.bean.ControlInterface;
+import org.apache.beehive.controls.api.bean.AnnotationConstraints;
 import org.apache.beehive.controls.api.properties.PropertySet;
 import org.apache.beehive.controls.api.packaging.*;
 import org.apache.beehive.controls.api.events.EventSet;
@@ -256,13 +258,40 @@ public interface JMSControl
     }
     
     /**
+     * The method parameter representing a message property with the given name and value.
+     * see javax.jms.Message.getProperty()/setProperty().
+     */    
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface PropertyValue
+    {
+        /**
+         * The property name.
+         */
+        public String name();
+        
+       /**
+        * The property value.
+        */
+        public String value();
+        
+        /**
+         * The property type.
+         */
+        public Class type() default String.class;
+        
+    }
+    
+    /**
      * The method/parameter annotation representing a message priority. If not given
      * then the default for the JMS provider is used.
      */ 
     @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
+    @AnnotationConstraints.AllowExternalOverride
     public @interface Priority
     {
+        @AnnotationMemberTypes.Optional
         public int value() default -1;
     }
     /**
@@ -289,8 +318,10 @@ public interface JMSControl
      */ 
     @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
+    @AnnotationConstraints.AllowExternalOverride
     public @interface Expiration
     {
+        @AnnotationMemberTypes.Optional
         public long value() default -1L;
     }
     /**
@@ -304,23 +335,36 @@ public interface JMSControl
         public JMSControl.DeliveryMode value() default JMSControl.DeliveryMode.Auto;
     }
     /**
+     * The method parameter representing one or more properties. 
+     */ 
+    @Target({ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Properties
+    {
+        public PropertyValue[] value();
+    }
+    /**
      * The JMS destination annotation for a extended class method.
      */     
     @PropertySet
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE,ElementType.FIELD})
+    @AnnotationConstraints.AllowExternalOverride
     public @interface Destination
     {
         /**
          * The JNDI name of the queue or topic.
          */
+        // BUG: There should be a JMS_TOPIC_OR_QUEUE resource type.
         @FeatureInfo(shortDescription="JNDI name of the queue or topic")
+        @AnnotationMemberTypes.JndiName( resourceType = AnnotationMemberTypes.JndiName.ResourceType.OTHER )
     	public String sendJndiName();
         
         /**
          * The Correlation-Id for messages.
          */
         @FeatureInfo(shortDescription="Correlation-Id for messages")
+        @AnnotationMemberTypes.Optional
     	public String sendCorrelationProperty() default "";
         
         /**
@@ -333,30 +377,36 @@ public interface JMSControl
          * The destination type (DestinationType). The default is to use the type of the destination object named by the JNDI name.
          */
         @FeatureInfo(shortDescription="The destination type (DestinationType). The default is to use the type of the destination object named by the JNDI name")
+        @AnnotationMemberTypes.Optional
         public JMSControl.DestinationType sendType() default JMSControl.DestinationType.Auto; 
         
         /**
          * True if send is transacted. The default is transacted.
          */
         @FeatureInfo(shortDescription="True if send is transacted. The default is transacted")
+        @AnnotationMemberTypes.Optional
         public boolean transacted() default true;
         
         /**
          * The acknowledge mode. The default is to use auto-acknowledge.
          */
         @FeatureInfo(shortDescription="The acknowledge mode. The default is to use auto-acknowledge")
+        @AnnotationMemberTypes.Optional
         public JMSControl.AcknowledgeMode acknowledgeMode() default JMSControl.AcknowledgeMode.Auto;
         
         /**
          * The JNDI context factory.
          */
         @FeatureInfo(shortDescription="JNDI context factory")
+        @AnnotationMemberTypes.Optional
     	public String jndiContextFactory() default "";
         
         /**
          * The JNDI provider URL.
          */
-        @FeatureInfo(shortDescription="JNDI provider URL")
+        @FeatureInfo(shortDescription="JNDI provider URL")      
+        @AnnotationMemberTypes.Optional
+        @AnnotationMemberTypes.URL
     	public String jndiProviderURL() default "";
     }
 

@@ -367,17 +367,14 @@ import org.apache.xmlbeans.XmlObject;
 	        	    MapMessage mm;
 	        	    checkBody(body,Map.class);
 	        	    m = mm = session.createMapMessage();
-	        	    if(body != null)
-	        	    {
-		        	    Map map =(Map)body;
-		        	    Iterator iter = map.keySet().iterator();
-		        	    while(iter.hasNext())
-		        	    {
-		        	        String key = (String)iter.next();
-		        	        mm.setObject(key,map.get(key));
-		        	    }
-		        	}
-	        		break;
+		            Map map =(Map)body;
+		            Iterator iter = map.keySet().iterator();
+		            while(iter.hasNext())
+		            {
+		        	String key = (String)iter.next();
+		       		mm.setObject(key,map.get(key));
+			    }
+	        	    break;
 	        	case JMSMessage:
 	        	    checkBody(body,javax.jms.Message.class);
 	        	    m = (javax.jms.Message)body;
@@ -395,7 +392,33 @@ import org.apache.xmlbeans.XmlObject;
 			{
 				correlationId = getHeaderAsString(HeaderType.JMSCorrelationID);
 			}
-
+	        Properties jmsProps =
+	                (Properties)_context.getMethodPropertySet(method,Properties.class);
+			if(jmsProps != null)
+			{
+				PropertyValue[] jprops = jmsProps.value();
+				for(int i = 0; i < jprops.length; i++)
+				{
+					PropertyValue jprop = jprops[i];
+					Class cls = jprop.type();
+					if(cls.equals(String.class))
+					{
+						m.setStringProperty(jprop.name(),jprop.value());
+					} 
+					else if(cls.equals(Integer.class))
+					{
+						m.setIntProperty(jprop.name(),valueAsInteger(jprop.value()));
+					}
+					else if(cls.equals(Long.class))
+					{
+						m.setLongProperty(jprop.name(),valueAsLong(jprop.value()));
+					}
+					else
+					{
+						throw new IllegalArgumentException("Invalid type for property-value");
+					}
+				}					
+			}
 	        /*
 	         * Set the properties/headers of the message from
 	         * the parameters to the invoke.
@@ -406,13 +429,7 @@ import org.apache.xmlbeans.XmlObject;
 	                (Property)_context.getParameterPropertySet(method,i, Property.class);
 	            if (jmsProp != null)
 	            {
-	                String name = jmsProp.name();
-	                if (args[i] instanceof String)
-	                    m.setStringProperty(name, (String)args[i]);
-	                    else if (args[i] instanceof Integer)
-	                        m.setIntProperty(name, ((Integer)args[i]).intValue());
-	                    else
-	                        m.setObjectProperty(name, args[i]);
+	                m.setObjectProperty(jmsProp.name(), args[i]);
 	            }
 	            Priority jmsPriority = 
 	                (Priority)_context.getParameterPropertySet(method,i, Priority.class);
@@ -492,7 +509,7 @@ import org.apache.xmlbeans.XmlObject;
     }  
 
     
-        @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onAcquire") 
+    @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onAcquire") 
     public void onAcquire()
     {
     }
