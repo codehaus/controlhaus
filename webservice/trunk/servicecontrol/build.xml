@@ -100,7 +100,7 @@
   <target name="clean">
     <delete dir="${build.dir}"/>
     <delete file="velocity.log"/>
-    <ant antfile="drt/build.xml" target="clean"/>
+    <!-- <ant antfile="drt/build.xml" target="clean"/>  -->
   </target>
 
 
