@@ -167,6 +167,7 @@ limitations under the License.
             <test name="org.controlhaus.jdbc.units.results.DBSingleRowResultsTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.results.DBMultiRowResultsTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.results.StoredProcsDBResultsTest" todir="${testout.dir}"/>
+            <test name="org.controlhaus.jdbc.units.results.TxResultsTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.results.XmlBeanResultsTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.results.JdbcTypesTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.errors.ErrorPathsTest" todir="${testout.dir}"/>

@@ -20,7 +20,6 @@ package org.controlhaus.jdbc;
 import org.apache.beehive.controls.api.ControlException;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Calendar;
