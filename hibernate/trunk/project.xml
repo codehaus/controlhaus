@@ -1,7 +1,7 @@
 <project>
   <pomVersion>1</pomVersion>
   <name>Controlhaus Hibernate Control</name>
-  <groupId>beehive</groupId>
+  <groupId>controlhaus</groupId>
   <artifactId>controlhaus-hibernate</artifactId>
   <currentVersion>0.1</currentVersion>
   <organization>
