@@ -66,6 +66,7 @@ public class DBSingleRowResultsTest extends TestCase {
         Statement s = conn.createStatement();
         try {
             s.executeUpdate("DROP TABLE users");
+            s.executeUpdate("DROP TABLE more_users");
             s.executeUpdate("DROP TABLE usergen");
         } catch (Exception e) {
         }
@@ -75,6 +76,9 @@ public class DBSingleRowResultsTest extends TestCase {
         s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
         s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
         s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
+
+        s.executeUpdate("CREATE TABLE MORE_USERS (USERID INT, FNAME VARCHAR(32), LNAME VARCHAR(32))");
+        s.executeUpdate("INSERT INTO MORE_USERS VALUES (1, 'tester1', 'ltester1')");
 
         s.executeUpdate("CREATE TABLE usergen (user_id INT GENERATED ALWAYS AS IDENTITY (START WITH 1) CONSTRAINT people_pk PRIMARY KEY, person VARCHAR(128))");
         s.executeUpdate("INSERT INTO usergen (person) VALUES ('genmeakey')");
@@ -249,6 +253,16 @@ public class DBSingleRowResultsTest extends TestCase {
         assertEquals(1, results[0]);
         assertEquals(1, results[1]);
         assertEquals(1, results[2]);
+    }
+
+    //
+    // add some new users to the table using batch update
+    //
+    public void testBatchUpdate2() throws Exception {
+
+        int[] results = testCtrl.doABatchUpdate2(new int[]{44,55}, new String[]{"tester44", "tester55"}, new String[]{"lt1", "lt2"} );
+        assertEquals(1, results[0]);
+        assertEquals(1, results[1]);
     }
 
     //

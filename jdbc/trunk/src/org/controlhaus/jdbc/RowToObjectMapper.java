@@ -77,12 +77,22 @@ public class RowToObjectMapper extends RowMapper {
         // to the return type -- if so we don't need to build any structures to support
         // mapping
         if (_columnCount == 1) {
+
+            final int typeId = _tmf.getTypeId(_returnTypeClass);
+
             try {
-                resultObject = mapSingleColumnResultSet(_returnTypeClass);
+                if (typeId != TypeMappingsFactory.TYPE_UNKNOWN) {
+                    return extractColumnValue(1, typeId);
+                } else {
+                    // we still might want a single value (i.e. java.util.Date)
+                    Object val = extractColumnValue(1, typeId);
+                    if (_returnTypeClass.isAssignableFrom(val.getClass())) {
+                        return val;
+                    }
+                }
             } catch (SQLException e) {
                 throw new ControlException(e.getMessage(), e);
             }
-            if (resultObject != null) return resultObject;
         }
 
         if (_fields == null) {

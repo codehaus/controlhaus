@@ -373,23 +373,23 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
      * Build a prepared statement for a batch update.
      *
      * @param ps   The PreparedStatement object.
-     * @param args
+     * @param args The parameter list of the jdbccontrol method.
      * @param cal  A Calendar instance used to resolve date/time values.
      * @throws SQLException If a batch update cannot be performed.
      */
     private void doBatchUpdate(PreparedStatement ps, Object[] args, Calendar cal) throws SQLException {
 
-        final int updateCount = ((Object[]) args[0]).length;
         final int[] sqlTypes = new int[args.length];
         final Object[] objArrays = new Object[args.length];
 
-        // build an array of type values
+        // build an array of type values and object arrays
         for (int i = 0; i < args.length; i++) {
             sqlTypes[i] = _tmf.getSqlType(args[i].getClass().getComponentType());
             objArrays[i] = TypeMappingsFactory.toObjectArray(args[i]);
         }
 
-        for (int i = 0; i < updateCount; i++) {
+        final int rowCount = ((Object[])objArrays[0]).length;
+        for (int i = 0; i < rowCount; i++) {
             for (int j = 0; j < args.length; j++) {
                 setPreparedStatementParameter(ps, j + 1, ((Object[]) objArrays[j])[i], sqlTypes[j], cal);
             }
