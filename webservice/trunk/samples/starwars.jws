@@ -1,0 +1,122 @@
+/*
+ * starwars.jws
+ * 
+ * Copyright 2001-2004 The Apache Software Foundation.
+ * 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * 
+ * Original author: Jonathan Colwell
+ */
+
+import javax.jws.Oneway;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.jws.soap.SOAPMessageHandler;
+import javax.jws.soap.SOAPMessageHandlers;
+
+
+/*******************************************************************************
+ * 
+ *
+ * @author Jonathan Colwell
+ */
+@WebService
+    //@SOAPBinding(style = SOAPBinding.Style.DOCUMENT, use = SOAPBinding.Use.LITERAL, parameterStyle = SOAPBinding.ParameterStyle.BARE)
+public class starwars {
+
+
+    public static net.superflaco.Character stashed;
+
+    @WebMethod
+    public net.superflaco.Character getChewie()
+    {
+        net.superflaco.Character chewie = net.superflaco.Character.Factory
+            .newInstance();
+        chewie.setName("Chewbacca");
+        net.superflaco.System sys = net.superflaco.System.Factory.newInstance();
+        sys.addPlanet("WookieWorld");
+        sys.addPlanet("WookieWorld2");
+        sys.addPlanet("WookieWorld3");
+        sys.setName("WookieSector");
+        sys.addStar("WookieStar");
+        chewie.setHome(sys);
+        chewie.setFaction("smuggler");
+        chewie.setEvil(false);
+        chewie.setJedi(false);
+        return chewie;
+    }
+
+    @WebMethod     
+    public String viewCharName()
+    {
+        return viewChar().getName();
+    }
+
+    @WebMethod
+    public net.superflaco.System viewCharSystem()
+    {
+        return viewChar().getHome();
+    }
+
+    @WebMethod
+    public net.superflaco.Character viewChar()
+    {
+        if (stashed == null) {
+            stashed = getChewie();
+        }
+        return stashed;
+    }
+    /*
+    @WebMethod
+    public boolean stashCadet(net.superflaco.SpacecadetDocument cadet)
+    {
+        if (cadet != null) {
+            net.superflaco.Character ch = cadet.getSpacecadet();
+            if (ch != null && ch.getName() != null && ch.getPlanet() != null) {
+                stashChar(ch);
+                return true;
+            }
+        }
+        return false;
+        }*/
+
+    @WebMethod
+    public net.superflaco.Character stashChar(@WebParam(name="character")
+                                              net.superflaco.Character ch)
+    {
+        if (stashed == null) {
+            stashed = getChewie();
+        }
+
+        if (ch != null) {
+            System.out.println("old: " + stashed.xmlText());
+            System.out.println("new: " + ch.xmlText());
+            stashed = ch;
+        }
+        return stashed;
+    }
+
+
+    @WebMethod
+    public net.superflaco.Character changeName(@WebParam(name="newname")
+                                               String name) {
+        net.superflaco.Character ch = viewChar();
+        ch.setName(name);
+        return ch;
+    }
+}
