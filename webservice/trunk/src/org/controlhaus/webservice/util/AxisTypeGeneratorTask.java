@@ -50,7 +50,7 @@ public class AxisTypeGeneratorTask extends Task {
     public void execute() throws BuildException {
         try {
             AntClassLoader acl = (AntClassLoader)getClass().getClassLoader();
-            System.out.println(acl.getClasspath());
+            //System.out.println(acl.getClasspath());
             if (mOutDir != null && mWSDL != null && mWSDL.isDirectory()) {
                 AxisTypeGenerator atg = new AxisTypeGenerator();
                 for (File f : mWSDL.listFiles(new WSDLFilter())) {
