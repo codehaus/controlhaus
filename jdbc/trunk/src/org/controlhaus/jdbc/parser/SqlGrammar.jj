@@ -222,11 +222,11 @@ SqlFragment parseExpression() :
 //
 // parse an sql: escape sequence
 //
-SqlEscapeFragment parseSqlEscape() :
+SqlSubstitutionFragment parseSqlEscape() :
 {
     Token id1, id2; 
     Token t = null;
-    SqlEscapeFragment frag;
+    SqlSubstitutionFragment frag;
     String func = null;
 }
 {
@@ -236,9 +236,9 @@ SqlEscapeFragment parseSqlEscape() :
       (<SQL_ESCAPE> | <SQL_SUBST>) t=<IDENTIFIER>)
          {
            if (t != null) {
-             frag = new SqlEscapeFragment(new ReflectionFragment(t.image));
+             frag = new SqlSubstitutionFragment(new ReflectionFragment(t.image));
            } else {
-             frag = new SqlEscapeFragment(new LiteralFragment(func));
+             frag = new SqlSubstitutionFragment(new LiteralFragment(func));
            }
          }
      )
@@ -251,9 +251,9 @@ SqlEscapeFragment parseSqlEscape() :
       )
        {
          if (t == null) {
-           frag = new SqlEscapeFragment(new LiteralFragment("(" + id1.image + " IN (" + id2.image + ")"));
+           frag = new SqlSubstitutionFragment(new LiteralFragment("(" + id1.image + " IN (" + id2.image + ")"));
          } else {
-           frag = new SqlEscapeFragment(new LiteralFragment("(" + id1.image + " IN ("),
+           frag = new SqlSubstitutionFragment(new LiteralFragment("(" + id1.image + " IN ("),
                                         new ReflectionFragment(id2.image),
                                         new LiteralFragment("))"));
          }
