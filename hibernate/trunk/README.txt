@@ -12,3 +12,13 @@ controls jar from the beehive build in it.  The rest of the dependencies
 should download.  The run ant:
 
 $ ant build
+
+[USING]
+Using this control should be fairly easy if you are familiar with Hibernate.
+It will look for your hibernate configuration on the classpath as "/hibernate.cfg.xml".
+
+To then use the control declare it in your class:
+
+@Control HibernateControl control;
+
+You can then access the session from the control.
