@@ -20,7 +20,7 @@ import com.bea.control.*;
 import org.jivesoftware.smack.XMPPException;
 /**
  * @editor-info:code-gen control-interface="true"
- * @jcs:jc-jar icon-32="icon32.gif" icon-16="icon16.gif" version="1.0" description="Jabber Instant Messenger" label="JabberIM"
+ * @jcs:jc-jar icon-32="icon32.gif" icon-16="icon16.gif" version="1.0" description="Jabber Instant Messenger" label="Jabber"
  */
 public class JabberInstantMessengerImpl implements JabberInstantMessenger, ControlSource
 { 
