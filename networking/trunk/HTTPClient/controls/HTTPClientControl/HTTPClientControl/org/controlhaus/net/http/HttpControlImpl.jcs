@@ -1,0 +1,59 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+
+package org.controlhaus.net.http; 
+
+import com.bea.control.*;
+import org.controlhaus.net.http.pojo.DataAdapter;
+import org.controlhaus.net.http.pojo.HttpPojo;
+import java.io.IOException;
+import java.net.URL;
+/**
+ * @editor-info:code-gen control-interface="true"
+ * @jcs:jc-jar icon-32="icon32.gic" icon-16="icon16.gif" version="1.0" description="Encapsulates HTTP GET and POST operations" label="HTTP Client"
+ */
+public class HttpControlImpl implements HttpControl, ControlSource
+{ 
+    static final long serialVersionUID = 1L;
+
+    /**
+     * @common:operation
+     */
+    public int get(URL url, DataAdapter data, StringBuffer response)
+    {
+        HttpPojo pojo = new HttpPojo();
+        int result = 200;
+        try {
+            result = pojo.get(url, data, response);
+        } catch ( IOException ex ) {
+            throw new ControlException("Exception performing get with url '" + url + "'", ex);
+        }
+        System.out.println("Read this: " + response.toString());
+        return result;
+    }
+    
+    /**
+     * @common:operation
+     */
+    public void post(URL url, DataAdapter data){
+        HttpPojo pojo = new HttpPojo();
+        try {
+            pojo.post(url, data);
+        } catch ( IOException ex ) {
+            throw new ControlException("Exception performing post with url '" + url + "'", ex);
+        }
+    }
+} 
