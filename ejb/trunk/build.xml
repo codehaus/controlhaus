@@ -11,6 +11,11 @@
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
     <property name="build.xbeansrc" value="${build.dir}/xbeansrc"/>
     <property name="build.xbeanclasses" value="${build.dir}/xbeanclasses"/>
+    <property name="dist.name" value="controlhaus-ejb-alpha"/>
+    <property name="dist.src" value="${dist.name}-src"/>
+    <property name="dist.dir" value="${build.dir}/dist"/>
+    <property name="docs.dir" value="${build.dir}/docs"/>
+    <property name="api.dir" value="${docs.dir}/api"/>
     <property name="ejbXMLbeans.jar" value="ejbXMLBeans.jar"/>	
     <property name="build.jar" value="ejb-control.jar"/>
     <property name="xbean.marker" location="${build.xbeansrc}/XBEAN" />
@@ -77,7 +82,7 @@
         <mkdir dir="${build.xbeanclasses}" />
         <mkdir dir="${lib.dir}" />
     </target>
-
+    
     <target name="build" depends="dirs,gatherDeps" description="Builds controls sources">
         <apt srcdir="${source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
              classpathref="build.classpath"
@@ -88,6 +93,31 @@
         </apt>
         <control-jar destfile="${build.dir}/${build.jar}"  basedir="${build.classes}" />
     </target>
+    
+    <target name="docs">
+        <property name="classpath" refid="build.classpath"/>
+        <mkdir dir="${api.dir}" />
+        <javadoc destdir="${api.dir}" maxmemory="256M" windowtitle="EJB Control Documentation" doctitle="Java Controls" version="true" author="false" use="true" additionalparam="-breakiterator -noqualifier all -notimestamp" useexternalfile="true" classpathref="build.classpath">
+            <packageset dir="${source.dir}" defaultexcludes="yes">
+                <include name="**/**"/>
+            </packageset>
+        </javadoc>        
+    </target>
+
+    <target name="dist" depends="clean,build,docs">
+        <mkdir dir="${dist.dir}" />
+        <zip basedir="${basedir}" destfile="${dist.dir}/${dist.src}.zip"
+            includes="build.xml,src/**,samples/**"/> 
+        <tar basedir="${basedir}" destfile="${dist.dir}/${dist.src}.tar"
+            includes="build.xml,src/**,samples/**"/> 
+        <gzip src="${dist.dir}/${dist.src}.tar" destfile="${dist.dir}/${dist.src}.tar.gz"/>
+        <zip basedir="${basedir}" destfile="${dist.dir}/${dist.name}.zip"
+            includes="**/${build.jar},docs/**"/> 
+        <tar basedir="${basedir}" destfile="${dist.dir}/${dist.name}.tar"
+            includes="**/${build.jar},docs/**"/> 
+        <gzip src="${dist.dir}/${dist.name}.tar" destfile="${dist.dir}/${dist.name}.tar.gz"/>
+    </target>
+
     
     <!-- ==================================================================== -->
     <!-- generate_xbean - generate xbean for EJB deployment descriptor        -->
