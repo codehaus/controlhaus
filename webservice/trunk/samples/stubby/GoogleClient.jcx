@@ -1,7 +1,7 @@
 /*
  * GoogleClient.jcx
  * 
- * Copyright 2001-2004 The Apache Software Foundation.
+ * Copyright 2004 BEA Systems, Inc.
  * 
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +37,7 @@ import org.apache.beehive.wsm.jsr181.wsdl.XmlBeanWSDLProcessor;
  */
 @ControlExtension
 @Location(urls = {"http://api.google.com/search/beta2"})
-@WSDL(path = "/WEB-INF/axisWSDLs/GoogleSearch.wsdl",
+@WSDL(path = "/WEB-INF/encodedWSDLs/GoogleSearch.wsdl",
       service = "GoogleSearchService")
 @WSDLProcessorImpl(processor = XmlBeanWSDLProcessor.class)
 @InvocationTargetImpl
