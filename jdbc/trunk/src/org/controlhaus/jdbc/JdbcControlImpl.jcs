@@ -39,6 +39,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.DatabaseMetaData;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -186,22 +187,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
         // @todo: need to worry about DatabaseFilter ??
 
-        final SQL methodSQL = (SQL) _context.getMethodPropertySet(method, SQL.class);
-        if (methodSQL == null) {
-            throw new ControlException("Method " + method.getName() + " is missing @SQL annotation");
-        }
-
-        final String sqlStatement = methodSQL.statement();
-        if (sqlStatement.length() == 0) {
-            throw new ControlException("Method " + method.getName() + " is missing statement property");
-        }
-
-        final int maxRows = methodSQL.maxRows();
-        final int maxArray = methodSQL.arrayMaxLength();
-        final boolean isBatchUpdate = methodSQL.batchUpdate();
-        final Class resultSetMapperClass = methodSQL.resultSetMapper();
-
-        return execPreparedStatement(sqlStatement, method, args, maxRows, maxArray, isBatchUpdate, resultSetMapperClass);
+        return execPreparedStatement(method, args);
     }
 
     /**
@@ -226,33 +212,50 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
     /**
      * Create and exec the query
-     * @param sqlStatement
      * @param method
      * @param args
-     * @param maxRows
-     * @param maxArray
-     * @param isBatchUpdate
-     * @param resultSetMapperClass
      * @return
      * @throws Throwable
      */
-    protected Object execPreparedStatement(String sqlStatement, Method method, Object[] args,
-                                           int maxRows, int maxArray, boolean isBatchUpdate,
-                                           Class resultSetMapperClass)
+    protected Object execPreparedStatement(Method method, Object[] args)
             throws Throwable {
+
+        final SQL methodSQL = (SQL) _context.getMethodPropertySet(method, SQL.class);
+        if (methodSQL == null) {
+            throw new ControlException("Method " + method.getName() + " is missing @SQL annotation");
+        }
+
+        final boolean isBatchUpdate = methodSQL.batchUpdate();
+        final boolean getGeneratedKeys = methodSQL.getGeneratedKeys();
+        final int maxRows = methodSQL.maxRows();
+        final int maxArray = methodSQL.arrayMaxLength();
+        final String[] genKeyColumns = methodSQL.generatedKeyColumns();
+        final String sqlStatement = methodSQL.statement();
+        final Class resultSetMapperClass = methodSQL.resultSetMapper();
+
+        //
+        // if generated keys requested make sure db impl supports it.
+        //
+        if (getGeneratedKeys) {
+            DatabaseMetaData dmd = _connection.getMetaData();
+            if (!dmd.supportsGetGeneratedKeys()) {
+                throw new ControlException("The database does not support getGeneratedKeys.");
+            }
+        }
 
         PreparedStatement ps = null;
         try {
             Class returnType = method.getReturnType();
 
             SqlStatement parsedSql = _sqlParser.parse(sqlStatement);
-            ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method, args, isBatchUpdate);
+            ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method,  args,
+                                                   isBatchUpdate, getGeneratedKeys, genKeyColumns);
 
             //
             // process row limits
             //
-            boolean isArray = returnType.isArray();
-            boolean isRowSet = returnType.equals(RowSet.class);
+            final boolean isArray = returnType.isArray();
+            final boolean isRowSet = returnType.equals(RowSet.class);
 
             int maxSet = maxRows;
             if (isArray && maxArray != -1) {
@@ -300,6 +303,11 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
             if (hasResults) {
                 rs = ps.getResultSet();
+            }
+
+            if (getGeneratedKeys) {
+                rs = ps.getGeneratedKeys();
+                hasResults = true;
             }
 
             if (!hasResults && updateCount > -1) {

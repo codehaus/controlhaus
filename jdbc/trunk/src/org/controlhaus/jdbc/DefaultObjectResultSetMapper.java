@@ -52,8 +52,7 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
 
         if (isArray) {
             final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
-            return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType,
-                                      /*ControlUtils.getSchemaType(returnType.getComponentType()),*/ cal);
+            return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType, cal);
         } else {
             if (!resultSet.next()) {
                 return _tmf.fixNull(m.getReturnType());
@@ -67,7 +66,7 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
     // ////////////////////////////////// PRIVATE METHODS //////////////////////////////////////////
     //
 
-    protected Object arrayFromResultSet(ResultSet rs, int maxRows, Class arrayClass, /*SchemaType schemaType,*/ Calendar cal)
+    protected Object arrayFromResultSet(ResultSet rs, int maxRows, Class arrayClass, Calendar cal)
             throws Exception {
 
         Class componentType = arrayClass.getComponentType();
@@ -76,10 +75,12 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
         ArrayList list = new ArrayList();
         int numRows;
 
+        boolean hasMoreRows = rs.next();
         RowMapper rowMapper = RowMapperFactory.getRowMapper(rs, componentType, cal);
 
-        for (numRows = 0; numRows != maxRows && rs.next(); numRows++) {
+        for (numRows = 0; numRows != maxRows && hasMoreRows; numRows++) {
             list.add(rowMapper.mapRowToReturnType());
+            hasMoreRows = rs.next();
         }
 
         Object array = java.lang.reflect.Array.newInstance(componentType, numRows);

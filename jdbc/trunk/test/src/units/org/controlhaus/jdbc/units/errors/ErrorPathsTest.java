@@ -65,18 +65,6 @@ public final class ErrorPathsTest extends AbstractControlTest {
     }
 
     //
-    // test for a control method missing statement param in @SQL annotation
-    //
-    public void testMissingSQLStatementParam() throws Exception {
-        try {
-            testCtrl.getAllUsersBad2();
-            fail("A ControlException should be raised when the @SQL annoation is missing a 'statement' param.");
-        } catch (ControlException ce) {
-            assertTrue(true);
-        }
-    }
-
-    //
     // test for a failed SQL param -> method param mapping
     //
     public void testFailedSQLParamToMethodMapping() throws Exception {

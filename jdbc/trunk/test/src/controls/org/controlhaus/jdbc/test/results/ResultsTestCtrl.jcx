@@ -203,5 +203,35 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="SELECT clb FROM clob_table WHERE id={id}")
     public Clob getAClob(int id);
+
+    //
+    // a basic usage of the getGeneratedKeys annotation member
+    //
+    @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true)
+    public ResultSet getGenKeys(String aValue);
+
+    //
+    // a basic usage of the getGeneratedKeys and generatedKeyColumns annotation members
+    //
+    @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true, generatedKeyColumns = {"user_id"})
+    public ResultSet getGenKeys2(String aValue);
+
+    //
+    // a basic usage of the getGeneratedKeys annotation member with return type mapping
+    //
+    @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true)
+    public int getGenKeys3(String aValue);
+
+    //
+    // a basic usage of the getGeneratedKeys annotation member with return type mapping
+    //
+    @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true)
+    public String getGenKeys4(String aValue);
+
+    //
+    // a basic usage of the getGeneratedKeys annotation member with return type mapping
+    //
+    @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true)
+    public int[] getGenKeys5(String aValue);
 }
 

@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -167,6 +168,56 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
         assertEquals(1, results[2]);
     }
 
+    //
+    // get the generated keys from the SQL statement
+    //
+    public void testGenKeys() throws Exception {
+        ResultSet rs = testCtrl.getGenKeys("genmeanotherkey");
+        assertNotNull(rs);
+
+        rs.next();
+        int generatedId = rs.getInt(1);
+        assertEquals(generatedId, 2);
+        rs.close();
+    }
+
+    //
+    // get the generated keys from the SQL statement -- with specified column names
+    //
+    public void testGenKeysWithColumnNames() throws Exception {
+        try {
+        ResultSet rs = testCtrl.getGenKeys2("genmeanotherkey2");
+        fail("This feature has not been impelented in Derby yet, need to add test case once it has.");
+        } catch (Exception e) {
+           assertTrue(true);
+        }
+    }
+
+    //
+    // get the generated keys from the SQL statement -- with specified column names and return type mapping
+    //
+    public void testGenKeysReturnTypeMapping() throws Exception {
+        int result = testCtrl.getGenKeys3("genmeanotherkey3");
+        assertEquals(result, 3);
+    }
+
+    //
+    // get the generated keys from the SQL statement -- with specified column names and return type mapping
+    //
+    public void testGenKeysReturnTypeMapping2() throws Exception {
+        String result = testCtrl.getGenKeys4("genmeanotherkey4");
+        assertEquals(result, "4");
+    }
+
+    //
+    // get the generated keys from the SQL statement -- with specified column names and return type mapping
+    //
+    public void testGenKeysReturnTypeMapping3() throws Exception {
+        int[] result = testCtrl.getGenKeys5("genmeanotherkey5");
+        assertEquals(result[0], 5);
+    }
+
+
 
     public DBSingleRowResultsTest(String name) throws Exception {
         super(name);
@@ -176,7 +227,8 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
         Connection conn = DriverManager.getConnection("jdbc:derby:MyDB;create=true");
         Statement s = conn.createStatement();
         try {
-            s.executeUpdate("DROP TABLE USERS");
+            s.executeUpdate("DROP TABLE users");
+            s.executeUpdate("DROP TABLE usergen");
         } catch (Exception e) {
         }
 
@@ -185,6 +237,10 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
         s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
         s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
         s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
+
+        s.executeUpdate("CREATE TABLE usergen (user_id INT GENERATED ALWAYS AS IDENTITY (START WITH 1) CONSTRAINT people_pk PRIMARY KEY, person VARCHAR(128))");
+        s.executeUpdate("INSERT INTO usergen (person) VALUES ('genmeakey')");
+
         conn.close();
     }
 
