@@ -7,6 +7,7 @@ import org.apache.beehive.controls.api.bean.ControlInterface;
 import org.apache.beehive.controls.api.bean.ControlExtension;
 
 import org.controlhaus.xfire.client.XFireClientControl;
+import org.controlhaus.xfire.client.XFireClientControl.ServiceUrl;
 import org.codehaus.xfire.fault.XFireFault;
 import org.codehaus.xfire.client.ClientHandler;
 import org.codehaus.xfire.xmlbeans.client.XMLBeansClientHandler;
@@ -18,6 +19,7 @@ import $import.FullJavaName;
 /**
  * Auto-generated client stub for $service.Name.
  */
+@ServiceUrl("$service.Url")
 @ControlExtension
 public interface ${interfaceType}
 	     extends XFireClientControl
