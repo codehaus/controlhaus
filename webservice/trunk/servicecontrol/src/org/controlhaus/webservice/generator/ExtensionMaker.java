@@ -23,13 +23,13 @@ package org.controlhaus.webservice.generator;
 import java.io.*;
 import java.util.List;
 import javax.xml.namespace.QName;
-import org.apache.beehive.wsm.jsr181.model.Jsr181TypeMetadata;
-import org.apache.beehive.wsm.jsr181.model.Jsr181MethodMetadata;
-import org.apache.beehive.wsm.jsr181.model.Jsr181ParameterMetadata;
-import org.apache.beehive.wsm.jsr181.wsdl.XmlBeanWSDLProcessor;
 import org.apache.axis.wsdl.toJava.Namespaces;
 import org.apache.axis.wsdl.toJava.Utils;
 import org.apache.beehive.wsm.axis.ant.WSDLFilter;
+import org.apache.beehive.wsm.jsr181.model.BeehiveWsMethodMetadata;
+import org.apache.beehive.wsm.jsr181.model.BeehiveWsParameterMetadata;
+import org.apache.beehive.wsm.jsr181.model.BeehiveWsTypeMetadata;
+import org.apache.beehive.wsm.jsr181.model.wsdl.XmlBeanWSDLProcessor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -78,7 +78,7 @@ public class ExtensionMaker {
 
   
   
-  public void writeJCX(Jsr181TypeMetadata wsm) throws Exception {
+  public void writeJCX(BeehiveWsTypeMetadata wsm) throws Exception {
     String serviceName = wsm.getWsServiceName();
     
     // TODO: Should the class generation depend on Axis?
@@ -116,7 +116,7 @@ public class ExtensionMaker {
         jcxWriter.print(serviceName);
         jcxWriter.print(" extends ServiceControl {\n\n");
 
-        for (Jsr181MethodMetadata method : wsm.getMethods()) {
+        for (BeehiveWsMethodMetadata method : wsm.getMethods()) {
           jcxWriter.print("public ");
 //          String returnVal = "Object";
 //          Class javaType = method.getJavaReturnType();
@@ -155,10 +155,10 @@ public class ExtensionMaker {
 
   //NOTE: For OUT and IN/OUT parameters this method can use the GenericHolder
   // class...TBD
-  private void printParameters(List<Jsr181ParameterMetadata> params,
+  private void printParameters(List<? extends BeehiveWsParameterMetadata> params,
       PrintWriter pw) {
     int paramPos = 0;
-    for (Jsr181ParameterMetadata param : params) {
+    for (BeehiveWsParameterMetadata param : params) {
       if (paramPos > 0) {
         pw.print(", ");
       }
