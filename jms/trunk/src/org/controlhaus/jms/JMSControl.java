@@ -156,11 +156,24 @@ public interface JMSControl
     public static final String HEADER_TYPE = HeaderType.JMSType.toString();
     
     /**
-     * Resets the timer. Any pending events are canceled. 
-     * The timer will subsequently expire after the repeats-every 
-     * period has elapsed after this call.
+     * Get the JMS Session object.
+     * @return the session.
      */
     public Session getSession() throws ControlException;
+    
+    /**
+     * Get the JMS Connection.
+     * @return the connection.
+     */
+    public javax.jms.Connection getConnection() throws ControlException;
+    
+    /**
+     * Get the jms-destination.
+     * 
+     * @return an instance destination object.
+     */
+    public javax.jms.Destination getDestination() throws ControlException;
+
 
     /**
      * Sets the JMS headers to be assigned to the next JMS message
@@ -251,7 +264,7 @@ public interface JMSControl
      * The method parameter representing a message priority. If not given
      * then the default for the JMS provider is used.
      */ 
-    @Target({ElementType.PARAMETER})
+    @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Priority
     {
@@ -262,7 +275,7 @@ public interface JMSControl
      * The method parameter representing a message expiration in milliseconds. 
      * If not given then the default for the JMS provider is used.
      */ 
-    @Target({ElementType.PARAMETER})
+    @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Expiration
     {
@@ -272,7 +285,7 @@ public interface JMSControl
      * The method parameter representing a message delivery mode. 
      * If not given then the default for the JMS provider is used.
      */ 
-    @Target({ElementType.PARAMETER})
+    @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Delivery
     {
@@ -321,6 +334,18 @@ public interface JMSControl
          */
         @FeatureInfo(shortDescription="The acknowledge mode. The default is to use auto-acknowledge")
         public JMSControl.AcknowledgeMode acknowledgeMode() default JMSControl.AcknowledgeMode.Auto;
+        
+        /**
+         * The JNDI context factory.
+         */
+        @FeatureInfo(shortDescription="JNDI context factory")
+    	public String jndiContextFactory() default "";
+        
+        /**
+         * The JNDI provider URL.
+         */
+        @FeatureInfo(shortDescription="JNDI provider URL")
+    	public String jndiProviderURL() default "";
     }
 
 
