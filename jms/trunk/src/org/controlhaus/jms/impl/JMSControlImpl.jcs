@@ -919,16 +919,42 @@ import org.apache.xmlbeans.XmlObject;
     	{
     		_jndiInitialized = true;
 	    	Destination dest = getDestinationProperties();
-	    	if(dest.jndiContextFactory() != null && dest.jndiContextFactory().length() != 0)
+	    	String contextFactory = nullIfEmpty(dest.jndiContextFactory());
+	    	if(contextFactory != null)
 	    	{
-	    		_jndiControl.setFactory(dest.jndiContextFactory());
+	    		_jndiControl.setFactory(contextFactory);
 	    	}
-	    	if(dest.jndiProviderURL() != null && dest.jndiProviderURL().length() != 0)
+	    	String providerURL = nullIfEmpty(dest.jndiProviderURL());
+	    	if(providerURL != null)
 	    	{
-	    		_jndiControl.setUrl(dest.jndiProviderURL());
+	    		_jndiControl.setUrl(providerURL);
+	    	}
+	    	String userName = nullIfEmpty(dest.jndiUsername());
+	    	if(userName != null)
+	    	{
+	    		_jndiControl.setJndiSecurityPrincipal(userName);
+	    	}
+	    	String password = nullIfEmpty(dest.jndiPassword());
+	    	if(password != null)
+	    	{
+	    		_jndiControl.setJndiSecurityCredentials(password);
 	    	}
     	}
     	return _jndiControl;
+    }
+    
+    /**
+     * Return null if the given string is null or an empty string.
+     * @param str a string.
+     * @return null or the string.
+     */
+    protected String nullIfEmpty(String str)
+    {
+    	if(str == null || str.trim().length() == 0)
+    	{
+    		return null;
+    	}
+    	return str;
     }
     @Context
     private ResourceContext _resourceContext;
@@ -955,7 +981,7 @@ import org.apache.xmlbeans.XmlObject;
     private transient MessageProducer _producer;
     
     /** The JNDI control has been initialized */
-    private boolean _jndiInitialized;
+    private boolean _jndiInitialized = false;
     
     /** The headers to set in the next message to be sent. */
     private Map<HeaderType,Object> _headers;

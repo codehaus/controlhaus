@@ -25,6 +25,7 @@ import org.apache.beehive.controls.api.context.*;
 import org.apache.beehive.controls.api.bean.*;
 import org.apache.beehive.controls.api.events.*;
 import org.apache.beehive.controls.api.properties.*;
+import org.apache.beehive.controls.api.packaging.*;
 
 /**
  * The Jndi Control encapsulates access to the JNDI context. It
@@ -54,8 +55,33 @@ public interface JndiControl
     @Target({ElementType.TYPE,ElementType.FIELD})
     public @interface Properties
     {
+        /**
+         * The JNDI context factory.
+         */
+        @FeatureInfo(shortDescription="JNDI context factory")
+        @AnnotationMemberTypes.Optional
         String factory();
+        /**
+         * The JNDI provider URL.
+         */
+        @FeatureInfo(shortDescription="JNDI provider URL")      
+        @AnnotationMemberTypes.Optional
+        @AnnotationMemberTypes.URL
         String url();
+        /**
+         * The JNDI security principal.
+         */
+        @FeatureInfo(shortDescription="JNDI security principal")      
+        @AnnotationMemberTypes.Optional
+    	public String jndiSecurityPrincipal() default "";
+        
+        
+        /**
+         * The JNDI security credentials.
+         */
+        @FeatureInfo(shortDescription="JNDI security credentials")      
+        @AnnotationMemberTypes.Optional
+    	public String jndiSecurityCredentials() default "";
     }
 
 }
