@@ -36,8 +36,8 @@
             
     <dependency>
       <groupId>beehive</groupId>
-      <artifactId>beehive-controls</artifactId>
-      <version>1.0-alpha</version>
+      <artifactId>controls</artifactId>
+      <version>svn-snapshot</version>
     </dependency>
 
     <dependency>
