@@ -1,0 +1,129 @@
+<?xml version="1.0" ?>
+
+<!--
+   Copyright 2004 The Apache Software Foundation 
+ 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+  
+      http://www.apache.org/licenses/LICENSE-2.0
+  
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ 
+   $Header:$
+ -->
+
+<project name="AddressBookWS" default="build" basedir=".">
+
+	<property environment="env" />
+
+	<property name="build.dir" location="build" />
+	<property name="gen.dir" location="${build.dir}/gen" />
+	<property name="classes.dir" location="${build.dir}/classes" />
+
+	<condition property="isJDK15">
+		<equals arg1="${ant.java.version}" arg2="1.5" />
+	</condition>
+
+	<path id="jars">
+		<fileset dir="./lib" >
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+
+	<target name="monitor"> 
+		<java classname="org.apache.axis.utils.SOAPMonitor"  classpathref="jars">
+		</java>
+	</target>
+	<!-- ========================================= -->
+	<!-- build - build jar-file                    -->
+	<!-- ========================================= -->
+
+	<target name="build" depends="compile">
+		<jar jarfile="./lib/AddressBookWS.jar">
+			<fileset dir="${classes.dir}" />
+		</jar>
+	</target>
+
+
+	<!-- ========================================= -->
+	<!-- compile - compile sources                 -->
+	<!-- ========================================= -->
+
+	
+	<target name="compile" depends="update_jars, dirs" if="isJDK15" >
+		<taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask" classpath="lib/controls.jar" onerror="report" />
+
+		<apt srcdir="./src" destdir="${classes.dir}" gendir="${gen.dir}" compileByExtension="true" 
+			classpathref="jars" srcExtensions="*.java,*.jcx,*.jcs,*.jws" >
+
+		</apt>
+
+	</target>	
+
+	<target name="update_jars" >
+		<property name="log4j.jar" location="${env.BEEHIVE_HOME}/external/log4j/log4j-1.2.8.jar" />
+		<property name="junit.jar" location="${env.BEEHIVE_HOME}/external/junit/junit.jar" />
+		<property name="velocity14.jar" location="${env.BEEHIVE_HOME}/external/velocity/velocity-1.4.jar" />
+		<property name="velocitydep14.jar" location="${env.BEEHIVE_HOME}/external/velocity/velocity-dep-1.4.jar" />
+		<property name="derby.jar" location="${env.BEEHIVE_HOME}/external/derby/derby_46005.jar" />
+		<property name="xbean.jar" location="${env.BEEHIVE_HOME}/external/xmlbeans/apache-xbean.jar" />
+
+		<copy todir="lib" >
+			<fileset file="${log4j.jar}"/>
+			<fileset file="${xbean.jar}"/>
+
+			<!-- these are required by Controls and WSM -->
+			<fileset file="${velocity14.jar}" />
+			<fileset file="${velocitydep14.jar}"/>
+			<fileset dir="${env.BEEHIVE_HOME}/wsm/lib">
+				<include name="wsdltypes.jar"/>
+			</fileset>
+
+			<fileset dir="${env.BEEHIVE_HOME}/wsm/external">
+				<include name="axis.jar"/>
+				<include name="axis-ant.jar"/>
+				<include name="jaxrpc.jar"/>
+				<include name="saaj.jar"/>
+				<include name="wsdl4j.jar"/>
+				<include name="commons-discovery.jar"/>
+			</fileset>
+
+			<fileset dir="${env.BEEHIVE_HOME}/wsm/build/jars">
+				<include name="wsm.jar"/>
+				<include name="wsm-axis.jar"/>
+			</fileset>
+			<fileset dir="${env.BEEHIVE_HOME}/controls/build/jars">
+				<include name="controls.jar"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- ========================================= -->
+	<!-- dirs - create dirs required for compile   -->
+	<!-- ========================================= -->
+
+	<target name="dirs">
+		<mkdir dir="${classes.dir}" />
+		<mkdir dir="${gen.dir}" />
+	</target>
+
+
+	<!-- ========================================= -->
+	<!-- clean - remove build files                -->
+	<!-- ========================================= -->
+
+	<target name="clean" >
+		<delete file="velocity.log" />
+		<delete file="./lib/AddressBookWS.jar" />
+		<delete dir="${build.dir}" />
+		<delete dir="${gen.dir}" />
+	</target>
+
+</project>

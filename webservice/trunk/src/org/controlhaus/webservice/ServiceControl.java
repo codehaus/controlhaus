@@ -47,7 +47,7 @@ import org.w3c.dom.Element;
  * are exposed as methods of the control.
  * <br/><br/>
  */
-@ControlInterface (defaultBinding = "org.controlhaus.webservice.ServiceControlImpl")
+@ControlInterface (defaultBinding = "org.controlhaus.webservice.jaxrpc.ServiceControlImpl")
 public interface ServiceControl
 {
 
