@@ -20,6 +20,7 @@ package org.controlhaus.sforce;
  * @jc:location http-url="https://www.salesforce.com/services/Soap/c/3.0"
  * @jc:wsdl file="#SforceServiceWsdl"
  * @editor-info:link autogen-style="xmlbean" source="enterprise.wsdl" autogen="true"
+ * @jcs:jc-jar display-in-palette="false"
  */
 public interface sforce3_0EnterpriseWS extends com.bea.control.ControlExtension, com.bea.control.ServiceControl
 {
