@@ -17,11 +17,13 @@
 
 package org.controlhaus.jdbc;
 
+import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.controlhaus.jdbc.JdbcControl.SQL;
 
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Calendar;
 
 /**
@@ -36,24 +38,27 @@ public class DefaultXmlObjectResultSetMapper extends DefaultObjectResultSetMappe
      * @param m         Method associated with this call.
      * @param resultSet Result set to map.
      * @param cal       A Calendar instance for resolving date/time values.
-     * @return          An XmlObject
-     * @throws Exception on error.
+     * @return An XmlObject
      */
-    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) {
 
         final Class returnType = m.getReturnType();
         final boolean isArray = returnType.isArray();
 
-        if (isArray) {
-            final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
-            return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType, cal);
-        } else {
+        try {
+            if (isArray) {
+                final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
+                return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType, cal);
+            } else {
 
-            if (!resultSet.next()) {
-                return _tmf.fixNull(m.getReturnType());
+                if (!resultSet.next()) {
+                    return _tmf.fixNull(m.getReturnType());
+                }
+
+                return RowMapperFactory.getRowMapper(resultSet, returnType, cal).mapRowToReturnType();
             }
-
-            return RowMapperFactory.getRowMapper(resultSet, returnType, cal).mapRowToReturnType();
+        } catch (SQLException e) {
+            throw new ControlException(e.getMessage(), e);
         }
     }
 }

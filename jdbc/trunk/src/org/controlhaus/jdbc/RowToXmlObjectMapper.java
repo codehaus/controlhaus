@@ -52,7 +52,8 @@ public class RowToXmlObjectMapper extends RowMapper {
      * @param cal             Calendar instance for date/time mappings.
      * @throws SQLException on error.
      */
-    RowToXmlObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
+    RowToXmlObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal)
+            throws SQLException {
         super(resultSet, returnTypeClass, cal);
 
         _columnCount = resultSet.getMetaData().getColumnCount();
@@ -64,28 +65,35 @@ public class RowToXmlObjectMapper extends RowMapper {
      * map a row from the ResultSet to an XmlObject instance
      *
      * @return An XmlObject instance.
-     * @throws ControlException on error.
-     * @throws SQLException     on error.
      */
-    public Object mapRowToReturnType() throws ControlException, SQLException {
+    public Object mapRowToReturnType() {
 
         Object resultObject = null;
         if (_columnCount == 1) {
-            resultObject = mapSingleColumnResultSet(_returnTypeClass);
+            try {
+                resultObject = mapSingleColumnResultSet(_returnTypeClass);
+            } catch (SQLException e) {
+                throw new ControlException(e.getMessage(), e);
+            }
             if (resultObject != null) return resultObject;
         }
 
         if (_setterMethods == null) {
-            getResultSetMappings();
+            try {
+                getResultSetMappings();
+            } catch (SQLException e) {
+                throw new ControlException(e.getMessage(), e);
+            }
         }
 
         resultObject = XmlObject.Factory.newInstance(new XmlOptions().setDocumentType(_schemaType));
 
         for (int i = 1; i < _setterMethods.length; i++) {
             Method setterMethod = _setterMethods[i].getSetter();
-            Object resultValue = extractColumnValue(i, _setterMethods[i].getParameterType());
+            Object resultValue = null;
 
             try {
+                resultValue = extractColumnValue(i, _setterMethods[i].getParameterType());
 
                 // if the setter is for an xmlbean enum type, convert the extracted resultset column
                 // value to the proper xmlbean enum type. All xmlbean enums are derived from the class
@@ -104,13 +112,19 @@ public class RowToXmlObjectMapper extends RowMapper {
                         _setterMethods[i].getNilable().invoke(resultObject, (Object[]) null);
                     }
                 }
+            } catch (SQLException se) {
+                throw new ControlException(se.getMessage(), se);
             } catch (IllegalArgumentException iae) {
-                ResultSetMetaData md = _resultSet.getMetaData();
-                throw new ControlException("The declared Java type for method " + setterMethod.getName()
-                                           + setterMethod.getParameterTypes()[0].toString()
-                                           + " is incompatible with the SQL format of column " + md.getColumnName(i).toString()
-                                           + md.getColumnTypeName(i).toString()
-                                           + " which returns objects of type " + resultValue.getClass().getName());
+                try {
+                    ResultSetMetaData md = _resultSet.getMetaData();
+                    throw new ControlException("The declared Java type for method " + setterMethod.getName()
+                                               + setterMethod.getParameterTypes()[0].toString()
+                                               + " is incompatible with the SQL format of column " + md.getColumnName(i).toString()
+                                               + md.getColumnTypeName(i).toString()
+                                               + " which returns objects of type " + resultValue.getClass().getName());
+                } catch (SQLException e) {
+                    throw new ControlException(e.getMessage(), e);
+                }
             } catch (IllegalAccessException e) {
                 throw new ControlException("IllegalAccessException when trying to access method " + setterMethod.getName(), e);
             } catch (NoSuchMethodException e) {
@@ -179,10 +193,12 @@ public class RowToXmlObjectMapper extends RowMapper {
 
     /**
      * Build a String array of column names from the ResultSet.
+     *
      * @return A String array containing the column names contained within the ResultSet.
      * @throws SQLException on error
      */
-    protected String[] getKeysFromResultSet() throws SQLException {
+    protected String[] getKeysFromResultSet()
+            throws SQLException {
 
         String[] keys = super.getKeysFromResultSet();
 
@@ -237,6 +253,7 @@ public class RowToXmlObjectMapper extends RowMapper {
 
         /**
          * Create a new setter method.
+         *
          * @param setter Method instance.
          */
         SetterMethod(Method setter) {
@@ -248,12 +265,14 @@ public class RowToXmlObjectMapper extends RowMapper {
 
         /**
          * Return the setter method.
+         *
          * @return Method
          */
         Method getSetter() { return _setter; }
 
         /**
          * Return the class of the setter method's paramater.
+         *
          * @return Class of the setter method's param.
          */
         Class getParameterClass() { return _parameterClass; }
@@ -261,12 +280,14 @@ public class RowToXmlObjectMapper extends RowMapper {
         /**
          * Get the type of the methods paramter.
          * Type is defined by the TypeMappingsFactory, prefixed by TYPE_.
+         *
          * @return int type.
          */
         int getParameterType() { return _parameterType; }
 
         /**
          * Get the nilable method for this setter.
+         *
          * @return Method.
          */
         Method getNilable() { return _nilable; }
@@ -283,7 +304,7 @@ public class RowToXmlObjectMapper extends RowMapper {
          */
         private Method isNilable() {
             try {
-                return _returnTypeClass.getMethod("setNil" + _setter.getName().substring(3), new Class[] {});
+                return _returnTypeClass.getMethod("setNil" + _setter.getName().substring(3), new Class[]{});
             } catch (NoSuchMethodException e) {
                 // NOOP - just means there is no setNil
             }

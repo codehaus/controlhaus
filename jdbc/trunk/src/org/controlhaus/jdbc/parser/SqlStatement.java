@@ -424,9 +424,9 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
      * Checks that all statement options specified in annotation are supported by the database.
      *
      * @param metaData
-     * @throws ControlException
+     * @throws SQLException
      */
-    private void checkJdbcSupport(DatabaseMetaData metaData) throws ControlException, SQLException {
+    private void checkJdbcSupport(DatabaseMetaData metaData) throws SQLException {
 
         if (_getGeneratedKeys && !metaData.supportsGetGeneratedKeys()) {
             throw new ControlException("The database does not support getGeneratedKeys.");

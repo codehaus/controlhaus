@@ -36,9 +36,8 @@ public class DefaultResultSetMapper extends ResultSetMapper {
      * @param resultSet Result set to map.
      * @param cal       A Calendar instance for resolving date/time values.
      * @return          An object.
-     * @throws Exception On error.
      */
-    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) {
         return resultSet;
     }
 

@@ -51,23 +51,25 @@ public class RowToObjectMapper extends RowMapper {
      * @param resultSet       ResultSet to map
      * @param returnTypeClass Class to map to.
      * @param cal             Calendar instance for date/time mappings.
-     * @throws SQLException on error.
      */
-    RowToObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException, ControlException {
+    RowToObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) {
         super(resultSet, returnTypeClass, cal);
 
-        _columnCount = resultSet.getMetaData().getColumnCount();
         _fields = null;
+
+        try {
+            _columnCount = resultSet.getMetaData().getColumnCount();
+        } catch (SQLException e) {
+            throw new ControlException("RowToObjectMapper: SQLException: " + e.getMessage(), e);
+        }
     }
 
     /**
      * Do the mapping.
      *
      * @return An object instance.
-     * @throws ControlException on error.
-     * @throws SQLException     on error.
      */
-    public Object mapRowToReturnType() throws ControlException, SQLException {
+    public Object mapRowToReturnType() {
 
         Object resultObject = null;
 
@@ -75,12 +77,20 @@ public class RowToObjectMapper extends RowMapper {
         // to the return type -- if so we don't need to build any structures to support
         // mapping
         if (_columnCount == 1) {
-            resultObject = mapSingleColumnResultSet(_returnTypeClass);
+            try {
+                resultObject = mapSingleColumnResultSet(_returnTypeClass);
+            } catch (SQLException e) {
+                throw new ControlException(e.getMessage(), e);
+            }
             if (resultObject != null) return resultObject;
         }
 
         if (_fields == null) {
-            getFieldMappings();
+            try {
+                getFieldMappings();
+            } catch (SQLException e) {
+                throw new ControlException(e.getMessage(), e);
+            }
         }
 
         try {
@@ -95,30 +105,39 @@ public class RowToObjectMapper extends RowMapper {
 
         for (int i = 1; i < _fields.length; i++) {
             AccessibleObject f = _fields[i];
-            Object resultValue = extractColumnValue(i, _fieldTypes[i]);
+            Object resultValue = null;
 
             try {
+                resultValue = extractColumnValue(i, _fieldTypes[i]);
                 if (f instanceof Field) {
                     ((Field) f).set(resultObject, resultValue);
                 } else {
                     _args[0] = resultValue;
                     ((Method) f).invoke(resultObject, _args);
                 }
+            } catch (SQLException e) {
+                throw new ControlException(e.getMessage(), e);
             } catch (IllegalArgumentException iae) {
-                ResultSetMetaData md = _resultSet.getMetaData();
-                if (f instanceof Field) {
-                    throw new ControlException("The declared Java type for field " + ((Field) f).getName()
-                                               + ((Field) f).getType().toString()
-                                               + " is incompatible with the SQL format of column " + md.getColumnName(i).toString()
-                                               + md.getColumnTypeName(i).toString()
-                                               + " which returns objects of type " + resultValue.getClass().getName());
-                } else {
-                    throw new ControlException("The declared Java type for method " + ((Method) f).getName()
-                                               + ((Method) f).getParameterTypes()[0].toString()
-                                               + " is incompatible with the SQL format of column " + md.getColumnName(i).toString()
-                                               + md.getColumnTypeName(i).toString()
-                                               + " which returns objects of type " + resultValue.getClass().getName());
+
+                try {
+                    ResultSetMetaData md = _resultSet.getMetaData();
+                    if (f instanceof Field) {
+                        throw new ControlException("The declared Java type for field " + ((Field) f).getName()
+                                                   + ((Field) f).getType().toString()
+                                                   + " is incompatible with the SQL format of column " + md.getColumnName(i).toString()
+                                                   + md.getColumnTypeName(i).toString()
+                                                   + " which returns objects of type " + resultValue.getClass().getName());
+                    } else {
+                        throw new ControlException("The declared Java type for method " + ((Method) f).getName()
+                                                   + ((Method) f).getParameterTypes()[0].toString()
+                                                   + " is incompatible with the SQL format of column " + md.getColumnName(i).toString()
+                                                   + md.getColumnTypeName(i).toString()
+                                                   + " which returns objects of type " + resultValue.getClass().getName());
+                    }
+                } catch (SQLException e) {
+                    throw new ControlException(e.getMessage(), e);
                 }
+
             } catch (IllegalAccessException e) {
                 if (f instanceof Field) {
                     throw new ControlException("IllegalAccessException when trying to access field " + ((Field) f).getName(), e);
@@ -139,10 +158,10 @@ public class RowToObjectMapper extends RowMapper {
     /**
      * Build the structures necessary to do the mapping
      *
-     * @throws SQLException     on error.
-     * @throws ControlException on error.
+     * @throws SQLException on error.
      */
-    protected void getFieldMappings() throws SQLException, ControlException {
+    protected void getFieldMappings()
+            throws SQLException {
 
         final String[] keys = getKeysFromResultSet();
 

@@ -18,12 +18,14 @@
 package org.controlhaus.jdbc;
 
 import com.sun.rowset.CachedRowSetImpl;
+import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.controlhaus.jdbc.JdbcControl.SQL;
 
 import javax.sql.RowSet;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Calendar;
 
 /**
@@ -40,24 +42,29 @@ public class DefaultRowSetResultSetMapper extends ResultSetMapper {
      * @param m         Method assoicated with this call.
      * @param resultSet Result set to map.
      * @param cal       A Calendar instance for resolving date/time values.
-     * @return          A RowSet object.
-     * @throws Exception On error.
+     * @return A RowSet object.
      */
-    public RowSet mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public RowSet mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) {
         final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
         final int maxrows = methodSQL.maxRows();
-        CachedRowSetImpl rows = new CachedRowSetImpl();
 
-        if (maxrows > 0) {
-            rows.setMaxRows(maxrows);
+        try {
+            CachedRowSetImpl rows = new CachedRowSetImpl();
+
+            if (maxrows > 0) {
+                rows.setMaxRows(maxrows);
+            }
+
+            rows.populate(resultSet);
+            return rows;
+        } catch (SQLException e) {
+            throw new ControlException(e.getMessage(), e);
         }
-
-        rows.populate(resultSet);
-        return rows;
     }
 
     /**
      * Can the ResultSet which this mapper uses be closed by the database control?
+     *
      * @return always false
      */
     public boolean canCloseResultSet() { return false; }

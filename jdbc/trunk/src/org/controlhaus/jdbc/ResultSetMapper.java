@@ -39,10 +39,8 @@ public abstract class ResultSetMapper {
      * @param resultSet Result set to map.
      * @param cal       A Calendar instance for time/date value resolution.
      * @return          The Object resulting from the ResultSet
-     * @throws Exception On error.
      */
-    public abstract Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal)
-            throws Exception;
+    public abstract Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal);
 
     /**
      * Can the ResultSet which this mapper uses be closed by the Jdbc control?

@@ -38,9 +38,8 @@ public class DefaultIteratorResultSetMapper extends ResultSetMapper {
      * @param resultSet Result set to map.
      * @param cal       A Calendar instance for time/date value resolution.
      * @return          The Iterator object instance resulting from the ResultSet
-     * @throws Exception on error.
      */
-    public Iterator mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public Iterator mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) {
         return new ResultSetIterator(context, m, resultSet, cal);
     }
 

@@ -26,10 +26,8 @@ public class ParameterChecker {
      *
      * @param statement The parsed statement element.
      * @param methodDecl The method declaration which was annotated.
-     * @throws ControlException If reflection parameter can not be mapped to a method parameter.
      */
-    public static void checkReflectionParameters(SqlFragmentContainer statement, MethodDeclaration methodDecl)
-            throws ControlException {
+    public static void checkReflectionParameters(SqlFragmentContainer statement, MethodDeclaration methodDecl) {
 
         ArrayList<ParameterDeclaration> params =
                 new ArrayList<ParameterDeclaration>(methodDecl.getParameters());
@@ -53,11 +51,10 @@ public class ParameterChecker {
      * @param statement The parsed statement element.
      * @param paramMap The method parameters, keyed by name.
      * @param method The method declaration which was annotated.
-     * @throws ControlException If reflection parameter can not be mapped to a method parameter.
      */
     private static void doCheck(SqlFragmentContainer statement, HashMap<String, ParameterDeclaration> paramMap,
                          final MethodDeclaration method)
-            throws ControlException {
+    {
 
         SqlFragment[] fragments = statement.getChildren();
         for (SqlFragment fragment : fragments) {
@@ -80,11 +77,9 @@ public class ParameterChecker {
      * @param fragment The reflection fragment to check.
      * @param paramMap The method parameters, keyed by name.
      * @param method The method declaration which was annotated.
-     * @throws ControlException If reflection parameter can not be mapped to a method parameter.
      */
     private static void checkReflectionFragment(ReflectionFragment fragment,
                                                 HashMap<String, ParameterDeclaration> paramMap, MethodDeclaration method)
-            throws ControlException
     {
 
         final String[] paramNameQualifiers = ((ReflectionFragment) fragment).getParameterNameQualifiers();

@@ -36,11 +36,14 @@ public final class RowToHashMapMapper extends RowMapper {
      * @param resultSet ResultSet to map
      * @param returnTypeClass Class to map to.
      * @param cal Calendar instance for date/time mappings.
-     * @throws SQLException on error.
      */
-    RowToHashMapMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
+    RowToHashMapMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) {
         super(resultSet, returnTypeClass, cal);
-        _keys = getKeysFromResultSet();
+        try {
+            _keys = getKeysFromResultSet();
+        } catch (SQLException sql) {
+            throw new ControlException("RowToHashMapMapper: SQLException: " + sql.getMessage(), sql);
+        }
     }
 
     /**
@@ -48,11 +51,11 @@ public final class RowToHashMapMapper extends RowMapper {
      * @return A ResultSetHashMap object.
      * @throws ControlException on error.
      */
-    public Object mapRowToReturnType() throws ControlException {
+    public Object mapRowToReturnType() {
         try {
             return new ResultSetHashMap(_resultSet, _keys);
-        } catch (Exception e) {
-            throw new ControlException("Exception creating HashMap return type", e);
+        } catch (SQLException e) {
+            throw new ControlException("Exception creating HashMap return type: ", e);
         }
     }
 }

@@ -67,9 +67,8 @@ public abstract class RowMapper {
     /**
      * Map a ResultSet row to the return type class
      * @return An instance of class.
-     * @throws ControlException on error.
      */
-    public abstract Object mapRowToReturnType() throws ControlException, SQLException;
+    public abstract Object mapRowToReturnType();
 
 
     /**
