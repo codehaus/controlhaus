@@ -1,8 +1,8 @@
 <project>
   <pomVersion>1</pomVersion>
   <name>Controlhaus Amazon Control</name>
-  <groupId>beehive</groupId>
-  <artifactId>beehive-amazon</artifactId>
+  <groupId>controlhaus</groupId>
+  <artifactId>controlhaus-amazon</artifactId>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>Controlhaus</name>
