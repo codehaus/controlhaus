@@ -45,7 +45,7 @@ public class DBSingleRowResultsTest extends TestCase {
     private ResultsTestCtrl testCtrl;
 
     @Control
-    @JdbcControl.ConnectionDataSource(jndiName="jdbc/TestDB")
+    @JdbcControl.ConnectionDataSource(jndiName="java:/comp/env/jdbc/TestDB")
     private ResultsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {

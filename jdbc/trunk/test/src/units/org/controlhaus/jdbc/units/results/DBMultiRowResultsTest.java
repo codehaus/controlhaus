@@ -27,14 +27,12 @@ import org.apache.beehive.controls.api.bean.Control;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.controlhaus.jdbc.test.results.ResultsTestCtrl;
-import org.controlhaus.jdbc.units.utils.AbstractControlTest;
 import org.controlhaus.jdbc.units.utils.TestContextInitializer;
 import org.controlhaus.jdbc.JdbcControl;
 import test.customerDb.XCustomerRowDocument;
 
 import javax.sql.RowSet;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -51,7 +49,7 @@ public class DBMultiRowResultsTest extends TestCase {
     public ResultsTestCtrl testCtrl;
 
     @Control
-    @JdbcControl.ConnectionDataSource(jndiName="jdbc/TestDB")
+    @JdbcControl.ConnectionDataSource(jndiName="java:/comp/env/jdbc/TestDB")
     private ResultsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {
