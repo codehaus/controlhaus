@@ -246,32 +246,38 @@ import org.apache.xmlbeans.XmlObject;
 	         * Get the body of the message.
 	         */
 	        Object body = null;
+	        // Check to see if any parameter has annotation. If it doesn't then don't bother
+	        // checking them.
+	        boolean hasAnnotation = method.getParameterAnnotations().length > 0;
 	        for (int i= 0; i< args.length; i++)
 	        {
-	            if (_context.getParameterPropertySet(method, i, Priority.class) != null)
-	            {
-	            	continue;
-	            }
-	            if (_context.getParameterPropertySet(method, i, Property.class) != null)
-	            {
-	            	continue;
-	            }
-	            if (_context.getParameterPropertySet(method, i, Expiration.class) != null)
-	            {
-	            	continue;
-	            }
-	            if (_context.getParameterPropertySet(method, i, Delivery.class) != null)
-	            {
-	            	continue;
-	            }
-	            if (_context.getParameterPropertySet(method, i, Type.class) != null)
-	            {
-	            	continue;
-	            }
-	            if (_context.getParameterPropertySet(method, i, CorrelationId.class) != null)
-	            {
-	            	continue;
-	            }
+	        	if(hasAnnotation)
+	        	{
+		            if (_context.getParameterPropertySet(method, i, Priority.class) != null)
+		            {
+		            	continue;
+		            }
+		            if (_context.getParameterPropertySet(method, i, Property.class) != null)
+		            {
+		            	continue;
+		            }
+		            if (_context.getParameterPropertySet(method, i, Expiration.class) != null)
+		            {
+		            	continue;
+		            }
+		            if (_context.getParameterPropertySet(method, i, Delivery.class) != null)
+		            {
+		            	continue;
+		            }
+		            if (_context.getParameterPropertySet(method, i, Type.class) != null)
+		            {
+		            	continue;
+		            }
+		            if (_context.getParameterPropertySet(method, i, CorrelationId.class) != null)
+		            {
+		            	continue;
+		            }
+		        }
 	            if(isBody)
 	            {
 	            	throw new IllegalArgumentException("At most one parameter may be defined as the body of the JMS message");
