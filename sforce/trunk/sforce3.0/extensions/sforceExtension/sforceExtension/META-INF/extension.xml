@@ -1,0 +1,12 @@
+<extension-definition>
+    <extension-xml id="urn:com-bea-ide:frame">
+        <frame-view-set>
+            <frame-view class="com.sforce.workshop.explorer.FrameView" label="sforce Objects" askavailable="true" icon="images/sf.gif" id="sforceObjectBrowser" />
+        </frame-view-set>
+    </extension-xml>
+    <extension-xml id="urn:com-bea-ide:settings">
+        <ide-preferences>
+            <panel label="sforce Objects" class="com.sforce.workshop.explorer.SFDCPrefsPanel" priority="500"/>
+        </ide-preferences>
+    </extension-xml>
+</extension-definition>
