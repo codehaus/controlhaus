@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Using the Scheduler Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the Scheduler Control</h2>
+The Scheduler Control provides a single interface
+com.bea.powertoys.scheduler.Scheduler with only one method. <br>
+<pre>void schedule(java.util.Date startTime, java.util.Date endTime, int repeatCount, long repeatInterval, java.lang.Class jobClass, java.util.Map contextMap) throws org.quartz.SchedulerException;<br></pre>
+<h3>Input parameters</h3>
+<table style="text-align: left; width: 100%;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">java.util.Date startTime</td>
+      <td style="vertical-align: top;">Scheduler will start executing
+job(s) at this time. If 'startTime' is earlier than the current
+execution
+time, then the later value becomes the 'startTime'.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">java.util.Date endTime</td>
+      <td style="vertical-align: top;">Scheduler will stop executing
+job(s) at this time (if provided). This can also be null. If endTime
+isearlier than the 'startTime', then 'endTime' is set to null.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">int repeatCount</td>
+      <td style="vertical-align: top;">Defines, how many times the job
+should be repeated. Number of times&nbsp; job executed would be
+repeatCount + 1. If 'endTime' is provided then 'repeatCount' is ignored.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">long repeatInterval</td>
+      <td style="vertical-align: top;">Defines, the time interval (in
+ms) between job executions. </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">java.lang.Class jobClass</td>
+      <td style="vertical-align: top;">Class object of your job class.
+Instance of this job gets executed by the schduler. Your job must be a
+instance of org.quartz.Job interface.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">java.util.Map contextMap</td>
+      <td style="vertical-align: top;">Defines, key-value pair for
+org.quartz.JobDataMap.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+For detailed description please refer <a
+ href="http://www.opensymphony.com/quartz/tutorial.html">here</a>.&nbsp;
+<h3><br>
+</h3>
+<h3>Invoking the control<br>
+</h3>
+The scheduler control method is invoked as follows:<br>
+<pre>java.util.Date startDate = new Date();<br>java.util.Date endDate = null;<br>int repeatCount = 10;<br>long repeatInterval = 2000;<br>Class jobClass = MyJob.class;<br>java.util.Map contextMap = new HashMap();<br>contextMap.put("key" , "value");<br><br>control.schedule(startDate, endDate,repeatCount,repeatInterval,jobClass,contextMap);<br><br></pre>
+<h4>Note<br>
+</h4>
+The Scheduler control only provides basic functionality of Quartz job
+scheduling system. To learn more about Quartz, please refer <a
+ href="http://www.opensymphony.com/quartz/index.html">here</a>.<br>
+<br>
+Also, scheduler control uses org.quartz.SimpleTrigger<br>
+<br>
+The Java Page Flow sample that accompanies the Scheduler Control
+demonstrates
+how to use the control.
+</body>
+</html>
