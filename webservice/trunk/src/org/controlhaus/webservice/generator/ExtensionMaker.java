@@ -31,7 +31,7 @@ import org.apache.beehive.wsm.jsr181.model.client.ClientParameterMetadata;
 import org.apache.beehive.wsm.jsr181.wsdl.XmlBeanWSDLProcessor;
 import org.apache.axis.wsdl.toJava.Namespaces;
 import org.apache.axis.wsdl.toJava.Utils;
-import org.controlhaus.webservice.util.WSDLFilter;;
+import org.apache.beehive.wsm.axis.ant.WSDLFilter;;
 
 /*******************************************************************************
  * 
