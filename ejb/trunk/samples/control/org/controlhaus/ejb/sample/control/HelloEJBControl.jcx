@@ -1,0 +1,33 @@
+/*
+ * Copyright 2004 BEA Systems, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+package org.controlhaus.ejb.sample.control;
+
+import org.apache.beehive.controls.api.bean.ControlExtension;
+import org.controlhaus.ejb.SessionEJBControl;
+import org.controlhaus.ejb.EJBControl.EJBHome;
+import org.controlhaus.ejb.EJBControl.JNDIContextEnv;
+import org.controlhaus.ejb.sample.bean.HelloHome;
+import org.controlhaus.ejb.sample.bean.HelloRemote;
+
+@ControlExtension
+@EJBHome(jndiName="org.controlhaus.ejb.sample.HelloHome")
+@JNDIContextEnv(contextFactory="weblogic.jndi.WLInitialContextFactory", 
+        providerURL="t3://localhost:7001", principal="weblogic", credentials="weblogic")
+public interface HelloEJBControl
+	extends SessionEJBControl, HelloHome, HelloRemote
+{
+}
