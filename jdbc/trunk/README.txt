@@ -1,6 +1,4 @@
-
 Welcome to the JDBC Control for Beehive!
-
 
 Building the JDBC Control
 --------------------------
@@ -32,10 +30,3 @@ downloaded manually if you prefer.
 
 The test target runs JUnit tests on the JDBC control using the Derby database.  Make sure you update your ANT distribution
 to include the JUnit task.
-
-
-
-
-
-
-
