@@ -13,6 +13,7 @@ Make sure you have the following on your system:
 The following environment variables need to be set:
 
     * JAVA_HOME - location of 1.5 JDK
+    * BEELINE_HOME - location of the beeline source tree
     * ANT_HOME - location of ANT installation
     * JDBCCONTROL_HOME - top level directory of the JDBC Control
 
