@@ -198,9 +198,10 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
         final int maxRows = methodSQL.maxRows();
         final int maxArray = methodSQL.arrayMaxLength();
+        final boolean isBatchUpdate = methodSQL.batchUpdate();
         final Class resultSetMapperClass = methodSQL.resultSetMapper();
 
-        return execPreparedStatement(sqlStatement, method, args, maxRows, maxArray, resultSetMapperClass);
+        return execPreparedStatement(sqlStatement, method, args, maxRows, maxArray, isBatchUpdate, resultSetMapperClass);
     }
 
     /**
@@ -230,12 +231,14 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * @param args
      * @param maxRows
      * @param maxArray
+     * @param isBatchUpdate
      * @param resultSetMapperClass
      * @return
      * @throws Throwable
      */
     protected Object execPreparedStatement(String sqlStatement, Method method, Object[] args,
-                                           int maxRows, int maxArray, Class resultSetMapperClass)
+                                           int maxRows, int maxArray, boolean isBatchUpdate,
+                                           Class resultSetMapperClass)
             throws Throwable {
 
         PreparedStatement ps = null;
@@ -243,7 +246,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             Class returnType = method.getReturnType();
 
             SqlStatement parsedSql = _sqlParser.parse(sqlStatement);
-            ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method, args);
+            ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method, args, isBatchUpdate);
 
             //
             // process row limits
@@ -265,7 +268,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             //
             // special processing for batch updates
             //
-            if (parsedSql.isBatchUpdate()) {
+            if (isBatchUpdate) {
                 return ps.executeBatch();
             }
 

@@ -123,6 +123,9 @@ public interface JdbcControl {
         int maxRows()                   default MAXROWS_ALL;
 
         @AnnotationMemberTypes.Optional
+        boolean batchUpdate()           default false;
+
+        @AnnotationMemberTypes.Optional
         Class resultSetMapper()         default UndefinedResultSetMapper.class;
 
         @AnnotationMemberTypes.Optional

@@ -43,6 +43,90 @@ public final class ErrorPathsTest extends AbstractControlTest {
     public void setUp() throws Exception {
         BasicConfigurator.configure();
         super.setUp();
+    }
+
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    //
+    // test for a control method missing an @SQL annotation
+    //
+    public void testMissingSQLAnnotation() throws Exception {
+
+        assertNotNull(testCtrl);
+
+        try {
+            testCtrl.getAllUsersBad1();
+            fail("A ControlException should be raised when the @SQL annoation is missing from a dbControl method.");
+        } catch (ControlException ce) {
+           assertTrue(true);
+        }
+    }
+
+    //
+    // test for a control method missing statement param in @SQL annotation
+    //
+    public void testMissingSQLStatementParam() throws Exception {
+        try {
+            testCtrl.getAllUsersBad2();
+            fail("A ControlException should be raised when the @SQL annoation is missing a 'statement' param.");
+        } catch (ControlException ce) {
+            assertTrue(true);
+        }
+    }
+
+    //
+    // test for a failed SQL param -> method param mapping
+    //
+    public void testFailedSQLParamToMethodMapping() throws Exception {
+        try {
+            testCtrl.getAUserBad2("tester1");
+            fail("A ControlException should be raised when an SQL annotation param -> method param mapping fails.");
+        } catch (ControlException ce) {
+            assertTrue(true);
+        }
+    }
+
+    //
+    // test for a failed object mapping
+    //
+    public void testFailedObjectMapping() throws Exception {
+        try {
+            testCtrl.getAUserBad1("tester1");
+            fail("A ControlException should be raised when an ResultSet->Object mapping fails.");
+        } catch (ControlException ce) {
+            assertTrue(true);
+        }
+    }
+
+    //
+    // test for a failed object mapping to a object type mismatch
+    //
+    public void testObjectMappingMismatch() throws Exception {
+        try {
+            testCtrl.getAUserBad3("tester1");
+            fail("A ControlException should be raised when an ResultSet->Object mapping fails due to type mismatch.");
+        } catch (ControlException ce) {
+            assertTrue(true);
+        }
+    }
+
+    //
+    // test for a failed XML object mapping
+    //
+    public void testFailedXmlObjectMapping() throws Exception {
+        try {
+            testCtrl.getAUserBad4("tester2");
+            fail("A ControlException should be raised when an ResultSet->XmlObject mapping fails due to type mismatch.");
+        } catch (ControlException ce) {
+            assertTrue(true);
+        }
+    }
+
+
+    public ErrorPathsTest(String name) throws Exception {
+        super(name);
 
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         // setup the database
@@ -60,78 +144,6 @@ public final class ErrorPathsTest extends AbstractControlTest {
         s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
         conn.close();
     }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    public void testSingleRowResults() throws Exception {
-
-        assertNotNull(testCtrl);
-
-        //
-        // test for a control method missing an @SQL annotation
-        //
-        try {
-            testCtrl.getAllUsersBad1();
-            fail("A ControlException should be raised when the @SQL annoation is missing from a dbControl method.");
-        } catch (ControlException ce) {
-           assertTrue(true);
-        }
-
-        //
-        // test for a control method missing statement param in @SQL annotation
-        //
-        try {
-            testCtrl.getAllUsersBad2();
-            fail("A ControlException should be raised when the @SQL annoation is missing a 'statement' param.");
-        } catch (ControlException ce) {
-            assertTrue(true);
-        }
-
-        //
-        // test for a failed SQL param -> method param mapping
-        //
-        try {
-            testCtrl.getAUserBad2("tester1");
-            fail("A ControlException should be raised when an SQL annotation param -> method param mapping fails.");
-        } catch (ControlException ce) {
-            assertTrue(true);
-        }
-
-        //
-        // test for a failed object mapping
-        //
-        try {
-            testCtrl.getAUserBad1("tester1");
-            fail("A ControlException should be raised when an ResultSet->Object mapping fails.");
-        } catch (ControlException ce) {
-            assertTrue(true);
-        }
-
-        //
-        // test for a failed object mapping to a object type mismatch
-        //
-        try {
-            testCtrl.getAUserBad3("tester1");
-            fail("A ControlException should be raised when an ResultSet->Object mapping fails due to type mismatch.");
-        } catch (ControlException ce) {
-            assertTrue(true);
-        }
-
-        //
-        // test for a failed XML object mapping
-        //
-        try {
-            testCtrl.getAUserBad4("tester2");
-            fail("A ControlException should be raised when an ResultSet->XmlObject mapping fails due to type mismatch.");
-        } catch (ControlException ce) {
-            assertTrue(true);
-        }
-    }
-
-
-    public ErrorPathsTest(String name) { super(name); }
 
     public static Test suite() { return new TestSuite(ErrorPathsTest.class); }
 
