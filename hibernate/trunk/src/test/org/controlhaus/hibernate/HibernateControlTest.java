@@ -1,49 +1,36 @@
 package org.controlhaus.hibernate;
 
+import java.io.File;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import junit.framework.TestCase;
+import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
 
 import org.apache.beehive.controls.api.bean.Control;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.apache.beehive.controls.runtime.bean.ControlContainerContext;
+import org.controlhaus.hibernate.util.AbstractHibernateTest;
 
 /**
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Oct 28, 2004
  */
 public class HibernateControlTest
-    extends TestCase
+    extends AbstractHibernateTest
 {
     @Control HibernateControl hib;
-    
-    private ControlContainerContext context;
-    
+
     public void setUp() throws Exception
     {
-        context = new ControlContainerContext();
-        
-        try
-        {
-            Class init = getClass().getClassLoader().loadClass( 
-                    getClass().getName() + "ClientInitializer" );
-            
-            Method m = init.getMethod("initialize", 
-                                      new Class[] 
-                                      { 
-                                            ControlBeanContext.class, 
-                                            getClass() 
-                                      } );
-            
-            m.invoke( null, new Object[] { context, this } );
-        }
-        catch ( ClassNotFoundException cnfe )
-        {
-            // do nothing.
-        }
+        System.setProperty(SETUP_SQL, 
+                new File("./src/sql/setup.sql").getAbsolutePath());
+        System.setProperty(TEARDOWN_SQL, 
+                new File("./src/sql/teardown.sql").getAbsolutePath());
+        super.setUp();
     }
-
+    
     public void testControl() 
         throws Exception
     {
@@ -51,5 +38,17 @@ public class HibernateControlTest
 
         SessionFactory factory = hib.getSessionFactory();
         assertNotNull(factory);
+        
+        Session session = hib.getSession();
+
+        session.save(new Parent());
+
+        session.flush();
+        hib.closeSession();
+        
+        session = hib.getSession();
+        
+        List results = session.find("select from " + Parent.class.getName());
+        assertEquals(1, results.size());
     }
 }

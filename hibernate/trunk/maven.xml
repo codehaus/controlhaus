@@ -8,6 +8,7 @@
     <ant:path id="task.path">
       <ant:path refid="maven.dependency.classpath"/>
       <ant:pathelement path="${maven.build.dest}"/>
+      <ant:pathelement path="${maven.test.dest}"/>
     </ant:path>
     
     <ant:taskdef name="apt" 
@@ -51,7 +52,27 @@
          target="1.5"/>
          
   </goal>
-    
+
+  <goal name="hibernate:schema-export">
+	<attainGoal name="test:compile"/>
+    <java classname="net.sf.hibernate.tool.hbm2ddl.SchemaExport" fork="true">
+        <!-- mapping file -->
+        <jvmarg value="-Dhibernate.dialect=${hibernate.dialect}"/>
+        <jvmarg value="-Dhibernate.connection.driver_class=${hibernate.connection.driver_class}"/>
+        <jvmarg value="-Dhibernate.connection.url=${hibernate.connection.url}"/>
+        <jvmarg value="-Dhibernate.connection.username=${hibernate.connection.username}"/>
+        <jvmarg value="-Dhibernate.connection.password=${hibernate.connection.password}"/>
+        <arg value="--output=${hibernate.ddl}"/>
+        <arg value="--text"/>
+        <arg value="${hibernate.mapping}"/>
+        <classpath>
+    	  <path refid="maven.dependency.classpath"/>
+    	  <pathelement path="${maven.build.dest}"/>
+    	  <pathelement path="${maven.test.dest}"/>
+        </classpath>
+    </java>
+  </goal>
+      
   <preGoal name="java:compile">
     <attainGoal name="beehive:compile"/>
   </preGoal>
