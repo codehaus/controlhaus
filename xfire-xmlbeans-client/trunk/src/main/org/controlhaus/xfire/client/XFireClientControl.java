@@ -91,11 +91,10 @@ public interface XFireClientControl
     }
     
     @PropertySet(prefix="SoapHeader")
-    @Target( {ElementType.TYPE, ElementType.FIELD, ElementType.METHOD} )
+    @Target( {ElementType.TYPE, ElementType.PARAMETER, ElementType.METHOD} )
     @Retention(RetentionPolicy.RUNTIME)
     public @interface SoapHeader
     {
-        String value();
     }
 
     @Target( {ElementType.TYPE, ElementType.FIELD, ElementType.METHOD} )
