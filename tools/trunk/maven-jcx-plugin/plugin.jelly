@@ -120,12 +120,12 @@
                 <zipfileset dir="${controlApplicationRoot}/APP-INF/lib" prefix="controls"/>
             </j:forEach>
 
-            <j:if test="${extensionApplicationWorkFiles}">
+            <!--<j:if test="${extensionApplicationWorkFiles}">-->
             <j:forEach var="extensionApplicationWorkFile" items="${extensionApplicationWorkFiles.iterator()}">
                 <j:set var="extensionApplicationRoot" value="${extensionApplicationWorkFile.parent}"/>
                 <zipfileset dir="${extensionApplicationRoot}" includes="*.jar" prefix="extensions"/>
             </j:forEach>
-            </j:if>
+            <!--</j:if>-->
 
             <zipfileset dir="samples" prefix="samples/partners/controlhaus_${context.getVariable('maven.jcx.partner.name')}"/>
             <fileset dir="${basedir}">
