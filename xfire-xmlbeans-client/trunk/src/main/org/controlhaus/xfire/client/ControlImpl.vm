@@ -7,6 +7,7 @@ import org.apache.beehive.controls.api.bean.Control;
 
 import org.controlhaus.xfire.client.XFireClientControlImpl;
 
+import org.codehaus.xfire.fault.XFireFault;
 import org.codehaus.xfire.client.ClientHandler;
 #if ( $service.isRest() ) 
 import org.codehaus.xfire.client.http.RestHttpClient;
@@ -31,27 +32,6 @@ public class ${implType}
 extends XFireClientControlImpl
 	implements ${interfaceType}
 {
-    private static final String URL = "$service.Url";
-	private static final String ENCODING = "UTF-8";
-	
-	private XmlOptions options;
-	
-    public ${implType}()
-    {
-        options = new XmlOptions();
-        options.setCharacterEncoding(ENCODING);
-    }	
-
-	public ${implType}(XmlOptions options)
-    {
-        this.options = options;
-    }
-    
-	public String getServiceUrl()
-	{
-		return URL;
-	}
-
 #foreach ($method in $service.Methods)
 #if ($method.ResponseParameters.size() > 1)
   #set( $returnType = "XmlObject[]" )
@@ -60,9 +40,8 @@ extends XFireClientControlImpl
 #end
 #set( $first = true )
     public $returnType ${method.Name}( #foreach($p in $method.RequestParameters)#if($first) #set($first=false) #else,#end$p.Type.ShortJavaName $p.Name#end )
-        throws IOException
+        throws IOException, XFireFault
     {
-        XMLBeansClientHandler handler = new XMLBeansClientHandler(options);
 #set( $first = true )
         XmlObject[] request = new XmlObject[] 
         {
@@ -70,34 +49,12 @@ extends XFireClientControlImpl
 
 		};
 		
-        handler.setRequest( request );
-#if ( !$service.isRest() )        
-        SoapHttpClient client = new SoapHttpClient(handler, getHeaderHandler(), getServiceUrl());
-#else
-        RestHttpClient client = new RestHttpClient(handler, getServiceUrl());
-#end
-#if ($method.Action)        client.setAction("$method.Action");#end
-        client.setEncoding(ENCODING);
-        
-        client.invoke();
 #if ($method.ResponseParameters.size() > 1)
-        return handler.getResponse();
+        return invoke( request );
 #else
-        return ($method.ResponseParameters.get(0).Type.ShortJavaName) handler.getResponse()[0];
+        return ($method.ResponseParameters.get(0).Type.ShortJavaName) invoke( request )[0];
 #end
     }
 
 #end
-
-#if ( !$service.isRest() )
-    /**
-     * Gets the HeaderHandler.  Override this or fill this in
-     * to provide your own HeaderHandler.
-     * @return null by default.
-     */
-    public ClientHandler getHeaderHandler()
-    {
-    	return null;
-    }#end
-
 }
