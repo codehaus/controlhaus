@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Using the VelocityTemplating Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the VelocityTemplating Control<br>
+</h2>
+VelocityTemplating Control provides a simple java interface
+VelocityTemplatingEngine. The interface is mentioned
+below. <br>
+<pre>java.lang.String evaluate(java.lang.String template, java.util.Map context) throws java.lang.Exception;<br><br></pre>
+<h3>Input Parameter<br>
+</h3>
+VelocityTemplatingEngine interface takes only two parameters, velocity
+template as string and context as Map. You can find more information
+about Velocity templates <a
+ href="http://jakarta.apache.org/velocity/user-guide.html">here</a>.<br>
+<table style="text-align: left; width: 100%;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">java.lang.String template<br>
+      </td>
+      <td style="vertical-align: top;">Velocity template as String.
+This cannot be null. e.g. $greetings from $controlName is valid
+velocity template.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">java.util.Map context<br>
+      </td>
+      <td style="vertical-align: top;">Context as Map to be provided to
+the velocity engine for variable, properties or method reference
+substitution.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3>Invoking the control<br>
+</h3>
+evaluate method of the VelocityTemplatingEngine is invoked as follows:<br>
+<pre>String template = $greetings from $controlName;<br>Map context = new HashMap();<br>context.put("greetings" , "Hello");<br>context.put("controlName" , "Velocity Templating Control");<br>String result = control.evaluate(template , context);</pre>
+<br>
+<h3>Using the result</h3>
+Control returns a string which is evaluated velocity template.<br>
+<br>
+The Java Page Flow sample that accompanies the VelocityTemplating
+Control
+demonstrates
+how to use the control.
+</body>
+</html>
