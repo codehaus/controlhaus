@@ -10,7 +10,8 @@
     <logo>http://www.controlhaus.org/controlhaus-small.png</logo>
   </organization>
   <inceptionYear>2004</inceptionYear>
-
+  <package>org.controlhaus.amazon</package>
+  
   <description>An Amazon Beehive Control.</description>
   <shortDescription>An Amazon Beehive Control.</shortDescription>
   
