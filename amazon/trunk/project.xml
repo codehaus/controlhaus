@@ -17,7 +17,7 @@
   
   <url>http://www.controlhaus.org</url>
   <siteAddress>www.controlhaus.org</siteAddress>
-  <siteDirectory>/home/projects/controlhaus/public_html/maven/hibernate</siteDirectory>
+  <siteDirectory>/home/projects/controlhaus/public_html/maven/amazon</siteDirectory>
   <distributionSite>dist.codehaus.org</distributionSite>
   <distributionDirectory>/dist</distributionDirectory>
   
