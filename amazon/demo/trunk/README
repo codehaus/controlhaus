@@ -1,0 +1,20 @@
+--[Running the Demo]--
+This demo is here to help you get started developing applications which use
+Amazon's web services.  The one thing you need to do before you can run this
+demo is haven an account with Amazon:
+
+http://www.amazon.com/gp/aws/landing.html
+
+Once you register you will get a subscription ID.  Edit the file
+subscriptionId.txt and put in your subscription id.  
+
+Then to run time demo run the file "run.sh" on unix or "run.bat" on windows.
+
+--[Building the Demo]--
+To build the demo:
+
+$ ant build
+
+To clean up:
+
+$ ant clean
