@@ -1,3 +1,21 @@
+/*
+ * ServiceControl.java
+ * 
+ * Copyright 2004 BEA Systems, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ */
 package org.controlhaus.webservice;
 
 import org.apache.beehive.controls.api.bean.AnnotationConstraints.AllowExternalOverride;
@@ -20,14 +38,12 @@ import org.w3c.dom.Element;
 /**
  * Provides simplified access to web services. A Service control
  * provides an interface between your application and
- * a web service, which allows your application to invoke the methods and
- * handle the callbacks of that web service. Using a Web Service control, you
- * can connect to any web service for which a WSDL file is available, whether
- * or not it was built using WebLogic Workshop.
+ * a web service, which allows your application to invoke the methods.
+ * Using a Web Service control, you
+ * can connect to any web service for which a WSDL file is available.
  * <br/><br/>
  * You typically use a Service control by creating the control from a
- * WSDL file, or from a web service you created with WebLogic Workshop, then add the
- * control to a design in your application. The target web service's operations
+ * WSDL file The target web service's operations
  * are exposed as methods of the control.
  * <br/><br/>
  */
@@ -78,27 +94,19 @@ public interface ServiceControl
         String service() default "";
     }
 
-    // Manual control over URL of the target service and
-    // the ID to be used to identify the conversation instance.
     /**
-     * Sets the callback URL that the Service control instance
-     * will use as the base URL for callback invocations. While this is set
-     * automatically by WebLogic Workshop, you can use this method
-     * to override the callback URL if you wish callbacks to be sent
-     * to a different destination.
-     *
+     * Manual control over URL of the target service.
      * @param url The new destination for callbacks.
      */
     public void setEndPoint( URL url );
 
     /**
-     * Gets the callback URL that the Service control instance
-     * will use as the base URL for callback invocations.
+     * Gets the URL that the Service control instance
+     * will use as the base URL.
      *
-     * @return The callback URL that will be used.
+     * @return The URL that will be used.
      */
     public URL getEndPoint();
-
 
 
     public void setWsdlPort( QName wsdlPortName );
@@ -106,8 +114,6 @@ public interface ServiceControl
     public QName getWsdlPort();
 
 
-    // Gets/sets credential information used for
-    // calling over secure protocols (e.g. https)
     /**
      * Sets the username that will be sent with the next outgoing
      * Service control method invocation. Used if the Service control uses
@@ -166,8 +172,9 @@ public interface ServiceControl
      *
      * @return An array of the SOAP input header elements for this
      * control's most recently receive callback.
-     */
+
     public XmlObject getInputHeadersAsXmlBean();
+     */
 
     /**
      * Sets the SOAP headers that will be included in the next outgoing
@@ -175,8 +182,9 @@ public interface ServiceControl
      *
      * @param headers An array of the new SOAP output header
      * elements.
-     */
+
     public void setOutputHeadersAsXmlBean( XmlObject headers );
+     */
 
     /**
      * Sets the timeout for the underlying HttpURLConnection (in millisecs,
@@ -192,11 +200,9 @@ public interface ServiceControl
      */
     public int getTimeout();
 
-    // Resets the conversational state of the proxy; this
-    // could result in dropping an existing conversation.
-    /**
+     /**
      * Clears all parameters that were set by previous calls to the
-     * setConversationID, setOutputHeaders, setPassword, or setUsername
+     * setOutputHeaders, setPassword, or setUsername
      * methods.
      */
     public void reset();

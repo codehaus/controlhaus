@@ -25,6 +25,7 @@
   </condition>
   <property name="build.dir" value="build"/>
   <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="jars.dir" value="${build.dir}/jars"/>
   <property name="lib.dir" value="lib"/>
   <property name="src.dir" value="src"/>
   <property name="samples.dir" value="samples"/>
@@ -69,6 +70,29 @@
       <path refid="project.class.path"/>
     </classpath>
   </taskdef>
+
+  <target name="bundle" depends="build">
+    <!-- using zipfilesets would be preferable but the specific jar names 
+    for the src attr used were not yet known -->
+    <unjar dest="${build.dir}/libClasses">
+      <fileset dir="${os.BEEHIVE_HOME}/wsm/build/jars" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/controls/build/jars" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/wsm/lib" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/wsm/external" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/external/xmlbeans" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/external/junit" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/external/log4j" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/external/servlet" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/external/velocity" includes="*.jar"/>
+      <fileset dir="${os.BEEHIVE_HOME}/installed/jsr173" includes="*.jar"/>   
+      <fileset dir="${lib.dir}" includes="*.jar"/>  
+    </unjar>
+    <jar destfile="${jars.dir}/ServiceControlBundle.jar">
+      <fileset dir="${classes.dir}"/>
+      <fileset dir="${build.dir}/libClasses"
+        excludes="**/*.html,**/*.java,**/*.css,**/*.pdf,**/*.txt,**/*.doc,**/*.jar"/>
+    </jar>
+  </target>
 
   <target name="drt" depends="build">
     <ant antfile="drt/build.xml"/>
@@ -167,7 +191,12 @@
   </target>
 
   <target name="rebuild" depends="clean,build"/>
-  <target name="build" depends="build_core,xbean,axisbean,build_samples"/>
+
+  <target name="build" depends="build_core,xbean,axisbean,build_samples">
+    <jar destfile="${jars.dir}/ServiceControl.jar">
+      <fileset dir="${classes.dir}"/>
+    </jar>
+  </target>
   
   <target name="build_core">
     <mkdir dir="${classes.dir}"/>
@@ -180,6 +209,10 @@
       compileByExtension="true" 
       srcExtensions="*.java,*.jcx,*.jcs,*.jws" 
       debug="true"/>
+    <mkdir dir="${jars.dir}"/>
+    <jar destfile="${jars.dir}/servicecontrolcore.jar">
+      <fileset dir="${classes.dir}" includes="org/controlhaus/webservice/**"/>
+    </jar>
   </target>
 </project>
   
