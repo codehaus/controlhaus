@@ -81,7 +81,9 @@ public interface JMSControl
         /** see javax.jms.DeliveryMode.NON_PERSISTENT */
         NonPersistent, 
         /** see javax.jms.DeliveryMode.PERSISTENT */
-        Persistent 
+        Persistent,
+        /** The default for the provider */
+        Auto
     };
     
     /**
@@ -238,14 +240,7 @@ public interface JMSControl
         @FeatureInfo(shortDescription="The message type")
     	public JMSControl.MessageType value() default JMSControl.MessageType.Auto;
     }
-    /**
-     * The method parameter representing the message body.
-     */
-    @Target({ElementType.PARAMETER})
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface Body
-    {
-    }
+
     /**
      * The method parameter representing a message property with the given name.
      * see javax.jms.Message.getProperty()/setProperty().
@@ -261,16 +256,33 @@ public interface JMSControl
     }
     
     /**
-     * The method parameter representing a message priority. If not given
+     * The method/parameter annotation representing a message priority. If not given
      * then the default for the JMS provider is used.
      */ 
     @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Priority
     {
-        public int value();
+        public int value() default -1;
     }
-    
+    /**
+     * The method/parameter representing the message JMS type. 
+     */ 
+    @Target({ElementType.PARAMETER,ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface Type
+    {
+        public String value() default "";
+    } 
+    /**
+     * The method/parameter representing the message JMS CorrelationID. 
+     */ 
+    @Target({ElementType.PARAMETER,ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface CorrelationId
+    {
+        public String value() default "";
+    }  
     /**
      * The method parameter representing a message expiration in milliseconds. 
      * If not given then the default for the JMS provider is used.
@@ -279,7 +291,7 @@ public interface JMSControl
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Expiration
     {
-        public long value();
+        public long value() default -1L;
     }
     /**
      * The method parameter representing a message delivery mode. 
@@ -289,7 +301,7 @@ public interface JMSControl
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Delivery
     {
-        public JMSControl.DeliveryMode value();
+        public JMSControl.DeliveryMode value() default JMSControl.DeliveryMode.Auto;
     }
     /**
      * The JMS destination annotation for a extended class method.
