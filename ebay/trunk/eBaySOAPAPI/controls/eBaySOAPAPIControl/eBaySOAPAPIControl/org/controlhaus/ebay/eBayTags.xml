@@ -1,0 +1,43 @@
+<?xml version="1.0" ?>
+<control-tags xmlns="http://www.bea.com/2003/03/controls/">
+    <control-tag name="eBayProperties">
+        <description>Properties relating to the eBay Control</description>
+        <attribute name="appid" required="true">
+            <description>Unique identifier for the application.</description>
+            <type><text/></type>
+        </attribute>
+        <!--
+        <attribute name="devid" required="true">
+            <description>Unique identifier for the application’s developer.</description>
+            <type><text/></type>
+        </attribute>
+        <attribute name="authcert" required="true">
+            <description>Authentication certificate that authenticates the application when making API calls. Also
+called CertId on the Developer Zone site.</description>
+            <type><text/></type>
+        </attribute>
+        <attribute name="username" required="true">
+            <description>User name associated with the eBay Developers Program.</description>
+            <type><text/></type>
+        </attribute>
+        <attribute name="password" required="true">
+            <description>Password associate with the user name.</description>
+            <type><text/></type>
+        </attribute>
+        -->
+        <attribute name="authToken" required="true">
+            <description>Auth Token for whom the request will be made.</description>
+            <type><text/></type>
+        </attribute>
+        <attribute name="gateway-url" required="false">
+            <description>URL of the eBay Web Services Gateway</description>
+            <type><text/></type>
+            <default-value>https://api.sandbox.ebay.com/wsapi</default-value>
+        </attribute>
+        <attribute name="siteid" required="false">
+            <description>eBay geographical site identifier</description>
+            <type><text/></type>
+            <default-value>0</default-value>
+        </attribute>
+    </control-tag>
+</control-tags>

@@ -1,0 +1,445 @@
+package org.controlhaus.ebay; 
+
+import com.bea.control.*;
+import ebayApiEBayAPI.AddItemRequestDocument;
+import ebayApiEBayAPI.AddItemRequestType;
+import ebayApiEBayAPI.AddItemResponseDocument;
+import ebayApiEBayAPI.GetCategoriesRequestDocument;
+import ebayApiEBayAPI.GetCategoriesRequestType;
+import ebayApiEBayAPI.GetCategoriesResponseDocument;
+import ebayApiEBayAPI.GetItemRequestDocument;
+import ebayApiEBayAPI.GetItemRequestType;
+import ebayApiEBayAPI.GetItemResponseDocument;
+import ebayApiEBayAPI.GetItemTransactionsRequestDocument;
+import ebayApiEBayAPI.GetItemTransactionsRequestType;
+import ebayApiEBayAPI.GetItemTransactionsResponseDocument;
+import ebayApiEBayAPI.GetSellerEventsRequestDocument;
+import ebayApiEBayAPI.GetSellerEventsRequestType;
+import ebayApiEBayAPI.GetSellerEventsResponseDocument;
+import ebayApiEBayAPI.GetSellerListRequestDocument;
+import ebayApiEBayAPI.GetSellerListRequestType;
+import ebayApiEBayAPI.GetSellerListResponseDocument;
+import ebayApiEBayAPI.GetSellerTransactionsRequestDocument;
+import ebayApiEBayAPI.GetSellerTransactionsRequestType;
+import ebayApiEBayAPI.GetSellerTransactionsResponseDocument;
+import ebayApiEBayAPI.GetUserRequestDocument;
+import ebayApiEBayAPI.GetUserRequestType;
+import ebayApiEBayAPI.GetUserResponseDocument;
+import ebayApiEBayAPI.RelistItemRequestDocument;
+import ebayApiEBayAPI.RelistItemRequestType;
+import ebayApiEBayAPI.RelistItemResponseDocument;
+import ebayApiEBayAPI.RequesterCredentialsDocument;
+import ebayApiEBayAPI.VerifyAddItemRequestDocument;
+import ebayApiEBayAPI.VerifyAddItemRequestType;
+import ebayApiEBayAPI.VerifyAddItemResponseDocument;
+import ebayApisEBLBaseComponents.CustomSecurityHeaderType;
+import ebayApisEBLBaseComponents.ItemDocument;
+import ebayApisEBLBaseComponents.ItemIDType;
+import ebayApisEBLBaseComponents.ItemType;
+import ebayApisEBLBaseComponents.ModifiedFieldType;
+import ebayApisEBLBaseComponents.UserIdPasswordType;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+/**
+ * @jcs:jc-jar icon-32="icon-32.gif" icon-16="icon-16.gif" description="Access the eBay Platform" version="1.0" label="eBay"
+ * @editor-info:code-gen control-interface="true"
+ * @jcs:control-tags file="eBayTags.xml"
+ */
+public class eBayImpl implements eBay, ControlSource
+{
+
+    private static final String API_VERSION = "349";
+    
+    private String appID;
+    //private String devID;
+    //private String authCert;
+    //private String username;
+    //private String password;
+    private String authToken;
+    private String gatewayURL;
+    private String siteID;
+    
+    /** @common:context */
+    ControlContext context;
+    
+    /**
+     * @common:control
+     */
+    private org.controlhaus.ebay.eBay349WS eBayWS;
+
+    static final long serialVersionUID = 1L;
+
+    public String getAppID()
+    {
+        if (appID == null)
+        {
+            appID = context.getControlAttribute("jc:eBayProperties","appid");
+        }
+        return appID;
+    }
+    
+    public void setAppID(String appID)
+    {
+        this.appID = appID;
+    }
+    
+    //public String getDevID()
+    //{
+    //    if (devID == null)
+    //    {
+    //        devID = context.getControlAttribute("jc:eBayProperties","devid");
+    //    }
+    //    return devID;
+    //}
+    
+    //public void setDevID(String devID)
+    //{
+    //   this.devID = devID;
+    //}
+    
+    //public String getAuthCert()
+    //{
+    //    if (authCert == null)
+    //    {
+    //        authCert = context.getControlAttribute("jc:eBayProperties","authcert");
+    //    }
+    //    return authCert;
+    //}
+    
+    //public void setAuthCert(String authCert)
+    //{
+    //    this.authCert = authCert;
+    //}
+    
+    //public String getUsername()
+    //{
+    //    if (username == null)
+    //    {
+    //        username = context.getControlAttribute("jc:eBayProperties","username");
+    //    }
+    //    return username;
+    //}
+    
+    //public void setUsername(String username)
+    //{
+    //    this.username = username;
+    //}
+    
+    //public String getPassword()
+    //{
+    //    if (password == null)
+    //    {
+    //        password = context.getControlAttribute("jc:eBayProperties","password");
+    //    }
+    //    return password;
+    //}
+    
+    //public void setPassword(String password)
+    //{
+    //    this.password = password;
+    //}
+    
+    public String getGatewayURL()
+    {
+        if (gatewayURL == null)
+        {
+            gatewayURL = context.getControlAttribute("jc:eBayProperties","gateway-url");
+        }
+        return gatewayURL;
+    }
+    
+    public void setGatewayURL(String gatewayURL)
+    {
+        this.gatewayURL = gatewayURL;
+    }
+    
+    public String getSiteID()
+    {
+        if (siteID == null)
+        {
+            siteID = context.getControlAttribute("jc:eBayProperties","siteid");
+        }
+        return siteID;
+    }
+    
+    public void setSiteID(String siteID)
+    {
+        this.siteID = siteID;
+    }
+    
+    public String getAuthToken()
+    {
+        if (authToken == null)
+        {
+            authToken = context.getControlAttribute("jc:eBayProperties", "authToken");
+        }
+        return authToken;
+    }
+    
+    public void setAuthToken(String authToken)
+    {
+        this.authToken = authToken;
+    }
+    
+        /**
+     * @common:operation
+     */
+    public AddItemResponseDocument addItem(ItemDocument itemDoc)
+    {
+        configureEndPoint("AddItem");
+        configureAuthentication();
+        
+        AddItemRequestDocument requestDoc = AddItemRequestDocument.Factory.newInstance();
+        AddItemRequestType request = requestDoc.addNewAddItemRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        request.setItem(itemDoc.getItem());
+              
+        return eBayWS.AddItem(requestDoc);
+    }
+
+    /**
+     * @common:operation
+     */
+    public GetCategoriesResponseDocument getCategories(String categorySiteID)
+    {
+        configureEndPoint("GetCategories");
+        configureAuthentication();
+        
+        GetCategoriesRequestDocument requestDoc = GetCategoriesRequestDocument.Factory.newInstance();
+        GetCategoriesRequestType request = requestDoc.addNewGetCategoriesRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        if (categorySiteID == null || categorySiteID.equals(""))
+        {
+            request.setCategorySiteID(getSiteID());
+        }
+        else
+        {
+            request.setCategorySiteID(categorySiteID);
+        }
+        //request.setCategoryParent();
+        //request.setLevelLimit();
+        //request.setViewAllNodes();
+        
+        return eBayWS.GetCategories(requestDoc);
+    }
+
+    /**
+     * @common:operation
+     */
+    public GetItemResponseDocument getItem(String itemID)
+    {
+        configureEndPoint("GetItem");
+        configureAuthentication();
+        
+        GetItemRequestDocument requestDoc = GetItemRequestDocument.Factory.newInstance();
+        GetItemRequestType request = requestDoc.addNewGetItemRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        request.setItemID(itemID);
+        
+        return eBayWS.GetItem(requestDoc);
+    }
+    
+    /**
+     * @common:operation
+     */
+    public GetItemTransactionsResponseDocument getItemTransactions(String itemID,
+                                                                   java.util.Calendar modFrom,
+                                                                   java.util.Calendar modTo)
+    {
+        configureEndPoint("GetItemTransactions");
+        configureAuthentication();
+        
+        GetItemTransactionsRequestDocument requestDoc = GetItemTransactionsRequestDocument.Factory.newInstance();
+        GetItemTransactionsRequestType request = requestDoc.addNewGetItemTransactionsRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        request.setItemID(itemID);
+        request.setModTimeFrom(modFrom);
+        request.setModTimeTo(modTo);
+        
+        //request.setPagination()
+        //request.setTransactionID()
+        
+        return eBayWS.GetItemTransactions(requestDoc);
+    }
+
+    /**
+     * @common:operation
+     */
+    public GetSellerEventsResponseDocument getSellerEvents(String userID)
+    {
+        configureEndPoint("GetSellerEvents");
+        configureAuthentication();
+        
+        GetSellerEventsRequestDocument requestDoc = GetSellerEventsRequestDocument.Factory.newInstance();
+        GetSellerEventsRequestType request = requestDoc.addNewGetSellerEventsRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        request.setUserID(userID);
+        //request.setStartTimeFrom();
+        //request.setStartTimeTo();
+        //request.setEndTimeFrom();
+        //request.setEndTimeTo();
+        //request.setModTimeFrom();
+        //request.setModTimeTo();
+        //request.setNewItemFilter();
+        
+        return eBayWS.GetSellerEvents(requestDoc);
+    }
+
+    /**
+     * @common:operation
+     */
+    public GetSellerListResponseDocument getSellerList(String userID)
+    {
+        configureEndPoint("GetSellerList");
+        configureAuthentication();
+        
+        GetSellerListRequestDocument requestDoc = GetSellerListRequestDocument.Factory.newInstance();
+        GetSellerListRequestType request = requestDoc.addNewGetSellerListRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        if (userID != null && !userID.equals(""))
+        {
+            request.setUserID(userID);
+        }
+        //request.setStartTimeFrom();
+        //request.setStartTimeTo();
+        //request.setEndTimeFrom();
+        //request.setEndTimeTo();
+        //request.setSort();
+        //request.setPagination();
+        
+        return eBayWS.GetSellerList(requestDoc);
+    }
+
+    /**
+     * @common:operation
+     */
+    public GetSellerTransactionsResponseDocument getSellerTransactions(java.util.Calendar modFrom,
+                                                                       java.util.Calendar modTo)
+    {
+        configureEndPoint("GetSellerTransactions");
+        configureAuthentication();
+        
+        GetSellerTransactionsRequestDocument requestDoc = GetSellerTransactionsRequestDocument.Factory.newInstance();
+        GetSellerTransactionsRequestType request = requestDoc.addNewGetSellerTransactionsRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        request.setModTimeFrom(modFrom);
+        request.setModTimeTo(modTo);
+        
+       //request.setPagination();
+        
+        return eBayWS.GetSellerTransactions(requestDoc);
+    }
+
+    /**
+     * @common:operation
+     */
+    public GetUserResponseDocument getUser(String userID, String itemID)
+    {
+        configureEndPoint("GetUser");
+        configureAuthentication();
+      
+        GetUserRequestDocument requestDoc = GetUserRequestDocument.Factory.newInstance();
+        GetUserRequestType request = requestDoc.addNewGetUserRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        if (userID != null && !userID.equals(""))
+        {
+            request.setUserID(userID);
+        }
+        if (itemID != null && !itemID.equals(""))
+        {
+            request.setItemID(itemID);
+        }
+        
+        return eBayWS.GetUser(requestDoc);
+    }
+    
+    /**
+     * @common:operation
+     */
+    public RelistItemResponseDocument relistItem(ItemType item, ModifiedFieldType[] modifiedFields)
+    {
+        configureEndPoint("RelistItem");
+        configureAuthentication();
+        
+        RelistItemRequestDocument requestDoc = RelistItemRequestDocument.Factory.newInstance();
+        RelistItemRequestType request = requestDoc.addNewRelistItemRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        request.setItem(item);
+        request.setModifiedFieldsArray(modifiedFields);
+        
+        return eBayWS.RelistItem(requestDoc);
+    }
+
+    /**
+     * @common:operation
+     */
+    public VerifyAddItemResponseDocument verifyAddItem(ItemType item)
+    {
+        configureEndPoint("VerifyAddItem");
+        configureAuthentication();
+        
+        VerifyAddItemRequestDocument requestDoc = VerifyAddItemRequestDocument.Factory.newInstance();
+        VerifyAddItemRequestType request = requestDoc.addNewVerifyAddItemRequest();
+        
+        request.setVersion(API_VERSION);
+        
+        request.setItem(item);
+        
+        return eBayWS.VerifyAddItem(requestDoc);
+    }
+    
+    private void configureAuthentication()
+    {
+        RequesterCredentialsDocument credDoc = RequesterCredentialsDocument.Factory.newInstance();
+        CustomSecurityHeaderType sechdr = credDoc.addNewRequesterCredentials();
+        sechdr.setEBayAuthToken(getAuthToken());
+        //UserIdPasswordType idType = sechdr.addNewCredentials();
+        //idType.setAppId(getAppID());
+        //idType.setDevId(getDevID());
+        //idType.setAuthCert(getAuthCert());
+        //idType.setUsername(getUsername());
+        //idType.setPassword(getPassword());
+        Element[] headers = new Element[1];
+        headers[0] = (Element)((Document)credDoc.newDomNode()).getFirstChild();
+        eBayWS.setOutputHeaders(headers);
+    }
+    
+    private void configureEndPoint(String callName)
+    {
+        try
+        {
+            String urlComplete = getGatewayURL() +
+                                 "?appid=" + getAppID() +
+                                 "&version=349" + 
+                                 "&callname=" + callName +
+                                 "&siteid=" + getSiteID();
+            URL url = new URL(urlComplete);
+            eBayWS.setEndPoint(url);
+        }
+        catch (MalformedURLException mue)
+        {
+            //TODO: Total Failure?
+        }
+    }
+} 

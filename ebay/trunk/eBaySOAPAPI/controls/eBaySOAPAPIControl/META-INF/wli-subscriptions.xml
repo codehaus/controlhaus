@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<man:MessageBrokerManifest manifestType="subscription" xmlns:man="http://www.bea.com/wli/broker/manifest">
+    <man:project projectUri="eBaySOAPAPIControlTests"/>
+</man:MessageBrokerManifest>
