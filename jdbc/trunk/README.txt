@@ -15,7 +15,8 @@ The following environment variables need to be set:
 
     * JAVA_HOME - location of 1.5 JDK
     * ANT_HOME - location of ANT installation
-    * BEEHIVE_HOME - location of the Beehive source tree
+    * BEEHIVE_HOME - location of the Beehive distribution
+      (in the beehive source tree use: <beehive_basedir>/build/dist/apache-beehive-incubating-svn-snapshot)
 
 ANT build targets are:
 
