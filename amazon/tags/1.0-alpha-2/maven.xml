@@ -1,0 +1,95 @@
+<project
+  default="java:jar"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant"
+  xmlns:i="jelly:interaction"
+  xmlns:maven="jelly:maven">
+    
+    <ant:path id="task.path">
+      <ant:path refid="maven.dependency.classpath"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+    </ant:path>
+  
+  <!-- This only needs to be run if the schema has changed. -->
+  <goal name="xfire:generate-client">
+    
+    <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-main"/>
+  
+    <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          classpathref="task.path"
+          fork="true">
+      <arg value="-d"/>
+      <arg value="${maven.build.dest}"/>
+      <arg value="${basedir}/src/schemas"/>
+    </java>
+    
+    <ant:copy todir="${maven.build.dest}">
+      <ant:fileset dir="${maven.build.dir}/xfire-xmlbeans-main">
+        <ant:include name="**/*.xsb"/>
+      </ant:fileset>
+    </ant:copy>
+    
+    <ant:path id="generate.path">
+      <ant:pathelement path="${maven.build.dest}"/>
+      <ant:path refid="maven.dependency.classpath"/>
+      <ant:pathelement path="${maven.test.dest}"/>
+    </ant:path>   
+
+    <ant:taskdef name="generate" 
+                 classname="org.codehaus.xfire.xmlbeans.generator.GeneratorTask"
+                 classpathref="generate.path"/>
+    
+    <echo>Creating Amazon Client</echo>
+    <generate overwrite="true"
+              package="org.controlhaus.amazon"
+              outputDir="${basedir}/src/main"
+              wsdl="${basedir}/src/schemas/Amazon.wsdl"
+              name="Amazon"
+              classpathref="generate.path"
+              strategy="org.controlhaus.xfire.client.BeehiveClientStrategy" />
+  </goal>
+
+  <goal name="xmlbeans:generate">
+    
+    <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-main"/>
+  
+    <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          classpathref="task.path"
+          fork="true">
+      <arg value="-d"/>
+      <arg value="${maven.build.dest}"/>
+      <arg value="${basedir}/src/schemas"/>
+    </java>
+    
+    <ant:copy todir="${maven.build.dest}">
+      <ant:fileset dir="${maven.build.dir}/xfire-xmlbeans-main">
+        <ant:include name="**/*.xsb"/>
+      </ant:fileset>
+    </ant:copy>
+	
+  </goal>
+ 
+  <!-- its useful to generate an amazon jar when working in an ide -->
+  <goal name="amazon-jar">
+    
+    <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-main"/>
+  
+    <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          classpathref="task.path"
+          fork="true">
+      <arg value="-out"/>
+      <arg value="${basedir}/target/amazon.jar"/>
+      <arg value="${basedir}/src/schemas"/>
+    </java>
+
+  </goal>
+
+  <preGoal name="java:compile">
+    <attainGoal name="xmlbeans:generate"/>
+    <attainGoal name="beehive:compile"/>
+  </preGoal>
+  
+  <preGoal name="test:compile">
+    <attainGoal name="beehive:test-compile"/>
+  </preGoal>  
+</project>
