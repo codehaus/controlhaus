@@ -36,6 +36,7 @@ public abstract class AbstractControlTest extends TestCase {
     }
 
     public void setUp() throws Exception {
+        
         context = new TestContainerContext();
 
         try {

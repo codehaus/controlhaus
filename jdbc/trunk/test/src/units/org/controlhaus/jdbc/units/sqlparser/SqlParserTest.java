@@ -84,7 +84,7 @@ public class SqlParserTest extends TestCase {
     private SqlParser _parser;
 
     public void setUp() throws Exception {
-        BasicConfigurator.configure();
+//        BasicConfigurator.configure();
         _parser = new SqlParser();
     }
 

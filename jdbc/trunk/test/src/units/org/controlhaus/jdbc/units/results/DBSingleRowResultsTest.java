@@ -18,38 +18,73 @@
 package org.controlhaus.jdbc.units.results;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.beehive.controls.api.bean.Control;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.apache.beehive.controls.api.context.ControlContainerContext;
+import org.apache.beehive.controls.api.context.ControlThreadContext;
+import org.controlhaus.jdbc.JdbcControl;
 import org.controlhaus.jdbc.test.results.ResultsTestCtrl;
-import org.controlhaus.jdbc.units.utils.AbstractControlTest;
+import org.controlhaus.jdbc.units.utils.TestContextInitializer;
 import test.customerDb.XCustomerRowDocument;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Tests dbcontrol results for single row result sets
  */
-public class DBSingleRowResultsTest extends AbstractControlTest {
+public class DBSingleRowResultsTest extends TestCase {
 
-    private static final Logger _logger = Logger.getLogger(DBSingleRowResultsTest.class);
+    private ControlContainerContext _controlContext = null;
 
     @Control
-            public ResultsTestCtrl testCtrl;
+    private ResultsTestCtrl testCtrl;
+
+    @Control
+    @JdbcControl.ConnectionDataSource(jndiName="java:comp/env/jdbc/TestDB")
+    private ResultsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {
-        BasicConfigurator.configure();
         super.setUp();
+
+        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+
+        _controlContext = ControlThreadContext.getContext();
+        if (_controlContext == null) {
+            _controlContext = TestContextInitializer.initContext(this);
+        } else {
+            DBSingleRowResultsTestClientInitializer.initialize(_controlContext, this);
+            testCtrl = testCtrl_ds;
+        }
+
+        Connection conn = testCtrl.getConnection();
+
+        // setup the database
+        Statement s = conn.createStatement();
+        try {
+            s.executeUpdate("DROP TABLE users");
+            s.executeUpdate("DROP TABLE usergen");
+        } catch (Exception e) {
+        }
+
+        s.executeUpdate("CREATE TABLE USERS (FNAME VARCHAR(32), USERID INT)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester1', 21)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
+
+        s.executeUpdate("CREATE TABLE usergen (user_id INT GENERATED ALWAYS AS IDENTITY (START WITH 1) CONSTRAINT people_pk PRIMARY KEY, person VARCHAR(128))");
+        s.executeUpdate("INSERT INTO usergen (person) VALUES ('genmeakey')");
+
+        conn = null;
     }
 
     public void tearDown() throws Exception {
+        _controlContext.endContext();
         super.tearDown();
     }
 
@@ -161,8 +196,7 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     //
     public void testBatchUpdate() throws Exception {
 
-        int[] results = testCtrl.doABatchUpdate(
-                new String[] {"tester44", "tester55", "tester66"}, new int[] {44, 55, 66});
+        int[] results = testCtrl.doABatchUpdate(new String[]{"tester44", "tester55", "tester66"}, new int[]{44, 55, 66});
         assertEquals(1, results[0]);
         assertEquals(1, results[1]);
         assertEquals(1, results[2]);
@@ -186,10 +220,10 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     //
     public void testGenKeysWithColumnNames() throws Exception {
         try {
-        ResultSet rs = testCtrl.getGenKeys2("genmeanotherkey2");
-        fail("This feature has not been impelented in Derby yet (1/1/2005), need to add test case once it has.");
+            ResultSet rs = testCtrl.getGenKeys2("genmeanotherkey2");
+            fail("This feature has not been impelented in Derby yet (1/1/2005), need to add test case once it has.");
         } catch (Exception e) {
-           assertTrue(true);
+            assertTrue(true);
         }
     }
 
@@ -198,7 +232,7 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     //
     public void testGenKeysReturnTypeMapping() throws Exception {
         int result = testCtrl.getGenKeys3("genmeanotherkey3");
-        assertEquals(result, 3);
+        assertEquals(result, 2);
     }
 
     //
@@ -206,7 +240,7 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     //
     public void testGenKeysReturnTypeMapping2() throws Exception {
         String result = testCtrl.getGenKeys4("genmeanotherkey4");
-        assertEquals(result, "4");
+        assertEquals(result, "2");
     }
 
     //
@@ -214,7 +248,7 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     //
     public void testGenKeysReturnTypeMapping3() throws Exception {
         int[] result = testCtrl.getGenKeys5("genmeanotherkey5");
-        assertEquals(result[0], 5);
+        assertEquals(result[0], 2);
     }
 
     //
@@ -222,7 +256,7 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     //
     public void testGenKeysReturnTypeMapping4() throws Exception {
         try {
-        ResultSet rs = testCtrl.getGenKeys6("genmeanotherkey6");
+            ResultSet rs = testCtrl.getGenKeys6("genmeanotherkey6");
             fail("This feature has not been impelented in Derby yet (1/1/2005), need to add test case once it has.");
         } catch (Exception e) {
             assertTrue(true);
@@ -230,34 +264,19 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     }
 
 
-
     public DBSingleRowResultsTest(String name) throws Exception {
         super(name);
 
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        // setup the database
-        Connection conn = DriverManager.getConnection("jdbc:derby:MyDB;create=true");
-        Statement s = conn.createStatement();
-        try {
-            s.executeUpdate("DROP TABLE users");
-            s.executeUpdate("DROP TABLE usergen");
-        } catch (Exception e) {
-        }
 
-        s.executeUpdate("CREATE TABLE USERS (FNAME VARCHAR(32), USERID INT)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester1', 21)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
-
-        s.executeUpdate("CREATE TABLE usergen (user_id INT GENERATED ALWAYS AS IDENTITY (START WITH 1) CONSTRAINT people_pk PRIMARY KEY, person VARCHAR(128))");
-        s.executeUpdate("INSERT INTO usergen (person) VALUES ('genmeakey')");
-
-        conn.close();
     }
 
-    public static Test suite() { return new TestSuite(DBSingleRowResultsTest.class); }
+    public static Test suite() {
+        return new TestSuite(DBSingleRowResultsTest.class);
+    }
 
-    public static void main(String[] args) { junit.textui.TestRunner.run(suite()); }
+    public static void main(String[] args) throws Exception {
+        junit.textui.TestRunner.run(suite());
+    }
 }
 
