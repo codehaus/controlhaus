@@ -35,8 +35,12 @@ public class BeehiveClientStrategy
         String type = "";
         if ( service.isRest() )
             type = "Rest";
-                
-        String intfName = service.getName() + type + "ClientControl";        
+        
+        String name = service.getName();
+        if ( task.getName() != null )
+            name = task.getName();
+        
+        String intfName = name + type + "ClientControl";        
         File intfFile = new File(dir, intfName + ".java" );
 
         if ( !intfFile.exists() || task.isOverwrite() )
