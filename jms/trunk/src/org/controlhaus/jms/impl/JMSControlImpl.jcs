@@ -384,7 +384,7 @@ import org.apache.xmlbeans.XmlObject;
 	         * Set the correlation id if given.
 	         */
 	        String correlationProp = props.sendCorrelationProperty();
-	        if(correlationProp != null && correlationId.length() == 0)
+	        if(correlationProp != null && correlationProp.length() == 0)
 	        {
 	        	correlationProp = null;
 	        }
@@ -584,7 +584,7 @@ import org.apache.xmlbeans.XmlObject;
 	    String factory = props.jndiConnectionFactory();
 	    boolean transacted = props.transacted();
 	    AcknowledgeMode ackMode = props.acknowledgeMode();
-    	_destinationType = DestinationType.Queue;
+    	_destinationType = DestinationType.Topic;
         TopicConnectionFactory connFactory = (TopicConnectionFactory) getJndiControl()
                 .getResource(factory,
                         TopicConnectionFactory.class);
