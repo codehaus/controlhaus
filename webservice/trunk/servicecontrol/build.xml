@@ -23,6 +23,7 @@
   <property environment="env"/>
 
   <property name="beehive.home" value="${env.BEEHIVE_HOME}" />
+  <property name="wsc.version" value="svn-snapshot" />
 
   <property file="servicecontrol.properties" />
 
@@ -86,6 +87,16 @@
     <mkdir dir="${jars.dir}"/>
     <jar destfile="${jars.dir}/webservice-control.jar">
       <fileset dir="${classes.dir}" />
+      <manifest> 
+        <attribute name="Extension-Name" value="Web Service Control Library" />
+        <attribute name="Specification-Title" value="Web Service Control Library" /> 
+        <attribute name="Specification-Vendor" value="BEA Systems, Inc." /> 
+        <attribute name="Specification-Version" value="${wsc.version}" /> 
+        <attribute name="Implementation-Title" value="Web Service Control" /> 
+        <attribute name="Implementation-Vendor" value="BEA Systems, Inc." /> 
+        <attribute name="Implementation-Version" value="${wsc.version}" /> 
+        <attribute name="Web-Service-Control-Version" value="${wsc.version}" /> 
+      </manifest>
     </jar>
   </target>
 
