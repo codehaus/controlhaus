@@ -34,7 +34,6 @@
        	 nocompile="true"
          target="1.5"/>
 
-         
   </goal>
   
   <goal name="beehive:test-compile">

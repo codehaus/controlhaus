@@ -18,6 +18,7 @@ import org.apache.beehive.controls.api.events.EventHandler;
 import org.apache.beehive.controls.api.context.ResourceContext;
 
 import org.apache.log4j.Logger;
+import org.controlhaus.hibernate.HibernateControl.HibernateInstance;
 
 /**
  * Hibernate service.
@@ -39,8 +40,10 @@ public class HibernateControlImpl
     private Configuration hibConfig;
     
     private String location = "/hibernate.cfg.xml";
+    private String instance = "default";
     
-   @Context ResourceContext resourceContext;
+    @Context ControlBeanContext context;
+    @Context ResourceContext resourceContext;
     
     public HibernateControlImpl()
     {
@@ -56,10 +59,6 @@ public class HibernateControlImpl
      */
     public SessionFactory getSessionFactory()
     {
-        if ( sessionFactory == null )
-        {
-            sessionFactory = HibernateFactory.getInstance().getSessionFactory(this);
-        }
         return sessionFactory;
     }
 
@@ -75,13 +74,28 @@ public class HibernateControlImpl
     
     public String getHibernateInstance()
     {
-        return "default";
+        return instance;
     }
 
+    @EventHandler(field="resourceContext", 
+                  eventSet=ResourceContext.ResourceEvents.class, 
+                  eventName="onAcquire")
+    public void onAcquire()
+    {
+        HibernateInstance iProp = 
+            (HibernateInstance) context.getControlPropertySet(HibernateInstance.class);
+        if (instance != null)
+        {
+            instance = iProp.value();
+        }
+        
+        sessionFactory = HibernateFactory.getInstance().getSessionFactory(this);
+    }
+    
     @EventHandler (field="resourceContext", eventSet=ResourceContext.ResourceEvents.class, eventName="onRelease")
     public void onRelease()
     {
-        for ( Iterator itr = sessions.iterator(); itr.hasNext(); )
+        for (Iterator itr = sessions.iterator(); itr.hasNext();)
         {
             Session s = (Session) itr.next();
             try
@@ -116,9 +130,11 @@ public class HibernateControlImpl
         logger.info("Closing session for thread.");
  
         Session s = (Session) session.get();
-        sessions.remove(s);
-        session.set(null);
-        if (s != null)
+        if ( s != null )
+        {
+            sessions.remove(s);
+            session.set(null);
             s.close();
+        }
     }
 }
