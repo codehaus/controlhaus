@@ -145,18 +145,29 @@ function openWindow(url, winName, width, height, center, winType) {
     </table>
 	<img src="/_.gif" width="1" height="5">
     
-    <b>Howto use sforce 3.0 Workshop Custom Control</b><br>
-    
-        After you have installed sForce 3.0 Workshop Custom control (as an extension) you can use the exposed methods on the control.
-        You have to create a project selecting one project type among Weblogic Workshop project templates or create your own project template.
-        In case the control was installed successfully you must see it among the installed controls in Weblogic Workshop. When you are inserting the control you will be prompted to insert a name for the control.
-        In case this is the first time using the SalesForce wrapper, you will be prompted to download your company specific WSDL file.
-        For this one, you should insert your account name and password - this way the controll will download automatically the wsdl file, create and compile the Schema project and install the Object browser.
-        In case of an error (communication error is most likely) you have to do the following: Log into SalesForce and download manually your company's WSDL file. This is the link from where you can downlaod your WSDL :
-        <a href= "https://www.salesforce.com/services/Soap/c/3.0">Get WSDL manually </a>. Save the WSDL file as enterprise.wsdl and copy under your Schema directory.
-        In case you don't have a directory called Schema, create a Schema project, named Scheme with Weblogic Workshop. After the copy, Workshop will startd building the project and will create the propper XMLBeans classes.
-        After this procedure you can try to add the wrapper again but you don't have get the WSDL this time. Since now you can use theexposed methods in the sForce wrapper and access your SalesForce specific data.
-        
+    <b>How to use the sforce 3.0 Workshop Custom Control</b><br>
+
+	To install the sforce packaged control, simply download the file sforceControl.zip into your <BEAHOME>/ext_components directory (by default this will be C:/bea/ext_components).  The sforce 3.0 control will appear on the Insert / Control menu.  The first time you insert this control into a container in an application, the control and its associated schema jars will be copied into the APP-INF/LIB folder.  If this is the first time you have inserted the sforce control on your workstation, 
+<ol>
+<li>The control's help files are copied into <BEAHOME>/weblogic81/workshop/help/doc/en/partners/SalesForce and a re-indexing of help initiated (which may take several minutes).</li>
+<li>The sample applications included with the control are copied under <BEAHOME>/weblogic81/samples/partners/controlhaus_sforce.</li>
+<li>After you type in an instance name and hit ok, the sforce Explorer extension is installed on the workstation into <BEAHOME>/weblogic81/workshop/extensions.  You need to restart workshop to see this.</li>
+</ol>
+<br/>
+        After you have installed the sForce 3.0 Workshop Custom control you can use the exposed methods on the control. 
+<br/>
+<br/>
+If you are an active SalesForce.com customer who has custom fields defined for your account, you will want to install your own copy of the enterprise.wsdl file into a schema project in your application.  Use the button in the middle of the Insert Control dialog to do this.  Be sure  that you end up with only one schema-type jar in the Libraries folder.  The one named "sforceSchemas.jar".  If you already have a schema project for this application and you download a new WSDL the resulting jar will have the name of the schema project.
+<br/>
+<br/>
+To run the sample appliations, you will need to set the Server properties to point to your weblogic server.  The samples require the following domains:
+<ol>
+<li><b>sforceWebServiceSample</b> requires only a workshop domain.  This application is useful for testing your installation of the control.</li>
+<li><b>sforceFinishedSample</b> requires an integration domain.  It demonstrates a NetUI pageFlow application which also uses a jpf process.</li>
+<li><b>sforcePortalSample</b> requires a portal domain and shows how a great application can be built using the Workshop custom sforce control.</li>   
+</ol>
+<br/>
+     
         
 <br><br>
 <br> 

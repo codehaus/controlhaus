@@ -4,7 +4,7 @@
   <toc-reference anchor="extensions">
     <toc-node label="SalesForce.com Toolkit for Workshop" url="./help.html" >
           <toc-node label="SalesForce.com Web Service Control" url="http://www.sforce.com/us/docs/sforce30/wwhelp/wwhimpl/js/html/wwhelp.htm">
-          <toc-node label="sForceWrapper Class" url="./java-class/com/sforce/workshop/sForceWrapper.html"/>
+          <toc-node label="sForceWrapper Class" url="./java-class/org/controlhaus/sforce/sforce3_0Enterprise.html"/>
           <toc-node label="@jc:sforce-properties Annotation" url="./javadoc-tag/jc/sforce-properties.html"/>
     </toc-node>
     <toc-node label="Howto use sForce Custom control" url="./myFirstControl.html" />
