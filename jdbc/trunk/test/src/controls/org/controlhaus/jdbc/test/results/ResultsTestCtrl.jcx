@@ -50,6 +50,22 @@ public interface ResultsTestCtrl extends JdbcControl {
         public String getFname() { return fname; }
     }
 
+    public static class CustomerInput1 {
+        private int _userid;
+
+        public int getUserid() {return _userid;}
+        public void setUserid(int userid) {_userid = userid;}
+    }
+
+    public static class CustomerInput2 {
+        public int userid;
+    }
+
+    public static class CustomerWrapper {
+        public CustomerInput2 c;
+    }
+
+
     public static class BlobInfo {
         private Blob blb;
 
@@ -85,6 +101,30 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="SELECT * FROM USERS WHERE fname={someUser}")
     public ResultSet getSomeUser(String someUser) throws SQLException;
+
+    //
+    // from a object getMethod
+    //
+    @SQL(statement="SELECT fname FROM USERS WHERE userid={customer.userid}")
+    public String getSomeUser(CustomerInput1 customer) throws SQLException;
+
+    //
+    // from a object getField
+    //
+    @SQL(statement="SELECT fname FROM USERS WHERE userid={customer.userid}")
+    public String getSomeUser(CustomerInput2 customer) throws SQLException;
+
+    //
+    // from a object getField
+    //
+    @SQL(statement="SELECT fname FROM USERS WHERE userid={customer.userid}")
+    public String getSomeUser(Map customer) throws SQLException;
+
+    //
+    // from a object nested getField
+    //
+    @SQL(statement="SELECT fname FROM USERS WHERE userid={customer.c.userid}")
+    public String getSomeUser(CustomerWrapper customer) throws SQLException;
 
     //
     // simple query with param substitution

@@ -137,6 +137,47 @@ public class DBSingleRowResultsTest extends TestCase {
     }
 
     //
+    // param sub from object getter method
+    //
+    public void testGetUserWithObj() throws Exception {
+        ResultsTestCtrl.CustomerInput1 ci = new ResultsTestCtrl.CustomerInput1();
+        ci.setUserid(22);
+        String c = testCtrl.getSomeUser(ci);
+        assertEquals("tester2",c);
+    }
+
+    //
+    // param sub from object field
+    //
+    public void testGetUserWithObj2() throws Exception {
+        ResultsTestCtrl.CustomerInput2 ci = new ResultsTestCtrl.CustomerInput2();
+        ci.userid = 23;
+        String c = testCtrl.getSomeUser(ci);
+        assertEquals("tester3",c);
+    }
+
+    //
+    // param sub from map
+    //
+    public void testGetUserWithObj3() throws Exception {
+        HashMap map = new HashMap();
+        map.put("userid", 21);
+        String c = testCtrl.getSomeUser(map);
+        assertEquals("tester1",c);
+    }
+
+    //
+    // param sub from nested object
+    //
+    public void testGetUserWithObj4() throws Exception {
+        ResultsTestCtrl.CustomerWrapper cw = new ResultsTestCtrl.CustomerWrapper();
+        cw.c = new ResultsTestCtrl.CustomerInput2();
+        cw.c.userid = 22;
+        String c = testCtrl.getSomeUser(cw);
+        assertEquals("tester2", c);
+    }
+
+    //
     // test HashMap return type
     //
     public void testHashMapReturnType() throws Exception {

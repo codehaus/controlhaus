@@ -256,6 +256,7 @@ limitations under the License.
             classpathref="test.classpath"
             compileByExtension="true"
             debug="${compiler.debug}"
+            nowarn="${compiler.nowarn}"
             srcExtensions="*.java">
         </apt>
     </target>

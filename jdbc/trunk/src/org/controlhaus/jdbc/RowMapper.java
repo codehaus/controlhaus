@@ -92,7 +92,7 @@ public abstract class RowMapper {
      * @return An instance of returnTypeClass.
      * @throws SQLException on error.
      */
-    protected Object mapSingleColumnResultSet(Class returnTypeClass) throws SQLException {
+    protected Object mapSingleColumnResultSet(Class<?> returnTypeClass) throws SQLException {
 
         final int typeId = _tmf.getTypeId(returnTypeClass);
 

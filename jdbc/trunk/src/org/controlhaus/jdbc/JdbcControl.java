@@ -45,7 +45,7 @@ import java.util.Calendar;
  * Add annotations to the jcx to tell the Jdbc Control how to connect to your database instance (either
  * ConnectionDataSource or ConnectionDriver), then add methods which include SQL annotations to access the database.
  */
-@ControlInterface
+@ControlInterface( checkerClass = JdbcControlChecker.class )
 public interface JdbcControl {
 
 
