@@ -82,7 +82,7 @@
   <!-- jar - create a JAR for the SC             -->
   <!-- ========================================= -->
 
-  <target name="jar" depends="clean, build">
+  <target name="jar" depends="build">
     <mkdir dir="${jars.dir}"/>
     <jar destfile="${jars.dir}/webservice-control.jar">
       <fileset dir="${classes.dir}" />
