@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.net.URL;
 
+import org.apache.axis.utils.Messages;
+import org.apache.axis.utils.JavaUtils.HolderException;
 import org.apache.beehive.controls.api.bean.AnnotationConstraints.AllowExternalOverride;
 import org.apache.beehive.controls.api.bean.AnnotationMemberTypes;
 import org.apache.beehive.controls.api.bean.ControlImplementation;
@@ -42,6 +44,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
 
 import javax.jws.WebParam;
 import javax.jws.soap.SOAPBinding;
@@ -120,31 +123,94 @@ import org.w3c.dom.Element;
         String alternateOperationName = getAlternateOperationName(method);
         if (null != alternateOperationName)
             operationName = alternateOperationName;
+        BeehiveWsMethodMetadata wmm = findMethodInOM(method, operationName);
 
-        Call call = buildCallObject(method, operationName);
-
+        Call call = buildCallObject(method, wmm);
+        
+        Object[] callArgs = extractHolders(method, wmm, args);
         // // Invoke the operation
-        Object res = call.invoke(args);
+        Object res = call.invoke(callArgs);
+        fillHolders(method, wmm, call, args);
 
-        //		
-        // TODO: Axis client is not dealing with handlers correctly, after the
-        // call,
-        // we need to get the out parameters
-        // and stuff them into the handlers
-
-        Map outParam = call.getOutputParams();
-        for (Object nxtOutParamKey : outParam.keySet()) {
-            logger.info("Got outparam: "
-                    + nxtOutParamKey
-                    + " value: "
-                    + ((javax.xml.rpc.holders.StringHolder) (outParam
-                            .get(nxtOutParamKey))).value
-                    + " Stuff this into the holders.... TBD!");
-        }
+ 
 
         return res;
 
     }
+    
+    // create a new copy of the args where holders value have been extracted.
+    private Object[] extractHolders(Method method, BeehiveWsMethodMetadata wmm, Object[] args) {
+      
+        Object[] res = new Object[args.length];
+        Class[] methodParameterTypes = method.getParameterTypes();
+        Iterator<BeehiveWsParameterMetadata> it = wmm.getParams().iterator();  // size of the param list must be the size of the args array
+        for (int i = 0; i < methodParameterTypes.length; i++) {
+            Class javaTypeFromClass = methodParameterTypes[i];
+            BeehiveWsParameterMetadata nxtParamMetaData = it.next();
+            if((nxtParamMetaData.getWpMode() == WebParam.Mode.INOUT || nxtParamMetaData.getWpMode() == WebParam.Mode.OUT) && 
+                    Holder.class.isAssignableFrom(javaTypeFromClass )) {
+                try {
+                    Holder holder = (Holder)args[i];
+                    Field valueField = holder.getClass().getField("value");
+                    res[i] = valueField.get(holder);
+                } catch (Exception e) {
+                  throw new RuntimeException("failed in getting holder value for: " + nxtParamMetaData.getWpName());
+                }
+                
+            } else {
+                res[i]=args[i];
+            }
+        }
+       return res;
+    }
+    
+ 
+    
+    // fill the hodlers in the argument array with the result of the call
+    private void fillHolders(Method method, BeehiveWsMethodMetadata wmm, Call call, Object[] args) {
+        Map outParam = call.getOutputParams();
+        
+        if(outParam.isEmpty()) return;
+        for (Object nxtOutParamKey : outParam.keySet()) {
+            logger.info("Got outparam: "
+                    + nxtOutParamKey
+                    + " value: "
+                    + outParam.get(nxtOutParamKey)
+                    + " Stuff this into the holders.... TBD!");
+        }
+        
+        Class[] methodParameterTypes = method.getParameterTypes();
+        Iterator<BeehiveWsParameterMetadata> it = wmm.getParams().iterator();  // size of the param list must be the size of the args array
+        for (int i = 0; i < methodParameterTypes.length; i++) {
+            Class javaTypeFromClass = methodParameterTypes[i];
+            BeehiveWsParameterMetadata nxtParamMetaData = it.next();
+            if((nxtParamMetaData.getWpMode() == WebParam.Mode.INOUT || nxtParamMetaData.getWpMode() == WebParam.Mode.OUT) && 
+                    Holder.class.isAssignableFrom(javaTypeFromClass )) {
+                try {
+                    logger.info("Fill the holder object: " + nxtParamMetaData.getWpName());
+                    Holder holder = (Holder)args[i];
+                    
+                    Object value = outParam.get(new QName(nxtParamMetaData.getWpName()));
+                    Field valueField = holder.getClass().getField("value");
+                    if (valueField.getType().isPrimitive()) {
+                            if (value == null)
+                                ;  // Don't need to set anything
+                            else
+                                valueField.set(holder, value);  // Automatically
+                                                                // unwraps
+                                                        // value to primitive
+                    } else {
+                        valueField.set(holder, value);
+                    }               
+                } catch (Exception e) {
+                  throw new RuntimeException("failed in getting holder value for: " + nxtParamMetaData.getWpName());
+                }
+                
+            } else {
+                continue;
+            }
+        }
+     }
 
     /**
      * @param method
@@ -154,7 +220,7 @@ import org.w3c.dom.Element;
      * @throws NoSuchMethodException
      * @throws Exception
      */
-    private Call buildCallObject(Method method, String operationName) throws ServiceException, NoSuchMethodException, Exception {
+    private Call buildCallObject(Method method, BeehiveWsMethodMetadata wmm) throws ServiceException, NoSuchMethodException, Exception {
         
         // TODO:  Later cache the call objects for each method.
         
@@ -169,7 +235,7 @@ import org.w3c.dom.Element;
             call.setProperty(Call.PASSWORD_PROPERTY, getPassword());
         }
         call.setOperationName(new javax.xml.namespace.QName(mWSTM
-                .getWsTargetNamespace(), operationName));
+                .getWsTargetNamespace(), wmm.getWmOperationName()));
         // The target endpoint
         logger.debug("endpoint: " + getEndPoint().toExternalForm());
         call.setTargetEndpointAddress(getEndPoint().toExternalForm());
@@ -179,7 +245,7 @@ import org.w3c.dom.Element;
         // if (timeout != 0) {
         // call.setTimeout(new Integer(timeout));
         // }
-        BeehiveWsMethodMetadata wmm = findMethodInOM(method, operationName);
+ 
         // set style
         SOAPBinding.Style omStyle = mWSTM.getSoapBinding().getStyle();
         String style;
@@ -202,7 +268,12 @@ import org.w3c.dom.Element;
         // holder objects.
         List<BeehiveWsParameterMetadata> omArgMetaDataList = new ArrayList<BeehiveWsParameterMetadata>();
         omArgMetaDataList.addAll(wmm.getParams());
+        
+        
         Class[] methodParameterTypes = method.getParameterTypes();
+        Type[] genericMethodParamTypes = method.getGenericParameterTypes();
+
+        
         if (omArgMetaDataList.size() != methodParameterTypes.length)
             throw new RuntimeException(
                     "Object model and method definition don't match!");
@@ -212,8 +283,9 @@ import org.w3c.dom.Element;
             BeehiveWsParameterMetadata nxtArgMetaData = omArgMetaDataList
                     .get(i);
             Class javaTypeFromClass = methodParameterTypes[i];
+ 
+            
 
-            QName RegisteredTypeQName = registrar.registerType(javaTypeFromClass, nxtArgMetaData.getXmlType()); // Make
             // sure
             // the
             // type
@@ -226,25 +298,31 @@ import org.w3c.dom.Element;
             else if (omMode == WebParam.Mode.OUT)
                 mode = ParameterMode.OUT;
             else if (omMode == WebParam.Mode.INOUT) {
+                if( !Holder.class.isAssignableFrom(javaTypeFromClass ))
+                    throw new RuntimeException("Holder classes are required for the in/out parameters.");
                 mode = ParameterMode.INOUT;
-
-//                // DO WE NEED TO GET THE VALUE FOR HOLDERS? THIS MAY NOT BE
-//                // CORRECT!
-//                Field value = javaTypeFromClass.getField("value");
-//                args[i] = value.get(args[i]);
             } else
                 throw new RuntimeException("Invalid parameter mode: " + omMode);
+            
+            // if mode is in or in/out and the type is holder then holder, get its value type 
+            QName registeredTypeQName;
+      
+      if((mode == ParameterMode.OUT || mode == ParameterMode.INOUT) && Holder.class.isAssignableFrom(javaTypeFromClass )) {
+          javaTypeFromClass = TypeRegistrar.getHoldersValueClass(genericMethodParamTypes[i]);
+       } 
+       registeredTypeQName = registrar.registerType(javaTypeFromClass, nxtArgMetaData.getXmlType()); 
+            
             if (nxtArgMetaData.isWpHeader()) {
                 // TODO: addParameterAsHeader is Axis specific, later abstract
                 // out Axis from this implementation
                 logger.debug("Argument: "  + nxtArgMetaData.getWpName() + " in method: " + method.getName() + " is send as soap header");
                 ((org.apache.axis.client.Call) call).addParameterAsHeader(
                         new QName(nxtArgMetaData.getWpTargetNamespace(),
-                                nxtArgMetaData.getWpName()), RegisteredTypeQName,
+                                nxtArgMetaData.getWpName()), registeredTypeQName,
                         javaTypeFromClass, mode, mode);
             } else {
                 logger.debug("Argument: "  + nxtArgMetaData.getWpName() + " in method: " + method.getName() + " is send in the soap body");
-               call.addParameter(nxtArgMetaData.getWpName(), RegisteredTypeQName,
+               call.addParameter(nxtArgMetaData.getWpName(), registeredTypeQName,
                         javaTypeFromClass, mode);
             }
         }
@@ -269,22 +347,20 @@ import org.w3c.dom.Element;
      */
     private BeehiveWsMethodMetadata findMethodInOM(Method method,
             String operationName) throws NoSuchMethodException, Exception {
-        // NOTE jcolwell@bea.com 2005-Jan-04 --
-        // convert holder classes to underlying type to retrieve the method
-        // metadata
-        // NOTE: You can use GenericHolder<T> to make a holder for any class T.
-        // For now the extension maker doesn't use this... This should be fixed.
-        Type[] genericParamTypes = method.getGenericParameterTypes();
-        Class[] paramTypes = new Class[genericParamTypes.length];
-        int paramIndex = 0;
-        for (Type t : genericParamTypes) {
-            paramTypes[paramIndex++] = TypeRegistrar.getUnderlyingType(t);
-        }
-        // note the obejct model doesn't store holders, rather the underlying
+
+        //  the obejct model doesn't store holders, rather the underlying
         // types, so to get the method
         // we need to get the underlying types. After the loop above the
         // paramTypes have the underlying types
         // for any holders in the arg list.
+        
+        Type[] genericParamTypes = method.getGenericParameterTypes();
+        Class[] paramTypes = method.getParameterTypes();
+        for(int i=0; i<paramTypes.length; i++) {
+            if(Holder.class.isAssignableFrom(paramTypes[i] )) {
+                paramTypes[i]=TypeRegistrar.getHoldersValueClass(genericParamTypes[i]);
+            }
+        }
         BeehiveWsMethodMetadata wmm = mWSTM
                 .getMethod(operationName, paramTypes);
         if (wmm == null) {
@@ -346,11 +422,6 @@ import org.w3c.dom.Element;
 
     private InputStream getWSDLStream(String pathToWSDL) throws Exception {
 
-        // FIXME jcolwell@bea.com 2004-Dec-02 --
-        // call getResourceAsStream() directly once the ControlBeanContext
-        // is fixed to load resources.
-        // System.out.println("WSDL path: " + pathToWSDL);
-
         InputStream wsdlStream = null;
         logger.debug("wsdl at:" + pathToWSDL);
 
@@ -370,30 +441,6 @@ import org.w3c.dom.Element;
 
             if (wsdlStream == null) {
                 File f = new File(pathToWSDL);
-                // boolean readable = f.canRead();
-                // /*
-                // * System.out.println("WSDL file absolute path: " +
-                // * f.getAbsolutePath() + (readable ? " and it's readable" : "
-                // but
-                // * it's not there or not readable"));
-                // */
-                // if (!readable) {
-                // if (pathToWSDL.startsWith("/") ||
-                // pathToWSDL.startsWith("\\")) {
-                // pathToWSDL = pathToWSDL.substring(1);
-                // } else {
-                // pathToWSDL = '/' + pathToWSDL;
-                // }
-                //
-                // f = new File(pathToWSDL);
-                // /*
-                // * readable = f.canRead();
-                // *
-                // * System.out.println("WSDL file absolute path: " +
-                // * f.getAbsolutePath() + (readable ? " and it's readable" : "
-                // * but it's not there or not readable"));
-                // */
-                // }
                 wsdlStream = new FileInputStream(f);
             }
         }
@@ -407,12 +454,7 @@ import org.w3c.dom.Element;
                     .getControlPropertySet(ServiceControl.WSDL.class);
 
             if (wsdl != null) {
-                // FIXME jcolwell@bea.com 2004-Nov-05 --
-                // not worrying about the service name until the WSDLProcessor
-                // supports WSDLs with more than one service.
-                // mServiceName = wsdl.service();
-
-                logger.debug("read wsdl from: " + wsdl.path());
+                 logger.debug("read wsdl from: " + wsdl.path());
                 InputStream wsdlStream = getWSDLStream(wsdl.path());
 
                 if (wsdlStream != null) {
@@ -437,8 +479,6 @@ import org.w3c.dom.Element;
                     .getControlPropertySet(ServiceControl.Location.class);
 
             if (location != null) {
-                // FIXME jcolwell@bea.com 2004-Nov-05 -- look through the URLs
-                // for the first one using http.
                 setEndPoint(new URL(location.urls()[0]));
             } else {
                 throw new RuntimeException("No Location annotation found.");
