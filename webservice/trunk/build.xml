@@ -16,13 +16,15 @@
    $Header:$
  -->
 <project name="ServiceControl" default="rebuild" basedir=".">
-  <property environment="os"/>
   <property file="servicecontrol.properties"/>
+  <property environment="env"/>
+
   <!-- THE SERVICE CONTROL BUILD REQUIRES JDK5 AND LATER.
   ATTEMPTS TO BUILD ON JDK EALRIER THAN 5.0 WILL BE A NOOP -->
   <condition property="isJDKOver5">
     <equals arg1="${ant.java.version}" arg2="1.5"/>
   </condition>
+
   <property name="build.dir" value="build"/>
   <property name="classes.dir" value="${build.dir}/classes"/>
   <property name="jars.dir" value="${build.dir}/jars"/>
@@ -35,17 +37,19 @@
   <property name="extgen.dir" value="${build.dir}/extgen"/>
   <property name="schema.dir" value="schemas"/>
   <property name="wsdl.dir" value="encodedWSDLs"/>
+  <property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
+  <property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
+
   <path id="beehive.class.path">
-    <fileset dir="${os.BEEHIVE_HOME}/wsm/build/jars" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/controls/build/jars" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/wsm/lib" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/wsm/external" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/xmlbeans" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/junit" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/log4j" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/servlet" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/velocity" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/installed/jsr173" includes="*.jar"/>      
+    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
+    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
+    <pathelement location="${beehive.common.lib.dir}/apache-xbean.jar"/>
+    <pathelement location="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
+    <pathelement location="${beehive.common.lib.dir}/velocity-dep-1.4.jar"/>
+    <pathelement location="${beehive.common.lib.dir}/jsr173_1.0_api.jar"/>
+    <pathelement location="${lib.dir}/junit-3.8.1.jar"/>
+    <pathelement location="${basedir}/lib/servlet-api-2.4-20040521.jar"/>
+    <pathelement location="${basedir}/lib/jsp-api-2.0-20040521.jar"/>
   </path>
 
   <path id="project.class.path">
@@ -70,6 +74,18 @@
       <path refid="project.class.path"/>
     </classpath>
   </taskdef>
+
+  <target name="gatherDeps" description="Gathers Dependencies">
+      <get src="http://www.ibiblio.org/maven/junit/jars/junit-3.8.1.jar"
+           dest="${basedir}/lib/junit-3.8.1.jar"
+           usetimestamp="true"/>
+      <get src="http://www.ibiblio.org/maven/servletapi/jars/servlet-api-2.4-20040521.jar"
+           dest="${basedir}/lib/servlet-api-2.4-20040521.jar"
+           usetimestamp="true"/>
+      <get src="http://www.ibiblio.org/maven/jspapi/jars/jsp-api-2.0-20040521.jar"
+           dest="${basedir}/lib/jsp-api-2.0-20040521.jar"
+           usetimestamp="true"/>
+  </target>
 
   <target name="bundle" depends="build">
     <!-- using zipfilesets would be preferable but the specific jar names 
@@ -192,8 +208,8 @@
 
   <target name="rebuild" depends="clean,build"/>
 
-  <target name="build" depends="build_core,xbean,axisbean,build_samples">
-    <jar destfile="${jars.dir}/ServiceControl.jar">
+  <target name="build" depends="gatherDeps,build_core,xbean,axisbean,build_samples">
+    <jar destfile="${jars.dir}/webservice-control.jar">
       <fileset dir="${classes.dir}"/>
     </jar>
   </target>
