@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+
+<project name="AddressBookClient" basedir="." default="all">
+	
+	<property name="AddressBook.wsdl.url" 
+		value="http://localhost:8080/AddressBook/web/Service.jws?wsdl" />
+	
+	
+	<path id="jars">
+	    <fileset dir="lib">
+	        <include name="**/*.jar"/>
+	    </fileset>
+	</path>
+	
+  	<taskdef name="wsdl2java" classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask"
+   	 loaderref="axis" >
+        <classpath refid="jars"/>
+ 	</taskdef>
+
+ 
+	<target name="clean">
+		<delete dir="build" />
+		<delete dir="./logs" />
+		
+	</target>
+	
+	<target name="dirs">
+		<mkdir dir="build" />
+		<mkdir dir="build/generated" />
+		<mkdir dir="build/classes" />
+		<mkdir dir="./logs" />
+
+	</target>	
+	<target name="all" depends="genClient, compile, test"/>
+	
+	<target name="genClient" depends="dirs">
+	    <wsdl2java url="${AddressBook.wsdl.url}"
+	               output="build/generated"
+	               testcase="yes">
+	    </wsdl2java>
+
+	</target>
+	
+	<target name="compile" depends="genClient">
+  		 <javac srcdir="build/generated"
+			destdir="build/classes"
+			classpathref="jars"
+			failonerror="true"
+ 		 	source="1.4"
+ 			/>
+	   </target>	
+	
+	<target name="test" depends="compile">
+	   	<junit printsummary="yes" haltonfailure="yes" showoutput="yes">
+	        <classpath>
+	              <pathelement location= "build/classes"/>
+	              <path refid="jars"/>
+	          </classpath>
+            <formatter type="plain"/>
+	    	<batchtest fork="yes" todir="./logs">
+	   	    <fileset dir="build/classes">
+	   	      <include name="**/*Test*.class"/>
+	   	    </fileset>
+	   	  </batchtest>
+	   	</junit>
+		
+	</target>
+	
+</project>

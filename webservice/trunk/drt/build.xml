@@ -1,0 +1,155 @@
+<?xml version="1.0" ?>
+
+<project name="webservice_drt" default="run.drt">
+
+    <property environment="env"/>
+ 	
+	  <property name="build.dir" value="../build"/>
+    <property name="source.dir" value="./tests"/>
+    <property name="servers.dir" value="./servers/local"/>  <!-- test servers -->
+	<property name="schemas.dir" value="./schemas" />
+	<property name="xmlbenangen.dir" value="${build.dir}/xmlbeans"/>
+ 	 <!-- <property name="build.dir" value="./build"/>    for release change the build to be in drt area-->
+	<property name="drt.logs" value="./logs"/>
+	<property name="build.classes" value="${build.dir}/classes"/>
+    <property name="build.beansrc" value="${build.dir}/beansrc"/>
+	<property name="core.classes" value="../build/classes"/>
+	<property name="webapp.dir" value="./servers/webapp" />
+	<property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
+	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
+	
+	<import file="${beehive.home}/beehive-imports.xml"/>
+	<property name="controls.jar" value="${beehive.home}/lib/controls/controls.jar" />
+	
+   
+	
+	  <path id="beehive.class.path">
+	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
+	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
+	    <pathelement location="${beehive.common.lib.dir}/apache-xbean.jar"/>
+	    <pathelement location="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
+	    <pathelement location="${beehive.common.lib.dir}/velocity-dep-1.4.jar"/>
+	    <pathelement location="${beehive.common.lib.dir}/jsr173_1.0_api.jar"/>
+	    <pathelement location="${lib.dir}/junit-3.8.1.jar"/>
+	    <pathelement location="${basedir}/lib/servlet-api-2.4-20040521.jar"/>
+	    <pathelement location="${basedir}/lib/jsp-api-2.0-20040521.jar"/>
+	  </path>
+	  	
+    <path id="build.classpath">
+	    <fileset dir="../lib">
+	        <include name="**/*.jar"/>
+	    </fileset>
+	    
+    	<path refid="beehive.class.path"  />
+    	<pathelement path="${core.classes}" /> 
+
+    </path>
+
+    <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+             classpath="${controls.jar}" onerror="report" />
+    <taskdef name="control-jar" 
+             classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
+             classpath="${controls.jar}" onerror="report" />             
+
+
+
+    <target name="clean" description="Deletes all generated files">
+        <delete dir="${build.dir}"/>
+        <delete dir="${drt.logs}"/>
+        <delete file="velocity.log"/>
+    </target>
+
+    <target name="dirs">
+        <mkdir dir="${build.classes}" />
+        <mkdir dir="${build.beansrc}" />
+        <mkdir dir="${drt.logs}" />
+   </target>
+
+    <target name="build" depends="dirs, build_testservers" description="Builds service control tests">
+   	
+    	<apt srcdir="${source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
+              debug="on"
+             compileByExtension="true" 
+             srcExtensions="*.jcx,*.java">  
+            <classpath>
+                 <pathelement location="${build.classes}"/>
+                 <path refid="build.classpath"/>
+             </classpath>
+       </apt>
+     </target>
+
+	<target name="generate-xmlbean-datatypes">
+		<taskdef name="xmlbeanbuild" classname="org.apache.xmlbeans.impl.tool.XMLBean">
+			 	<classpath>
+		  			<path refid="build.classpath" /> 
+		  		</classpath>
+		</taskdef>
+		<xmlbeanbuild schema="${schemas.dir}" srcgendir="${xmlbenangen.dir}" classgendir="${build.classes}" failonerror="true">
+			<classpath>
+		  		<path refid="build.classpath" /> 
+		  	</classpath>
+		</xmlbeanbuild>
+	  </target>
+	
+	   <target name="build_testservers" depends="dirs" >
+	    	<!-- build the servers -->
+	        <apt srcdir="${servers.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
+	               debug="on"
+	              compileByExtension="true" 
+	              srcExtensions="*.jcx,*.java,*.jws">  
+	             <classpath>
+	                  <pathelement location="${build.classes}"/>
+	                  <path refid="build.classpath"/>
+	              </classpath>
+	        </apt>
+	</target>
+	
+
+	<target name="start-server" depends="build_testservers">
+		    <!-- start server -->
+		    <parallel>
+		      <start-server shmem="false" javaOptions="" />
+		
+		      <!-- deploy webapp and run tests -->
+		      <sequential>
+		
+		        <echo message="Wait for server to start at URL: ${waitfor.url}" />
+		        <waitfor maxwait="${waitfor.timeout}" maxwaitunit="second" timeoutproperty="server.timeout">
+		          <http url="${waitfor.url}" />
+		        </waitfor>
+		        <fail if="server.timeout" message="Server failed to start up properly at URL: ${waitfor.url}" />
+		
+		
+		      	<antcall target="run.drt"/>
+		        <!-- undeploy webapp -->
+		        <undeploy-webapp contextPath="sctestServer" />
+		
+		        <!-- clean webapp -->
+		        <clean-webapp webappDir="${webapp.dir}" />
+		        
+		        <!-- undeploy web service runtime -->
+		        <!-- ant target="undeploy.beehive.webservice.runtime" dir="${ant.dir}" antfile="${app.build.file}" / -->
+		
+		        <!-- stop server -->
+		        <stop-server />
+		      </sequential>
+		    </parallel>
+		</target>
+
+	   <target name="run.drt" depends="build">
+	        <echo message="** junit logfiles written to ${drt.logs} **"/>
+	        <junit failureproperty="drtfailed" printsummary="on" tempdir="${build.dir}" fork="yes">
+	            <classpath>
+	                 <pathelement location="${build.classes}"/>
+	                 <path refid="build.classpath"/>
+	             </classpath>
+	            <formatter type="plain"/>
+	            <batchtest filtertrace="off" todir="${drt.logs}"> 
+	                <fileset dir="${source.dir}">
+	                    <include name="**/*Test.java"/>
+	                </fileset>
+	            </batchtest>
+	        </junit>
+	        <fail if="drtfailed" message="One or more tests in the ServiceControl DRT failed." />
+	    </target>
+</project>

@@ -1,0 +1,561 @@
+/*
+ * 
+ * Copyright 2004 BEA Systems, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * 
+ * 
+ * Original author: Daryoush Mehrtash
+ */
+package org.controlhaus.webservice.jaxrpc;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.net.URL;
+
+import org.apache.beehive.controls.api.bean.AnnotationConstraints.AllowExternalOverride;
+import org.apache.beehive.controls.api.bean.AnnotationMemberTypes;
+import org.apache.beehive.controls.api.bean.ControlImplementation;
+import org.apache.beehive.controls.api.bean.Extensible;
+import org.apache.beehive.controls.api.context.Context;
+import org.apache.beehive.controls.api.context.ControlBeanContext;
+import org.apache.beehive.controls.api.properties.PropertySet;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.net.URL;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.jws.WebParam;
+import javax.jws.soap.SOAPBinding;
+import javax.servlet.ServletContext;
+import javax.xml.namespace.QName;
+import javax.xml.rpc.Call;
+import javax.xml.rpc.ParameterMode;
+import javax.xml.rpc.Service;
+import javax.xml.rpc.ServiceException;
+import javax.xml.rpc.ServiceFactory;
+import javax.xml.rpc.encoding.TypeMapping;
+import javax.xml.rpc.encoding.XMLType;
+import javax.xml.rpc.holders.Holder;
+
+import org.apache.beehive.controls.api.context.ControlBeanContext;
+import org.apache.beehive.wsm.jsr181.model.Jsr181MethodMetadata;
+import org.apache.beehive.wsm.jsr181.model.Jsr181ParameterMetadata;
+import org.apache.beehive.wsm.jsr181.model.Jsr181TypeMetadata;
+import org.apache.beehive.wsm.jsr181.wsdl.XmlBeanWSDLProcessor;
+import org.apache.beehive.wsm.axis.dataBinding.SystemLookUpService;
+import org.apache.beehive.wsm.axis.registration.AxisTypeRegistrar;
+import org.apache.beehive.wsm.dataBinding.BindingLookupService;
+import org.apache.beehive.wsm.registration.TypeRegistrar;
+import org.apache.log4j.Logger;
+
+import org.controlhaus.webservice.ServiceControl;
+
+import javax.xml.namespace.QName;
+
+import org.w3c.dom.Element;
+
+@ControlImplementation 
+public class ServiceControlImpl implements
+		ServiceControl, Extensible, Serializable {
+	static Logger logger = Logger.getLogger(ServiceControlImpl.class);
+
+	@Context public ControlBeanContext mContext;
+
+	BindingLookupService lookupService = null;
+
+	TypeRegistrar registrar = null;
+
+	Service service = null;
+
+	Jsr181TypeMetadata mWSTM;
+	
+	URL endPoint = null;
+
+	QName wsdlPort = null;
+
+	String username = null;
+
+	String password = null;
+
+	int timeout = 1000;
+
+	Element[] inputHeaders = null;
+
+	Element[] outputHeaders = null;
+
+	 boolean initialized = false;
+
+
+
+	public ServiceControlImpl() {
+	}
+
+	/**
+	 * @param method
+	 * @param args
+	 * @throws Exception
+	 */
+	public Object invoke(Method method, Object[] args)
+			throws NoSuchMethodException, Exception {
+		logger.debug("invoke method: " + method.getName());
+		initialize();
+		String operationName = method.getName();
+		String alternateOperationName = getAlternateOperationName(method);
+		if (null != alternateOperationName)
+			operationName = alternateOperationName;
+
+		Call call = service.createCall();
+
+		if (getWsdlPort() != null) {
+			call.setPortTypeName(getWsdlPort());
+		}
+		if (getUsername() != null) {
+			call.setProperty(Call.USERNAME_PROPERTY, getUsername());
+		}
+
+		if (getPassword() != null) {
+			call.setProperty(Call.PASSWORD_PROPERTY, getPassword());
+		}
+
+		call.setOperationName(new javax.xml.namespace.QName(mWSTM
+				.getWsTargetNamespace(), operationName));
+
+		// The target endpoint
+		logger.debug("endpoint: " + getEndPoint().toExternalForm());
+		call.setTargetEndpointAddress(getEndPoint().toExternalForm());
+		//       
+		// NO TImeout property in the JaxRPC
+		// int timeout = serviceControl.getTimeout();
+		// if (timeout != 0) {
+		// call.setTimeout(new Integer(timeout));
+		// }
+
+		Jsr181MethodMetadata wmm = findMethodInOM(method, operationName);
+
+		// set style
+		SOAPBinding.Style omStyle = mWSTM.getSoapBinding().getStyle();
+		String style;
+		if (omStyle == SOAPBinding.Style.DOCUMENT) {
+			if (mWSTM.getSoapBinding().getParameterStyle() == SOAPBinding.ParameterStyle.WRAPPED)
+				style = "wrapped";
+			else 
+				style = "document";
+		}
+		else if (omStyle == SOAPBinding.Style.RPC)
+			style = "rpc";
+		else
+			throw new RuntimeException("Ivalid Binding style: " + omStyle);
+
+
+		// wrapped implies document also!
+
+		call.setProperty(Call.OPERATION_STYLE_PROPERTY, style);
+
+		
+		
+//		// set use   --- USE IS NOT USED IN JAXRPC, it is implied in Style
+		// DOC and WRAPPED are literal, and RPC is always encoded.
+//		SOAPBinding.Use omUse = mWSTM.getSoapBinding().getUse();
+//		String use;
+//		if (omUse == SOAPBinding.Use.LITERAL)
+//			use = "";
+//		else if (omUse == SOAPBinding.Use.ENCODED)
+//			use = "";
+//		else
+//			throw new RuntimeException("Invalid Binding Use: " + omUse);
+
+		// walk the argument meta data list, register type of parameters, add
+		// parameters to the
+		// call object
+		// TODO: Make sure there is nothing special that needs to be done about
+		// holder objects.
+		List<Jsr181ParameterMetadata> omArgMetaDataList = wmm.getParams();
+
+		Class[] methodParameterTypes = method.getParameterTypes();
+
+		if (omArgMetaDataList.size() != methodParameterTypes.length)
+			throw new RuntimeException(
+					"Object model and method definition don't match!");
+		List argsToSend = new ArrayList<Object>();
+		for (int i = 0; i < methodParameterTypes.length; i++) {
+
+			Jsr181ParameterMetadata nxtArgMetaData = omArgMetaDataList.get(i);
+			QName xmlTypeFromWSDL = nxtArgMetaData.getXmlType();
+			Class javaTypeFromClass = methodParameterTypes[i];
+
+			registrar.registerType(javaTypeFromClass, xmlTypeFromWSDL); // Make
+																		// sure
+																		// the
+																		// type
+																		// is
+																		// registered
+			ParameterMode mode;
+			WebParam.Mode omMode = nxtArgMetaData.getWpMode();
+			if (omMode == WebParam.Mode.IN)
+				mode = ParameterMode.IN;
+			else if (omMode == WebParam.Mode.OUT)
+				mode = ParameterMode.OUT;
+			else if (omMode == WebParam.Mode.INOUT)  {
+				mode = ParameterMode.INOUT;
+				
+				// DO WE NEED TO GET THE VALUE FOR HOLDERS?  THIS MAY NOT BE CORRECT!
+	            Field value = javaTypeFromClass.getField("value");                
+	            args[i] =  value.get(args[i]);
+			}
+			else
+				throw new RuntimeException("Invalid parameter mode: " + omMode);
+
+			call.addParameter(nxtArgMetaData.getWpName(), xmlTypeFromWSDL,
+					javaTypeFromClass, 
+					 mode); 
+		}
+
+		// register the return type
+		if (!wmm.isOneWay()) {
+			QName xmlTypeFromWSDL = wmm.getXmlReturnType();
+			Class javaTypeFromClass = method.getReturnType();
+			registrar.registerType(javaTypeFromClass, xmlTypeFromWSDL);
+			call.setReturnType(xmlTypeFromWSDL);
+		} else
+			call.setReturnType(registrar.getVoidType());
+
+		// // Invoke the operation
+		Object res = call.invoke(args);
+		
+		
+		//		
+		// TODO:  Axis client is not dealing with handlers correctly, after the call, we need to get the out parameters
+		// and stuff them into the handlers
+		
+		Map outParam = call.getOutputParams();
+		for(Object nxtOutParamKey : outParam.keySet()) {
+			logger.info("Got outparam: " + nxtOutParamKey   +" value: " + ((javax.xml.rpc.holders.StringHolder)(outParam.get(nxtOutParamKey))).value +  " Stuff this into the holders.... TBD!");
+		}
+
+		return res;
+
+	}
+
+	/**
+	 * @param method
+	 * @param operationName
+	 * @throws Exception
+	 */
+	private Jsr181MethodMetadata findMethodInOM(Method method,
+			String operationName) throws NoSuchMethodException, Exception {
+		// NOTE jcolwell@bea.com 2005-Jan-04 --
+		// convert holder classes to underlying type to retrieve the method
+		// metadata
+		// NOTE: You can use GenericHolder<T> to make a holder for any class T.
+		// For now the extension maker doesn't use this... This should be fixed.
+		Type[] genericParamTypes = method.getGenericParameterTypes();
+		Class[] paramTypes = new Class[genericParamTypes.length];
+		int paramIndex = 0;
+		for (Type t : genericParamTypes) {
+	    	paramTypes[paramIndex++] = TypeRegistrar.getUnderlyingType(t);
+		}
+		// note the obejct model doesn't store holders, rather the underlying
+		// types, so to get the method
+		// we need to get the underlying types. After the loop above the
+		// paramTypes have the underlying types
+		// for any holders in the arg list.
+		Jsr181MethodMetadata wmm = mWSTM.getMethod(operationName, paramTypes);
+		if (wmm == null) {
+			StringBuffer sb = new StringBuffer(
+					"No Jsr181MethodMetadata found for " + operationName + '(');
+			boolean first = true;
+			for (Class cls : paramTypes) {
+				if (first) {
+					first = false;
+				} else {
+					sb.append(',');
+				}
+				sb.append(cls.getName());
+			}
+			sb.append(')');
+			throw new NoSuchMethodException(sb.toString());
+
+		}
+		return wmm;
+	}
+
+
+
+	private synchronized void initialize() throws Exception {
+		if (initialized)  return; 
+
+		loadObjectModel();
+
+		QName serviceName = new QName(mWSTM.getWsTargetNamespace(), mWSTM
+				.getWsServiceName());
+		ServiceFactory factory = ServiceFactory.newInstance();
+		service = factory.createService(serviceName);
+		TypeMapping tm = service.getTypeMappingRegistry()
+				.getDefaultTypeMapping();
+		lookupService = new SystemLookUpService(
+				(org.apache.axis.encoding.TypeMapping) tm);
+		registrar = new AxisTypeRegistrar(
+				(org.apache.axis.encoding.TypeMapping) tm, lookupService);
+		configureEndPoint();
+		initialized = true;
+
+	}
+
+	private String getAlternateOperationName(Method method) {
+
+		ServiceControl.OperationName opName = mContext.getMethodPropertySet(
+				method, ServiceControl.OperationName.class);
+		if (opName != null) {
+			return opName.value();
+		}
+		return null;
+	}
+
+	private InputStream getWSDLStream(String pathToWSDL) throws Exception {
+
+		// FIXME jcolwell@bea.com 2004-Dec-02 --
+		// call getResourceAsStream() directly once the ControlBeanContext
+		// is fixed to load resources.
+		// System.out.println("WSDL path: " + pathToWSDL);
+
+		InputStream wsdlStream = null;
+		logger.debug("wsdl at:" + pathToWSDL);
+
+		if (pathToWSDL.startsWith("http://") || pathToWSDL.startsWith("file:/")) {
+			URL url = new URL(pathToWSDL);
+			wsdlStream = url.openStream();
+		} else { // it is a local file name
+
+			ServletContext servletContext = mContext.getService(
+					ServletContext.class, null);
+			if (servletContext != null) {
+				wsdlStream = servletContext.getResourceAsStream(pathToWSDL);
+			} 
+//			else {
+//				System.out.println("The class is: " + getClass().getCanonicalName());
+//				wsdlStream = getClass().getResourceAsStream(pathToWSDL);
+//
+//			}
+
+			if (wsdlStream == null) {
+				File f = new File(pathToWSDL);
+				// boolean readable = f.canRead();
+				// /*
+				// * System.out.println("WSDL file absolute path: " +
+				// * f.getAbsolutePath() + (readable ? " and it's readable" : "
+				// but
+				// * it's not there or not readable"));
+				// */
+				// if (!readable) {
+				// if (pathToWSDL.startsWith("/") ||
+				// pathToWSDL.startsWith("\\")) {
+				// pathToWSDL = pathToWSDL.substring(1);
+				// } else {
+				// pathToWSDL = '/' + pathToWSDL;
+				// }
+				//
+				// f = new File(pathToWSDL);
+				// /*
+				// * readable = f.canRead();
+				// *
+				// * System.out.println("WSDL file absolute path: " +
+				// * f.getAbsolutePath() + (readable ? " and it's readable" : "
+				// * but it's not there or not readable"));
+				// */
+				// }
+				wsdlStream = new FileInputStream(f);
+			}
+		}
+		return wsdlStream;
+	}
+
+	private Jsr181TypeMetadata loadObjectModel() throws Exception {
+
+		if (mWSTM == null) {
+			ServiceControl.WSDL wsdl = (ServiceControl.WSDL) mContext
+					.getControlPropertySet(ServiceControl.WSDL.class);
+
+			if (wsdl != null) {
+				// FIXME jcolwell@bea.com 2004-Nov-05 --
+				// not worrying about the service name until the WSDLProcessor
+				// supports WSDLs with more than one service.
+				// mServiceName = wsdl.service();
+
+				logger.debug("read wsdl from: " + wsdl.path());
+				InputStream wsdlStream = getWSDLStream(wsdl.path());
+
+				if (wsdlStream != null) {
+					mWSTM = new XmlBeanWSDLProcessor()
+							.createObjectModel(wsdlStream);
+				} else {
+					throw new RuntimeException(
+							"No WSDL found at the provided path: "
+									+ wsdl.path());
+				}
+			} else {
+				throw new RuntimeException("No WSDL annotation found.");
+			}
+		}
+		return mWSTM;
+	}
+
+	private void configureEndPoint()
+			throws Exception {
+
+		if (null == getEndPoint()) {
+			ServiceControl.Location location = (ServiceControl.Location) mContext
+					.getControlPropertySet(ServiceControl.Location.class);
+
+			if (location != null) {
+				// FIXME jcolwell@bea.com 2004-Nov-05 -- look through the URLs
+				// for the first one using http.
+				setEndPoint(new URL(location.urls()[0]));
+			} else {
+				throw new RuntimeException("No Location annotation found.");
+			}
+		}
+	}
+
+	/**
+	 * @return Returns the endPoint.
+	 */
+	public URL getEndPoint() {
+		return endPoint;
+	}
+	/**
+	 * @param endPoint The endPoint to set.
+	 */
+	public void setEndPoint(URL endPoint) {
+		this.endPoint = endPoint;
+	}
+	/**
+	 * @return Returns the inputHeaders.
+	 */
+	public Element[] getInputHeaders() {
+		return inputHeaders;
+	}
+	/**
+	 * @param inputHeaders The inputHeaders to set.
+	 */
+	public void setInputHeaders(Element[] inputHeaders) {
+		this.inputHeaders = inputHeaders;
+	}
+	/**
+	 * @return Returns the outputHeaders.
+	 */
+	public Element[] getOutputHeaders() {
+		return outputHeaders;
+	}
+	/**
+	 * @param outputHeaders The outputHeaders to set.
+	 */
+	public void setOutputHeaders(Element[] outputHeaders) {
+		this.outputHeaders = outputHeaders;
+	}
+	/**
+	 * @return Returns the password.
+	 */
+	public String getPassword() {
+		return password;
+	}
+	/**
+	 * @param password The password to set.
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	/**
+	 * @return Returns the registrar.
+	 */
+	public TypeRegistrar getRegistrar() {
+		return registrar;
+	}
+	/**
+	 * @param registrar The registrar to set.
+	 */
+	public void setRegistrar(TypeRegistrar registrar) {
+		this.registrar = registrar;
+	}
+	/**
+	 * @return Returns the service.
+	 */
+	public Service getService() {
+		return service;
+	}
+	/**
+	 * @param service The service to set.
+	 */
+	public void setService(Service service) {
+		this.service = service;
+	}
+	/**
+	 * @return Returns the timeout.
+	 */
+	public int getTimeout() {
+		return timeout;
+	}
+	/**
+	 * @param timeout The timeout to set.
+	 */
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+	/**
+	 * @return Returns the username.
+	 */
+	public String getUsername() {
+		return username;
+	}
+	/**
+	 * @param username The username to set.
+	 */
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	/**
+	 * @return Returns the wsdlPort.
+	 */
+	public QName getWsdlPort() {
+		return wsdlPort;
+	}
+	/**
+	 * @param wsdlPort The wsdlPort to set.
+	 */
+	public void setWsdlPort(QName wsdlPort) {
+		this.wsdlPort = wsdlPort;
+	}
+
+	/**
+	 * 
+	 */
+	public void reset() {
+		endPoint = null;
+		wsdlPort = null;
+		username = null;
+		password = null;
+		timeout = 0;
+		inputHeaders = null;
+		outputHeaders = null;
+	}
+
+
+}
