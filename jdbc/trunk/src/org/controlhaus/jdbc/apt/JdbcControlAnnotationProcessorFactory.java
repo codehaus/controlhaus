@@ -29,12 +29,15 @@ import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.MirroredTypeException;
 import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.type.TypeMirror;
+import com.sun.mirror.type.ClassType;
+import com.sun.mirror.type.DeclaredType;
 import com.sun.mirror.util.DeclarationVisitors;
 import com.sun.mirror.util.SimpleDeclarationVisitor;
+import org.apache.beehive.controls.api.ControlException;
 import org.controlhaus.jdbc.JdbcControl;
 import org.controlhaus.jdbc.parser.SqlParser;
-import org.apache.beehive.controls.api.ControlException;
 
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +53,9 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
 
     // define the collection of supported annotations
     private static final Collection<String> _supportedAnnotations =
-            Collections.unmodifiableCollection(Arrays.asList("org.controlhaus.jdbc.JdbcControl.SQL"));
+            Collections.unmodifiableCollection(Arrays.asList("org.controlhaus.jdbc.JdbcControl.SQL",
+                                                             "org.controlhaus.jdbc.JdbcControl.ConnectionDriver",
+                                                             "org.controlhaus.jdbc.JdbcControl.ConnectionDataSource"));
 
     // define any supported apt options
     private static final Collection<String> _supportedOptions = Collections.emptySet();
@@ -131,6 +136,7 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
 
             /**
              * Constructor
+             *
              * @param env an apt env instance
              */
             public SqlVisitor(AnnotationProcessorEnvironment env) {
@@ -139,6 +145,7 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
 
             /**
              * Visitor method for class level annotation declarations
+             *
              * @param d ClassDeclaration which annotation occured.
              */
             public void visitClassDeclaration(ClassDeclaration d) {
@@ -147,6 +154,7 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
 
             /**
              * Visitor method for method level annotation declarations.
+             *
              * @param m Method declaration which annotation occured.::
              */
             public void visitMethodDeclaration(MethodDeclaration m) {
@@ -241,6 +249,31 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
 
                         }
                     }
+                }
+
+                //
+                // scrollable result set check
+                //
+                final JdbcControl.ScrollType scrollable = methodSQL.scrollableResultSet();
+                switch (scrollable) {
+                    case SCROLL_INSENSITIVE:
+                    case SCROLL_SENSITIVE:
+                    case SCROLL_INSENSITIVE_UPDATABLE:
+                    case SCROLL_SENSITIVE_UPDATABLE:
+                    case FORWARD_ONLY_UPDATABLE:
+                        String typeName = null;
+                        if (returnType instanceof DeclaredType) {
+                            typeName = ((DeclaredType)returnType).getDeclaration().getQualifiedName();
+                        }
+                        
+                        if (typeName == null || "java.sql.ResultSet".equals(typeName) == false) {
+                            _env.getMessager().printError(m.getPosition(), "@SQL annotation on method: " + m.getSimpleName()
+                                                                           + " element scrollableResultSet specified but method does not return a ResultSet.");
+                            break;
+                        }
+                    case FORWARD_ONLY:
+                    default:
+                        break;
                 }
             } // visitMethodDeclaration
         } // SqlVisitor

@@ -230,6 +230,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
         final int[] genKeyColumnIndexes = methodSQL.generatedKeyColumnIndexes();
         final String sqlStatement = methodSQL.statement();
         final Class resultSetMapperClass = methodSQL.resultSetMapper();
+        final ScrollType scrollType = methodSQL.scrollableResultSet();
 
         //
         // if a JDBC 3.0 feature is requested, make sure db impl supports it
@@ -240,8 +241,13 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             if (getGeneratedKeys && !dmd.supportsGetGeneratedKeys()) {
                 throw new ControlException("The database does not support getGeneratedKeys.");
             }
+
             if (isBatchUpdate && !dmd.supportsBatchUpdates()) {
                 throw new ControlException("The database does not support batchUpdates.");
+            }
+
+            if (!dmd.supportsResultSetConcurrency(scrollType.getType(), scrollType.getConcurrencyType())) {
+                throw new ControlException("The database does not support the ResultSet concurrecy type: "+scrollType.toString());
             }
         }
 
@@ -252,7 +258,8 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             SqlStatement parsedSql = _sqlParser.parse(sqlStatement);
             ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method,  args,
                                                    isBatchUpdate, getGeneratedKeys,
-                                                   genKeyColumnNames, genKeyColumnIndexes);
+                                                   genKeyColumnNames, genKeyColumnIndexes,
+                                                   scrollType);
 
             //
             // process row limits

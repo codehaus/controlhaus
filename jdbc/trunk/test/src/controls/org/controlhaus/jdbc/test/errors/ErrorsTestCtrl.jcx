@@ -18,7 +18,6 @@
 package org.controlhaus.jdbc.test.errors;
 
 import org.controlhaus.jdbc.JdbcControl;
-import test.customerDb.XCustomerRowDocument;
 import testBad.customerDb.XCustomerRowBadDocument;
 
 import java.sql.ResultSet;
