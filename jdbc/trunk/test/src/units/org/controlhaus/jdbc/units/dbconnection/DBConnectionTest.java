@@ -39,11 +39,11 @@ public class DBConnectionTest extends AbstractControlTest {
     private static final Logger _logger = Logger.getLogger(DBConnectionTest.class);
 
     @Control
-            public DriverManagerConnectionCtrl testCtrl;
+    public DriverManagerConnectionCtrl testCtrl;
     @Control
-            public DriverManagerConnectionCtrlAuth testAuthCtrl;
+    public DriverManagerConnectionCtrlAuth testAuthCtrl;
     @Control
-            public DriverManagerConnectionCtrlProps testPropsCtrl;
+    public DriverManagerConnectionCtrlProps testPropsCtrl;
 
     public void setUp() throws Exception { BasicConfigurator.configure(); super.setUp(); }
 
@@ -52,7 +52,7 @@ public class DBConnectionTest extends AbstractControlTest {
 
     public void testDriverMgrConnection_simple() throws Exception {
         assertNotNull(testCtrl);
-        testCtrl.createTable();
+        testCtrl.getConnection();
     }
 
     public void testDriverMgrConnection_auth() throws Exception {
@@ -98,12 +98,12 @@ public class DBConnectionTest extends AbstractControlTest {
         conn.close();
 
         assertNotNull(testAuthCtrl);
-        testAuthCtrl.createTable();
+        testAuthCtrl.getConnection();
     }
 
     public void testDriverMgrConnection_props() throws Exception {
         assertNotNull(testPropsCtrl);
-        testPropsCtrl.createTable();
+        testPropsCtrl.getConnection();
     }
 
     public DBConnectionTest(String name) { super(name); }

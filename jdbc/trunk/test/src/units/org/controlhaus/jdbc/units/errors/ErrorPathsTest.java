@@ -19,12 +19,17 @@ package org.controlhaus.jdbc.units.errors;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.framework.TestCase;
 import org.apache.beehive.controls.api.bean.Control;
 import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.context.ControlContainerContext;
+import org.apache.beehive.controls.api.context.ControlThreadContext;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.controlhaus.jdbc.test.errors.ErrorsTestCtrl;
 import org.controlhaus.jdbc.units.utils.AbstractControlTest;
+import org.controlhaus.jdbc.units.utils.TestContextInitializer;
+import org.controlhaus.jdbc.JdbcControl;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -33,19 +38,50 @@ import java.sql.Statement;
 /**
  * Tests dbcontrol error handling and recovery
  */
-public final class ErrorPathsTest extends AbstractControlTest {
+public final class ErrorPathsTest extends TestCase {
 
     private static final Logger _logger = Logger.getLogger(ErrorPathsTest.class);
+    private ControlContainerContext _controlContext = null;
 
     @Control
-            public ErrorsTestCtrl testCtrl;
+    public ErrorsTestCtrl testCtrl;
+
+    @Control
+    @JdbcControl.ConnectionDataSource(jndiName="java:comp/env/jdbc/TestDB")
+    private ErrorsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {
-        BasicConfigurator.configure();
+//        BasicConfigurator.configure();
         super.setUp();
+
+        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+
+        _controlContext = ControlThreadContext.getContext();
+        if (_controlContext == null) {
+            _controlContext = TestContextInitializer.initContext(this);
+        } else {
+            ErrorPathsTestClientInitializer.initialize(_controlContext, this);
+            testCtrl = testCtrl_ds;
+        }
+
+        // setup the database
+        Connection conn = testCtrl.getConnection();
+        Statement s = conn.createStatement();
+        try {
+            s.executeUpdate("DROP TABLE USERS");
+        } catch (Exception e) {
+        }
+
+        s.executeUpdate("CREATE TABLE USERS (FNAME VARCHAR(32), USERID INT)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester1', 21)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
+        conn = null;
     }
 
     public void tearDown() throws Exception {
+        _controlContext.endContext();
         super.tearDown();
     }
 
@@ -112,26 +148,7 @@ public final class ErrorPathsTest extends AbstractControlTest {
         }
     }
 
-
-    public ErrorPathsTest(String name) throws Exception {
-        super(name);
-
-        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        // setup the database
-        Connection conn = DriverManager.getConnection("jdbc:derby:MyDB;create=true");
-        Statement s = conn.createStatement();
-        try {
-            s.executeUpdate("DROP TABLE USERS");
-        } catch (Exception e) {
-        }
-
-        s.executeUpdate("CREATE TABLE USERS (FNAME VARCHAR(32), USERID INT)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester1', 21)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
-        conn.close();
-    }
+    public ErrorPathsTest(String name) throws Exception { super(name); }
 
     public static Test suite() { return new TestSuite(ErrorPathsTest.class); }
 

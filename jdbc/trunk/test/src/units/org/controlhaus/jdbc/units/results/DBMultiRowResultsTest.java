@@ -19,12 +19,17 @@ package org.controlhaus.jdbc.units.results;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.framework.TestCase;
 import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.context.ControlContainerContext;
+import org.apache.beehive.controls.api.context.ControlThreadContext;
 import org.apache.beehive.controls.api.bean.Control;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.controlhaus.jdbc.test.results.ResultsTestCtrl;
 import org.controlhaus.jdbc.units.utils.AbstractControlTest;
+import org.controlhaus.jdbc.units.utils.TestContextInitializer;
+import org.controlhaus.jdbc.JdbcControl;
 import test.customerDb.XCustomerRowDocument;
 
 import javax.sql.RowSet;
@@ -38,18 +43,48 @@ import java.util.Iterator;
 /**
  *
  */
-public class DBMultiRowResultsTest extends AbstractControlTest {
+public class DBMultiRowResultsTest extends TestCase {
     private static final Logger _logger = Logger.getLogger(DBMultiRowResultsTest.class);
+    private ControlContainerContext _controlContext = null;
 
     @Control
-            public ResultsTestCtrl testCtrl;
+    public ResultsTestCtrl testCtrl;
+
+    @Control
+    @JdbcControl.ConnectionDataSource(jndiName="java:comp/env/jdbc/TestDB")
+    private ResultsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {
-        BasicConfigurator.configure();
+        //BasicConfigurator.configure();
         super.setUp();
+
+        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+
+        _controlContext = ControlThreadContext.getContext();
+        if (_controlContext == null) {
+            _controlContext = TestContextInitializer.initContext(this);
+        } else {
+            DBMultiRowResultsTestClientInitializer.initialize(_controlContext, this);
+            testCtrl = testCtrl_ds;
+        }
+
+        Connection conn = testCtrl.getConnection();
+        Statement s = conn.createStatement();
+        try {
+            s.executeUpdate("DROP TABLE USERS");
+        } catch (Exception e) {
+        }
+
+        s.executeUpdate("CREATE TABLE USERS (FNAME VARCHAR(32), USERID INT)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester1', 21)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
+        s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
+        conn = null;
     }
 
     public void tearDown() throws Exception {
+        _controlContext.endContext();
         super.tearDown();
     }
 
@@ -204,22 +239,6 @@ public class DBMultiRowResultsTest extends AbstractControlTest {
 
     public DBMultiRowResultsTest(String name) throws Exception {
         super(name);
-
-        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        // setup the database
-        Connection conn = DriverManager.getConnection("jdbc:derby:MyDB;create=true");
-        Statement s = conn.createStatement();
-        try {
-            s.executeUpdate("DROP TABLE USERS");
-        } catch (Exception e) {
-        }
-
-        s.executeUpdate("CREATE TABLE USERS (FNAME VARCHAR(32), USERID INT)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester1', 21)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
-        s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
-        conn.close();
     }
 
     public static Test suite() { return new TestSuite(DBMultiRowResultsTest.class); }

@@ -187,6 +187,24 @@ limitations under the License.
         <echo message="      ${project.name} tests complete"/>
         <echo message="--------------------------------------------------"/>
     </target>
+    
+    <!-- ================================================================================= -->
+    <!-- container.test - Run the jdbc-control unit tests inside of a specified container. -->
+    <!-- ================================================================================= -->
+    <target name="container.test" depends="build-tests" description="Run jdbc-control unit tests inside of a container.">
+        <!--
+        <fail unless="tomcat5x.container" message="The value ${tomcat5x.container} was unspecified, must be 'tomcat5x'"/>
+        -->
+        <fail message="The container type must be specified: 'tomcat5x' or 'weblogic9x'">
+           <condition>
+            <and>
+              <not> <isset property="tomcat5x"/> </not>
+              <not> <isset property="weblogic9x"/> </not>
+            </and>
+           </condition>
+        </fail>
+        <ant dir="test/container" target="test" inheritAll="true"/>
+    </target>
 
     <!-- =================================================================== -->
     <!-- dirs - target to create necessary test directories                  -->
