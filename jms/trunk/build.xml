@@ -39,9 +39,11 @@
         <get src="http://www.ibiblio.org/maven/log4j/jars/log4j-1.2.8.jar"
               dest="${basedir}/lib/log4j.jar"
               usetimestamp="true"/>
+    	
         <get src="http://www.ibiblio.org/maven/geronimo-spec/jars/geronimo-spec-jms-1.0-M1.jar"
               dest="${basedir}/lib/jms.jar"
-              usetimestamp="true"/>              
+              usetimestamp="true"/>    
+                       
         <get src="http://www.ibiblio.org/maven/xmlbeans/jars/xbean-1.0.3.jar"
               dest="${basedir}/lib/xbean.jar"
               usetimestamp="true"/> 
@@ -55,7 +57,7 @@
         	<pathelement path="../play/classes" />
         	<pathelement path="${controls.jar}" />
     	</path>
-   		<taskdef name="apt" 
+  		<taskdef name="apt" 
                  classname="org.apache.beehive.controls.runtime.generator.AptTask" 
                  onerror="report"
                  classpathref="build.classpath"/>
@@ -91,13 +93,24 @@
     </target>
 	
     <target name="samples" depends="init" description="Build samples">
-        <apt srcdir="${sample.source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
+        <apt srcdir="${sample.source.dir}" 
+        	 destdir="${build.classes}" 
+        	 gendir="${build.beansrc}"
+        	 excludes="**/Test*.java"
              classpathref="build.classpath"
              debug="on"
              compileByExtension="true"
              srcExtensions="*.java,*.jcx,*.jcs"
              target="1.5">
         </apt>
+		<javac 
+			destdir="${build.classes}" 
+			source="1.5" 
+			debug="on"  
+			classpathref="build.classpath"
+			includes="**/Test*.java">
+			<src path="${sample.source.dir}" />
+		</javac>
     </target>
     <target name="docs" depends="init">
     	<property name="classpath" refid="build.classpath"/>
