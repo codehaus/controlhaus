@@ -4,7 +4,7 @@
 	<control-tag name="sforce-properties" multiple="false" >
 		<description>Sales Force service properties</description>
 		<attribute name="http-url" required="false">
-			<description>HTTP url</description>
+			<description>HTTP url of the sforce endpoint for login</description>
             <type>
 				<text/>
 			</type>

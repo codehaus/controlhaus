@@ -32,11 +32,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * @editor-info:code-gen control-interface="true"
- * @jcs:control-tags file::
- * sforce3_0-tags.xml
- * ::
- * @jcs:jc-jar version="1.0" 
+ * @editor-info:code-gen control-interface="false"
+ * @jcs:control-tags file="sforce3_0-tags.xml"
+ * @jcs:jc-jar group-priority="10" group-name="SalesForce.com" version="1.0" 
  * insert-wizard-class="org.controlhaus.sforce.workshop.ide.sforceCheckWizard" 
  
  * icon-32="/images/sforce_32.gif" 
@@ -143,9 +141,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     
 
     /**
-     * Login into Sales Force Enterprise system
-     * @param userName Name of the user
-     * @param password User's password
      * @common:operation
      */
     public LoginResult login(String username, String password)
@@ -158,9 +153,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Query between SalesForce objects with a given query string
-     * @param queryString
-     * @return QueryResult The result of the query
      * @common:operation
      */
      
@@ -175,9 +167,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Query between SalesForce objects with a given query locator. 
-     * @param queryLocator
-     * @return  QueryResult The result of the query
      * @common:operation
      */
     
@@ -188,14 +177,10 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
         QueryResult responseDoc = stdCtrl.queryMore(queryLocator);
         if (m_validateLevel>0) 
             validateXml(null,responseDoc, "queryMore");
-        //if responseDoc.    
         return responseDoc;
     }
     
     /**
-     * Search among Sales Force objects
-     * @param searchString
-     * @return SearchResult The result of the search
      * @common:operation
      */
 
@@ -209,12 +194,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Use the retrieve call to retrieve individual objects from an sforce API object. 
-     * User passes the field to retrieve, the object, and the ID to retrieve.
-     * @param fieldList Field to retrieve 
-     * @param sObjectType The Sales Force object
-     * @param id The ID to retireve
-     * @return SObject A standard base Sales Force object
      * @common:operation
      */
     
@@ -231,10 +210,8 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
     
     /**
-     * Retrieves a SOAP message document
-     * @param requestDoc A SOAP request document
-     * @return RetrieveResponseDocument The retrieved SOAP message document
      * @common:operation
+     * @jcs:ide hide="true"
      */
     public RetrieveResponseDocument retrieveDoc(RetrieveDocument requestDoc)
     {
@@ -246,9 +223,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Create a Sales Force object array
-     * @param sObjects A base Sales Force object
-     * @return SaveResult[] Result array of the save operation
      * @common:operation
      */
     public  SaveResult [] create(SObject[] sObjects)
@@ -261,10 +235,8 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
 
 
 	/**
-	 * Retrieves a SOAP message document
-	 * @param requestDoc A SOAP request document
-	 * @return CreateResponseDocument The retrieved SOAP message document
      * @common:operation
+	 * @jcs:ide hide="true"
 	 */
     public CreateResponseDocument createDoc(CreateDocument requestDoc)
     {   
@@ -273,18 +245,12 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
         if (m_validateLevel>0) 
             validateXml(requestDoc,responseDoc, "create");
        
-        //if (nextAssignementIdWasCalled) {    
-            
-            //nextAssignementIdWasCalled = false;
-       // }
         return responseDoc;
     }
 
    /**
-	* Create a Sales Force object - It is a simplified method, user can avoid tedious array coding usin this method 
-	* @param sObjects A base Sales Force object
-	* @return SaveResult Result of the save operation
     * @common:operation
+    * @jcs:ide hide="true"
 	*/
     public SaveResult createOne(SObject sObject)
     {         
@@ -298,9 +264,7 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
 
 
 	/**
-	 * Updates a Sales Force object array
-	 * @param sObjects A base Sales Force object
-	 * @return SaveResult[] Result array of the update operation
+     * @common:operation
 	 */
     public SaveResult [] update(SObject[] sObjects)
     {
@@ -311,10 +275,8 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
 	/**
-	 * Retrieves a SOAP message document
-	 * @param requestDoc A SOAP request document
-	 * @return UpdateResponseDocument The retrieved SOAP message document
      * @common:operation
+	 * @jcs:ide hide="true"
 	 */
     public UpdateResponseDocument updateDoc(UpdateDocument requestDoc)
     {
@@ -326,10 +288,8 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
 	/**
-	  * Updates a Sales Force object - It is a simplified method, user can avoid tedious array coding usin this method 
-	  * @param sObjects A base Sales Force object
-	  * @return SaveResult Result of the update operation
       * @common:operation
+	 * @jcs:ide hide="true"
 	  */
     public SaveResult updateOne(SObject sObject)
     {
@@ -343,9 +303,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
 
 
 	/**
-	 * Deletes a Sales Force object array
-	 * @param sObjects A base Sales Force object
-	 * @return DeleteResult[] Result array of the delete operation
      * @common:operation
 	 */
     public  DeleteResult [] delete(String[] ids)
@@ -357,10 +314,8 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
 	/**
-	 * Retrieves a SOAP message document
-	 * @param requestDoc A SOAP request document
-	 * @return DeleteResponseDocument The retrieved SOAP message document
      * @common:operation
+	 * @jcs:ide hide="true"
 	 */
     public DeleteResponseDocument deleteDoc(DeleteDocument requestDoc)
     {
@@ -372,10 +327,8 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
        
 	/**
-	  * Deletes a Sales Force object - It is a simplified method, user can avoid tedious array coding usin this method 
-	  * @param sObjects A base Sales Force object
-	  * @return DeleteResult Result of the update operation
       * @common:operation
+	 * @jcs:ide hide="true"
 	  */
     public  DeleteResult deleteOne(String id)
     {
@@ -389,11 +342,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
 
     
     /**
-     * Retrieves the list of individual objects that have been deleted within the given timespan for the specified object 
-     * @param sObjectType Sales Force object type
-     * @param startDate Date where to start
-     * @param endDate Date where to end
-     * @return GetDeletedResult The result in SOAP object
      * @common:operation
      */
     public GetDeletedResult getDeleted(java.lang.String sObjectType, java.util.Calendar startDate, java.util.Calendar endDate)
@@ -406,11 +354,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
 	/**
-	 * Retrieves the list of individual objects that have been updated within the given timespan for the specified object 
-	 * @param sObjectType Sales Force object type
-	 * @param startDate Date where to start
-	 * @param endDate Date where to end
-	 * @return GetUpdatedResult The result in SOAP object
      * @common:operation
 	 */
     public GetUpdatedResult getUpdated(java.lang.String sObjectType, java.util.Calendar startDate, java.util.Calendar endDate)
@@ -422,8 +365,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
         return responseDoc;        
     }
     /**
-     * Use describeGlobal to obtain the list of available objects for your organization.
-     * @return DescribeGlobalResult use this object to navigate through.
      * @common:operation
      */
     public DescribeGlobalResult describeGlobal()
@@ -436,9 +377,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Describes metadata (field list and object properties) for the specified object.
-     * @param sObjectType Typwe of the Sales Force object
-     * @return DescribeSObjectResult The described object properties
      * @common:operation
      */
     public DescribeSObjectResult describeSObject(String sObjectType)
@@ -452,8 +390,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Retrieves the current system timestamp (GMT) from the sforce Web service.
-     * @return Calendar The server timestamp 
      * @common:operation
      */
     public Calendar getServerTimestamp()
@@ -466,8 +402,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Retrieves personal information for the user associated with the current session.
-     * @return GetUserInfoResult The returned result
      * @common:operation
      */
     public GetUserInfoResult getUserInfo()
@@ -480,11 +414,6 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Use resetPassword to request that the sforce Web service change a user's 
-     * password and return the server-generated password string. Use setPassword instead 
-     * if you want to set the password to a specific value.
-     * @param userId the id of the logged user
-     * @return String The password
      * @common:operation
      */
     public String resetPassword(String userId)
@@ -495,27 +424,39 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * Use setPassword to change a user's password to a value that you specify. 
-     * For example, a client application might prompt a user to specify a different password, 
-     * and then invoke setPassword to change the user's login password. Use resetPassword 
-     * instead if you want to reset the password with an sforce Web service-generated value.
-     * Your must be logged in with sufficient access rights to change the password for the specified user
-     * @param userId the id of the user
-     * @param userId the password of the user
-     * @return String The password
+     * NOTE:  There is a reason why the stdCtrl call is to "newPassword" and not
+     * "setPassword".  This is a workaround to a limitation in the wlw 8.1x service
+     * control-- you can't call an  operation named setPassword because it conflicts 
+     * with a built-in api on the service control.  The workaround is to doctor the jcx file 
+     * (named sforce3_0Enterprise.jcx in this version) from the standard generated control.
+     * 
+     * The workaround is to change the setPassword to newPassword in 3 places:
+     * 
+     *     public com.sforce.soap.enterprise.SetPasswordResult newPassword (java.lang.String userId, java.lang.String password)
+     *     
+     *     <portType name="Soap">...
+     *            <operation name="newPassword">
+     *            
+     *      <binding name="SoapBinding" type="tns:Soap">...
+     *            <operation name="newPassword">
+     * 
+     * 
+     * The reason this works is that we are calling sforce using doc-literal style, in which the operation
+     * name at the server is taken from the type of the incoming input xml doc.  The input message remains 
+     * type tns:setPasswordRequest so the sforce server doesn't know about the "newPassword" name change.
+     * 
+     * 
      * @common:operation
      */
     public SetPasswordResult setPassword(String userId, String password) 
     {
         stdCtrl.setOutputHeaders(refreshHeaders());
-        return stdCtrl.setPassword(userId,password);
+        return stdCtrl.newPassword(userId,password);
     }
 
 
 	/**
-	 * Validates the response and request
-	 * @param requestDoc SOAP request document
-	 * @param responseDoc SOAP response document
+     *  supports validation message logging
 	 */
     private void validateXml(XmlObject requestDoc, XmlObject responseDoc, String sLocation)
     {
@@ -546,7 +487,7 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
         {
             //reset the queryOptions and the SaveOptions to their defaults.  These two
             //headers are optional and doing this prevents unintended behavior.
-            //The session header is requrired on all calls to we won't re-initialize it
+            //The session header is requrired on all calls so we won't re-initialize it
             if (null == m_IBatch) {
                 m_qoElem = null;
             }
@@ -575,11 +516,8 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
 
     /**
-     * use this call to set the query option programmatically.
-     * It lasts until user calls resetQueryOptionsToDefault - default means annotation value, if any,
-     * or the system default
-     * @param batchSize The new batch size
      * @common:operation
+     * @jcs:ide hide="true"
      */
     public void setQueryOptions(int batchSize)
     {
@@ -592,21 +530,16 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
     
     /**
-     * Reset query options to default - default means annotation value, if any,
-     * or the system default
      * @common:operation
+     * @jcs:ide hide="true"
      */
     public void resetQueryOptionsToDefault() {
         setQueryOptions(m_IBatch.intValue());
     }
         
     /**
-     * Use this call to set the save options programmatically.
-     * It lasts until user call resetSaveOptionsToDefault - default means annotation value, if any,
-     * or the system default
-     * @param assignmentRuleId The new assignment rule Id
-     * @param autoAssign The new autoAssign parameter. By default is true
      * @common:operation
+     * @jcs:ide hide="true"
      */
 	public void setSaveOptions(String assignmentRuleId, boolean autoAssign)
     {   
@@ -623,9 +556,8 @@ public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSour
     }
     
     /**
-     * Reset query options to default - default means annotation value, if any,
-     * or the system default     
      * @common:operation
+     * @jcs:ide hide="true"
      */
     public void resetSaveOptionsToDefault() {
         setSaveOptions(m_assignRuleId, m_autoAssign);

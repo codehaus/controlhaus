@@ -107,7 +107,7 @@ public interface sforce3_0EnterpriseWS extends com.bea.control.ControlExtension,
      * Set a user's password
      * @jc:protocol form-post="false" form-get="false" 
      */
-    public com.sforce.soap.enterprise.SetPasswordResult setPassword (java.lang.String userId, java.lang.String password);
+    public com.sforce.soap.enterprise.SetPasswordResult newPassword (java.lang.String userId, java.lang.String password);
 
     /**
      * Reset a user's password
@@ -2413,7 +2413,7 @@ public interface sforce3_0EnterpriseWS extends com.bea.control.ControlExtension,
                 <fault  message="tns:UnexpectedErrorFault" name="UnexpectedErrorFault"/>
             </operation>
     
-            <operation name="setPassword">
+            <operation name="newPassword">
                 <documentation>Set a user's password</documentation>
                 <input  message="tns:setPasswordRequest"/>
                 <output message="tns:setPasswordResponse"/>
@@ -2690,7 +2690,7 @@ public interface sforce3_0EnterpriseWS extends com.bea.control.ControlExtension,
                 </fault>
             </operation>
     
-            <operation name="setPassword">
+            <operation name="newPassword">
                 <soap:operation soapAction=""/>
                 <input>
                     <soap:header use="literal" message="tns:Header" part="SessionHeader"/>

@@ -22,7 +22,11 @@
  */
 package org.controlhaus.sforce.workshop.ide;
 
+import com.bea.ide.Application;
+import com.bea.ide.workspace.IWorkspace;
+import com.bea.ide.workspace.ServerSvc;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,11 +34,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 /**
  * Simple web cilent wich can send http get & post requests,
@@ -65,6 +71,7 @@ public class SimpleWebClient {
 	 */
 	public WebResponse sendGetRequest(String urlStr) throws IOException{
 		
+        setSystemProperties();
 		URL url = new URL(urlStr);			
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		conn.setInstanceFollowRedirects(true);
@@ -294,6 +301,22 @@ public class SimpleWebClient {
 			}
 
 	}
+    
+    private void setSystemProperties() throws IOException 
+    {
+        IWorkspace w = Application.getWorkspace();
+        if (null==w)
+            throw new IOException("Can't continue without an active application");        
+                                                        
+        URI uriWlsHome = ServerSvc.get().getWlsHome(w);
+        File fileWlsHome = new File(uriWlsHome);
+        String strBeaHome = fileWlsHome.getParent();
+         // beahome tells the libs where to find the  license file
+        System.setProperty( "bea.home", strBeaHome);
+        // a workaround for "bad certificate" errors on https                    
+        System.setProperty("weblogic.webservice.client.ssl.strictcertchecking", "false");           
+    }
+
 
 	
 }
