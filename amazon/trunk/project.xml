@@ -3,7 +3,7 @@
   <name>Controlhaus Amazon Control</name>
   <groupId>controlhaus</groupId>
   <artifactId>controlhaus-amazon</artifactId>
-  <currentVersion>1.0-alpha-1</currentVersion>
+  <currentVersion>1.0-SNAPSHOT</currentVersion>
   <organization>
     <name>Controlhaus</name>
     <url>http://www.controlhaus.org/</url>
@@ -36,8 +36,8 @@
             
     <dependency>
       <groupId>beehive</groupId>
-      <artifactId>beehive-controls</artifactId>
-      <version>1.0-alpha</version>
+      <artifactId>controls</artifactId>
+      <version>svn-snapshot</version>
     </dependency>
     
     <dependency>
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>controlhaus</groupId>
       <artifactId>controlhaus-xfire-client</artifactId>
-      <version>1.0-alpha-1</version>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
         
     <dependency>
@@ -67,16 +67,15 @@
     <dependency>
       <groupId>xfire</groupId>
       <artifactId>xfire</artifactId>
-      <version>1.0-alpha-2</version>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>xfire</groupId>
       <artifactId>xfire-xmlbeans</artifactId>
-      <version>1.0-alpha-2</version>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
 
-    <!-- Use a patched version in the XFire dir until XMLBEANS-78 is in -->
     <dependency>
       <groupId>xfire</groupId>
       <artifactId>xmlbeans</artifactId>

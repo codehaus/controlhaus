@@ -9,33 +9,6 @@
       <ant:path refid="maven.dependency.classpath"/>
       <ant:pathelement path="${maven.build.dest}"/>
     </ant:path>
-    
-    <ant:taskdef name="apt" 
-                classname="org.apache.beehive.controls.runtime.generator.AptTask" 
-                classpathref="task.path" 
-                onerror="report" />
-                
-    <ant:taskdef name="control-jar" 
-                 classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
-                 classpathref="task.path" 
-                 onerror="report" /> 
-                 
-  <!-- Compile annotation generated classes from the generated client -->
-  <goal name="beehive:compile">
-
-    <ant:mkdir dir="target/generated-main"/>
-
-    <apt srcdir="${basedir}/src/main"
-         destdir="${maven.build.dest}" 
-         gendir="${basedir}/target/generated-main"
-         classpathref="task.path"
-         debug="on"
-         compileByExtension="true"
-         srcExtensions="*.java,*.jcx,*.jcs"
-       	 nocompile="true"
-         target="1.5"/>
- 
-  </goal>
   
   <!-- This only needs to be run if the schema has changed. -->
   <goal name="xfire:generate-client">
@@ -94,23 +67,6 @@
       </ant:fileset>
     </ant:copy>
 	
-  </goal>
-  
-  <!-- Compile annotation generated classes from the test cases -->
-  <goal name="beehive:test-compile">
-
-    <ant:mkdir dir="target/generated-test"/>
-
-    <apt srcdir="${basedir}/src/test"
-         destdir="${maven.build.dir}/test-classes" 
-         gendir="${maven.build.dir}/generated-test"
-         classpathref="task.path"
-         debug="on"
-         compileByExtension="true"
-         srcExtensions="*.java,*.jcx,*.jcs"
-       	 nocompile="true"
-         target="1.5"/>
-         
   </goal>
  
   <!-- its useful to generate an amazon jar when working in an ide -->
