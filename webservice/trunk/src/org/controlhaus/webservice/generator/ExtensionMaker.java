@@ -131,7 +131,7 @@ public class ExtensionMaker {
             return getClassName(cls.getComponentType()) + "[]";
         }
         else {
-            return cls.getName();
+            return cls.getName().replace('$', '.');
         }
     }
 
