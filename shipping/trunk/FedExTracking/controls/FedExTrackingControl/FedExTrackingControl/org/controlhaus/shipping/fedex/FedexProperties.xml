@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<control-tags xmlns="http://www.bea.com/2003/03/controls/">   
+    
+    <control-tag name="fedex-control-tag">
+    <description>Fedex Control Tag</description>
+        
+        <!-- Connection Properties -->
+        
+        <attribute name="server-name" required="true">
+            <description>Server name (e.g. gatewaybeta.fedex.com)</description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        <attribute name="server-port" required="true">
+            <description>Server port (e.g. 443)</description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        
+    </control-tag>
+        
+</control-tags>

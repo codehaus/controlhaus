@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.controlhaus.org/schema/fedex" xmlns="http://www.controlhaus.org/schema/fedex" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:api="http://www.fedex.com/fsmapi" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="FedexShared.xsd"/>
+	<xs:element name="FDXTrackReply">
+		<xs:annotation>
+			<xs:documentation>
+				<api:description>reply to TrackRequest</api:description>
+				<api:applicableCarriers>ALL</api:applicableCarriers>
+				<api:validFor>ALL</api:validFor>
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ReplyHeader" type="ReplyHeader">
+					<xs:annotation>
+						<xs:documentation>
+							<api:description>reply boilerplate</api:description>
+							<api:applicableCarriers>ALL</api:applicableCarriers>
+							<api:validFor>ALL</api:validFor>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:choice>
+					<xs:element name="Error" type="Error">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>hard error code and message</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:sequence>
+						<xs:element name="MoreData" type="xs:boolean" minOccurs="0" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation>
+									<api:description>true if additional profiles remain to be retrieved</api:description>
+									<api:applicableCarriers>ALL</api:applicableCarriers>
+									<api:validFor>ALL</api:validFor>
+									<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="PagingToken" type="xs:string" minOccurs="0" maxOccurs="1">
+							<xs:annotation>
+								<xs:documentation>
+									<api:description>a string that must be passed in a TrackRequest to retrieve the next set of profiles</api:description>
+									<api:applicableCarriers>ALL</api:applicableCarriers>
+									<api:validFor>ALL</api:validFor>
+									<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="TrackProfile" type="TrackProfile" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>
+									<api:description>tracking data pertaining to a single package that matches the SearchValue that was given in the TrackRequest</api:description>
+									<api:applicableCarriers>ALL</api:applicableCarriers>
+									<api:validFor>ALL</api:validFor>
+									<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>						
+					</xs:sequence>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="TrackProfile">
+		<xs:sequence>
+			<xs:element name="TrackingNumber" type="xs:string" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>tracking number</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice>
+				<xs:element name="SoftError" type="SoftError">
+					<xs:annotation>
+						<xs:documentation>
+							<api:description>soft error type, code and message</api:description>
+							<api:applicableCarriers>ALL</api:applicableCarriers>
+							<api:validFor>ALL</api:validFor>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:sequence>
+					<xs:element name="CarrierCode" type="CarrierCode" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>specifies a particular carrier</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="OtherIdentifierCount" type="xs:positiveInteger" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>count of other identifiers related to this package returned in this reply</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional; if not present, count is zero</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="OtherIdentifier" type="PackageIdentifier" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>another identifier that is related to this package</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ShipDate" type="xs:date" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>date on which package was tendered to FedEx</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="EstimatedDeliveryDate" type="xs:date" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>projected delivery date</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="EstimatedDeliveryTime" type="xs:time" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>projected delivery time</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DestinationAddress" type="Address" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>destination address</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DeliveredDate" type="xs:date" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>date on which package was delivered at destination</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="DeliveredTime" type="xs:time" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>time on DeliveredDate at which package was delivered at destination</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="SignedForBy" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>signature of person who signed for package, or relative location at which package was left, such as "Front Desk" or "Back Door"</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+								<xs:maxLength value="25"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="DeliveredLocationCode" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>delivered location code</api:description>
+								<api:applicableCarriers>FDXE</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+								<xs:maxLength value="2"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="DeliveredLocationDescription" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>relative location at which package was left, such as "Front Desk" or "Back Door"</api:description>
+								<api:applicableCarriers>FDXE</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+								<xs:maxLength value="25"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="Service" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>string describing service type</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+								<xs:maxLength value="70"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+					<xs:element name="Weight" type="xs:decimal" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>gross weight of package</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="WeightUnits" type="WeightUnits" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>units in which Weight is expressed</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="PackagingDescription" type="xs:string" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>description of packaging type of this package</api:description>
+								<api:applicableCarriers>FDXE</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ReattemptDate" type="xs:date" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>delivery reattempt date</api:description>
+								<api:applicableCarriers>FDXE</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ReattemptTime" type="xs:time" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>delivery reattempt time</api:description>
+								<api:applicableCarriers>FDXE</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="PackageSequenceNumber" type="xs:positiveInteger" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>package sequence number of package in multipiece shipment</api:description>
+								<api:applicableCarriers>FDXE</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="PackageCount" type="xs:positiveInteger" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>count of packages in multipiece shipment</api:description>
+								<api:applicableCarriers>FDXE</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="FedExURL" type="xs:anyURI" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>a URL containing the tracking number that can be used to track this package via fedex.com</api:description>
+								<api:applicableCarriers>FDXE</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="ScanCount" type="xs:positiveInteger" minOccurs="0" maxOccurs="1">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>TBD</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional; if not present, then count is zero</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="Scan" type="Scan" minOccurs="0" maxOccurs="unbounded">
+						<xs:annotation>
+							<xs:documentation>
+								<api:description>one scan or event</api:description>
+								<api:applicableCarriers>ALL</api:applicableCarriers>
+								<api:validFor>ALL</api:validFor>
+								<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+							</xs:documentation>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Scan">
+		<xs:sequence>
+			<xs:element name="Date" type="xs:date" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Time" type="xs:time" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ScanType" type="xs:string" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ScanDescription" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="40"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="StatusExceptionCode" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="2"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="StatusExceptionDescription" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="40"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="City" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="35"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="StateOrProvinceCode" type="StateOrProvinceCode" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CountryCode" type="CountryCode" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HoldAtLocationAddress" minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>Hold at Location address line 1 (and only)</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="35"/>
+						<xs:whiteSpace value="preserve"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>			
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
