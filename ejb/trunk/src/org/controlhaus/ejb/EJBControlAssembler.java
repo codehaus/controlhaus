@@ -23,7 +23,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 
-import com.sun.java.xml.ns.j2Ee.*;
+import org.controlhaus.schemas.j2ee.*;
 
 import java.io.IOException;
 import java.io.File;
