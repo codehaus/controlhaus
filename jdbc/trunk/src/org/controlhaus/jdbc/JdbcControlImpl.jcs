@@ -100,7 +100,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * Invoked by the controls runtime when a new instance of this class is aquired by the runtime
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceEvents.class, eventName = "onAcquire")
-    public void onAquire() throws ControlException {
+    public void onAquire() {
         try {
             getConnection();
         } catch (SQLException se) {
@@ -112,7 +112,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * Invoked by the controls runtime when an instance of this class is released by the runtime
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onRelease")
-    public void onRelease() throws ControlException {
+    public void onRelease() {
         logger.info("onRelease() invoked.");
 
         for (PreparedStatement ps : _resources) {
@@ -143,7 +143,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * <p/>
      * It is typically not necessary to call this method when using the control.
      */
-    public Connection getConnection() throws SQLException, ControlException {
+    public Connection getConnection() throws SQLException {
 
         if (_connection == null) {
 
@@ -382,11 +382,12 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * @param jndiName    Specifed in the subclasse's ConnectionDataSource annotation
      * @param jndiFactory Specified in the subclasse's ConnectionDataSource Annotation.
      * @return null if a connection cannot be established
-     * @throws ControlException
      * @throws SQLException
      */
-    private Connection getConnectionFromDataSource(String jndiName, Class<? extends JdbcControl.JndiContextFactory> jndiFactory)
-            throws SQLException, ControlException {
+    private Connection getConnectionFromDataSource(String jndiName,
+                                                   Class<? extends JdbcControl.JndiContextFactory> jndiFactory)
+            throws SQLException
+    {
 
         Connection con = null;
         try {
@@ -412,12 +413,12 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * @param userName          Specified in the subclasse's ConnectionDriver annotation.
      * @param password          Specified in the subclasse's ConnectionDriver annotation.
      * @return null if a connection cannot be established.
-     * @throws ControlException
      * @throws SQLException
      */
     private Connection getConnectionFromDriverManager(String dbDriverClassName, String dbUrlStr,
                                                       String userName, String password, String propertiesString)
-            throws SQLException, ControlException {
+            throws SQLException
+    {
 
         Connection con = null;
         try {
@@ -427,7 +428,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             } else if (!EMPTY_STRING.equals(propertiesString)) {
                 Properties props = parseProperties(propertiesString);
                 if (props == null) {
-                    throw new ControlException("Invalide properties annotation value: " + propertiesString);
+                    throw new ControlException("Invalid properties annotation value: " + propertiesString);
                 }
                 con = DriverManager.getConnection(dbUrlStr, props);
             } else {

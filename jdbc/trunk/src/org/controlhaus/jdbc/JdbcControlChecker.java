@@ -35,6 +35,7 @@ import org.controlhaus.jdbc.parser.SqlParser;
 import org.controlhaus.jdbc.parser.SqlStatement;
 
 import java.util.Collection;
+import java.sql.SQLException;
 
 /**
  * Annotation checker for the JdbcControl.  Invoked at compile time by the controls framework.
@@ -196,7 +197,7 @@ public class JdbcControlChecker implements ControlChecker {
         //
         try {
             ParameterChecker.checkReflectionParameters(_statement, method);
-        } catch (Exception e) {
+        } catch (ControlException e) {
             env.getMessager().printError(method.getPosition(), e.getMessage());
             return;
         }

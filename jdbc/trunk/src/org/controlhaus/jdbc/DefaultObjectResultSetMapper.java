@@ -19,12 +19,12 @@ package org.controlhaus.jdbc;
 
 import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
-import org.apache.xmlbeans.SchemaType;
 import org.controlhaus.jdbc.JdbcControl.SQL;
 
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -33,7 +33,9 @@ import java.util.Calendar;
  */
 public class DefaultObjectResultSetMapper extends ResultSetMapper {
 
-    /** static reference to the TypeMappingsFactory for this class */
+    /**
+     * static reference to the TypeMappingsFactory for this class
+     */
     protected static final TypeMappingsFactory _tmf = TypeMappingsFactory.getInstance();
 
     /**
@@ -43,23 +45,25 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
      * @param m         Method assoicated with this call.
      * @param resultSet Result set to map.
      * @param cal       A Calendar instance for time/date value resolution.
-     * @return          The Object resulting from the ResultSet
-     * @throws Exception On error.
+     * @return The Object resulting from the ResultSet
      */
-    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) {
 
         final Class returnType = m.getReturnType();
         final boolean isArray = returnType.isArray();
 
-        if (isArray) {
-            final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
-            return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType, cal);
-        } else {
-            if (!resultSet.next()) {
-                return _tmf.fixNull(m.getReturnType());
+        try {
+            if (isArray) {
+                final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
+                return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType, cal);
+            } else {
+                if (!resultSet.next()) {
+                    return _tmf.fixNull(m.getReturnType());
+                }
+                return RowMapperFactory.getRowMapper(resultSet, returnType, cal).mapRowToReturnType();
             }
-
-            return RowMapperFactory.getRowMapper(resultSet, returnType, cal).mapRowToReturnType();
+        } catch (SQLException e) {
+            throw new ControlException(e.getMessage(), e);
         }
     }
 
@@ -74,11 +78,11 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
      * @param maxRows    The maximum size of array to create
      * @param arrayClass The class of object contained within the array
      * @param cal        A calendar instance to use for date/time values
-     * @return           An array of the specified class type
-     * @throws Exception On error.
+     * @return An array of the specified class type
+     * @throws SQLException On error.
      */
     protected Object arrayFromResultSet(ResultSet rs, int maxRows, Class arrayClass, Calendar cal)
-            throws Exception {
+            throws SQLException {
 
         Class componentType = arrayClass.getComponentType();
         ResultSetMetaData md = rs.getMetaData();

@@ -57,9 +57,8 @@ public final class SqlParser {
      *
      * @param sql A String contianing the sql to parse.
      * @return A SqlStatement instance.
-     * @throws org.apache.beehive.controls.api.ControlException If parsing error occures.
      */
-    public SqlStatement parse(String sql) throws ControlException {
+    public SqlStatement parse(String sql) {
 
         // does a cached parse result exist for this statement?
         if (_cachedSqlStatements.containsKey(sql)) {
@@ -71,9 +70,9 @@ public final class SqlParser {
         try {
             parsed = _parser.parse();
         } catch (ParseException e) {
-            throw new ControlException("Error parsing SQL statment.", e);
+            throw new ControlException("Error parsing SQL statment." + e.getMessage(), e);
         } catch (TokenMgrError tme) {
-            throw new ControlException("Error parsing SQL statment.", tme);
+            throw new ControlException("Error parsing SQL statment. " + tme.getMessage(), tme);
         }
 
         if (parsed.isCacheable()) {

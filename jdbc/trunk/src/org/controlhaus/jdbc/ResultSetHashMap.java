@@ -19,6 +19,7 @@ package org.controlhaus.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 /**
@@ -46,7 +47,7 @@ public class ResultSetHashMap extends HashMap<String, Object> {
      * This constructor is optimized for being called in a loop.
      * Preserve the upper case column list for performance.
      */
-    ResultSetHashMap(ResultSet rs, String[] keys) throws Exception {
+    ResultSetHashMap(ResultSet rs, String[] keys) throws SQLException {
         super();
         assert keys.length == rs.getMetaData().getColumnCount() + 1;
 
@@ -57,7 +58,7 @@ public class ResultSetHashMap extends HashMap<String, Object> {
     }
 
 
-    ResultSetHashMap(ResultSet rs) throws Exception {
+    ResultSetHashMap(ResultSet rs) throws SQLException {
         super();
         ResultSetMetaData md = rs.getMetaData();
         for (int i = 1; i <= md.getColumnCount(); i++) {

@@ -43,9 +43,8 @@ public class ResultSetIterator implements java.util.Iterator {
      * @param method The annotated method.
      * @param rs The ResultSet to map.
      * @param cal A Calendar instance for mapping date/time values.
-     * @throws Exception On error.
      */
-    ResultSetIterator(ControlBeanContext context, Method method, ResultSet rs, Calendar cal) throws Exception {
+    ResultSetIterator(ControlBeanContext context, Method method, ResultSet rs, Calendar cal) {
         _rs = rs;
 
         JdbcControl.SQL methodSQL = (JdbcControl.SQL) context.getMethodPropertySet(method, JdbcControl.SQL.class);
@@ -90,7 +89,7 @@ public class ResultSetIterator implements java.util.Iterator {
             // reset upon consumption
             _primed = false;
             return _rowMapper.mapRowToReturnType();
-        } catch (Exception e) {
+        } catch (SQLException e) {
             // Since Iterator interface is locked, all we can do
             // is put the real exception inside an expected one.
             NoSuchElementException xNoSuch = new NoSuchElementException("ResultSet exception: " + e);

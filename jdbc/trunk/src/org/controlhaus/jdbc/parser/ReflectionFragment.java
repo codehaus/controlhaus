@@ -117,9 +117,8 @@ public final class ReflectionFragment extends SqlFragment {
      * @param method  Method instance to evaluate against.
      * @param args    Method argument values
      * @return All parameter object values contained within this fragment
-     * @throws ControlException if evaluation fails
      */
-    Object[] getParameterValues(ControlBeanContext context, Method method, Object[] args) throws ControlException {
+    Object[] getParameterValues(ControlBeanContext context, Method method, Object[] args) {
 
         Object value = null;
         try {
@@ -145,9 +144,8 @@ public final class ReflectionFragment extends SqlFragment {
      * @param aName
      * @param bName
      * @return
-     * @throws ControlException
      */
-    private Object extractValue(Object aValue, String aName, String bName) throws ControlException {
+    private Object extractValue(Object aValue, String aName, String bName) {
 
         Class aClass = aValue.getClass();
         Object value = null;
@@ -195,7 +193,8 @@ public final class ReflectionFragment extends SqlFragment {
         try {
             value = aClass.getField(bName).get(aValue);
             return value;
-        } catch (Exception e) {
+        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException e) {
         }
 
         //

@@ -20,6 +20,7 @@ package org.controlhaus.jdbc;
 import org.apache.beehive.controls.api.ControlException;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Types;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -281,10 +282,13 @@ public final class TypeMappingsFactory {
      *
      * @param val
      * @param args
-     * @return type
-     * @throws Exception
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
      */
-    public Object lookupType(Object val, Object[] args) throws Exception {
+    public Object lookupType(Object val, Object[] args)
+            throws IllegalAccessException, InvocationTargetException
+    {
         return _methodMapGet.invoke(val, args);
     }
 
