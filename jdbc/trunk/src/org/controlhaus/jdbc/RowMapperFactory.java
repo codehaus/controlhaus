@@ -20,6 +20,7 @@ package org.controlhaus.jdbc;
 import org.apache.beehive.controls.api.ControlException;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -58,9 +59,9 @@ public final class RowMapperFactory {
     /**
      * Get a RowMapper instance which knows how to map a ResultSet row to the given return type.
      *
-     * @param rs The ResultSet to map.
+     * @param rs              The ResultSet to map.
      * @param returnTypeClass The class to map a ResultSet row to.
-     * @param cal Calendar instance for mapping date/time values.
+     * @param cal             Calendar instance for mapping date/time values.
      * @return A RowMapper instance.
      * @throws ControlException on error.
      */
@@ -127,9 +128,9 @@ public final class RowMapperFactory {
         /**
          * Create an instance of the RowMapper class.
          *
-         * @param rs ResultSet we are mapping from.
+         * @param rs         ResultSet we are mapping from.
          * @param returnType Class to map rows to.
-         * @param cal Calendar instance for date/time values.
+         * @param cal        Calendar instance for date/time values.
          * @return A RowMapper instance.
          * @throws ControlException on error.
          */
@@ -138,8 +139,14 @@ public final class RowMapperFactory {
             try {
                 c = _rowMapper.getDeclaredConstructor(_params);
                 return (RowMapper) c.newInstance(new Object[]{rs, returnType, cal});
-            } catch (Exception e) {
-                throw new ControlException("Failure creating new instance of RowMapper:", e);
+            } catch (NoSuchMethodException e) {
+                throw new ControlException("Failure creating new instance of RowMapper, " + e.toString());
+            } catch (InstantiationException e) {
+                throw new ControlException("Failure creating new instance of RowMapper, " + e.toString());
+            } catch (IllegalAccessException e) {
+                throw new ControlException("Failure creating new instance of RowMapper, " + e.toString());
+            } catch (InvocationTargetException e) {
+                throw new ControlException("Failure creating new instance of RowMapper, " + e.getCause().toString());
             }
         }
     }

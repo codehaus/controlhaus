@@ -27,7 +27,7 @@ import org.controlhaus.jdbc.JdbcControl;
 @org.apache.beehive.controls.api.bean.ControlExtension
 @JdbcControl.ConnectionDriver(databaseDriverClass="org.apache.derby.jdbc.EmbeddedDriver",
                                    databaseURL="jdbc:derby:MyDB;create=true")
-@JdbcControl.ConnectionOptions(readOnly=false,
+@JdbcControl.ConnectionOptions(readOnly=false, resultSetHoldability = JdbcControl.HoldabilityType.DRIVER_DEFAULT,
         typeMappers={
                      @JdbcControl.TypeMapper(UDTName="foo",mapperClass=TestTypeMapper.class),
                      @JdbcControl.TypeMapper(UDTName="bar",mapperClass=TestTypeMapper.class)

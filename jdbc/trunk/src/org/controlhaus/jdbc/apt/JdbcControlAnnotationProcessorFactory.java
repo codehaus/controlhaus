@@ -55,7 +55,8 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
     private static final Collection<String> _supportedAnnotations =
             Collections.unmodifiableCollection(Arrays.asList("org.controlhaus.jdbc.JdbcControl.SQL",
                                                              "org.controlhaus.jdbc.JdbcControl.ConnectionDriver",
-                                                             "org.controlhaus.jdbc.JdbcControl.ConnectionDataSource"));
+                                                             "org.controlhaus.jdbc.JdbcControl.ConnectionDataSource",
+                                                             "org.controlahus.jdbc.JdbcControl.ConnectionOptions"));
 
     // define any supported apt options
     private static final Collection<String> _supportedOptions = Collections.emptySet();
