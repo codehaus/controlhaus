@@ -1,0 +1,280 @@
+//
+// Copyright (c) 2001-2002 BEA Systems.  All rights reserved.
+//
+package org.controlhaus.ejb;
+
+/******************************************************************************
+* WARNING: THIS CLASS IS INCLUDED INSIDE OF SERIALIZED CONVERSATIONAL STATE
+* OR ASYNCHRONOUS REQUESTS.   THIS CLASS MUST REMAIN SERIALIZATION COMPATIBLE
+* OR EXISTING STATE/REQUESTS MAY BECOME INVALIDATED.   IF YOU AREN'T CLEAR ON
+* THE IMPLICATIONS OF THIS STATEMENT, TURN BACK NOW.
+******************************************************************************/
+
+import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.bean.ControlImplementation;
+
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.rmi.RemoteException;
+import java.util.Collection;
+import java.util.Iterator;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
+
+/**
+ * The EntityEJBControlImpl class is the control implementation class for
+ * Entity EJBs.
+ *
+ * @jcs:control-tags file=EJBControlImpl.xml
+ * @jcs:jc-jar
+       label="EJB Control"
+       group-priority="-900"
+       group-name="Main"
+       insert-wizard-class="workshop.control.editorsupport.ejb.EntityEjbControlWizard"
+       version="1.0.0"
+       icon-16="/images/ejb.gif"
+       icon-32="/images/ejb_32.gif"
+       requires-extension="true"
+       display-in-palette="false"
+ * @jcs:suppress-common-tags
+       tags="xmlns target-namespace schema define"
+ */
+@ControlImplementation( assembler = EJBControlAssembler.class )
+public class EntityEJBControlImpl extends EJBControlImpl implements EntityEJBControl
+{
+    static final long serialVersionUID = 1L;
+    /* knex log4j */
+    //static private  final com.bea.wlw.util.Logger _log = new com.bea.wlw.runtime.core.util.InternalLogger("com.bea.wlw.runtime.core.control.EntityEJBControlImpl");//4466d0525673e9a72f2292fa3cad7169
+
+    public EntityEJBControlImpl()
+    {
+        super();
+    }
+
+    //
+    // Implements auto-find semantics for entity beans
+    //
+    protected Object resolveBeanInstance()
+    {
+        //
+        // Already resolved and cached
+        //
+        if (_beanInstance != null)
+            return _beanInstance;
+
+        //
+        // Attempt to resolve from a cached handle
+        //
+        _beanInstance = resolveBeanInstanceFromHandle();
+        if (_beanInstance != null)
+            return _beanInstance;
+
+        //
+        // Attempt to resolve bean instance from cached primary key
+        //
+        if (_lastKey == null)
+            /* knex exception
+               Unable to locate a target bean instance, because a successful
+               create or finder method has not been executed.
+               throw: ControlException
+               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_1727313764")));//18c881bbd58454ac0ebf3baa4a35e084
+             */
+             throw new ControlException("Unable to locate a target bean instance, because a successful create or finder method has not been executed.");
+
+        Class [] findArgType = new Class[] { _lastKey.getClass() };
+        try
+        {
+            Method finder = _homeInterface.getMethod("findByPrimaryKey",
+                                                     findArgType);
+            return finder.invoke(_homeInstance, new Object [] { _lastKey });
+        }
+        catch (NoSuchMethodException nsme)
+        {
+            /* knex exception
+               Unable to locate findByPrimaryKey method on home interface
+               throw: ControlException
+               nested: nsme
+               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_1049005105")),nsme);//b8e6f48a6bedb11e2b69665a3109789a
+             */
+             throw new ControlException("Unable to locate findByPrimaryKey method on home interface",nsme);
+        }
+        catch (InvocationTargetException ite)
+        {
+            _lastException = ite.getTargetException();
+            /* knex exception
+               Failure to locate entity instance associated with the last
+               primary key
+               throw: ControlException
+               nested: _lastException
+               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_1425033391")),_lastException);//1a71cbd89e4a9d5af11fc8977019a33c
+             */
+             throw new ControlException("Failure to locate entity instance associated with the last primary key", _lastException);
+        }
+        catch (Exception e)
+        {
+            /* knex exception
+               Unexpected exception in auto-find
+               throw: ControlException
+               nested: e
+               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_170913963")),e);//58e2fb295d3564a4a0d22fffe0c633ef
+             */
+             throw new ControlException("Unexpected exception in auto-find",e);
+        }
+    }
+
+    protected boolean saveBeanInstance()
+    {
+        //
+        // First, delegate to parent (handle-based persistence)
+        //
+        if (super.saveBeanInstance())
+            return true;
+
+        //
+        // Fall back to persistence using a saved primary key value
+        //
+        try
+        {
+            if (_beanInstance instanceof EJBObject)
+                _lastKey = (Serializable)((EJBObject)_beanInstance).getPrimaryKey();
+            else
+                _lastKey = (Serializable)((EJBLocalObject)_beanInstance).getPrimaryKey();
+        }
+        catch (RemoteException re)
+        {
+            /* knex logerror
+             * Unable to obtain target bean primary key
+             * throwable: re
+             */
+             //if (_log.isErrorEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Unable to obtain target bean primary key",__args));_log.error(__msg, re);}//648eda56d81e7f4643381ef14a85ab2a
+            throw new ControlException("Unable to save bean instance", re);
+        }
+        /* knex logdebug Saved bean using primary key: {_lastKey} */
+        //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=_lastKey;String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Saved bean using primary key: {0}",__args));_log.debug(__msg);}//ea9dbd0d241da60c44b4dc9489c4c8cf
+        return true;
+    }
+
+    //
+    // Release the bean instance. Entity bean instances are *never* removed, except via
+    // direct client calls to the remove method.
+    //
+    protected void releaseBeanInstance(boolean alreadyRemoved)
+    {
+        super.releaseBeanInstance(alreadyRemoved);
+
+        // Release any cached primary key value
+        _lastKey = null;
+    }
+
+    private boolean isMultiSelectorMethod(Method m)
+    {
+        if (isFinderMethod(m) &&
+            m.getReturnType().isAssignableFrom(Collection.class))
+            return true;
+        return false;
+    }
+
+    //
+    // This method wraps the base EJBControlImpl invoke, doing the additional
+    // work to maintain the primary key cache for methods which alter the
+    // target bean instance.
+    //
+    public Object invoke(Method m, Object [] args) throws Throwable
+    {
+        Throwable invokeException = null;
+        Object retval = null;
+        Object currentBeanInstance = _beanInstance;
+        try
+        {
+            retval = super.invoke(m, args);
+        }
+        catch (Exception t)
+        {
+            // a tasty treat, but I'll throw up later
+            invokeException = t;
+        }
+
+        if (isMultiSelectorMethod(m))
+        {
+            releaseBeanInstance(false);
+
+            Collection collection = (Collection)retval;
+            if (collection != null && !collection.isEmpty())
+            {
+                /* knex logdebug Finder returned {String.valueOf(collection.size())} items */
+                //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=String.valueOf(collection.size());String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Finder returned {0} items",__args));_log.debug(__msg);}//866bd43dba11b9016cd2951f55b1d0ff
+                _colIter = collection.iterator();
+                _beanInstance = beanNarrow(_colIter.next());
+            }
+            else
+            {
+                /* knex logdebug Finder returned no items */
+                //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Finder returned no items",__args));_log.debug(__msg);}//ee5910e1b74e4a20995c40e644e03892
+                releaseBeanInstance(false);
+            }
+        }
+        else if (isSelectorMethod(m))
+        {
+            // Release collection results if a single select method is called.
+            _colIter = null;
+        }
+
+        if (invokeException != null)
+            throw invokeException;
+
+        return retval;
+    }
+
+    /**
+     * EntityEJBControl.getEJBNextBeanInstance()
+     * @jcs:ide hide=true
+     */
+    public Object getEJBNextBeanInstance()
+    {
+        if (_colIter == null)
+            return null;
+
+        if (!_colIter.hasNext())
+        {
+            releaseBeanInstance(false);
+            return null;
+        }
+
+        _beanInstance = beanNarrow(_colIter.next());
+        return _beanInstance;
+    }
+
+    //
+    // Override the onCreate event handler that was already defined in EJBControlImpl to
+    // add additional processing.
+    //
+    public void onCreate()
+    {
+        super.onCreate();
+        if (_beanType != EJBControlImpl.ENTITY_BEAN)
+        {
+            /* knex exception
+               Attempting to use a entity bean control with a bean that is not
+               a entity bean
+               throw: ControlException
+               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_25965400")));//7219fa1b94db4fa5670e99a89f94a5b7
+             */
+             throw new ControlException("Attempting to use a entity bean control with a bean that is not a entity bean");
+        }
+    }
+
+    //
+    // Override the onReset event handler that was already defined in EJBControlImpl to
+    // add additional processing.
+    //
+    public void onReset()
+    {
+        super.onReset();
+        _lastKey = null;
+        _colIter = null;
+    }
+
+    private Serializable _lastKey;       // primary key of the selected instance
+    transient private Iterator _colIter; // multi-finder result iterator
+}

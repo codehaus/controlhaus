@@ -1,0 +1,127 @@
+<?xml version="1.0" ?>
+
+<project name="ejb-control" default="usage">
+
+    <property name="source.dir" value="${basedir}/src"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="build.beansrc" value="${build.dir}/beansrc"/>
+    <property name="build.xbeansrc" value="${build.dir}/xbeansrc"/>
+    <property name="build.xbeanclasses" value="${build.dir}/xbeanclasses"/>
+    <property name="ejbXMLbeans.jar" value="ejbXMLBeans.jar"/>	
+    <property name="build.jar" value="ejbControl.jar"/>
+    <property name="xbean.marker" location="${build.xbeansrc}/XBEAN" />
+    <property name="schema.dir" value="${basedir}/schema" />
+    
+    <target name="usage">
+        <echo message=""/>
+        <echo message=""/>
+        <echo message="Controls Template Build file"/>
+        <echo message="================================================================"/>
+        <echo message="|                          Usage                               |"/>
+        <echo message="================================================================"/>
+        <echo message="----------------------------------------------------------------"/>
+        <echo message="|                      Standard Targets                        |"/>
+        <echo message="----------------------------------------------------------------"/>
+        <echo message="clean               - Delete all generated files"/>
+        <echo message="build               - build controls"/>
+        <echo message="----------------------------------------------------------------"/>
+    </target>
+
+    <target name="gatherDeps" depends="generate_xbean" description="Gathers Dependencies">
+        <get src="http://www.ibiblio.org/maven/velocity/jars/velocity-1.4.jar"
+              dest="${basedir}/lib/velocity-1.4.jar"
+              usetimestamp="true"/>
+        <get src="http://www.ibiblio.org/maven/beehive/jars/controls-1.0-alpha.jar"
+              dest="${basedir}/lib/controls-1.0-alpha.jar"
+              usetimestamp="true"/>
+        <get src="http://www.ibiblio.org/maven/commons-collections/jars/commons-collections-3.0.jar"
+              dest="${basedir}/lib/commons-collections-3.0.jar"
+              usetimestamp="true"/>
+        <get src="http://www.ibiblio.org/maven/log4j/jars/log4j-1.2.8.jar"
+              dest="${basedir}/lib/log4j-1.2.8.jar"
+              usetimestamp="true"/>
+        <get src="http://www.ibiblio.org/maven/geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc2.jar"
+              dest="${basedir}/lib/geronimo-spec-j2ee-1.4-rc2.jar"
+              usetimestamp="true"/>
+        <get src="http://www.ibiblio.org/maven/xmlbeans/jars/xbean-1.0.3.jar"
+              dest="${basedir}/lib/xbean-1.0.3.jar"
+              usetimestamp="true"/>
+              
+              
+        <path id="build.classpath">
+            <fileset dir="lib">
+                <include name="**/*.jar" />
+            </fileset>
+            <pathelement path="${build.classes}" />
+        </path>
+
+        <taskdef name="apt" 
+                 classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+                 onerror="report"
+                 classpathref="build.classpath"/>
+
+        <taskdef name="control-jar" 
+                 classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
+                 onerror="report" 
+                 classpathref="build.classpath"/>
+
+    </target>
+
+
+    <target name="clean" description="Deletes all generated files">
+        <delete dir="${build.dir}"/>
+        <delete file="velocity.log"/>
+    </target>
+
+    <target name="dirs">
+        <mkdir dir="${build.classes}" />
+        <mkdir dir="${build.beansrc}" />
+        <mkdir dir="${build.xbeansrc}" />
+        <mkdir dir="${build.xbeanclasses}" />
+        <mkdir dir="${lib.dir}" />
+    </target>
+
+    <target name="build" depends="dirs,gatherDeps" description="Builds controls sources">
+        <apt srcdir="${source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
+             classpathref="build.classpath"
+             debug="on"
+             compileByExtension="true"
+             srcExtensions="*.java,*.jcx,*.jcs"
+             target="1.5">
+        </apt>
+        <control-jar destfile="${build.dir}/${build.jar}"  basedir="${build.classes}" />
+    </target>
+    
+    <!-- ==================================================================== -->
+    <!-- generate_xbean - generate xbean for EJB deployment descriptor        -->
+    <!-- ==================================================================== -->
+    <target name="generate_xbean">
+        <fileset id="xbean.sources"
+            dir="${schema.dir}" includes="*.xsd*"/>
+        <uptodate property="xbean.uptodate"
+            targetfile="${xbean.marker}">
+            <srcfiles refid="xbean.sources"/>
+        </uptodate>
+        <pathconvert property="xbean.args" pathsep=" " refid="xbean.sources"/>
+        <antcall target="xbean_schema_compiler"/>
+        <jar destfile="${lib.dir}/${ejbXMLbeans.jar}" basedir="${build.xbeanclasses}"/>    	
+    </target>
+
+    <!-- ==================================================================== -->
+    <!-- xbean_schema_compiler - helper target used to call XBean compiler    -->
+    <!-- Use generate_xbean to get proper dependency checking optimization!!! -->
+    <!-- ==================================================================== -->
+    <target name="xbean_schema_compiler" unless="xbean.uptodate">
+    <java
+          classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          dir="${build.xbeansrc}"
+          fork="true" 
+          classpathref="build.classpath">
+          <arg line="-src ${build.xbeansrc} -d ${build.xbeanclasses} ${xbean.args}"/>
+    </java>
+    </target>
+
+
+</project>

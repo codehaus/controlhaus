@@ -1,0 +1,495 @@
+//
+// Copyright (c) 2001-2002 BEA Systems.  All rights reserved.
+//
+package org.controlhaus.ejb;
+
+/******************************************************************************
+* WARNING: THIS CLASS IS INCLUDED INSIDE OF SERIALIZED CONVERSATIONAL STATE
+* OR ASYNCHRONOUS REQUESTS.   THIS CLASS MUST REMAIN SERIALIZATION COMPATIBLE
+* OR EXISTING STATE/REQUESTS MAY BECOME INVALIDATED.   IF YOU AREN'T CLEAR ON
+* THE IMPLICATIONS OF THIS STATEMENT, TURN BACK NOW.
+******************************************************************************/
+
+import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.bean.ControlImplementation;
+import org.apache.beehive.controls.api.bean.Extensible;
+import org.apache.beehive.controls.api.context.Context;
+import org.apache.beehive.controls.api.context.ControlBeanContext;
+import org.apache.beehive.controls.api.context.ControlBeanContext.LifeCycle;
+import org.apache.beehive.controls.api.context.ResourceContext;
+import org.apache.beehive.controls.api.context.ResourceContext.ResourceEvents;
+import org.apache.beehive.controls.api.events.EventHandler;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Vector;
+
+import javax.ejb.CreateException;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
+import javax.ejb.Handle;
+import javax.ejb.FinderException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
+
+//import weblogic.net.jndi.JndiURLConnection;
+import java.net.URLConnection;
+
+/**
+ * The Enterprise Java Bean Control implementation class
+ * @jcs:jc-jar
+ *       group-priority="-900"
+ *       group-name="Main"
+ *       display-in-palette="false"
+ *       requires-extension="true"
+ */
+
+/* knex resource
+ * The EJB tag specifies the jndi name of the EJB to be used by this control.
+ * name: EJBControl.tag.ejb
+ */
+
+/* knex resource
+ * The home-jndi-name attribute specifies the name of the EJB's home interface. The interface
+ * must be specified in the JNDI naming service in WebLogic Server before it may be used here.
+ * Contact your system administrator or the author of the EJB for this information.
+ * name: EJBControl.attribute.home-jndi-name
+ */
+
+/* knex resource
+ * The ejb-link attribute provides a reference to a target EJB in your application.
+ * name: EJBControl.attribute.ejb-link
+ */
+
+@ControlImplementation
+abstract public class EJBControlImpl implements EJBControl, Extensible
+{
+    static final long serialVersionUID = 1L;
+    /* knex log4j */
+    //static private  final com.bea.wlw.util.Logger _log = new com.bea.wlw.runtime.core.util.InternalLogger("com.bea.wlw.runtime.core.control.EJBControlImpl");//51dab727ddb214d1917f32979a87e94c
+
+    static public final int     SESSION_BEAN      = 1;
+    static public final int     ENTITY_BEAN       = 2;
+
+    static public final String  JNDI_GLOBAL_PREFIX  = "jndi:";
+    static public final String  JNDI_APPSCOPED_PREFIX    = "java:comp/env/";
+
+    @EventHandler(field="context", eventSet=LifeCycle.class, eventName="onCreate")
+    public void onCreate()
+    {
+        // first time initialization
+
+        // assume v2 attributes
+        EJBHome ejbHome = (EJBHome)context.getControlPropertySet(EJBHome.class);
+        if (ejbHome == null)
+        {
+            throw new ControlException("No @EJBHome property is defined");
+        }
+        _jndiName = ejbHome.JNDIName();
+        if (_jndiName.length() != 0)
+        {
+            if (!_jndiName.toLowerCase().startsWith(JNDI_GLOBAL_PREFIX) ||
+                !_jndiName.toLowerCase().startsWith(JNDI_APPSCOPED_PREFIX))
+            {
+                _jndiName = JNDI_GLOBAL_PREFIX + _jndiName;
+            }
+        }
+        else
+        {
+            String ejbLink = ejbHome.EJBLink();
+            if (ejbLink.length() == 0)
+            {
+                //
+                // Should be caught by the compiler
+                //
+                throw new ControlException(
+                          "Either the JNDIHome() or EJBLink() member of @EJBHome must be defined.");
+            }
+
+            //
+            // Generate a unique local jndi name to associate w/ the link,
+            // based upon the local control service uri and control id
+            //
+            _jndiName = JNDI_APPSCOPED_PREFIX +
+                        EJBInfo.getEJBRefName(context.getControlInterface());
+        }
+
+        // Obtain the JCX interface and identify the home/remote
+        // interfaces.
+        EJBInfo beanInfo = new EJBInfo(context.getControlInterface());
+        _homeInterface = beanInfo._homeInterface;
+        _beanInterface = beanInfo._beanInterface;
+        _beanType = beanInfo._beanType.equals("Session") ? SESSION_BEAN : ENTITY_BEAN;
+    }
+
+    static protected boolean methodThrows(Method m, Class exceptionClass)
+    {
+        Class [] exceptions = m.getExceptionTypes();
+        for (int j = 0; j < exceptions.length; j++)
+            if (exceptionClass.isAssignableFrom(exceptions[j]))
+                return true;
+        return false;
+    }
+
+    protected boolean isHomeMethod(Method m)
+    {
+         return m.getDeclaringClass().isAssignableFrom(_homeInterface);
+    }
+
+    static protected boolean isCreateMethod(Method m)
+    {
+        return methodThrows(m, CreateException.class);
+    }
+
+    static protected boolean isFinderMethod(Method m)
+    {
+        if (!m.getName().startsWith("find")) // EJB enforced pattern
+            return false;
+        return methodThrows(m, FinderException.class);
+    }
+
+    protected boolean isSelectorMethod(Method m)
+    {
+        if (isHomeMethod(m) &&
+            m.getReturnType().equals(_beanInterface))
+            return true;
+        return false;
+    }
+
+    static protected boolean isRemoveMethod(Method m)
+    {
+        if (!m.getName().equals("remove") ||
+            (m.getParameterTypes().length != 0))
+            return false;
+
+        return true;
+    }
+
+    protected Object homeNarrow(Object obj)
+    {
+        if (javax.ejb.EJBHome.class.isAssignableFrom(_homeInterface))
+            return PortableRemoteObject.narrow(obj, _homeInterface);
+        return obj;
+    }
+
+    protected Object beanNarrow(Object obj)
+    {
+        if (javax.ejb.EJBObject.class.isAssignableFrom(_beanInterface))
+            return PortableRemoteObject.narrow(obj, _beanInterface);
+        return obj;
+    }
+
+    /*
+     * This method is implemented by the appropriate bean type-specific
+     * control to provide auto create/find semantics for bean instances.
+     *
+     * IT SHOULD ALWAYS THROW A RUNTIME EXCEPTION WITH A TYPE-SPECIFIC
+     * ERROR MESSAGE IF RESOLUTION CANNOT TAKE PLACE.  IT SHOULD _NEVER_
+     * HAVE A NON-EXCEPTED RETURN WHERE _beanInstance == null.
+     */
+    abstract protected Object resolveBeanInstance();
+
+    //
+    // Is there is a cached EJB handle associated with this bean, then
+    // is it to restore the associate EJB object reference.
+    //
+    protected Object resolveBeanInstanceFromHandle()
+    {
+        if (_beanHandle == null)
+            return null;
+
+        try
+        {
+            return _beanHandle.getEJBObject();
+        }
+        catch (java.rmi.RemoteException re)
+        {
+            /* knex logerror Unable to convert handle
+             * throwable: re
+             */
+             //if (_log.isErrorEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Unable to convert handle",__args));_log.error(__msg, re);}//5d49ffd79593898f63107bca7d549a67
+            throw new ControlException("Unable to convert EJB handle to object", re);
+        }
+    }
+
+    //
+    // Attempts to save the contents of the current bean reference in persisted
+    // control state.  Returns true if state could be saved, false otherwise
+    //
+    protected boolean saveBeanInstance()
+    {
+        // Nothing to save == success
+        if (_beanInstance == null)
+            return true;
+
+        //
+        // Save using a bean handle, but handles only exist for remote objects.
+        //
+        if (_beanInstance instanceof EJBObject)
+        {
+            try
+            {
+                _beanHandle = ((EJBObject)_beanInstance).getHandle();
+            }
+            catch (java.rmi.RemoteException re)
+            {
+                /*
+                 * knex logerror Unable to get bean instance from handle
+                 * throwable: re
+                 */
+                throw new ControlException("Unable to get bean instance from handle", re);
+            }
+
+            /* knex logdebug Saved bean instance using Handle */
+            //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Saved bean instance using Handle",__args));_log.debug(__msg);}//b1d12a1854f6e816c3126d1a81c0f02c
+            return true;
+        }
+        return false;
+    }
+
+    //
+    // This is called whenever a bean reference is being dropped, and is the
+    // provides an opportunity to reset cached state or release non-persisted
+    // resources associated with the instance.
+    //
+    protected void releaseBeanInstance(boolean alreadyRemoved)
+    {
+        /* knex logdebug Releasing bean instance */
+        //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Releasing bean instance",__args));_log.debug(__msg);}//0751f6cff68c66f02d70843921f38043
+        _beanInstance = null;
+        _beanHandle = null;
+    }
+
+    @EventHandler(field="resourceContext", eventSet=ResourceEvents.class, eventName="onAcquire")
+    public void onAcquire()
+    {
+        /* knex logdebug onAcquire() called */
+        //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("onAcquire() called",__args));_log.debug(__msg);}//e5f3f348b3bf604cde533590f1fa215d
+
+        // Compute the home instance cache lookup key.  The Service URI must
+        // be taken into account because different services use different
+        // class loaders.  The JNDI home must be taken into account because
+        // it is possible to be a remote client of the same bean type on two
+        // different providers.
+        //
+        if (_homeInstance == null)
+        {
+            /* knex logdebug Looking up home instance: {_jndiName} */
+            //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=_jndiName;String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Looking up home instance: {0}",__args));_log.debug(__msg);}//0ddfa4855aaa3de5ba0d38f332c36fa2
+
+            // Convert basic local name to JNDI URL syntax
+            if (!_jndiName.toLowerCase().startsWith(JNDI_GLOBAL_PREFIX))
+                _jndiName = JNDI_GLOBAL_PREFIX + _jndiName;
+
+            URLConnection jndiConn = null;
+            try
+            {
+                URL url = new URL(_jndiName);
+                jndiConn = url.openConnection();
+                _homeInstance = jndiConn.getContent();
+            }
+            catch (MalformedURLException mue)
+            {
+                throw new ControlException(_jndiName +
+                            " is not a valid JNDI URL", mue);
+            }
+            catch (IOException ioe)
+            {
+                throw new ControlException("Error during JNDI lookup from "+
+                                           _jndiName, ioe);
+            }
+            finally
+            {
+                try { if (jndiConn != null) { /* jndiConn.disconnect();*/ } }
+                catch (RuntimeException re) { throw re; }
+                catch (Exception e)
+                {
+                    /* knex logerror JNDI cleanup error:
+                     * throwable: e
+                     */
+                     //if (_log.isErrorEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("JNDI cleanup error:",__args));_log.error(__msg, e);}//f54d39727d9c53a909ca0378e008fd49
+                }
+            }
+
+            if (!_homeInterface.isAssignableFrom(_homeInstance.getClass()))
+            {
+                throw new ControlException("JNDI lookup of " + _jndiName +
+                            " failed to return an instance of " +
+                            _homeInterface);
+            }
+        }
+        else
+        {
+            /* knex logdebug Found home instance in cache */
+            //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Found home instance in cache",__args));_log.debug(__msg);}//8650b258a048d7aaa8783946db35d0c1
+        }
+    }
+
+    @EventHandler(field="resourceContext", eventSet=ResourceEvents.class, eventName="onRelease")
+    public void onRelease()
+    {
+        /* knex logdebug onRelease() called */
+        //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("onRelease() called",__args));_log.debug(__msg);}//b2016d094aefd8f44fb91710ca1797c3
+
+        //
+        // If conversational, attempt to save the bean reference,
+        // else always release it if stateless or not persistable.
+        //
+        //if (context.getService().getConversationID() == null ||
+        if (!saveBeanInstance())
+        {
+            releaseBeanInstance(false);
+        }
+    }
+
+    //@EventHandler(field="context", eventSet=LifeCycle.class, eventName="onReset")
+    public void onReset()
+    {
+        _lastException = null;
+        // other work in onRelease(), delivered prior to reset event
+    }
+
+    /**
+     * Extensible.invoke
+     * Handles all extended interface methods (i.e. EJB home and remote
+     * interface invocation)
+     */
+    public Object invoke(Method m, Object[] args) throws Throwable
+    {
+        /* knex logdebug Calling extended method: {m.getName()} */
+        //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=m.getName();String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Calling extended method: {0}",__args));_log.debug(__msg);}//b380b169c01ec4c330e3d9d18955c09e
+
+        Object retval = null;
+
+        if (isHomeMethod(m))
+        {
+            try
+            {
+                /* knex logdebug Invoking home interface method: {m.getName()} */
+                //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=m.getName();String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Invoking home interface method: {0}",__args));_log.debug(__msg);}//12187245a0c3973085bb68bfce0e597b
+                retval = m.invoke(_homeInstance, args);
+            }
+            catch (Exception e)
+            {
+                Throwable t = e;
+                if (e instanceof InvocationTargetException)
+                    t = ((InvocationTargetException)e).getTargetException();
+
+                _lastException = t;
+
+                throw t;
+            }
+
+            // If the method was successful and returns an instance of
+            // the bean interface class, then reset the target instance.
+            if (isSelectorMethod(m))
+            {
+                releaseBeanInstance(false);
+                retval = beanNarrow(retval);
+                _beanInstance = retval;
+                /* knex logdebug Selecting new target instance: {_beanInstance} */
+                //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=_beanInstance;String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Selecting new target instance: {0}",__args));_log.debug(__msg);}//84a470222159a71157f23c4f487a2b16
+            }
+
+
+            return retval;
+        }
+        else // is remote / bean interface
+        {
+            if (_beanInstance == null)
+                _beanInstance = resolveBeanInstance();
+
+            // By convention, the below cond should never be true.  The bean
+            // type-specific resolve should throw an appropriate exception
+            // that is more specific.  This is a safety net.
+            if (_beanInstance == null)
+            {
+                /* knex logerror Unable to resolve bean instance */
+                //if (_log.isErrorEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Unable to resolve bean instance",__args));_log.error(__msg);}//2a95ad19d773c2ab1c7ce4604b82692f
+                throw new ControlException("Unable to resolve bean instance");
+            }
+
+            /* knex logdebug Invoking bean interface method: {m.getName()} */
+            //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=m.getName();String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Invoking bean interface method: {0}",__args));_log.debug(__msg);}//31683ff7353c141d5cab21520b0d3cae
+
+            try
+            {
+                return m.invoke(_beanInstance, args);
+            }
+            catch (Exception e)
+            {
+                Throwable t = e;
+                if (e instanceof InvocationTargetException)
+                    t = ((InvocationTargetException)e).getTargetException();
+                _lastException = t;
+
+                throw t;
+            }
+            finally
+            {
+                // Handle remove method properly
+                if (isRemoveMethod(m))
+                    releaseBeanInstance(true);
+            }
+        }
+    }
+
+    /**
+     * EJBControl.getEJBHomeInstance()
+     * @common:operation
+     * @jcs:ide hide=true
+     */
+    public Object getEJBHomeInstance()
+    {
+        return _homeInstance;
+    }
+
+    /**
+     * EJBControl.getEJBBeanInstance()
+     * @common:operation
+     * @jcs:ide hide=true
+     */
+    public boolean hasEJBBeanInstance()
+    {
+        return _beanInstance != null;
+    }
+
+    /**
+     * EJBControl.getEJBBeanInstance()
+     * @common:operation
+     * @jcs:ide hide=true
+     */
+    public Object getEJBBeanInstance()
+    {
+        return _beanInstance;
+    }
+
+    /**
+     * EJBControl.getEJBException()
+     * @common:operation
+     * @jcs:ide hide=true
+     */
+    public Throwable getEJBException()
+    {
+        return _lastException;
+    }
+
+    @Context ControlBeanContext context;
+    @Context ResourceContext resourceContext;
+
+    protected Class  _controlInterface;
+    protected Class  _homeInterface;
+    protected Class  _beanInterface;
+    protected int    _beanType;
+    protected String _jndiName;
+    protected Handle _beanHandle;
+    transient protected Throwable _lastException; // don't persist
+    transient protected Object _beanInstance;     // don't persist
+    transient protected Object _homeInstance;     // don't persist
+}
