@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <application>
-  <option name="excludedirs" value="cvs;sccs;rcs;.svn;" />
+  <option name="excludedirs" value="cvs;sccs;rcs;.svn;.svn;" />
   <option name="excludefiles"
   value="\..*|.*\.[0-9]+|wlw_[0-9]+\..*" />
   <option name="excludefilesFromEar" value="[default]" />

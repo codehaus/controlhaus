@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <application>
-  <option name="excludedirs" value="cvs;sccs;rcs;" />
+  <option name="excludedirs" value="cvs;sccs;rcs;.svn;" />
   <option name="excludefiles" value="\..*|.*\.[0-9]+|wlw_[0-9]+\..*" />
   <option name="excludefilesFromEar" value="[default]" />
   <option name="name" value="SpellCheckerSample" />
