@@ -23,8 +23,10 @@ import org.controlhaus.jdbc.TypeMappingsFactory;
 import java.lang.reflect.Method;
 
 /**
- * Fragment class for 'sql:' escapes in the sql string. Supported 'sql:' escapes are subst and fn.
- * subst is the default mode, and will be used if 'sql: ' is specified.
+ * Respresents a fragement from the SQL annotation's statement member which begins with '{sql:'.
+ * Supported 'sql:' escapes are subst and fn. subst is the default mode, and will be used if 'sql: ' 
+ * is specified.
+ *
  * fn must specify 'in' as the function name.
  */
 public class SqlEscapeFragment extends SqlFragmentContainer {
@@ -32,20 +34,21 @@ public class SqlEscapeFragment extends SqlFragmentContainer {
     private static final String NULL_VALUE = "NULL";
 
     /**
-     * constructor for subst or function with no param sub
+     * Constructor for subst or function with no param substitution
      *
-     * @param frag
+     * @param child An child which is contained in this fragment.
      */
-    SqlEscapeFragment(SqlFragment frag) {
+    SqlEscapeFragment(SqlFragment child) {
         super();
-        addChild(frag);
+        addChild(child);
     }
 
     /**
      * Constructor for a function which includes a ReflectionFragment
-     * @param lf
-     * @param rf
-     * @param lff
+     *
+     * @param lf A LiteralFragment which contains the text up to the parameter substitution.
+     * @param rf The ReflectionFragment containing the parameter substitution
+     * @param lff A LiteralFragment which contains any text which occures after the parameter substitution.
      */
     SqlEscapeFragment(LiteralFragment lf, ReflectionFragment rf, LiteralFragment lff) {
         super();
@@ -56,23 +59,24 @@ public class SqlEscapeFragment extends SqlFragmentContainer {
 
     /**
      * Always true for this fragment type
-     * @return
+     * @return true
      */
     boolean isDynamicFragment() { return true; }
 
     /**
      * Always false for this fragment type, since all param values are resolved
      * before the prepared statement is created.
-     * @return
+     * @return false
      */
     boolean hasParamValue() { return false; }
 
     /**
      * Return the text for a PreparedStatement from this fragment.
-     * @param context
-     * @param m
-     * @param args
-     * @return
+     *
+     * @param context A ControlBeanContext instance
+     * @param m The annotated method
+     * @param args The method parameters
+     * @return A String containing the value of this fragment and its children
      */
     String getPreparedStatementText(ControlBeanContext context, Method m, Object[] args) {
 
