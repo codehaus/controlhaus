@@ -4,11 +4,16 @@
 
     <property environment="env"/>
     <property name="source.dir" value="${basedir}/src"/>
+    <property name="samples.ejb.dir" value="${basedir}/samples/ejb"/>
+    <property name="samples.control.dir" value="${basedir}/samples/control"/>
+    <property name="samples.client.dir" value="${basedir}/samples/client"/>
     <property name="beehive.home" location="${env.BEEHIVE_HOME}"/>
     <property name="lib.dir" value="${basedir}/lib"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
+    <property name="build.samples.classes" value="${build.dir}/samples/classes"/>
+    <property name="build.samples.beansrc" value="${build.dir}/samples/beansrc"/>
     <property name="build.xbeansrc" value="${build.dir}/xbeansrc"/>
     <property name="build.xbeanclasses" value="${build.dir}/xbeanclasses"/>
     <property name="dist.name" value="controlhaus-ejb-alpha"/>
@@ -18,6 +23,7 @@
     <property name="api.dir" value="${docs.dir}/api"/>
     <property name="ejbXMLbeans.jar" value="ejbXMLBeans.jar"/>	
     <property name="build.jar" value="ejb-control.jar"/>
+    <property name="build.samples.jar" value="ejb-control-samples.jar"/>
     <property name="xbean.marker" location="${build.xbeansrc}/XBEAN" />
     <property name="schema.dir" value="${basedir}/schema" />
     <property name="beehive.common.lib.dir" location="${beehive.home}/lib/common"/>
@@ -34,6 +40,7 @@
         <echo message="----------------------------------------------------------------"/>
         <echo message="clean               - Delete all generated files"/>
         <echo message="build               - build controls"/>
+        <echo message="samples             - build controls and samples"/>
         <echo message="----------------------------------------------------------------"/>
     </target>
 
@@ -49,18 +56,24 @@
                 <include name="apache-xbean.jar"/>
                 <include name="jsr173_1.0_api.jar"/>
             </fileset>
-	    <pathelement location="${beehive.home}/lib/netui/commons-collections.jar"/>
+	        <pathelement location="${beehive.home}/lib/netui/commons-collections.jar"/>
             <fileset dir="${lib.dir}">
                 <include name="*.jar" />
             </fileset>
-	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
+	        <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
             <pathelement path="${build.classes}" />
+            <pathelement path="${build.samples.classes}" />
         </path>
 
         <taskdef name="apt" 
                  classname="org.apache.beehive.controls.runtime.generator.AptTask" 
                  onerror="report"
                  classpathref="build.classpath"/>
+
+        <taskdef name="assemble" 
+                 classname="org.apache.beehive.controls.runtime.assembly.AssembleTask" 
+        	     classpathref="build.classpath" 
+        	     onerror="report" />
 
         <taskdef name="control-jar" 
                  classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
@@ -77,7 +90,9 @@
 
     <target name="dirs">
         <mkdir dir="${build.classes}" />
+        <mkdir dir="${build.samples.classes}" />
         <mkdir dir="${build.beansrc}" />
+        <mkdir dir="${build.samples.beansrc}" />
         <mkdir dir="${build.xbeansrc}" />
         <mkdir dir="${build.xbeanclasses}" />
         <mkdir dir="${lib.dir}" />
@@ -93,7 +108,50 @@
         </apt>
         <control-jar destfile="${build.dir}/${build.jar}"  basedir="${build.classes}" />
     </target>
-    
+
+    <target name="build_samples_ejb" depends="dirs" description="Builds sample control ejb">
+        <javac srcdir="${samples.ejb.dir}" destdir="${build.samples.classes}" 
+             classpathref="build.classpath"
+             debug="on"
+             target="1.5">
+        </javac>
+    	<jar jarfile="${build.dir}/helloEJB.jar">
+    		 <fileset dir="${samples.ejb.dir}"/>
+    	</jar>
+	</target>
+
+    <target name="build_samples_control" depends="build, build_samples_ejb" description="Builds sample control control">
+        <apt srcdir="${samples.control.dir}" destdir="${build.samples.classes}" gendir="${build.samples.beansrc}"
+             classpathref="build.classpath"
+             debug="on"
+             compileByExtension="true"
+             srcExtensions="*.java,*.jcx,*.jcs"
+             target="1.5">
+        </apt>
+	</target>
+    	
+    <target name="samples" depends="build_samples_control" description="Builds sample control client">
+        <apt srcdir="${samples.client.dir}" destdir="${build.samples.classes}" gendir="${build.samples.beansrc}"
+             classpathref="build.classpath"
+             debug="on"
+             compileByExtension="true"
+             srcExtensions="*.java,*.jcx,*.jcs"
+             target="1.5">
+        </apt>
+        <assemble moduleDir="${build.samples.classes}"
+                  srcOutputDir="${build.samples.beansrc}"
+                  contextFactoryClassname="org.apache.beehive.controls.runtime.assembly.EJBAssemblyContext$Factory">
+            <classpath>
+                <path refid="build.classpath"/>
+            </classpath>
+            <fileset dir="${build.samples.classes}">
+                <include name="**/*.controls.properties"/>
+            </fileset>
+        </assemble>
+        <control-jar destfile="${build.dir}/${build.samples.jar}"  basedir="${build.samples.classes}" />
+    </target>
+
+	
     <target name="docs">
         <property name="classpath" refid="build.classpath"/>
         <mkdir dir="${api.dir}" />
@@ -104,17 +162,17 @@
         </javadoc>        
     </target>
 
-    <target name="dist" depends="clean,build,docs">
+    <target name="dist" depends="build,docs">
         <mkdir dir="${dist.dir}" />
         <zip basedir="${basedir}" destfile="${dist.dir}/${dist.src}.zip"
             includes="build.xml,src/**,samples/**"/> 
         <tar basedir="${basedir}" destfile="${dist.dir}/${dist.src}.tar"
             includes="build.xml,src/**,samples/**"/> 
         <gzip src="${dist.dir}/${dist.src}.tar" destfile="${dist.dir}/${dist.src}.tar.gz"/>
-        <zip basedir="${basedir}" destfile="${dist.dir}/${dist.name}.zip"
-            includes="**/${build.jar},docs/**"/> 
-        <tar basedir="${basedir}" destfile="${dist.dir}/${dist.name}.tar"
-            includes="**/${build.jar},docs/**"/> 
+        <zip basedir="${build.dir}" destfile="${dist.dir}/${dist.name}.zip"
+            includes="${build.jar}, docs/**"/> 
+        <tar basedir="${build.dir}" destfile="${dist.dir}/${dist.name}.tar"
+            includes="${build.jar}, docs/**"/> 
         <gzip src="${dist.dir}/${dist.name}.tar" destfile="${dist.dir}/${dist.name}.tar.gz"/>
     </target>
 

@@ -1,11 +1,36 @@
+/*
+ * Copyright 2004 BEA Systems, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package org.controlhaus.ejb;
 
-/******************************************************************************
-* WARNING: THIS CLASS IS INCLUDED INSIDE OF SERIALIZED CONVERSATIONAL STATE
-* OR ASYNCHRONOUS REQUESTS.   THIS CLASS MUST REMAIN SERIALIZATION COMPATIBLE
-* OR EXISTING STATE/REQUESTS MAY BECOME INVALIDATED.   IF YOU AREN'T CLEAR ON
-* THE IMPLICATIONS OF THIS STATEMENT, TURN BACK NOW.
-******************************************************************************/
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Hashtable;
+
+import javax.ejb.CreateException;
+import javax.ejb.EJBObject;
+import javax.ejb.FinderException;
+import javax.ejb.Handle;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.rmi.PortableRemoteObject;
 
 import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.bean.ControlImplementation;
@@ -16,26 +41,13 @@ import org.apache.beehive.controls.api.context.ControlBeanContext.LifeCycle;
 import org.apache.beehive.controls.api.context.ResourceContext;
 import org.apache.beehive.controls.api.context.ResourceContext.ResourceEvents;
 import org.apache.beehive.controls.api.events.EventHandler;
+import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.bean.Extensible;
+import org.apache.beehive.controls.api.context.ControlBeanContext;
+import org.apache.beehive.controls.api.context.ResourceContext;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Vector;
-
-import javax.ejb.CreateException;
-import javax.ejb.EJBLocalHome;
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
-import javax.ejb.Handle;
-import javax.ejb.FinderException;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.rmi.PortableRemoteObject;
-
-import java.net.URLConnection;
+import org.controlhaus.ejb.EJBControl.EJBHome;
+import org.controlhaus.ejb.EJBControl.JNDIContextEnv;
 
 /**
  * The Enterprise Java Bean Control implementation class
@@ -62,25 +74,17 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
         {
             throw new ControlException("No @EJBHome property is defined");
         }
-        _jndiName = ejbHome.JNDIName();
-        if (_jndiName.length() != 0)
+        _jndiName = ejbHome.jndiName();
+        if (_jndiName == null || _jndiName.length() == 0)
         {
-            if (!_jndiName.toLowerCase().startsWith(JNDI_GLOBAL_PREFIX) ||
-                !_jndiName.toLowerCase().startsWith(JNDI_APPSCOPED_PREFIX))
-            {
-                _jndiName = JNDI_GLOBAL_PREFIX + _jndiName;
-            }
-        }
-        else
-        {
-            String ejbLink = ejbHome.EJBLink();
+            String ejbLink = ejbHome.ejbLink();
             if (ejbLink.length() == 0)
             {
                 //
                 // Should be caught by the compiler
                 //
                 throw new ControlException(
-                          "Either the JNDIHome() or EJBLink() member of @EJBHome must be defined.");
+                          "Either the jndiHome() or ejbLink() member of @EJBHome must be defined.");
             }
 
             //
@@ -97,6 +101,7 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
         _homeInterface = beanInfo._homeInterface;
         _beanInterface = beanInfo._beanInterface;
         _beanType = beanInfo._beanType.equals("Session") ? SESSION_BEAN : ENTITY_BEAN;
+        
     }
 
     static protected boolean methodThrows(Method m, Class exceptionClass)
@@ -224,6 +229,37 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
         _beanInstance = null;
         _beanHandle = null;
     }
+    
+    protected javax.naming.Context getInitialContext() throws NamingException
+    {
+        if (_context == null)
+        {
+	        //If naming context information is provided, then use that to create the initial context
+	        JNDIContextEnv env = (JNDIContextEnv)context.getControlPropertySet(JNDIContextEnv.class);
+	        String value = env.contextFactory();
+	        if (value != null && value.length() > 0)
+	        {
+	            Hashtable ht = new Hashtable();
+	            ht.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, value);
+	            value = env.providerURL();
+	            if (value != null && value.length() > 0)
+	                ht.put(javax.naming.Context.PROVIDER_URL, value);
+	            value = env.principal();
+	            if (value != null && value.length() > 0)
+	                ht.put(javax.naming.Context.SECURITY_PRINCIPAL, value);
+	            value = env.credentials();
+	            if (value != null && value.length() > 0)
+	                ht.put(javax.naming.Context.SECURITY_CREDENTIALS, value);
+	            _context = new InitialContext(ht);
+	        }
+	        else
+	        {
+	            _context = new InitialContext();
+	        }
+        }
+        return _context;
+
+    }
 
     @EventHandler(field="resourceContext", eventSet=ResourceEvents.class, eventName="onAcquire")
     public void onAcquire()
@@ -236,36 +272,48 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
         //
         if (_homeInstance == null)
         {
-            // Convert basic local name to JNDI URL syntax
-            if (!_jndiName.toLowerCase().startsWith(JNDI_GLOBAL_PREFIX))
-                _jndiName = JNDI_GLOBAL_PREFIX + _jndiName;
-
-            URLConnection jndiConn = null;
-            try
+            // If JNDI name is an URL using a JNDI protocol
+            if (_jndiName.toLowerCase().startsWith(JNDI_GLOBAL_PREFIX))
             {
-                URL url = new URL(_jndiName);
-                jndiConn = url.openConnection();
-                _homeInstance = jndiConn.getContent();
+	            URLConnection jndiConn = null;
+	            try
+	            {
+	                URL url = new URL(_jndiName);
+	                jndiConn = url.openConnection();
+	                _homeInstance = jndiConn.getContent();
+	            }
+	            catch (MalformedURLException mue)
+	            {
+	                throw new ControlException(_jndiName +
+	                            " is not a valid JNDI URL", mue);
+	            }
+	            catch (IOException ioe)
+	            {
+	                throw new ControlException("Error during JNDI lookup from "+
+	                                           _jndiName, ioe);
+	            }
+	            finally
+	            {
+	                try { if (jndiConn != null) { /* jndiConn.disconnect();*/ } }
+	                catch (RuntimeException re) { throw re; }
+	                catch (Exception e)
+	                {
+	                }
+	            }
             }
-            catch (MalformedURLException mue)
+            else
             {
-                throw new ControlException(_jndiName +
-                            " is not a valid JNDI URL", mue);
-            }
-            catch (IOException ioe)
-            {
-                throw new ControlException("Error during JNDI lookup from "+
-                                           _jndiName, ioe);
-            }
-            finally
-            {
-                try { if (jndiConn != null) { /* jndiConn.disconnect();*/ } }
-                catch (RuntimeException re) { throw re; }
-                catch (Exception e)
+                try 
                 {
+                    javax.naming.Context ctx = getInitialContext();
+                    _homeInstance = ctx.lookup(_jndiName);
+                }
+                catch (Exception ne)
+                {
+                    throw new ControlException("Error during JNDI lookup from " + _jndiName, ne);
                 }
             }
-
+            
             if (!_homeInterface.isAssignableFrom(_homeInstance.getClass()))
             {
                 throw new ControlException("JNDI lookup of " + _jndiName +
@@ -410,6 +458,7 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
     protected int    _beanType;
     protected String _jndiName;
     protected Handle _beanHandle;
+    protected javax.naming.Context _context;
     transient protected Throwable _lastException; // don't persist
     transient protected Object _beanInstance;     // don't persist
     transient protected Object _homeInstance;     // don't persist
