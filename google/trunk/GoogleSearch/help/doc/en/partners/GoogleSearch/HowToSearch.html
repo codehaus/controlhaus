@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Search the web using the Google Search Control</title>
+                                     	     	 	                          
+   
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+  <body>
+                     
+<h2>Search the web using the Google Search Control</h2>
+        Before you can use  the Google Web APIs, you need to register with
+ Google    and obtain a Google  Key.  You need to configure the Google Control
+ with   this key, as described  in the section on <a
+ href="HowToConfigure.html">configuring    the Google Control</a>.<br>
+        <br>
+        The Google Control provides two methods to perform an internet search.
+    The first is a simple method that takes as parameters the query string
+ and  an index into the search results.  The second accepts a more complete
+ parameter   list and allows more control over the search operation.  Both
+ methods are   detailed below.<br>
+        <br>
+               
+<h3>Simple search method</h3>
+        The simple search method is invoked as follows:<br>
+              
+<pre>String query = "Weblogic Workshop"<br>int start = 0;<br>GoogleSearchResult var = control.googleSearch( query, start);<br></pre>
+   This will return ten results for the query "Weblogic Workshop", starting 
+at result element 0. &nbsp;The behaviour of this method can be tweaked by
+configuring some or all of the properties provided by the control, documented
+<a href="HowToConfigure.html">here</a>.<br>
+ <br>
+ 
+<h3>Extended search method</h3>
+ The extended search method is invoked as follows:<br>
+ 
+<pre>String query = "Weblogic Workshop"<br>int start = 0;<br>int maxResults = 10;<br>boolean filter = true;<br>String restrict = "<font
+ size="-2">countryUS</font>";<br>boolean safeSearch = true;<br>String languageRestrict = "<font
+ size="-1">lang_en</font>";<br>GoogleSearchResult var = control.googleSearchExtended( query, <br>                                                       start,<br>                                                       maxResults,<br>                                                       filter,<br>                                                       restrict,<br>                                                       safeSearch,<br>                                                       languageRestrict);</pre>
+ <br>
+ This will return ten results for the query "Weblogic Workshop", starting 
+at result element, from web sites hosted in the US and whose content is in 
+the English language. &nbsp;Additionally the results will be filtered for
+adult content and duplicates.<br>
+<h3>Using the results from the Google Search Control</h3>
+The GoogleSearchResult type returned by the search methods contains both
+data associated with the search itself, and data associated with each match.
+&nbsp;The data associated with the search itself include items like total
+search time, the query used, the total number of possible matches etc. &nbsp;The
+data associated with each match is retrieved as follows:<br>
+<br>
+<pre>GoogleSearchResult var = control.googleSearch( query, start);<br>ResultElement[] matches = var.resultElements;<br></pre>
+ The ResultElement type contains fields like a summary of the matches page,
+the URL to that page, the title of the match and a snippet of content etc.
+&nbsp;<br>
+                       <br>
+</body>
+</html>
