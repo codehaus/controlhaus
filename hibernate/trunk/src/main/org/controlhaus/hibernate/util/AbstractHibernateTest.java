@@ -58,6 +58,8 @@ public class AbstractHibernateTest
     protected void initializeClass( Class clazz )
     	throws Exception
     {
+        context.beginContext();
+        
         try
         {
             Class init = getClass().getClassLoader().loadClass( 
@@ -94,6 +96,8 @@ public class AbstractHibernateTest
 
     public void tearDown() throws Exception
     {
+        context.endContext();
+        
         String filename = System.getProperty(TEARDOWN_SQL);
 
         if ( filename != null )

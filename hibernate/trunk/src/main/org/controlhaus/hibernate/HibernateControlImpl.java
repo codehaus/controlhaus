@@ -34,8 +34,6 @@ public class HibernateControlImpl
     
     private ThreadLocal<Session> session = new ThreadLocal<Session>();
 
-    private List<Session> sessions;
-    
     private SessionFactory sessionFactory;
     private Configuration hibConfig;
     
@@ -47,8 +45,6 @@ public class HibernateControlImpl
     
     public HibernateControlImpl()
     {
-        sessions = new ArrayList<Session>();
-        
         String propLoc = System.getProperty("hibernate.cfg.xml");
         if ( propLoc != null )
             location = propLoc;
@@ -91,23 +87,18 @@ public class HibernateControlImpl
         
         sessionFactory = HibernateFactory.getInstance().getSessionFactory(this);
     }
-    
+
     @EventHandler (field="resourceContext", eventSet=ResourceContext.ResourceEvents.class, eventName="onRelease")
     public void onRelease()
     {
-        for (Iterator itr = sessions.iterator(); itr.hasNext();)
+        try
         {
-            Session s = (Session) itr.next();
-            try
-            {
-                logger.debug("Closing open hibernate session.");
-                s.close();
-                itr.remove();
-            }
-            catch (HibernateException e)
-            {
-                logger.error("Couldn't close session!", e);
-            }
+            logger.debug("Closing open hibernate session.");
+            closeSession();
+        }
+        catch (HibernateException e)
+        {
+            logger.error("Couldn't close session!", e);
         }
     }
 
@@ -119,7 +110,6 @@ public class HibernateControlImpl
         {
             s = sessionFactory.openSession();
             session.set(s);
-            sessions.add(s);
         }
         return s;
     }
@@ -132,8 +122,7 @@ public class HibernateControlImpl
         Session s = (Session) session.get();
         if ( s != null )
         {
-            sessions.remove(s);
-            session.set(null);
+            session.remove();
             s.close();
         }
     }
