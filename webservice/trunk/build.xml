@@ -16,24 +16,24 @@
    $Header:$
  -->
 
-<project name="ServiceControl" default="jar" >
+<project name="ServiceControl" default="jar" basedir="." >
 
 
   <target name="clean">
-    <ant antfile="servicecontrol/build.xml" target="clean" inheritAll="false"/>
+ 	<ant antfile="build.xml" dir="servicecontrol" target="clean" inheritAll="false"/>  
   </target>
 
-  <target name="drt">
-    <ant antfile="servicecontrol/build.xml" target="drt" inheritAll="false"/>
-  </target>
-
-  <target name="build">
-    <ant antfile="servicecontrol/build.xml" target="build" inheritAll="false"/>
-  </target>
-
-  <target name="jar">
-    <ant antfile="servicecontrol/build.xml"  target="jar" inheritAll="false"/>
-  </target>
-
+   <target name="drt">
+    	<ant antfile="build.xml" dir="servicecontrol"  target="drt" inheritAll="false"/>
+   </target>
+ 
+   <target name="build">
+    	<ant antfile="build.xml" dir="servicecontrol" target="build" inheritAll="false"/>
+   </target>
+ 
+   <target name="jar">
+	   <ant antfile="build.xml" dir="servicecontrol" target="jar" inheritAll="false"/>
+   </target>
+ 
 
 </project>
