@@ -16,7 +16,7 @@ The following environment variables need to be set:
     * ANT_HOME - location of ANT installation
     * JDBCCONTROL_HOME - top level directory of the JDBC Control
 
-After the environment variables have been set, run the $JDBCCONTROL_HOME/beelineEnv.cmd file to setup the JDBC control's
+After the environment variables have been set, run the $JDBCCONTROL_HOME/jdbccontrolEnv.cmd file to setup the JDBC control's
 build envirnoment.
 
 ANT build targets are:
