@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+<!-- Generated from /pages/accounts/accountList/AccountListController.jpf on Sat May 15 13:20:45 PDT 2004 -->
+<struts-config>
+  <form-beans>
+    <form-bean type="pages.accounts.accountList.AccountListController$AccountForm" name="accountForm"/>
+  </form-beans>
+  <global-exceptions/>
+  <global-forwards/>
+  <action-mappings>
+    <action validate="false" scope="request" type="pages.accounts.accountList.AccountListController" path="/begin">
+      <forward path="/listAccounts.do" name="success"/>
+    </action>
+    <action validate="false" scope="request" type="pages.accounts.accountList.AccountListController" path="/listAccounts">
+      <forward path="/accountList.jsp" name="success"/>
+    </action>
+    <action validate="false" scope="request" type="pages.accounts.accountList.AccountListController" path="/viewAccount">
+      <forward path="/accountList.jsp" name="success"/>
+    </action>
+  </action-mappings>
+  <controller className="com.bea.wlw.netui.pageflow.config.PageFlowControllerConfig" inputForward="true" processorClass="com.bea.wlw.netui.pageflow.PageFlowRequestProcessor">
+    <set-property value="true" property="isReturnToPageDisabled"/>
+    <set-property value="true" property="isReturnToActionDisabled"/>
+  </controller>
+</struts-config>
