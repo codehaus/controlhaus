@@ -3,13 +3,17 @@
 <project name="jms-control" default="usage">
 
     <property name="source.dir" value="${basedir}/src"/>
-    <property name="sample.source.dir" value="${basedir}/samples"/>
+    <property name="samples.source.dir" value="${basedir}/samples"/>
     <property name="lib.dir" value="${basedir}/lib"/>
-    <property name="api.dir" value="${basedir}/docs/api"/>
+    <property name="docs.dir" value="${basedir}/docs"/>
+    <property name="api.dir" value="${docs.dir}/api"/>
     <property name="build.dir" value="${basedir}/build"/>
+    <property name="dist.dir" value="${build.dir}/dist"/>
     <property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
     <property name="build.jar" value="jms-control.jar"/>
+    <property name="dist.name" value="controlhaus-jms-alpha"/>
+    <property name="dist.src" value="${dist.name}-src"/>
     <property environment="env"/>
     <property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
     <property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
@@ -32,7 +36,9 @@
         <echo message="|                      Standard Targets                        |"/>
         <echo message="----------------------------------------------------------------"/>
         <echo message="clean               - Delete all generated files"/>
-        <echo message="build               - build controls"/>
+        <echo message="build               - build jms control"/>
+        <echo message="docs                - build jms control java docs"/>
+        <echo message="dist                - build jms control distribution"/>
         <echo message="----------------------------------------------------------------"/>
     </target>
 
@@ -56,8 +62,6 @@
         	<pathelement path="${log4j.jar}" />
         	<pathelement path="${xmlbeans.jar}" />
     	</path>
-<pathconvert targetos="unix" property="wl.path.unix" refid="build.classpath"/>
-<echo message="${wl.path.unix}"/>
   		<taskdef name="apt" 
                  classname="org.apache.beehive.controls.runtime.generator.AptTask" 
                  onerror="report"
@@ -95,7 +99,7 @@
     </target>
 	
     <target name="samples" depends="init" description="Build samples">
-        <apt srcdir="${sample.source.dir}" 
+        <apt srcdir="${samples.source.dir}" 
         	 destdir="${build.classes}" 
         	 gendir="${build.beansrc}"
         	 excludes="**/Test*.java"
@@ -117,13 +121,25 @@
 
     <target name="docs" depends="init">
     	<property name="classpath" refid="build.classpath"/>
-    	<echo message="${classpath}"/>
         <mkdir dir="${api.dir}" />
         <javadoc destdir="${api.dir}" maxmemory="256M" windowtitle="JMS Control Documentation" doctitle="Java Controls" version="true" author="false" use="true" additionalparam="-breakiterator -noqualifier all -notimestamp" useexternalfile="true" classpathref="build.classpath">
             <packageset dir="${source.dir}" defaultexcludes="yes">
                 <include name="**/**"/>
             </packageset>
-        </javadoc>
-	 <fixcrlf srcDir="${api.dir}" includes="**/*.html"/>        
+        </javadoc>        
+    </target>
+	
+    <target name="dist" depends="clean,build,docs">
+        <mkdir dir="${dist.dir}" />
+    	<zip basedir="${basedir}" destfile="${dist.dir}/${dist.src}.zip"
+    		includes="build.xml,src/**,docs/**,samples/**"/> 
+    	<tar basedir="${basedir}" destfile="${dist.dir}/${dist.src}.tar"
+    		includes="build.xml,src/**,docs/**,samples/**"/> 
+    	<gzip src="${dist.dir}/${dist.src}.tar" destfile="${dist.dir}/${dist.src}.tar.gz"/>
+    	<zip basedir="${basedir}" destfile="${dist.dir}/${dist.name}.zip"
+    		includes="**/${build.jar},docs/**"/> 
+    	<tar basedir="${basedir}" destfile="${dist.dir}/${dist.name}.tar"
+    		includes="**/${build.jar},docs/**"/> 
+    	<gzip src="${dist.dir}/${dist.name}.tar" destfile="${dist.dir}/${dist.name}.tar.gz"/>
     </target>
 </project>
