@@ -287,6 +287,15 @@ public interface ResultsTestCtrl extends JdbcControl {
     public int[] doABatchUpdate(String[] fname, int[] userid);
 
     //
+    // batch updates
+    //
+    @SQL(statement="INSERT INTO more_users VALUES ({ids}, {fname}, {lname})",  batchUpdate=true)
+    public int[] doABatchUpdate2(int[] ids, String[] fname, String[] lname);
+
+    @SQL(statement="INSERT INTO more_users VALUES ({ids}, {fname}, {lname})",  batchUpdate=true)
+    public void doABatchUpdate3(int[] ids, String[] fname, String[] lname);
+
+    //
     // a basic usage of the getGeneratedKeys annotation member
     //
     @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true)

@@ -28,6 +28,7 @@ import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.MirroredTypeException;
 import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.type.TypeMirror;
+import com.sun.mirror.type.VoidType;
 import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.bean.ControlChecker;
 import org.controlhaus.jdbc.parser.ParameterChecker;
@@ -233,12 +234,13 @@ public class JdbcControlChecker implements ControlChecker {
                 final TypeMirror aType = ((ArrayType) returnType).getComponentType();
                 if (aType instanceof PrimitiveType == false || ((PrimitiveType) aType).getKind() != PrimitiveType.Kind.INT) {
                     env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                                       + " if batchUpdate is set to true, method must return an array of integers.");
+                                                                       + " if batchUpdate is set to true, method must return void or an array of integers.");
                     return;
                 }
-            } else {
+            } else if (returnType instanceof VoidType == false) {
                 env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                                   + " if batchUpdate is set to true, method must return an array of integers.");
+                                                                   + " if batchUpdate is set to true, method must return void or an array of integers.");
+
                 return;
             }
 

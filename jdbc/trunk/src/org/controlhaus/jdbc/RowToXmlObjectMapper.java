@@ -70,12 +70,22 @@ public class RowToXmlObjectMapper extends RowMapper {
 
         Object resultObject = null;
         if (_columnCount == 1) {
+
+            final int typeId = _tmf.getTypeId(_returnTypeClass);
+
             try {
-                resultObject = mapSingleColumnResultSet(_returnTypeClass);
+                if (typeId != TypeMappingsFactory.TYPE_UNKNOWN) {
+                    return extractColumnValue(1, typeId);
+                } else {
+                    // we still might want a single value (i.e. java.util.Date)
+                    Object val = extractColumnValue(1, typeId);
+                    if (_returnTypeClass.isAssignableFrom(val.getClass())) {
+                        return val;
+                    }
+                }
             } catch (SQLException e) {
                 throw new ControlException(e.getMessage(), e);
             }
-            if (resultObject != null) return resultObject;
         }
 
         if (_setterMethods == null) {

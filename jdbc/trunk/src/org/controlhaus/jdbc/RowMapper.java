@@ -113,29 +113,6 @@ public abstract class RowMapper {
     }
 
     /**
-     * Map a ResultSet which contains a single column to the specifed returnTypeClass.
-     *
-     * @param returnTypeClass Class to map the ResultSet row to.
-     * @return An instance of returnTypeClass.
-     * @throws SQLException on error.
-     */
-    protected Object mapSingleColumnResultSet(Class<?> returnTypeClass) throws SQLException {
-
-        final int typeId = _tmf.getTypeId(returnTypeClass);
-
-        if (typeId != TypeMappingsFactory.TYPE_UNKNOWN) {
-            return extractColumnValue(1, typeId);
-        } else {
-            // we still might want a single value (i.e. java.util.Date)
-            Object val = extractColumnValue(1, typeId);
-            if (returnTypeClass.isAssignableFrom(val.getClass())) {
-                return val;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Extract a column value from the ResultSet and return it as resultType.
      *
      * @param index The column index of the value to extract from the ResultSet.
