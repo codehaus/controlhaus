@@ -9,16 +9,13 @@ Make sure you have the following on your system:
 
     * A JDK of version 1.5 or higher
     * A current version of ANT
+    * Current Beehive build
 
 The following environment variables need to be set:
 
     * JAVA_HOME - location of 1.5 JDK
-    * BEELINE_HOME - location of the beeline source tree
     * ANT_HOME - location of ANT installation
-    * JDBCCONTROL_HOME - top level directory of the JDBC Control
-
-After the environment variables have been set, run the $JDBCCONTROL_HOME/jdbccontrolEnv.cmd file to setup the JDBC control's
-build envirnoment.
+    * BEEHIVE_HOME - location of the Beehive source tree
 
 ANT build targets are:
 

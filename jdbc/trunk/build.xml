@@ -1,44 +1,46 @@
 <?xml version="1.0"?>
 
+<!--
+Copyright 2005 BEA Systems, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
 <!-- =================================================================== -->
 <!-- Build file for the JdbcControl project                              -->
 <!-- =================================================================== -->
 <project name="Jdbc Control Build" default="build" basedir=".">
 
-    <property environment="os"/>
-    <property file="${os.JDBCCONTROL_HOME}/jdbccontrol.properties"/>
-
-    <property name="beehive.dir" location="${os.BEEHIVE_HOME}"/>
-    <property name="beehive.external.dir" location="${beehive.dir}/external"/>
-
-    <!-- libraries -->
-    <property name="controls.jar" location="${beehive.dir}/controls/build/jars/controls.jar"/>
-
-    <!-- beehive libs -->
-    <property name="log4j.jar" location="${beehive.external.dir}/log4j/log4j-1.2.8.jar"/>
-    <property name="velocity14.jar" location="${beehive.external.dir}/velocity/velocity-1.4.jar"/>
-    <property name="velocitydep14.jar" location="${beehive.external.dir}/velocity/velocity-dep-1.4.jar"/>
+    <import file="jdbccontrol-imports.xml"/>
 
     <!-- local libs -->
     <property name="derby.jar" location="${jdbcc.external.dir}/derby/derby-10.0.2.1.jar"/>
     <property name="junit.jar" location="${jdbcc.external.dir}/junit/junit.jar"/>
     <property name="javacc.home" location="${jdbcc.external.dir}/javacc"/>
-    <property name="jsr173.jar" location="${jdbcc.external.dir}/xmlbeans/jsr173_1.0_api.jar"/>
-    <property name="xmlbeans.jar" location="${jdbcc.external.dir}/xmlbeans/apache-xbean-1.0.3.jar"/>
 
     <!-- taskdefs -->
     <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask"
-        classpath="${controls.jar};${jdbcc.jar}" onerror="report"/>
+        classpathref="apt.dependency.path" onerror="report"/>
     <taskdef name="assemble" classname="org.apache.beehive.controls.runtime.assembly.AssembleTask"
-        classpath="${controls.jar}" onerror="report"/>
+        classpathref="controls.dependency.path" onerror="report"/>
     <taskdef name="control-jar" classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask"
-        classpath="${controls.jar}" onerror="report"/>
+        classpathref="controls.dependency.path" onerror="report"/>
     <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean"
-        classpath="${xmlbeans.jar};${jsr173.jar}" onerror="report"/>
+        classpathref="xbean.dependency.path" onerror="report"/>
 
     <!-- build locations -->
     <property name="project.name" value="Jdbc Control"/>
-    <property name="src.dir" location="${os.JDBCCONTROL_HOME}/src"/>
+    <property name="src.dir" location="${jdbcc.home}/src"/>
     <property name="build.classes.dir" location="${jdbcc.build.dir}/classes"/>
     <property name="build.generated.dir" location="${jdbcc.build.dir}/gensrc"/>
     <property name="sqlgrammar.file" value="${src.dir}/org/controlhaus/jdbc/parser/SqlGrammar.jj"/>
@@ -69,13 +71,11 @@
     <!-- classpaths -->
     <path id="build.classpath">
         <pathelement location="${build.classes.dir}"/>
-        <pathelement location="${controls.jar}"/>
-        <pathelement location="${jsr173.jar}"/>
-        <pathelement location="${xmlbeans.jar}"/>
-        <pathelement location="${velocitydep14.jar}"/>
-        <pathelement location="${velocity14.jar}"/>
-        <pathelement location="${log4j.jar}"/>
-        <pathelement location="${tools.jar}"/>
+        <path refid="controls.dependency.path"/>
+        <path refid="xbean.dependency.path"/>
+        <path refid="log4j.dependency.path"/>
+        <path refid="velocity.dependency.path"/>
+        <path refid="tools.dependency.path"/>
     </path>
 
     <path id="test.classpath">
@@ -155,7 +155,7 @@
         <property name="testout.dir" value="${test.logs.dir}"/>
         <property name="fail" value="true"/>
         <property name="formatter.type" value="xml"/>
-        <copy file="${junit.jar}" todir="${os.ANT_HOME}/lib"/>
+        <copy file="${junit.jar}" todir="${ant.home}/lib"/>
 
         <echo>testout.dir: ${testout.dir}</echo>
 
