@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<propertyset is-complete="true"
+    xmlns="http://www.bea.com/servers/p13n/xsd/property-set/1.0.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bea.com/servers/p13n/xsd/property-set/1.0.1 property-set-1_0_1.xsd">
+    <name>PurchaseCartEvent</name>
+    <description>An event signifying a user completed the purchase of
+        items in a shopping cart.</description>
+    <type>EVENT</type>
+    <property>
+        <name>user-id</name>
+        <description>The user id</description>
+        <is-multivalued>false</is-multivalued>
+        <is-restricted>false</is-restricted>
+        <datatype>Text</datatype>
+    </property>
+    <property>
+        <name>currency</name>
+        <description>The currency associated with the purchase</description>
+        <is-multivalued>false</is-multivalued>
+        <is-restricted>false</is-restricted>
+        <datatype>Text</datatype>
+    </property>
+    <property>
+        <name>application-name</name>
+        <description>The application or store front name</description>
+        <is-multivalued>false</is-multivalued>
+        <is-restricted>false</is-restricted>
+        <datatype>Text</datatype>
+    </property>
+    <property>
+        <name>session-id</name>
+        <description>The session id</description>
+        <is-multivalued>false</is-multivalued>
+        <is-restricted>false</is-restricted>
+        <datatype>Text</datatype>
+    </property>
+    <property>
+        <name>total-price</name>
+        <description>The total purchase price of the order</description>
+        <is-multivalued>false</is-multivalued>
+        <is-restricted>false</is-restricted>
+        <datatype>Float</datatype>
+    </property>
+    <property>
+        <name>order-id</name>
+        <description>The order id associated with the purchase</description>
+        <is-multivalued>false</is-multivalued>
+        <is-restricted>false</is-restricted>
+        <datatype>Text</datatype>
+    </property>
+</propertyset>

@@ -1,0 +1,477 @@
+/*   Copyright 2004 Salesforce.com
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package websvcs;
+
+import com.bea.xml.XmlObject;
+import com.bea.xquery.iso8601.DateTime;
+import com.sforce.soap.enterprise.*;
+import com.sforce.soap.enterprise.sobject.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Vector;
+/**
+ */
+public class ConversationalWS implements com.bea.jws.WebService
+{
+
+    /**
+     * @common:control
+     * @jc:sforce-properties query-batch-size="30" validate-level="Verbose" http-url="https://www.salesforce.com/services/Soap/c/3.0"
+     */
+    private org.controlhaus.sforce.sforce3_0Enterprise sForce;  
+
+    static final long serialVersionUID = 1L;
+
+    //private sessionID
+    
+    /** Leave username blank for a test account 
+     * 
+     * @common:operation
+     * @jws:conversation phase="start"
+     */
+    public LoginResult login(java.lang.String username, java.lang.String password)
+    {   
+        if (username.length()==0)
+        {
+            username="matyix@yahoo.com";
+            password="sforce";
+        }
+        return sForce.login(username, password);    
+    }
+    
+    /** 
+     * This method gets a narrow set of columns from the Account table via query,
+     * then takes the ID of the first record returned and gets a broader set of columns.
+     * This is a sample how to use the wrapper's "query" method.
+     * 
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public Account getAccountDetails()
+    { 
+        String accountSummarySelect = "SELECT ID, Name, Type, BillingCity, BillingState, AccountNumber, Industry, Rating FROM Account";
+        String accountDetailsSelect = "SELECT ID, Name, Type, ParentId, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode, ShippingCountry, Phone, Fax, AccountNumber, Website, Sic, Industry, AnnualRevenue, NumberOfEmployees, Ownership, TickerSymbol, Description, Rating, Site, OwnerId, CreatedDate, CreatedById, LastModifiedDate, LastModifiedById, SystemModstamp FROM Account ";
+        String qs = accountSummarySelect;
+        QueryResult qr = sForce.query(qs);     
+        SObject sObj = qr.getRecordsArray(0);
+        qs = accountDetailsSelect + " WHERE Id = '" + sObj.getId() + "'";
+        qr = sForce.query(qs);     
+        
+        if ((qr.getRecordsArray().length!=1) ||
+                !(qr.getRecordsArray(0) instanceof Account))
+            throw new RuntimeException("Expected record not found in result");
+            
+        Account acct = (Account)qr.getRecordsArray(0);      
+        return acct;    
+    }
+
+    /** 
+     * This method gets the up to batch-size records from the accts table
+     * 
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public Account [] getAccountSummary()
+    { 
+        String accountSummarySelect = "SELECT Id, Name, Type, BillingCity, BillingState, AccountNumber, Industry, Rating, CreatedDate FROM Account ";        
+        String qs = accountSummarySelect;
+        QueryResult qr = sForce.query(qs);
+        int recs = qr.getRecordsArray().length;
+        Account[] arrAccts = new Account[recs];       
+        
+        for (int i=0; i< recs; i++)
+        {
+            arrAccts[i] = (Account) qr.getRecordsArray(i);
+        }
+            
+  //        following line might replace the loop above if the xml were
+  //        schema compliant
+ //       arrAccts = (Account []) qr.getRecordsArray();
+        
+        return arrAccts;    
+    }
+    
+    /**
+     * This method creates a new Account then deletes it
+     * 
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public String addNewAccount()
+    {
+
+        Account acct = Account.Factory.newInstance();
+        acct.setName("new account test");
+        acct.setType("Customer");
+        acct.setIndustry("Technology");
+        acct.setBillingCity("Boise");
+        acct.setBillingState("Idaho");
+        
+        SaveResult saveResult = sForce.create(new Account[]{acct})[0];
+        String sId = saveResult.getId();
+        
+        deleteAccountObject(sId);
+        
+        return "Created and deleted record with id " + sId;        
+        
+    }
+       
+    /**
+     * This method creates a new Account then deletes it
+     * using the simplified method signature
+     * 
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public String addAndUpdateAccountObject()
+    {
+        Account acct = Account.Factory.newInstance();
+        acct.setName("new account test");
+        acct.setType("Customer");
+        acct.setIndustry("Technology");
+        acct.setBillingCity("Boise");
+        acct.setBillingState("Idaho");
+        SaveResult sr = sForce.createOne(acct);
+        
+        String sId = sr.getId();
+        acct.setId(sId);
+        acct.setType("Partner");
+        sForce.updateOne(acct);
+        
+        sForce.deleteOne(sId);
+        
+        return "Created, updated and deleted record with id " + sId;        
+        
+    }
+       
+
+    
+      /**
+     * This method deletes an Account by id
+     * 
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public boolean deleteAccountObject(String id)
+    {
+        return sForce.delete(new String[]{id})[0].getSuccess();
+    }
+    /** 
+     * This operation just ends the local conversation; the server
+     * doesn't expose a way   to release session keys
+     * 
+     * @common:operation
+     * @jws:conversation phase="finish"
+     */
+    public void finishTestDrive() 
+    {
+        
+    }
+
+    /**
+     * 
+     * Retrieves information about the current logged in user.
+     * 
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public GetUserInfoResult getUserInfo()
+    {   
+        return sForce.getUserInfo();
+    }
+
+    /**
+     *  List of available objects for your organization. 
+     *  You can then iterate through this list and use describeSObject to obtain metadata about individual objects.
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public DescribeGlobalResult listAvailableObjects()
+    {
+        return sForce.describeGlobal();
+    }
+    
+    /**
+     * Obtain metadata about individual objects. Use one of the objects name listed by : listAvailableObjects
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+   public DescribeSObjectResult getObjectMetadata(String objectName)
+   {
+        return sForce.describeSObject(objectName);
+   }
+   
+   /**
+     * The getServerTimestamp call always returns the timestamp in GMT. 
+     * However, your local system might automatically display the results in your local time based on your time zone settings.
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+   public Calendar getServerTimestamp()
+   {
+        return sForce.getServerTimestamp();
+   }
+   
+   /**
+    * Use the retrieve call to retrieve individual objects from an sforce API object. 
+    * The client application passes the list of fields to retrieve, the object, and an array of object IDs to retrieve.
+    * @common:operation
+    * @jws:conversation phase="continue"
+    */
+   public SObject retrieveObject()
+   {    
+        //Add a new account - this account props will be retrieved
+        Account acct = Account.Factory.newInstance();
+        acct.setName("new account test");
+        acct.setType("Customer");
+        acct.setIndustry("Technology");
+        acct.setBillingCity("Boise");
+        acct.setBillingState("Idaho");
+        SaveResult sr = sForce.createOne(acct);
+        String sId = sr.getId();
+        
+        SObject object = sForce.retrieve("Id, AccountNumber, Name, Website", "Account", sId); 
+    
+        sForce.deleteOne(sId);
+        
+        return object;
+   }
+   
+  
+    /** 
+     * This method gets a set of columns from the Contacts table via query and queryMore,
+     * This is a sample how to use the wrapper's "query" and "queryMore" methods.
+     * 
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public void getContactDetails()
+    { 
+        QueryResult queryResult = null; 
+        // Set up query options. Set the max batch size to 3 
+        // so that we can exercise the queryMore call as well 
+        sForce.setQueryOptions(3);
+ 
+        // Invoke the query call and save the results 
+        queryResult = sForce.query("select FirstName, LastName from Contact"); 
+        // Determine whether the query returned all the possible records 
+        if (queryResult.getDone()) { 
+        // Iterate through the records and process them 
+         for (int i = 0; i < queryResult.getRecordsArray().length; i++) { 
+            Contact con = (Contact) queryResult.getRecordsArray (i); 
+            String firstName = con.getFirstName(); 
+            String lastName = con.getLastName(); 
+            System.out.println("Contact " + (i + 1) + ": " + firstName + " " + lastName); 
+         } 
+      } 
+      else { 
+         // Need to use queryMore call after processing 
+         // the first set of records from the query result 
+         while (queryResult.getRecordsArray() != null) { 
+            for (int i = 0; i < queryResult.getRecordsArray().length; i++) { 
+               Contact con = (Contact) queryResult.getRecordsArray(i); 
+               String firstName = con.getFirstName(); 
+               String lastName = con.getLastName(); 
+               System.out.println("Contact " + (i + 1) + ": " + firstName + " " + lastName); 
+            } 
+         // Invoke the queryMore call to get the next set of returned rows 
+         queryResult = sForce.queryMore(queryResult.getQueryLocator()); 
+        } 
+      }
+    }
+
+    /**
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public SetPasswordResult setPassword(String userId, String newPassword)
+    {
+        return sForce.setPassword(userId, newPassword);
+    }
+
+    /**
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public void setSaveOptions()
+    {
+        sForce.setSaveOptions("01Q3000000009Bh", true);
+    }
+
+    /**
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public void setQueryBatchSize(Integer batchSize)
+    {
+        sForce.setQueryOptions(batchSize.intValue());
+    }
+
+    /**
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public void resetSaveOptionsToDefault()
+    {
+        sForce.resetSaveOptionsToDefault();
+    }
+
+    /**
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public void resetQueryOptionsToDefault(Integer batchSize)
+    {
+        sForce.resetQueryOptionsToDefault();
+    }
+
+    /**
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public void getUpdated()
+    {
+        //You can use the server timestamp as known point in time 
+        Calendar serverTime = sForce.getServerTimestamp();
+        //Create a start time value for the call 
+        GregorianCalendar startTime = (GregorianCalendar) serverTime; 
+        //Create an end time value for the call 
+        GregorianCalendar endTime = (GregorianCalendar) serverTime; 
+        //subtract 5 mins from the server time so  
+        //that we have a valid time frame, you can use just  
+        //about any timespan you want, 5 minutes is arbitrary 
+        startTime.add(GregorianCalendar.MINUTE, -5);             
+                 
+        System.out.println("Checking updates at: " + startTime.getTime().toString()); 
+        GetUpdatedResult ur = sForce.getUpdated("Account", (Calendar)startTime, (Calendar)endTime); 
+         
+        //Check the length of the returned array of IDs  
+        //to detect if you got any hits             
+        if (ur.getIdsArray().length > 0) { 
+            for (int i=0;i<ur.getIdsArray().length;i++) { 
+                System.out.println(ur.getIdsArray(i) + " was updated between " + 
+                    startTime.getTime().toString() + " and " + endTime.getTime().toString()); 
+            }     
+        } else { 
+            System.out.println("No updates to accounts in the last 5 minutes."); 
+        } 
+    }
+    
+    /**
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public void getDeleted()
+    {
+        //You can use the timestamp from the service for a know point in time 
+        Calendar serverTime = sForce.getServerTimestamp(); 
+        //We have two points in time to get the items that have been deleted in that 
+        //timespan.  We'll set the start and end time to the server time  
+        //just retrieved.   
+        GregorianCalendar startTime = (GregorianCalendar) serverTime; 
+        GregorianCalendar endTime = (GregorianCalendar) serverTime; 
+        //Adjusting the start by subtracting 5 minutes will give us a 5 minute 
+        //timespan to inspect 
+        endTime.add(GregorianCalendar.MINUTE, -5);             
+                 
+        GetDeletedResult gdr = sForce.getDeleted("Contact", (Calendar)startTime, 
+    (Calendar)endTime); 
+        //Check the number of records contained in the results, if more that 0,  
+        //then something was deleted in the 5 minute span 
+        if (gdr.getDeletedRecordsArray().length > 0) { 
+            for (int i=0;i<gdr.getDeletedRecordsArray().length;i++) { 
+                System.out.println(gdr.getDeletedRecordsArray(i).getId() + " was deleted on " 
+                    + gdr.getDeletedRecordsArray(i).getDeletedDate().getTime().toString()); 
+            }     
+        } else { 
+            System.out.println("No deletions from contacts in the last 5 minutes."); 
+        } 
+        }
+        
+    /**
+     * @common:operation
+     * @jws:conversation phase="continue"
+     */
+    public void search()
+    {
+        SearchResult sr = null; 
+        //This search will look for a particular phone number in Contacts,  
+        //Leads and Accounts returning similar information for Contact 
+        //and Leads and just the name and phone number for the Accounts 
+        sr = sForce.search("find {4159017000} " +  
+                "in name fields " +  
+                "returning " +  
+                "contact(id, phone, firstname, lastname), " +                     
+                "lead(id, phone, firstname, lastname), " +  
+                "account(id, phone, name)"); 
+     
+         //Put the results into an array of SearchRecords 
+        SearchRecord[] records = sr.getSearchRecordsArray(); 
+     
+        //Check the length of the returned array of records to see  
+        //if the search found anything     
+        if (records.length > 0) { 
+            //We are going to use vectors to hold the results 
+            Vector contacts = new Vector(); 
+            Vector leads = new Vector(); 
+            Vector accounts = new Vector(); 
+            //We will go throught the results and determine what type 
+            //of object we found by using instanceof and add each record 
+            //to the correct vectory 
+            for (int i=0;i<records.length;i++){ 
+                SObject record = (SObject)records[i].getRecord(); 
+                if (record instanceof Contact) { 
+                    contacts.add(record); 
+                } else if (record instanceof Lead){ 
+                    leads.add(record); 
+                } else if (record instanceof Account) { 
+                    accounts.add(record); 
+                } 
+            } 
+            //we now have our results sorted into buckets of specific types 
+            //so we can report our findings 
+            if (contacts.size() > 0) { 
+                System.out.println("Found " + new Integer(contacts.size()).toString() 
+                + " contacts:"); 
+                for (int i=0;i<contacts.size();i++){ 
+                    Contact c = (Contact) contacts.get(i); 
+                    System.out.println(c.getFirstName()!=null ? c.getFirstName() : " "  + " " +
+                                       c.getLastName()!=null ? c.getLastName() : ""  + " - " + 
+                                       c.getPhone()!=null ? c.getPhone() : " "); 
+                } 
+            } 
+            if (leads.size() > 0) { 
+                System.out.println("Found " + new Integer(leads.size()).toString() + " leads:"); 
+                for (int i=0;i<leads.size();i++){ 
+                    Lead l = (Lead) leads.get(i); 
+                    System.out.println(l.getFirstName()!=null ? l.getFirstName() : " "  + " " +
+                                       l.getLastName()!=null ? l.getLastName() : ""  + " - " + 
+                                       l.getPhone()!=null ? l.getPhone() : " ");
+                } 
+            } 
+            if (accounts.size() > 0) { 
+                System.out.println("Found " + new Integer(accounts.size()).toString() + " accounts:"); 
+                for (int i=0;i<accounts.size();i++){ 
+                    Account a = (Account) accounts.get(i); 
+                    System.out.println(a.getName()!=null ? a.getName() : " "  + " " +
+                                       a.getPhone()!=null ? a.getPhone() : " ");
+                } 
+            } 
+        } else { 
+            System.out.println("No records were found for the search."); 
+        } 
+    }
+}

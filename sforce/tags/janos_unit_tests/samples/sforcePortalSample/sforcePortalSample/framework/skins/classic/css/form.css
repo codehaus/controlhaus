@@ -1,0 +1,94 @@
+	
+form
+{
+    margin: 0px;
+    padding: 0px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #cccce5;
+    background-color: #f7f7ff;
+}
+
+select, textarea
+{
+    margin: 2px;
+    border-width: 1px;
+    border-color: #666699;
+    font-size: small;
+}
+
+INPUT {
+   font-family: 'Arial', 'Helvetica';
+   font-size: 9pt;
+}
+
+INPUT.button { 
+   border-left: solid 1px #336699; 
+   border-top: solid 1px #336699; 
+   border-right: solid 1px #666666; 
+   border-bottom: solid 1px #666666; 
+   font-family: 'Arial', 'Helvetica'; 
+   font-weight: bold; 
+   font-size: 8pt; 
+   color: #FFFFFF; 
+   cursor: hand; 
+   background-color: #003366; 
+} 
+
+.dataLabel {
+   font-family: 'Arial', 'Helvetica';
+   font-weight: normal;
+   font-size: 9pt;
+   color: #000000;
+   text-align: right;
+   line-height: 16px;
+   background-color: #DDDDDD;
+}
+
+.dataSmallLabel {
+   font-family: 'Arial', 'Helvetica';
+   font-weight: normal;
+   font-size: 8pt;
+   color: #000000;
+   text-align: right;
+   line-height: 14px;
+   background-color: #DDDDDD;
+}
+
+/* Data field fonts & BGCOLOR */
+.dataField {
+   font-family: 'Arial', 'Helvetica';
+   font-weight: bold;
+   font-size: 9pt;
+   color: #000000;
+   text-align: left;
+   line-height: 16px;
+   background-color: #EEEEEE;
+}
+
+/* Required field for the '*' */
+.Required {
+   font-family: 'Arial', 'Helvetica';
+   font-weight: normal;
+   font-size: 9pt;
+   color: #990000;
+}
+
+/* Required field fonts & BGCOLOR */
+
+.requiredInput {
+   font-family: 'Arial', 'Helvetica';
+   font-weight: normal;
+   font-size: 9pt;
+   color: #FFFFFF;
+   text-align: right;
+   line-height: 16px;
+   background-color: #990000;
+} 
+
+.errorMsg {
+   font-family: 'Arial', 'Helvetica';
+   font-weight: bold;
+   font-size: 8pt;
+   color: #990000;
+}

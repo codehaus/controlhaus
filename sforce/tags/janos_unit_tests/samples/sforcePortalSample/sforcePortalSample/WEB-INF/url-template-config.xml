@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<url-template-config
+    xmlns="http://www.bea.com/servers/weblogic/url-template-config/8.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.bea.com/servers/weblogic/url-template-config/8.0 url-template-config.xsd">
+
+    <!-- URL templates -->
+    <url-template name="default">
+        {url:scheme}://{url:domain}:{url:port}/{url:path}?{url:queryString}
+    </url-template>
+    <url-template name="default-complete">
+        {url:scheme}://{url:domain}:{url:port}/{url:prefix}/{url:path}?{url:queryString}
+    </url-template>
+    <url-template name="portlet-default">
+        http://{url:domain}:{url:port}/{url:path}?{url:queryString}
+    </url-template>
+    <url-template name="portlet-action">
+        http://{url:domain}:{url:port}/{url:path}?{url:queryString}
+    </url-template>
+    <url-template name="portlet-secure-action">
+        https://{url:domain}:{url:securePort}/{url:path}?{url:queryString}
+    </url-template>
+    <url-template name="portlet-resource">
+        http://{url:domain}:{url:port}/{url:path}?{url:queryString}
+    </url-template>
+    <url-template name="portlet-secure-resource">
+        https://{url:domain}:{url:securePort}/{url:path}?{url:queryString}
+    </url-template>
+
+    <!-- Map pageflow URLs to the templates defined above. -->
+    <jpf-url-templates>
+        <url-template-ref type="action" name="portlet-action"/>
+        <url-template-ref type="secure-action" name="portlet-secure-action"/>
+        <url-template-ref type="resource" name="portlet-resource"/>
+        <url-template-ref type="secure-resource" name="portlet-secure-resource"/>
+    </jpf-url-templates>
+
+    <!-- Map Java portlet URLs to the templates defined above. -->
+    <java-portlet-url-templates>
+        <url-template-ref type="action" name="portlet-default"/>
+        <url-template-ref type="secure-action" name="portlet-secure-default"/>
+        <url-template-ref type="resource" name="portlet-resource"/>
+        <url-template-ref type="secure-resource" name="portlet-secure-resource"/>
+    </java-portlet-url-templates>
+
+</url-template-config>

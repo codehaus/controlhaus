@@ -1,0 +1,372 @@
+/*   Copyright 2004 Salesforce.com
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package pages.accounts.accountList;
+import com.bea.netuix.servlets.controls.AbstractEvent;
+import com.bea.netuix.servlets.controls.content.JspContentContext;
+import com.bea.netuix.servlets.controls.page.BookBackingContext;
+import com.bea.netuix.servlets.controls.page.PageBackingContext;
+import com.bea.netuix.servlets.controls.portlet.backing.PortletBackingContext;
+import com.bea.netuix.servlets.controls.portlet.events.PortletEvent;
+import com.bea.netuix.servlets.controls.portlet.events.PortletEventListener;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+import com.sforce.soap.enterprise.DescribeSObjectResult;
+import com.sforce.soap.enterprise.QueryResult;
+import com.sforce.soap.enterprise.sobject.Account;
+import com.sforce.soap.enterprise.sobject.SObject;
+
+
+/**
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/pages/accounts/accountList/AccountListController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="80" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:listAccounts.do">
+ *   <property value="60" name="x"/>
+ *   <property value="40" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:viewAccount.do">
+ *   <property value="120" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:accountList.jsp@#@action:viewAccount.do@">
+ *   <property value="89,57,57,84" name="elbowsX"/>
+ *   <property value="36,36,81,81" name="elbowsY"/>
+ *   <property value="North_0" name="fromPort"/>
+ *   <property value="West_0" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:accountList.jsp">
+ *   <property value="100" name="x"/>
+ *   <property value="80" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#listAccounts.do#@action:begin.do@">
+ *   <property value="44,25,25,60" name="elbowsX"/>
+ *   <property value="92,92,-4,-4" name="elbowsY"/>
+ *   <property value="West_1" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#accountList.jsp#@action:listAccounts.do@">
+ *   <property value="60,25,25,64" name="elbowsX"/>
+ *   <property value="-4,-4,72,72" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#accountList.jsp#@action:viewAccount.do@">
+ *   <property value="84,57,57,100" name="elbowsX"/>
+ *   <property value="92,92,36,36" name="elbowsY"/>
+ *   <property value="West_1" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#account#com.sforce.soap.enterprise.sobject.Account"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#id#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#name#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#rating#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#industry#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#billingCity#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#billingState#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#accountNumber#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#site#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#type#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#accountPhone#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#url#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#ticker#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#ownership#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#employees#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#billingStreet#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#billingPostalCode#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.accounts.accountList.AccountListController.AccountForm#billingCountry#java.lang.String"/>
+ * <pageflow-object id="formbean:pages.accounts.accountList.AccountListController.AccountForm"/>
+ * </view-properties>
+ * ::
+ */
+public class AccountListController extends PageFlowController implements PortletEventListener
+{
+    private org.controlhaus.sforce.sforce3_0Enterprise sForce;
+    
+    public AccountForm[] accounts;
+
+	public	String accountSelect = "Select Id, Name, Rating, Industry, billingCity, billingState, AccountNumber, Site, Type, Phone, TickerSymbol, Ownership, NumberOfEmployees, BillingStreet, BillingPostalCode, BillingCountry From Account";
+
+
+    // Uncomment this declaration to access Global.app.
+    // 
+    //     protected global.Global globalApp;
+    // 
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="listAccounts.do"
+     */
+    protected Forward begin()
+    {
+        if(null==sForce){
+            sForce = (org.controlhaus.sforce.sforce3_0Enterprise)this.getRequest().getSession().getAttribute("sForce");
+        }
+
+        // Register for Portlet Events
+        PortletBackingContext portletBackingContext = PortletBackingContext.getPortletBackingContext(this.getRequest());
+        PortletEvent.addGlobalListener(portletBackingContext, this);
+        return new Forward("success");
+    }
+        
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="accountList.jsp"
+     */
+    //Retrieve a set of all accounts that this user can see.  This is an unbounded query.
+    protected Forward listAccounts()
+    {
+        try
+        {
+            loadList();
+        }
+        catch( Exception ex)
+        {
+            this.getRequest().setAttribute("msg", ex.getMessage());
+            ex.printStackTrace();         
+        }        
+        return new Forward("success");        
+    }
+    
+    private void loadList(){
+        System.out.println("loadlist1");
+        int batchSize = 8;
+        //if (this.getRequest().getParameter("refresh") != null || accounts == null) {
+                
+        // Query Account
+        QueryResult queryResult=sForce.query(accountSelect);
+
+        //queryResult.getSize() returns the total number of records that matched the query
+        //criteria.  This number can be larger than the length of the getRecordsArray() 
+        //due to the ability to specify the number of records returned for a batch.  
+        if ( queryResult.getSize() != 0 ) {
+            // store accounts
+            //create a loop control variable
+            boolean done = false;
+            int loopCount = 0;  //use this as an offset into the accounts
+            //use the getSize() method to set the size of the array
+            accounts = new AccountForm[queryResult.getSize()];
+            while (!done) {
+                for (int i=0; i< queryResult.getRecordsArray().length; i++) {
+                    accounts[loopCount] = new AccountForm();
+                    SObject sObj = queryResult.getRecordsArray(i);
+                    accounts[loopCount].setAccount((Account) sObj);
+                    loopCount++;
+                }
+                //check to see if this is the last batch from the query
+                if (queryResult.getDone()) {
+                    //set the loop control to true to exit the loop
+                    done = true;
+                } else {
+                    // this means there is another batch of records to be retrieved
+                    // reset the queryResult using the queryMore function passing the 
+                    // "cursor" to the function.                            
+                    queryResult = sForce.queryMore(queryResult.getQueryLocator());
+                }
+            }
+        }
+        //}
+        System.out.println("loadlist2");
+    }
+    
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="accountList.jsp"
+     */
+    protected Forward viewAccount(){
+        return new Forward("success");
+    }
+    
+    public void handleEvent(Object source, AbstractEvent event)
+    {
+        System.out.println("Got an event: " + event);
+        System.out.println("From: " + source.getClass().getName());
+        loadList();
+    }
+
+    public static class AccountForm extends com.bea.wlw.netui.pageflow.FormData
+    {
+
+        private Account account = Account.Factory.newInstance();
+                
+        
+        public Account getAccount(){
+            return account;
+        }    
+        
+        public void setAccount( Account account)
+        {
+            this.account=account;
+		}
+
+        public java.lang.String getId()
+        {
+            return account.getId();
+        }
+
+        public java.lang.String getName()
+        {
+            return account.getName();
+        }
+        public java.lang.String getRating()
+        {
+            return account.getRating();
+        }
+        public java.lang.String getIndustry()
+        {
+            return account.getIndustry();
+        }
+        public java.lang.String getBillingCity()
+        {
+            return account.getBillingCity();
+        }
+        public java.lang.String getBillingState()
+        {
+            return account.getBillingState();
+        }
+        public java.lang.String getAccountNumber()
+        {
+            return account.getAccountNumber();
+        }
+        public java.lang.String getSite()
+        {
+            return account.getSite();
+        }
+        public java.lang.String getType()
+        {
+            return account.getType();
+        }
+        public java.lang.String getAccountPhone()
+        {
+            return account.getPhone();
+        }
+        public java.lang.String getUrl()
+        {
+            return account.getWebsite();
+        }
+        public java.lang.String getTicker()
+        {
+            return account.getTickerSymbol();
+        }
+        public java.lang.String getOwnership()
+        {
+            return account.getOwnership();
+        }
+        public java.lang.String getEmployees()
+        {
+            return Integer.toString(account.getNumberOfEmployees());
+        }
+        public java.lang.String getBillingStreet()
+        {
+            return account.getBillingStreet();
+        }
+        public java.lang.String getBillingPostalCode()
+        {
+            return account.getBillingPostalCode();
+        }
+        public java.lang.String getBillingCountry()
+        {
+            return account.getBillingCountry();
+        }  
+
+        public void setId(String p)
+        {
+            account.setId(p);
+        }
+
+        public void setName(String p)
+        {
+            account.setName(p);
+        }
+        public void setRating(String p)
+        {
+            account.setRating(p);
+        }
+        public void setIndustry(String p)
+        {
+            account.setIndustry(p);
+        }
+        public void setBillingCity(String p)
+        {
+            account.setBillingCity(p);
+        }
+        public void setBillingState(String p)
+        {
+            account.setBillingState(p);
+        }
+        public void setAccountNumber(String p)
+        {
+            account.setAccountNumber(p);
+        }
+        public void setSite(String p)
+        {
+            account.setSite(p);
+        }
+        public void setType(String p)
+        {
+            account.setType(p);
+        }
+        public void setAccountPhone(String p)
+        {
+            account.setPhone(p);
+        }
+        public void setUrl(String p)
+        {
+            account.setWebsite(p);
+        }
+        public void setTicker(String p)
+        {
+            account.setTickerSymbol(p);
+        }
+        public void setOwnership(String p)
+        {
+            account.setOwnership(p);
+        }
+        public void setEmployees(String p)
+        {
+            try{
+                account.setNumberOfEmployees( Integer.parseInt( p ) );
+            }catch(NumberFormatException nfe){
+            }          
+        }
+        public void setBillingStreet(String p)
+        {
+            account.setBillingStreet(p);
+        }
+        public void setBillingPostalCode(String p)
+        {
+            account.setBillingPostalCode(p);
+        }
+        public void setBillingCountry(String p)
+        {
+            account.setBillingCountry(p);
+        }
+
+    }
+
+}
