@@ -66,6 +66,8 @@
     <pathelement location="${classes.dir}"/>
 <!--    <fileset dir="${lib.dir}"/>  -->
     <path refid="beehive.class.path"/>
+    <pathelement location="${basedir}/lib/commons-cli-1.0.jar"/>
+ 	
   </path>
 
   <!-- APT Task -->
