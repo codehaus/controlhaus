@@ -66,7 +66,7 @@ public interface JndiControl
          */
         @FeatureInfo(shortDescription="JNDI provider URL")      
         @AnnotationMemberTypes.Optional
-        @AnnotationMemberTypes.URL
+        @AnnotationMemberTypes.URI
         String url();
         /**
          * The JNDI security principal.
