@@ -1,5 +1,7 @@
 package org.controlhaus.jms.samples;
 
+import java.util.Date;
+
 import org.controlhaus.jms.JMSControl;
 import org.apache.beehive.controls.api.bean.ControlExtension;
 
@@ -8,6 +10,9 @@ import org.apache.beehive.controls.api.bean.ControlExtension;
 @JMSControl.Destination(sendJndiName="jms.SimpleJmsQ",jndiConnectionFactory="weblogic.jws.jms.QueueConnectionFactory")
 public interface OrderQueue extends JMSControl
 {
+    /**
+     * Represents a simple order.
+     */
 	public class Order implements java.io.Serializable
 	{
 	    /**
@@ -27,6 +32,11 @@ public interface OrderQueue extends JMSControl
 	    private int buyerId;
 	    private String[] itemList;
 	}
-	@Type("foo")
-    public javax.jms.Message submitOrder(Order order,@Property(name="DeliverBy") String deliverBy, @Type String type);
+	/**
+	 * Submit an order with the given deliverBy and type.
+	 * @param order the order to be submitted.
+	 * @param deliverBy the deliver by date.
+	 * @return the JMS message sent.
+	 */
+    public javax.jms.Message submitOrder(Order order,@Property(name="DeliverBy") Date deliverBy);
 }
