@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>  
+<control-tags xmlns="http://www.bea.com/2003/03/controls/">
+        
+    <control-tag name="ebay-control-tag">
+        <description>EBay Control Tag</description>
+        
+        <!-- Connection Properties -->
+        
+        <attribute name="url-attr" required="false">
+            <description>URL attribute</description>
+            <type>
+                <text/>
+            </type>
+            <default-value>https://api.sandbox.ebay.com/ws/api.dll</default-value>
+        </attribute>
+        <attribute name="userid-attr" required="true">
+            <description>Userid attribute</description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        <attribute name="password-attr" required="true">
+            <description>Password attribute</description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        <attribute name="devid-attr" required="true">
+            <description>DEVID attribute</description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        <attribute name="appid-attr" required="true">
+            <description>APPID attribute</description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        <attribute name="certid-attr" required="true">
+            <description>CERTID attribute</description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        
+        <!-- Request Properties -->
+        <attribute name="siteId-attr" required="true">
+            <description>Site id attribute</description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        <attribute name="errorLevel-attr" required="false">
+            <description>Error Level attribute</description>
+            <type>
+                <text/>
+            </type>
+            <default-value>1</default-value>
+        </attribute>        
+    </control-tag>
+            
+</control-tags>

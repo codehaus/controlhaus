@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Using the EBay Item Information Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the EBay Item Information Control</h2>
+Before you can use the EBay control, you need to register with EBay
+developers program and obtain login credentials. You need to configure
+the EBay
+Control with these credentials, as described in the section on <a
+ href="HowToConfigure.html">configuring the EBay Control</a>.<br>
+<br>
+The EBay Control provides a single method for the item information. The
+only
+essential parameter to this method is the item id, as shown below.<br>
+<br>
+<h3>Invoking the control<br>
+</h3>
+The ebay item information method is invoked as follows:<br>
+<pre>String itemId = "4500589265";<br>com.bea.powertoys.ebay.EBayXmlResponse result = control.getItem(itemId);<br>com.bea.powertoys.ebay.EBayDocument.EBay eBay = result.getEBay();<br></pre>
+<h3>Using the results</h3>
+The 'com.bea.powertoys.ebay.EBayDocument.EBay' is an XMLBean build
+directly from the EBay schema (the the schema was generated from the
+ebay response). The most significant information will be
+related here to get you started.<br>
+<br>
+The EBay XMLBean contains two significant elements.&nbsp; The
+first is the Item which contains data about a item at EBay.&nbsp; The
+second significant element is
+Errors, which contains the information related to
+the errors, which might occur due to various reasons.<br>
+<br>
+<h4>Getting the Item Information</h4>
+The most significant element in the EBay XMLBean is the Item.&nbsp; It
+is obtained as follows:<br>
+<pre>com.bea.powertoys.ebay.ItemDocument.Item item = eBay.getItem();<br></pre>
+<br>
+Item
+element contains infromation about Item Properties, Category
+Information, Bid Information, Pricing
+Information, Shipping Information, Seller Information etc related to
+the item. Its beyond the scope of this help to introduce each an every
+information returned by EBay. For a complete detail about item
+information returned, please
+refer to the online API and their responses at EBay developers program.<br>
+<br>
+<h4>Checking the Errors from the response</h4>
+The Errors are obtained as follows:<br>
+<pre>com.bea.powertoys.ebay.ErrorsDocument.Errors errors = eBay.getErrors();<br></pre>
+The Errors represents the following XML Schema fragment:<br>
+<br>
+<img style="width: 840px; height: 525px;" alt="Errors Element"
+ src="images/ErrorsElement.GIF"><br>
+Errors contain Error, and it contains all the details about the error
+e.g. Code, ShortMessage etc. If there were no Errors in the response
+then the request was successful,
+otherwise it was not.<br>
+<br>
+The Java Page Flow sample that accompanies the EBay Control
+demonstrates
+how navigate these XMLBeans in a JSP.<br>
+<br>
+For addtional information, please refer to EBay Developers Program, API
+and their responses are available <a
+ href="http://developer.ebay.com/DevZone/docs/API_Doc/index.asp">here</a>
+.<span style="text-decoration: underline;"><br>
+</span>
+</body>
+</html>

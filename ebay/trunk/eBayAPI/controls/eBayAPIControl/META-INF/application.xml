@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE application PUBLIC '-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN' 'http://java.sun.com/dtd/application_1_3.dtd'>
+  <application>
+    <display-name>EBay</display-name>
+    <module>
+      <web>
+        <web-uri>EBaySample</web-uri>
+        <context-root>EBaySample</context-root>
+      </web>
+    </module>
+    <module>
+      <ejb>.workshop/EBaySample/EJB/TimerControl_-livsjc6qp6ws</ejb>
+    </module>
+    <module>
+      <ejb>.workshop/EBaySample/EJB/MDBListener_-1x0154i4jz0he</ejb>
+    </module>
+    <module>
+      <ejb>.workshop/EBaySample/EJB/GenericStateless</ejb>
+    </module>
+    <module>
+      <ejb>.workshop/EBaySample/EJB/ProjectBeans</ejb>
+    </module>
+  </application>
