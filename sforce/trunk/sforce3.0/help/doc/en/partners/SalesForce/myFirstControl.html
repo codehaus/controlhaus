@@ -143,70 +143,26 @@ function openWindow(url, winName, width, height, center, winType) {
             <td bgcolor="#999999"><img src="/_.gif" width="1" height="1"></td>
         </tr>
     </table>
-	<img src="/_.gif" width="1" height="5"><br>
-    <b>sforce Explorer</b><BR>
-    The sforce Explorer is a Workshop Extension that provides ready access to the salesforce.com meta-data for your salesforce.com account.  Just select View/Windows/sforce Explorer from the Workshop built in menus to display a convenient hierarchical view of the objects accessible to you as well as detailed meta-data about each object.  The meta-data includes object and field permissions, data types, field lengths, labels and names, picklist values and valuable relationship information.<BR><BR>
+	<img src="/_.gif" width="1" height="5">
     
-    <b>sforce 3.0 Workshop Custom Control</b>
+    <b>Howto use sforce 3.0 Workshop Custom Control</b><br>
     
-With sforce 3.0 Workshop Custom Control, application developers can easily incorporate salesforce.com functionality when building web applications, web services, portal or integration solutions on the BEA WebLogic Enterprise Platform 8.1. Salesforce.com is offering the release of the sforce 3.0 Workshop Custom Control to allow customers and developers the ability to build new applications that access sforce, the new client/service application development system from salesforce.com.<br><br>
- 
-The sforce 3.0 Workshop Custom Control uses service-oriented components, introduced with BEA WebLogic Workshop 8.1, that make it easier to connect to and use any IT system or asset as a reusable service. Controls simplify development by abstracting the details of J2EE, encapsulating best-practice implementations of systems, logic, and ISV applications to serve as building blocks for the service-oriented assembly and integration of applications and business processes. The sforce 3.0 Workshop Custom Control will enable salesforce.com customers to easily connect to and extend salesforce.com functionality through sforce web services. Using industry-standard web services protocols, developers will be able to extend salesforce.com functionality and integrate salesforce.com with other applications.<br><br>
-
-For additional information on the release of the sforce 3.0 Workshop Custom Control, please contact either <a href="mailto:dcarroll@salesforce.com">Dave Carroll</a> or <a href="mailto:mkreaden@salesforce.com">Mike Kreaden</a> or visit the <a href="http://www.sforce.com">sforce website</a>.
+        After you have installed sForce 3.0 Workshop Custom control (as an extension) you can use the exposed methods on the control.
+        You have to create a project selecting one project type among Weblogic Workshop project templates or create your own project template.
+        In case the control was installed successfully you must see it among the installed controls in Weblogic Workshop. When you are inserting the control you will be prompted to insert a name for the control.
+        In case this is the first time using the SalesForce wrapper, you will be prompted to download your company specific WSDL file.
+        For this one, you should insert your account name and password - this way the controll will download automatically the wsdl file, create and compile the Schema project and install the Object browser.
+        In case of an error (communication error is most likely) you have to do the following: Log into SalesForce and download manually your company's WSDL file. This is the link from where you can downlaod your WSDL :
+        <a href= "https://www.salesforce.com/services/Soap/c/3.0">Get WSDL manually </a>. Save the WSDL file as enterprise.wsdl and copy under your Schema directory.
+        In case you don't have a directory called Schema, create a Schema project, named Scheme with Weblogic Workshop. After the copy, Workshop will startd building the project and will create the propper XMLBeans classes.
+        After this procedure you can try to add the wrapper again but you don't have get the WSDL this time. Since now you can use theexposed methods in the sForce wrapper and access your SalesForce specific data.
+        
+        
 <br><br>
 <br> 
 	
-		<b>Installing sforce Explorer</b><br><br>
-<OL>
-<lI>SForce Explorer is installed automatically at first time when you are creating a control instance. In case of an error you should follow the following instructions.
-<LI>Shutdown Workshop if it is running.</LI>
-<li>Unzip the contents of the sforceExplorer.zip file to <beahome>\weblogic81\workshop\extensions.</LI>
-<li>Restart Weblogic Workshop</li>
-</OL>
-<BR>Using sforce Explorer
-<OL>
-<LI>From the View/Windows menu, select sforce Explorer</LI>
-<LI>A new tab will be added to the IDE next to the Application tab.</LI>
-<LI>Click the + sign for sforce Entities<\LI>
-<LI>Enter your username and password, then click OK.</LI>
-</OL>
-<BR>You can now see all of the objects that are available in salesforce.com.  Expanding the tree nodes will reveal additional information about each of the objects.  You can right-click anywhere on the tree to logout of the API or to find a link to the sforce Community forums.  You username and login information is securely saved as a property of the current project.  To modify the sforce Explorer properties for the project, right click the project and select properties.  The project properties dialog will be displayed.  Select sforce Explorer to modify your username, password or the web services endpoint.  The endpoint can be used to examine your meta-data for different versions of the API.  Please visit <a href="http://www.sforce.com">sforce.com</a> for more information.
-<BR><BR>
-		<b>Installing sforce Workshop Portal Sample</b><br>
-		<table width="100%" cellspacing="0" cellpadding="0"><tr><td bgcolor="#999999"><img src="/_.gif" width="1" height="1"></td></tr></table>
-		<img src="/_.gif" width="1" height="5"><br>
-		
-This version of the sforce Workshop Control supports WebLogic Workshop 8.1 sp2.<br><br>
 
 
-<OL>
-When you are using control at first time the samples are installed at BEA_HOME\weblogic81\samples\partners\controlhaus_sforce  
-</OL>
-<BR>To run the examples:
-<OL>
-<LI>From the Workshop File/Open/Application menu, open the SForcePortalSample.work file and run Controller.jpf
-<LI>Once the test browser displays the login page, you can enter you salesforce.com username and password to access your data.<BR><B>NOTE:</B> You must have a valid login for an API enabled salesforce.com account.  Visit <a href="https://www.sforce.com/us/orderEntry/signup.jsp">www.sforce.com</a> to sign up for a FREE API enabled developer account.
-</OL>
-<BR>For more information:
-<OL>
-<LI>see the javadocs contained in the download
-<LI>see <a href="http://www.sforce.com/us/docs/sforce30/wwhelp/wwhimpl/js/html/wwhelp.htm">sforce API documentation</a>. 
-<LI>the XML Schemas used by the sforce Workshop Control can be extracted from schemas.jar
-</OL>
-<blockquote>
-		<b>How It Works</b><br>
-		<table width="100%" cellspacing="0" cellpadding="0"><tr><td bgcolor="#999999"><img src="/_.gif" width="1" height="1"></td></tr></table>
-		<img src="/_.gif" width="1" height="5"><br>
-		
-The release of the sforce 3.0 Workshop Custom Control only works with the sp2 release of WebLogic Workshop 8.1.  The sforce 3.0 Workshop Custom Control provides an implementation of the sforce Enterprise WSDL (API 3.0) and exposes the following interfaces:<br><br>
-
-
-<br>
-
-		<br>
-		
-</blockquote>
 Click the following link for the SalesForce 3.0 WSDL exposed methods:  
 <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_list.html"> sforce.com API </a> <br>
 For method exposed in the SalesForce Workshop Custom control click the following link:  

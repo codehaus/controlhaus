@@ -130,13 +130,13 @@ public class sforceCheckWizard extends ControlWizardSimple
         {            
             prompt = "\nPlease press OK and login to salesforces.com in order to download schema.";
             msgs += prompt;
-            MessageSvc.get().showInfoDialog("Schemas Check", msgs);
+            MessageSvc.get().showInfoDialog("sforceSchemas Check", msgs);
             GetWsdlDialog getWsdlDialog = new GetWsdlDialog(null,"",true); 
             getWsdlDialog.show();
             if(getWsdlDialog.wasCancelled()){
                 return false;
             }
-            return true;                    
+            //return true;                    
         }
         
         //Extensions are optional

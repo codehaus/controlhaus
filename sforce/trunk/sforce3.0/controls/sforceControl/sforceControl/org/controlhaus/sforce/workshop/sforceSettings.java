@@ -20,7 +20,7 @@ public class sforceSettings
     /**
      * Control zip file name, identical with control project name
      */    
-    public static final String CONTROL_ZIPFILE = "SForceWLWControl.zip";
+    public static final String CONTROL_ZIPFILE = "sforceControl.zip";
     /**
      * 
      */
