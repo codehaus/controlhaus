@@ -42,32 +42,6 @@ public interface HibernateControl
      */
     void closeSession() throws HibernateException;
     
-    /**
-     * Override this method to provide logic on how to get the
-     * Hibernate configuration file. This can be a file or a resource
-     * on the classpath.
-     * 
-     * @return
-     */
-    String getConfigurationLocation();
-    
-    /**
-     * The instance of hibernate that you want this control to use.
-     * This will be "default" unless you use the HibernateInstance annotation
-     * to override it.
-     * 
-     * @return
-     */
-    String getHibernateInstance();
-    
-    @PropertySet(prefix="HibernateInstance")
-    @Target( {ElementType.TYPE, ElementType.FIELD, ElementType.METHOD} )
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface HibernateInstance
-    {
-        String value() default "default";
-    }
-    
     @PropertySet(prefix="ManagedTransactions")
     @Target( {ElementType.TYPE, ElementType.FIELD, ElementType.METHOD} )
     @Retention(RetentionPolicy.RUNTIME)

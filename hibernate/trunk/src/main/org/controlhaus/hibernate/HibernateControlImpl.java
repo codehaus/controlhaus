@@ -19,7 +19,6 @@ import org.apache.beehive.controls.api.events.EventHandler;
 import org.apache.beehive.controls.api.context.ResourceContext;
 
 import org.apache.log4j.Logger;
-import org.controlhaus.hibernate.HibernateControl.HibernateInstance;
 import org.controlhaus.hibernate.HibernateControl.ManagedTransactions;
 
 /**
@@ -39,10 +38,7 @@ public class HibernateControlImpl
 
     private SessionFactory sessionFactory;
     private Configuration hibConfig;
-    
-    private String location = "/hibernate.cfg.xml";
-    private String instance = "default";
-    
+
     private boolean manageTXs = false;
     
     @Context ControlBeanContext context;
@@ -50,9 +46,6 @@ public class HibernateControlImpl
     
     public HibernateControlImpl()
     {
-        String propLoc = System.getProperty("hibernate.cfg.xml");
-        if ( propLoc != null )
-            location = propLoc;
     }
     
     /**
@@ -68,28 +61,12 @@ public class HibernateControlImpl
         return hibConfig;
     }
 
-    public String getConfigurationLocation()
-    {
-        return location;
-    }
-    
-    public String getHibernateInstance()
-    {
-        return instance;
-    }
 
     @EventHandler(field="context", 
                   eventSet=ControlBeanContext.LifeCycle.class, 
                   eventName="onCreate")
     public void onCreate()
     {
-        HibernateInstance iProp = 
-            (HibernateInstance) context.getControlPropertySet(HibernateInstance.class);
-        if (instance != null)
-        {
-            instance = iProp.value();
-        }
-        
         ManagedTransactions txProp = 
             (ManagedTransactions) context.getControlPropertySet(ManagedTransactions.class);
         if (txProp != null)
