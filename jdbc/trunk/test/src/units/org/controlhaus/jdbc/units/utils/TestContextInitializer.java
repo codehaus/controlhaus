@@ -11,7 +11,7 @@ public class TestContextInitializer {
 
     public static ControlContainerContext initContext(Object caller)
             throws Exception {
-        ControlContainerContext context = new TestContainerContext();
+        ControlContainerContext context = new ControlContainerContext();
         final Class forClass = caller.getClass();
 
         context.beginContext();

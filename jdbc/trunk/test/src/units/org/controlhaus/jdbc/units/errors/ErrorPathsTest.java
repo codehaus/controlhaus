@@ -27,12 +27,10 @@ import org.apache.beehive.controls.api.context.ControlThreadContext;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.controlhaus.jdbc.test.errors.ErrorsTestCtrl;
-import org.controlhaus.jdbc.units.utils.AbstractControlTest;
 import org.controlhaus.jdbc.units.utils.TestContextInitializer;
 import org.controlhaus.jdbc.JdbcControl;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.Statement;
 
 /**
@@ -47,7 +45,7 @@ public final class ErrorPathsTest extends TestCase {
     public ErrorsTestCtrl testCtrl;
 
     @Control
-    @JdbcControl.ConnectionDataSource(jndiName="jdbc/TestDB")
+    @JdbcControl.ConnectionDataSource(jndiName="java:/comp/env/jdbc/TestDB")
     private ErrorsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {

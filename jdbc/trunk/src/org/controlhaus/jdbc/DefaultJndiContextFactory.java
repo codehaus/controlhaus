@@ -33,7 +33,6 @@ class DefaultJndiContextFactory extends JdbcControl.JndiContextFactory {
      * @throws NamingException on error.
      */
     public Context getContext() throws NamingException {
-        Context initCtxt = new InitialContext();
-        return (Context) initCtxt.lookup("java:/comp/env");
+        return (Context) new InitialContext();
     }
 }

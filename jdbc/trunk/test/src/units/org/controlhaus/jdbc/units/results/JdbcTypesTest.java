@@ -49,7 +49,8 @@ public class JdbcTypesTest extends TestCase {
     public ResultsTestCtrl testCtrl;
 
     @Control
-    @JdbcControl.ConnectionDataSource(jndiName="jdbc/TestDB")
+    @JdbcControl.ConnectionDataSource(jndiName="java:/comp/env/jdbc/TestDB")
+//        ControlContainerContext context = new TestContainerContext();
     private ResultsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {

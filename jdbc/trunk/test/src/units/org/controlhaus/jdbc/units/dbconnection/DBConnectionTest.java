@@ -19,13 +19,15 @@ package org.controlhaus.jdbc.units.dbconnection;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import junit.framework.TestCase;
 import org.apache.beehive.controls.api.bean.Control;
+import org.apache.beehive.controls.api.context.ControlContainerContext;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.controlhaus.jdbc.test.dbconnection.DriverManagerConnectionCtrl;
 import org.controlhaus.jdbc.test.dbconnection.DriverManagerConnectionCtrlAuth;
 import org.controlhaus.jdbc.test.dbconnection.DriverManagerConnectionCtrlProps;
-import org.controlhaus.jdbc.units.utils.AbstractControlTest;
+import org.controlhaus.jdbc.units.utils.TestContextInitializer;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,8 +37,10 @@ import java.sql.ResultSet;
 /**
  *
  */
-public class DBConnectionTest extends AbstractControlTest {
+public class DBConnectionTest extends TestCase {
     private static final Logger _logger = Logger.getLogger(DBConnectionTest.class);
+
+    private ControlContainerContext _controlContext = null;
 
     @Control
     public DriverManagerConnectionCtrl testCtrl;
@@ -45,9 +49,16 @@ public class DBConnectionTest extends AbstractControlTest {
     @Control
     public DriverManagerConnectionCtrlProps testPropsCtrl;
 
-    public void setUp() throws Exception { BasicConfigurator.configure(); super.setUp(); }
+    public void setUp() throws Exception {
+        // BasicConfigurator.configure();
+        super.setUp();
+        _controlContext = TestContextInitializer.initContext(this);
+    }
 
-    public void tearDown() throws Exception { super.tearDown(); }
+    public void tearDown() throws Exception {
+        super.tearDown();
+        _controlContext.endContext();
+    }
 
 
     public void testDriverMgrConnection_simple() throws Exception {
