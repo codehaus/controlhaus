@@ -139,7 +139,7 @@
   <target name="clean">
     <delete dir="${build.dir}"/>
     <delete file="velocity.log"/>
-    <ant antfile="build.xml" dir="drt" target="clean"/>  
+    <ant antfile="build.xml" dir="drt" target="clean" inheritAll="false"/>  
   </target>
   
 </project>
