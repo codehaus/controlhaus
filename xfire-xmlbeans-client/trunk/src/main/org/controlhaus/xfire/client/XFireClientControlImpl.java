@@ -62,6 +62,8 @@ public class XFireClientControlImpl
         throws IOException, XFireFault
     {
         XMLBeansClientHandler handler = new XMLBeansClientHandler(options);
+        handler.setRequest(request);
+        
         SoapHttpClient client = new SoapHttpClient(handler, getHeaderHandler(), getServiceUrl());
         client.invoke();
         
