@@ -43,9 +43,9 @@ public class HeaderHandler implements Handler {
 
     static Logger logger = Logger.getLogger(HeaderHandler.class);
 
-    static ThreadLocal threadsInHeaders = new ThreadLocal();
+    static ThreadLocal localInHeaders = new ThreadLocal();
 
-    static ThreadLocal threadsOutHeaders = new ThreadLocal();
+    static ThreadLocal localOutHeaders = new ThreadLocal();
 
     /**
      * Sign outgoing request message.
@@ -53,7 +53,7 @@ public class HeaderHandler implements Handler {
      */
     public boolean handleRequest(MessageContext mc) {
         System.out.println("In HeaderHandler's handleRequest myOutHeaders: "
-                + threadsOutHeaders.get());
+                + localOutHeaders.get());
        
         try {
             SOAPMessageContext smc = (SOAPMessageContext) mc;
@@ -67,7 +67,7 @@ public class HeaderHandler implements Handler {
              * We don't specify a role on this header element,
              * meaning the target role is the "ultimate destination".
              */
-            Element[] elemsToAdd = (Element[]) threadsOutHeaders.get();
+            Element[] elemsToAdd = (Element[]) localOutHeaders.get();
             if (null == elemsToAdd) return true;
             for(Element nxtElement : elemsToAdd) {
                 header.addChildElement(new org.apache.axis.message.SOAPHeaderElement(nxtElement));  // NOTE: Axis specific
@@ -85,8 +85,8 @@ public class HeaderHandler implements Handler {
      * 
      */
     static public void reset() {
-        threadsInHeaders = new ThreadLocal();
-        threadsOutHeaders = new ThreadLocal();
+        localInHeaders = new ThreadLocal();
+        localOutHeaders = new ThreadLocal();
 
     }
 
@@ -113,13 +113,14 @@ public class HeaderHandler implements Handler {
             }
              
             Element[] elems = (Element[]) list.toArray(new Element[list.size()]);  // Use generics
+            localInHeaders.set(elems);
  
         } catch (SOAPException e) {
             e.printStackTrace();
             logger.error("Error extracting the header.", e);
         }
         
-        logger.debug("myInHeaders: " + threadsOutHeaders.get());
+        logger.debug("myInHeaders: " + localInHeaders.get());
         return true;
     }
 
@@ -165,7 +166,7 @@ public class HeaderHandler implements Handler {
      * @return Returns the inHeaders.
      */
     static public Element[] getInHeaders() {
-        return (Element[]) threadsInHeaders.get();
+        return (Element[]) localInHeaders.get();
     }
 
     /**
@@ -173,6 +174,6 @@ public class HeaderHandler implements Handler {
      *            The outHeaders to set.
      */
     static public void setOutHeaders(Element[] outHeaders) {
-        threadsOutHeaders.set(outHeaders);
+        localOutHeaders.set(outHeaders);
     }
 }
