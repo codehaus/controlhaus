@@ -15,34 +15,87 @@ import javax.jms.Session;
 /**
  * The control interface for the jms control.
  */
-@ControlInterface (defaultBinding="org.controlhaus.jms.impl.JmsControlImpl")
+@ControlInterface (defaultBinding="org.controlhaus.jms.impl.JMSControlImpl")
 public interface JMSControl
 {
     /**
-     * The destination type. If Auto then the type is set
-     * from the send-jndi-name.
+     * The destination type. 
      */
-    enum DestinationType { Auto, Queue, Topic };
+    enum DestinationType 
+    { 
+        /** The destination is set from the object obtained from JNDI. */
+        Auto, 
+        /** The destination must be a javax.jms.QueueSender. */
+        Queue, 
+        /** The destination must be a javax.jms.TopicPublisher. */
+        Topic 
+    };
+    
     /**
      * The header type. Corresponds to the JMS* bean properties on a JMS message.
      */
-    enum HeaderType { JMSCorrelationID, JMSDeliveryMode, JMSPriority, JMSExpiration, JMSMessageID, JMSType, JMSRedelivered, JMSTimestamp };
+    enum HeaderType 
+    { 
+        /** see javax.jms.Message.getJMSCorrelationID() */
+        JMSCorrelationID, 
+        /** see javax.jms.Message.getJMSDeliveryMode */
+        JMSDeliveryMode, 
+        /** see javax.jms.Message.getJMSPriority */
+        JMSPriority, 
+        /** see javax.jms.Message.getJMSExpiration */
+        JMSExpiration, 
+        /** see javax.jms.Message.getJMSMessageID */
+        JMSMessageID, 
+        /** see javax.jms.Message.getJMSType */
+        JMSType, 
+        /** see javax.jms.Message.getJMSRedelivered */
+        JMSRedelivered, 
+        /** see javax.jms.Message.getJMSTimestamp */
+        JMSTimestamp 
+    };
     
     /**
-     * The message type. If Auto then the type is set
-     * from the body.
+     * The message type. 
      */
-    enum MessageType { Auto, Text, Bytes, Object, Map, JMSMessage };
+    enum MessageType 
+    { 
+        /** Message is determined from the body instance class. If the method is not annotated with Body, then the message type is Map. */
+        Auto, 
+        /** Message is a javax.jms.TextMessage */
+        Text, 
+        /** Message is a javax.jms.BytesMessage */
+        Bytes, 
+        /** Message is a javax.jms.ObjectMessage */
+        Object, 
+        /** Message is a javax.jms.MapMessage */
+        Map, 
+        /** Message is a javax.jms.Message as given by the Body parameter */
+        JMSMessage 
+    };
 
     /**
      * The delivery mode.
      */
-    enum DeliveryMode { NonPersistent, Persistent };
+    enum DeliveryMode 
+    { 
+        /** see javax.jms.DeliveryMode.NON_PERSISTENT */
+        NonPersistent, 
+        /** see javax.jms.DeliveryMode.PERSISTENT */
+        Persistent 
+    };
     
     /**
      * The acknowledge mode.
      */   
-    enum AcknowledgeMode { Auto, Client, DupsOk };
+    enum AcknowledgeMode 
+    { 
+        /** see javax.jms.Session.AUTO_ACKNOWLEDGE */
+        Auto, 
+        /** see javax.jms.Session.CLIENT_ACKNOWLEDGE */
+        Client, 
+        /** see javax.jms.Session.DUPS_OK_ACKNOWLEDGE */
+        DupsOk 
+    };
 
     /**
      * Indicates the JMSCorrelationID message header. 
@@ -113,13 +166,26 @@ public interface JMSControl
      * Sets the JMS headers to be assigned to the next JMS message
      * sent. Note that these headers are set only on the next message,
      * subsequent messages will not get these headers. Also note that
-     * if the next message is sent through a publish method,
+     * if the body is a message itself,
      * then any header set through this map will override headers set
-     * in the message itself.
+     * in the message.
      * 
      * @param headers A map of header names (Strings or HeaderType) to header values.
      */
     public void setHeaders(Map headers);
+    
+    /**
+     * Sets a JMS header to be assigned to the next JMS message
+     * sent. Note that this headers is set only on the next message,
+     * subsequent messages will not get this header. Also note that
+     * if the body is a message itself,
+     * then the header set here will override the header set
+     * in the message.
+     * 
+     * @param type the header type.
+     * @param value the value for the header.
+     */
+    public void setHeader(JMSControl.HeaderType type,Object value);
     
     /**
      * Sets the JMS properties to be assigned to the next JMS message
@@ -133,6 +199,20 @@ public interface JMSControl
      * values.
      */
     public void setProperties(Map properties); 
+    
+    /**
+     * Set the given JMS property to be assigned to the next JMS message
+     * sent. Note that this property is set only on the next
+     * message, subsequent messages will not get this
+     * property. Also note that
+     * if the body is a message itself,
+     * then the property set here will override the property set
+     * in the message.
+     * 
+     * @param name the property name.
+     * @param value the property value.
+     */
+    public void setProperty(String name,Object value); 
 
     /**
      * The message type used by the method. The default is
@@ -155,11 +235,15 @@ public interface JMSControl
     }
     /**
      * The method parameter representing a message property with the given name.
+     * see javax.jms.Message.getProperty()/setProperty().
      */    
     @Target({ElementType.PARAMETER})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Property
     {
+        /**
+         * The property name.
+         */
         public String name();
     }
     
@@ -199,24 +283,42 @@ public interface JMSControl
      */     
     @PropertySet
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.METHOD})
+    @Target({ElementType.TYPE,ElementType.FIELD})
     public @interface Destination
     {
+        /**
+         * The JNDI name of the queue or topic.
+         */
         @FeatureInfo(shortDescription="JNDI name of the queue or topic")
     	public String sendJndiName();
         
+        /**
+         * The Correlation-Id for messages.
+         */
         @FeatureInfo(shortDescription="Correlation-Id for messages")
-    	public String sendCorrelationProperty();
+    	public String sendCorrelationProperty() default "";
         
+        /**
+         * The JNDI name of queue connection factory.
+         */
         @FeatureInfo(shortDescription="JNDI name of queue connection factory")
     	public String jndiConnectionFactory();
         
+        /**
+         * The destination type (DestinationType). The default is to use the type of the destination object named by the JNDI name.
+         */
         @FeatureInfo(shortDescription="The destination type (DestinationType). The default is to use the type of the destination object named by the JNDI name")
         public JMSControl.DestinationType sendType() default JMSControl.DestinationType.Auto; 
         
+        /**
+         * True if send is transacted. The default is transacted.
+         */
         @FeatureInfo(shortDescription="True if send is transacted. The default is transacted")
         public boolean transacted() default true;
         
+        /**
+         * The acknowledge mode. The default is to use auto-acknowledge.
+         */
         @FeatureInfo(shortDescription="The acknowledge mode. The default is to use auto-acknowledge")
         public JMSControl.AcknowledgeMode acknowledgeMode() default JMSControl.AcknowledgeMode.Auto;
     }
