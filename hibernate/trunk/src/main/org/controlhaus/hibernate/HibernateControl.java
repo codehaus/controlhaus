@@ -3,6 +3,7 @@ package org.controlhaus.hibernate;
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
+import net.sf.hibernate.Transaction;
 
 import org.apache.beehive.controls.api.bean.ControlInterface;
 import org.apache.beehive.controls.api.properties.PropertySet;
@@ -32,6 +33,8 @@ public interface HibernateControl
      * @throws HibernateException
      */
     Session getSession() throws HibernateException;
+    
+    Transaction getTransaction();
     
     /**
      * Close the session for the current Thread.
@@ -63,5 +66,13 @@ public interface HibernateControl
     public @interface HibernateInstance
     {
         String value() default "default";
+    }
+    
+    @PropertySet(prefix="ManagedTransactions")
+    @Target( {ElementType.TYPE, ElementType.FIELD, ElementType.METHOD} )
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface ManagedTransactions
+    {
+        boolean value() default false;
     }
 }
