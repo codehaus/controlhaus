@@ -8,16 +8,23 @@
     <property environment="os"/>
     <property file="${os.JDBCCONTROL_HOME}/jdbccontrol.properties"/>
 
+    <property name="beehive.dir" location="${os.BEEHIVE_HOME}"/>
+    <property name="beehive.external.dir" location="${beehive.dir}/external"/>
+
     <!-- libraries -->
-    <property name="controls.jar" location="${jdbcc.external.dir}/beehive-controls/controls.jar"/>
+    <property name="controls.jar" location="${beehive.dir}/controls/build/jars/controls.jar"/>
+
+    <!-- beehive libs -->
+    <property name="log4j.jar" location="${beehive.external.dir}/log4j/log4j-1.2.8.jar"/>
+    <property name="velocity14.jar" location="${beehive.external.dir}/velocity/velocity-1.4.jar"/>
+    <property name="velocitydep14.jar" location="${beehive.external.dir}/velocity/velocity-dep-1.4.jar"/>
+
+    <!-- local libs -->
     <property name="derby.jar" location="${jdbcc.external.dir}/derby/derby-10.0.2.1.jar"/>
-    <property name="jsr173.jar" location="${jdbcc.external.dir}/xmlbeans/jsr173_1.0_api.jar"/>
     <property name="junit.jar" location="${jdbcc.external.dir}/junit/junit.jar"/>
-    <property name="log4j.jar" location="${jdbcc.external.dir}/log4j/log4j-1.2.8.jar"/>
-    <property name="velocity14.jar" location="${jdbcc.external.dir}/velocity/velocity-1.4.jar"/>
-    <property name="velocitydep14.jar" location="${jdbcc.external.dir}/velocity/velocity-dep-1.4.jar"/>
-    <property name="xmlbeans.jar" location="${jdbcc.external.dir}/xmlbeans/apache-xbean-1.0.3.jar"/>
     <property name="javacc.home" location="${jdbcc.external.dir}/javacc"/>
+    <property name="jsr173.jar" location="${jdbcc.external.dir}/xmlbeans/jsr173_1.0_api.jar"/>
+    <property name="xmlbeans.jar" location="${jdbcc.external.dir}/xmlbeans/apache-xbean-1.0.3.jar"/>
 
     <!-- taskdefs -->
     <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask"
@@ -63,8 +70,8 @@
     <path id="build.classpath">
         <pathelement location="${build.classes.dir}"/>
         <pathelement location="${controls.jar}"/>
-        <pathelement location="${xmlbeans.jar}"/>
         <pathelement location="${jsr173.jar}"/>
+        <pathelement location="${xmlbeans.jar}"/>
         <pathelement location="${velocitydep14.jar}"/>
         <pathelement location="${velocity14.jar}"/>
         <pathelement location="${log4j.jar}"/>
