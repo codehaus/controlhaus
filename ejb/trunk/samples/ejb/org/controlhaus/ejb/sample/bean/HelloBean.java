@@ -37,7 +37,7 @@ public class HelloBean implements SessionBean
     public void ejbActivate()
         throws EJBException, RemoteException
     {
-        
+
     }
 
     public void ejbPassivate()
@@ -51,7 +51,6 @@ public class HelloBean implements SessionBean
     }
 
     public String hello()
-        throws RemoteException
     {
         return "Hello";
     }

@@ -32,8 +32,8 @@ import java.io.FileNotFoundException;
 import java.lang.String;
 
 /**
- * The EJBControl needs to inject <ejb-ref> entries into the
- * DD of its containing module.
+ * The EJBControl needs to inject EJB reference entries into the
+ * DD of its containing module for cases where ejb-link is used.
  */
 public class EJBControlAssembler implements ControlAssembler
 {
@@ -41,24 +41,6 @@ public class EJBControlAssembler implements ControlAssembler
         throws ControlAssemblyException
     {
         System.err.println("EJBControlAssembler.assemble() called");
-
-        // TODO: support WebAppModule
-        if (cac instanceof ControlAssemblyContext.EJBModule)
-        {
-            assembleEJBModule( cac );
-        }
-        else
-        {
-            System.err.println("EJBControlAssembler - no work to do, assembly context is not EJB.");
-        }
-    }
-
-    private void assembleEJBModule( ControlAssemblyContext cac )
-        throws ControlAssemblyException
-    {
-        System.err.println("EJBControlAssembler.assembleEJBModule() called");
-
-        ControlAssemblyContext.EJBModule ejbCtx = (ControlAssemblyContext.EJBModule)cac;
 
         Class controlInterface = cac.getControlType();
         EJBInfo ei = new EJBInfo( controlInterface );
@@ -77,16 +59,29 @@ public class EJBControlAssembler implements ControlAssembler
             return;
         }
 
-        // insert any required <ejb-ref> entries into the deployment descriptor
-        updateEjbRefs( ejbCtx, ei, ejbLinkValue );
+        if (cac instanceof ControlAssemblyContext.EJBModule)
+        {
+            // insert any required <ejb-ref> entries into the deployment descriptor
+        	updateEJBJar( (ControlAssemblyContext.EJBModule)cac, ei, ejbLinkValue );
+        }
+        else if (cac instanceof ControlAssemblyContext.WebAppModule)
+        {
+        	updateWebApp( (ControlAssemblyContext.WebAppModule)cac, ei, ejbLinkValue );
+        }
+        else
+        {
+            System.err.println("EJBControlAssembler - no work to do, assembly context is not EJB.");
+        }
     }
 
-    protected void updateEjbRefs( ControlAssemblyContext.EJBModule ejbCtx,
+    protected void updateEJBJar( ControlAssemblyContext.EJBModule ejbCtx,
         EJBInfo ei, String ejbLinkValue )
         throws ControlAssemblyException
     {
-        System.err.println("EJBControlAssembler.updateEjbRefs() called");
+        System.err.println("EJBControlAssembler.updateEJBJar() called");
         System.err.println(" ei=" + ei );
+        System.err.println(" ejbLinkValue=" + ejbLinkValue );
+
         File ejbJarFile = ejbCtx.getEjbJarXml();
         FileInputStream ejbJarStream = null;
         try
@@ -95,19 +90,16 @@ public class EJBControlAssembler implements ControlAssembler
         }
         catch (FileNotFoundException fnfe)
         {
-            System.err.println("EJBControlAssembler: " +
+            System.err.println("*** Warning *** EJBControlAssembler aborted: " +
                 "caught FileNotFoundException attempting to read file " +
                 ejbJarFile.getAbsolutePath() + ". Message: " +
                 fnfe.getMessage());
-            throw new ControlAssemblyException("Unable to read ejb-jar.xml " +
-                "file " + ejbJarFile.getAbsolutePath(), fnfe);
+            return;
         }
 
-        // insert new ejbRef
-        XmlCursor ejbJarXmlCursor = null;
         try
         {
-            // get name of <service-ref> to be inserted
+            // get name of EJB reference to be inserted
             String insertedEjbRefName = ei._refName;
 
             // get the existing <ejb-jar> XBean from the stream
@@ -123,37 +115,12 @@ public class EJBControlAssembler implements ControlAssembler
             for (int i=0; i<sessionArray.length; i++)
             {
                 SessionBeanType sessionBean = sessionArray[i];
-                EjbRefType[] ejbRefArray = sessionBean.getEjbRefArray();
-                for (int j=ejbRefArray.length-1; j>=0; j--)
-                {
-                    EjbRefType ejbRef = ejbRefArray[j];
-                    ejbJarXmlCursor = ejbRef.newCursor();
-                    String ejbRefName = ejbRef.getEjbRefName().getStringValue();
-                    if (insertedEjbRefName.equals(ejbRefName))
-                    {
-                        sessionBean.removeEjbRef(j);
-                        break;
-                    }
-                }
-
-                // insert a new <ejb-ref> entry and fill in the values
-                EjbRefType insertedEjbRef =
-                    sessionBean.insertNewEjbRef(0);
-
-                EjbRefNameType ejbRefName = insertedEjbRef.addNewEjbRefName();
-                ejbRefName.setStringValue(insertedEjbRefName);
-
-                EjbRefTypeType ejbRefType = insertedEjbRef.addNewEjbRefType();
-                ejbRefType.setStringValue(ei._beanType);
-
-                HomeType homeType = insertedEjbRef.addNewHome();
-                homeType.setStringValue(ei._homeInterface.getName());
-
-                RemoteType remoteType = insertedEjbRef.addNewRemote();
-                remoteType.setStringValue(ei._beanInterface.getName());
-
-                EjbLinkType ejbLink = insertedEjbRef.addNewEjbLink();
-                ejbLink.setStringValue(ejbLinkValue);
+                
+                if (ei._isLocal)
+                	insertEJBLocalRefInEJBJar(sessionBean, ei, ejbLinkValue);
+                else
+                	insertEJBRefInEJBJar(sessionBean, ei, ejbLinkValue);
+                
             }
 
             // overwrite existing ejb-jar.xml file with new document
@@ -175,11 +142,6 @@ public class EJBControlAssembler implements ControlAssembler
         }
         finally
         {
-            if (ejbJarXmlCursor != null)
-            {
-                ejbJarXmlCursor.dispose();
-            }
-
             try
             {
                 if (ejbJarStream != null)
@@ -192,5 +154,265 @@ public class EJBControlAssembler implements ControlAssembler
                 // do nothing
             }
         }
+    }
+    
+    protected void insertEJBRefInEJBJar(SessionBeanType sessionBean, EJBInfo ei, String ejbLinkValue)
+    {
+        System.err.println("EJBControlAssembler.insertEJBRefInEJBJar() called");
+        System.err.println("ejbLinkValue =" + ejbLinkValue );
+        EjbRefType[] ejbRefArray = sessionBean.getEjbRefArray();
+        String insertedEjbRefName = ei._refName;
+        XmlCursor ejbJarXmlCursor = null;
+        
+        try {
+			for (int j=ejbRefArray.length-1; j>=0; j--)
+			{
+			    EjbRefType ejbRef = ejbRefArray[j];
+			    ejbJarXmlCursor = ejbRef.newCursor();
+			    String ejbRefName = ejbRef.getEjbRefName().getStringValue();
+			    if (insertedEjbRefName.equals(ejbRefName))
+			    {
+			        sessionBean.removeEjbRef(j);
+			        break;
+			    }
+			}
+			// insert a new <ejb-ref> entry and fill in the values
+		    EjbRefType insertedEjbRef = sessionBean.insertNewEjbRef(0);
+
+		    EjbRefNameType ejbRefName = insertedEjbRef.addNewEjbRefName();
+		    ejbRefName.setStringValue(insertedEjbRefName);
+
+		    EjbRefTypeType ejbRefType = insertedEjbRef.addNewEjbRefType();
+		    ejbRefType.setStringValue(ei._beanType);
+
+		    HomeType homeType = insertedEjbRef.addNewHome();
+		    homeType.setStringValue(ei._homeInterface.getName());
+		    RemoteType remoteType = insertedEjbRef.addNewRemote();
+		    remoteType.setStringValue(ei._beanInterface.getName());
+
+		    EjbLinkType ejbLink = insertedEjbRef.addNewEjbLink();
+		    ejbLink.setStringValue(ejbLinkValue);
+		}         
+        finally
+        {
+            if (ejbJarXmlCursor != null)
+            {
+                ejbJarXmlCursor.dispose();
+            }
+        }
+    	
+    }
+
+    protected void insertEJBLocalRefInEJBJar(SessionBeanType sessionBean, EJBInfo ei, String ejbLinkValue)
+    {
+        System.err.println("EJBControlAssembler.insertEJBLocalRefInEJBJar() called");
+        System.err.println("ejbLinkValue =" + ejbLinkValue );
+        EjbLocalRefType[] ejbLocalRefArray = sessionBean.getEjbLocalRefArray();
+        String insertedEjbRefName = ei._refName;
+        XmlCursor ejbJarXmlCursor = null;
+        
+        try {
+			for (int j=ejbLocalRefArray.length-1; j>=0; j--)
+			{
+			    EjbLocalRefType ejbLocalRef = ejbLocalRefArray[j];
+			    ejbJarXmlCursor = ejbLocalRef.newCursor();
+			    String ejbRefName = ejbLocalRef.getEjbRefName().getStringValue();
+			    if (insertedEjbRefName.equals(ejbRefName))
+			    {
+			        sessionBean.removeEjbLocalRef(j);
+			        break;
+			    }
+			}
+			// insert a new <ejb-local-ref> entry and fill in the values
+        	EjbLocalRefType insertedEJBLocalRef = sessionBean.insertNewEjbLocalRef(0);
+
+            EjbRefNameType ejbRefName = insertedEJBLocalRef.addNewEjbRefName();
+            ejbRefName.setStringValue(insertedEjbRefName);
+
+            EjbRefTypeType ejbRefType = insertedEJBLocalRef.addNewEjbRefType();
+            ejbRefType.setStringValue(ei._beanType);
+
+            LocalHomeType homeType = insertedEJBLocalRef.addNewLocalHome();
+            homeType.setStringValue(ei._homeInterface.getName());
+            LocalType localType = insertedEJBLocalRef.addNewLocal();
+            localType.setStringValue(ei._beanInterface.getName());
+
+            EjbLinkType ejbLink = insertedEJBLocalRef.addNewEjbLink();
+            ejbLink.setStringValue(ejbLinkValue);
+		}         
+        finally
+        {
+            if (ejbJarXmlCursor != null)
+            {
+                ejbJarXmlCursor.dispose();
+            }
+        }
+    	
+    }
+
+    protected void updateWebApp( ControlAssemblyContext.WebAppModule webAppCcc,
+            EJBInfo ei, String ejbLinkValue )
+            throws ControlAssemblyException
+        {
+	        System.err.println("EJBControlAssembler.updateWebApp() called");
+	        System.err.println("ei =" + ei);
+	        System.err.println("ejbLinkValue =" + ejbLinkValue );
+            File webXmlFile = webAppCcc.getWebXml();
+            FileInputStream webXmlStream = null;
+            try
+            {
+                webXmlStream = new FileInputStream( webXmlFile );
+            }
+            catch (FileNotFoundException fnfe)
+            {
+                System.err.println("EJBControlAssembler: " +
+                        "caught FileNotFoundException attempting to read file " +
+                        webXmlFile.getAbsolutePath() + ". Message: " +
+                        fnfe.getMessage());
+                return;
+            }
+
+            try
+            {
+                // get the existing <web-app> XBean from the stream
+                WebAppDocument webAppDoc = WebAppDocument.Factory.parse(webXmlStream);
+
+                // copy webAppDoc XmlObject so can makes changes to it
+                webAppDoc = (WebAppDocument)webAppDoc.copy();
+                WebAppType webAppType = webAppDoc.getWebApp();
+
+                if (ei._isLocal)
+                	insertEJBLocalRefInWebApp(webAppType, ei, ejbLinkValue);
+                else
+                	insertEJBRefInWebApp(webAppType, ei, ejbLinkValue);
+
+                // overwrite existing web.xml file with new document
+                XmlOptions xmlOpts = new XmlOptions();
+                xmlOpts.setSavePrettyPrint();
+                webAppDoc.save(webXmlFile, xmlOpts);
+            }
+            catch(IOException ioe)
+            {
+                System.err.println("ServiceControlAssembler: caught IOException " +
+                    "attempting to write to file " + webXmlFile.getAbsolutePath() +
+                    ". Message: " + ioe.getMessage());
+            }
+            catch(XmlException xe)
+            {
+                System.err.println("ServiceControlAssembler: caught XmlException " +
+                    "attempting xml manipulations. Message: " +
+                    xe.getMessage());
+            }
+            finally
+            {
+                try
+                {
+                    if (webXmlStream != null)
+                    {
+                        webXmlStream.close();
+                    }
+                }
+                catch(IOException e)
+                {
+                    // do nothing
+                }
+            }
+
+        }
+
+    protected void insertEJBRefInWebApp(WebAppType webAppType, EJBInfo ei, String ejbLinkValue)
+    {
+        System.err.println("EJBControlAssembler.insertEJBRefInWebApp() called");
+        System.err.println("ejbLinkValue =" + ejbLinkValue );
+
+        EjbRefType[] ejbRefArray = webAppType.getEjbRefArray();
+        String insertedEjbRefName = ei._refName;
+        XmlCursor webXmlCursor = null;
+        
+        try {
+			for (int j=ejbRefArray.length-1; j>=0; j--)
+			{
+			    EjbRefType ejbRef = ejbRefArray[j];
+			    webXmlCursor = ejbRef.newCursor();
+			    String ejbRefName = ejbRef.getEjbRefName().getStringValue();
+			    if (insertedEjbRefName.equals(ejbRefName))
+			    {
+			    	webAppType.removeEjbRef(j);
+			        break;
+			    }
+			}
+			// insert a new <ejb-ref> entry and fill in the values
+		    EjbRefType insertedEjbRef = webAppType.insertNewEjbRef(0);
+
+		    EjbRefNameType ejbRefName = insertedEjbRef.addNewEjbRefName();
+		    ejbRefName.setStringValue(insertedEjbRefName);
+
+		    EjbRefTypeType ejbRefType = insertedEjbRef.addNewEjbRefType();
+		    ejbRefType.setStringValue(ei._beanType);
+
+		    HomeType homeType = insertedEjbRef.addNewHome();
+		    homeType.setStringValue(ei._homeInterface.getName());
+		    RemoteType remoteType = insertedEjbRef.addNewRemote();
+		    remoteType.setStringValue(ei._beanInterface.getName());
+
+		    EjbLinkType ejbLink = insertedEjbRef.addNewEjbLink();
+		    ejbLink.setStringValue(ejbLinkValue);
+		}         
+        finally
+        {
+            if (webXmlCursor != null)
+            {
+                webXmlCursor.dispose();
+            }
+        }
+    	
+    }
+
+    protected void insertEJBLocalRefInWebApp(WebAppType webAppType, EJBInfo ei, String ejbLinkValue)
+    {
+        System.err.println("EJBControlAssembler.insertEJBLocalRefInWebApp() called");
+        System.err.println("ejbLinkValue =" + ejbLinkValue );
+
+        EjbLocalRefType[] ejbLocalRefArray = webAppType.getEjbLocalRefArray();
+        String insertedEjbRefName = ei._refName;
+        XmlCursor webXmlCursor = null;
+        
+        try {
+			for (int j=ejbLocalRefArray.length-1; j>=0; j--)
+			{
+			    EjbLocalRefType ejbLocalRef = ejbLocalRefArray[j];
+			    webXmlCursor = ejbLocalRef.newCursor();
+			    String ejbRefName = ejbLocalRef.getEjbRefName().getStringValue();
+			    if (insertedEjbRefName.equals(ejbRefName))
+			    {
+			    	webAppType.removeEjbLocalRef(j);
+			        break;
+			    }
+			}
+			// insert a new <ejb-local-ref> entry and fill in the values
+        	EjbLocalRefType insertedEJBLocalRef = webAppType.insertNewEjbLocalRef(0);
+
+            EjbRefNameType ejbRefName = insertedEJBLocalRef.addNewEjbRefName();
+            ejbRefName.setStringValue(insertedEjbRefName);
+
+            EjbRefTypeType ejbRefType = insertedEJBLocalRef.addNewEjbRefType();
+            ejbRefType.setStringValue(ei._beanType);
+
+            LocalHomeType homeType = insertedEJBLocalRef.addNewLocalHome();
+            homeType.setStringValue(ei._homeInterface.getName());
+            LocalType localType = insertedEJBLocalRef.addNewLocal();
+            localType.setStringValue(ei._beanInterface.getName());
+
+            EjbLinkType ejbLink = insertedEJBLocalRef.addNewEjbLink();
+            ejbLink.setStringValue(ejbLinkValue);
+		}         
+        finally
+        {
+            if (webXmlCursor != null)
+            {
+            	webXmlCursor.dispose();
+            }
+        }
+    	
     }
 }
