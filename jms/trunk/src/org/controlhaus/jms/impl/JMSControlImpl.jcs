@@ -272,6 +272,10 @@ import org.apache.xmlbeans.XmlObject;
 	            {
 	            	continue;
 	            }
+	            if(isBody)
+	            {
+	            	throw new IllegalArgumentException("At most one parameter may be defined as the body of the JMS message");
+	            }
 	            body = args[i];
 	            isBody = true;
 	        }
