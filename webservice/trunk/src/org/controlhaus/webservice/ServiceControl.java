@@ -75,7 +75,7 @@ public interface ServiceControl
      */
     @PropertySet(prefix="OperationName")
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE, ElementType.METHOD})
+    @Target({ElementType.METHOD})
     public @interface OperationName {
 
         String value();
