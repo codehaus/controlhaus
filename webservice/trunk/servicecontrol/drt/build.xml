@@ -95,11 +95,28 @@
   <!-- run.drt -                                 -->
   <!-- ========================================= -->
 
+    <!-- start server -->
+   <target name="start-tomcat" >
+ 	   <start-server shmem="false" javaOptions="" />
+   </target>
+	
+	 <!-- deploy webapp -->
+   <target name="deploy-webapps" >
+   		 <echo message="** deploying ${webapp.dir} to ${context.path} **"/>
+   		 <deploy-webapp webappDir="${webapp.dir}" contextPath="${context.path}" />
+	</target>
+
+	 <!-- undeploy webapp -->
+	<target name="undeploy-webapps" >
+	       <undeploy-webapp contextPath="${context.path}" />
+	</target>
+
+	
   <target name="run.drt" depends="build.sc, build.server">
     <parallel>
   
       <!-- start server -->
-      <start-server shmem="false" javaOptions="" />
+      <antcall target="start-tomcat"/>
       
       <!-- deploy webapp, run tests, clean up -->
       <sequential>
@@ -117,17 +134,14 @@
             message="Server failed to start up properly at URL: ${waitfor.url}" />
 
         <!-- deploy webapp -->
-        <echo message="** deploying ${webapp.dir} to ${context.path} **"/>
-        <deploy-webapp webappDir="${webapp.dir}" contextPath="${context.path}" />
+      	<antcall target="deploy-webapps" />
 
         <!-- run test cases -->
         <antcall target="run.tests" />
                     
         <!-- undeploy webapp -->
-        <undeploy-webapp contextPath="${context.path}" />
+      	<antcall target="undeploy-webapps" />
         
-        <!-- clean webapp -->
-        <antcall target="clean" />
         
         <!-- undeploy web service runtime -->
         <!-- ant target="undeploy.beehive.webservice.runtime" dir="${ant.dir}" antfile="${app.build.file}" / -->
