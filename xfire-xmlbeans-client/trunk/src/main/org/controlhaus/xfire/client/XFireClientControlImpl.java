@@ -1,6 +1,7 @@
 package org.controlhaus.xfire.client;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -11,6 +12,7 @@ import org.apache.beehive.controls.api.context.ResourceContext;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.apache.beehive.controls.api.events.EventHandler;
 import org.apache.beehive.controls.api.bean.ControlImplementation;
+import org.apache.beehive.controls.api.bean.Extensible;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.codehaus.xfire.client.ClientHandler;
@@ -24,7 +26,7 @@ import org.codehaus.xfire.xmlbeans.client.XMLBeansClientHandler;
  */
 @ControlImplementation
 public class XFireClientControlImpl
-    implements XFireClientControl
+    implements XFireClientControl, Extensible
 {
     @Context ControlBeanContext context;
     @Context ResourceContext resourceContext;
@@ -88,5 +90,12 @@ public class XFireClientControlImpl
     public ClientHandler getHeaderHandler()
     {
         return null;
+    }
+    
+    public Object invoke(Method m, Object [] args) throws Throwable
+    {
+        System.out.println(m.getName() + " " + m.getDeclaringClass().getName());
+        System.out.println(this.getClass());
+        return m.invoke(this, args);
     }
 }
