@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Using the CreditCard Validator Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the CreditCard Validator Control</h2>
+The CreditCard Control provides a single method for credit card
+validation. The
+essential parameter(s) to this method are shown below. The java
+interface for the control is below:<br>
+<pre>Collection validate(java.lang.String number, java.util.Date expiryDate, com.bea.powertoys.creditcard.CardType type);<br>
+</pre>
+<h3>Invoking the control<br>
+</h3>
+The credit card validator method is invoked as follows:<br>
+<pre>String number = "5334 5678 1234 5670";<br><b>GregorianCalendar calender = new </b><b>GregorianCalendar(2010,4,20);<br></b>Date expiryDate = calender.getTime();<br>CardType cardType = CardType.MASTER_CARD;<br><br>Collection result = control.validate(number,expiryDate,cardType);<br></pre>
+Please note all the three arguments provided to the control are
+mandatory and credit card number may have spaces.<br>
+<br>
+<h3>Using the result</h3>
+Control returns a collection of
+'com.bea.powertoys.creditcard.CreditCardError' objects. Empty
+collection means the credit card is valid, on the other hand non-empty
+collections means errors. For every error, the collection contains an
+immutable obejct of type
+'com.bea.powertoys.creditcard.CreditCardError'. Errors in collection
+may be among the following:<br>
+<pre>public static final CreditCardError NUMBER_INVALID;<br>public static final CreditCardError EXPIRED;<br>public static final CreditCardError INVALID_TYPE;</pre>
+<h4>Invalid Credit Card<br>
+</h4>
+NUMBER_INVALID : Denotes that the credit card number provided has
+failed to pass Luhn Formula as described <a
+ href="http://perl.about.com/cs/intermediateperl/a/111303.htm">here</a>.<br>
+EXPIRED : Denotes that the credit card expiry date has been expired.<br>
+INVALID_TYPE : Denotes that credit card type is not-valid for the
+credit card number provided.<br>
+<br>
+<h4>Valid Credit Card</h4>
+When the returned collection is empty, it denotes that the credit card
+information provided to the control is valid&nbsp; with respect to
+three tests performed.<br>
+<br>
+The Java Page Flow sample that accompanies the CreditCard Control
+demonstrates
+how to use the control.<br>
+</body>
+</html>
