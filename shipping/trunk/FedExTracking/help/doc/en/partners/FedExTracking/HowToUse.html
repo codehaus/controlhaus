@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Using the Fedex Tracking Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the Fedex Tracking Control</h2>
+Before you can use the Fedex Tracking control, you may need to register
+with Fedex. Also you need to configure
+the Fedex Tracking Control with the properties, as described in the
+section on <a href="HowToConfigure.html">configuring the Fedex
+Tracking Control</a>.<br>
+<br>
+The Fedex Tracking Control provides a single method for tracking
+the package information, as described below.<br>
+<pre>org.controlhaus.schema.fedex.FDXTrackReplyDocument.FDXTrackReply track(org.controlhaus.fedex.impl.FedexTrackRequest fedexTrackRequest) throws java.lang.Exception<br><br></pre>
+<h3>Invoking the control<br>
+</h3>
+The Fedex tracking&nbsp; control can be invoked as follows:
+<pre>org.controlhaus.fedex.impl.FedexTrackRequestImpl fedexTrackRequest = new org.controlhaus.fedex.impl.FedexTrackRequestImpl();<br>fedexTrackRequest.setPackageIdentifierType("some number to track transaction");<br>fedexTrackRequest.setAccountNumber("your account number");<br>fedexTrackRequest.setMeterNumber("your meter number");<br>fedexTrackRequest.setCarrierCode("carrier code");<br>fedexTrackRequest.setPackageIdentifier("package identifier of the package to be tracked");<br>fedexTrackRequest.setPackageIdentifierType("package identifier type");<br>org.controlhaus.schema.fedex.FDXTrackReplyDocument.FDXTrackReply result = control.track(fedexTrackRequest);<br></pre>
+<h3>Using the results</h3>
+The 'org.controlhaus.schema.fedex.FDXTrackReplyDocument.FDXTrackReply'
+is an XMLBean build
+from the Fedex xml response and schema. The most significant
+information mentioned here, will to get you started.<br>
+<br>
+The FDXTrackReply XMLBean contains significant elements.&nbsp; The
+first is the 'ReplyHeader' which contains data about your transaction.
+The
+second significant element isTrackProfile, which contains the
+information related to
+tracking for the Package you requested. Other is Error,
+which contains the information related to
+the error, which might occur due to different reasons.<br>
+<br>
+<h4>Getting the ReplyHeader</h4>
+The ReplyHeader is obtained as follows:<br>
+<pre>org.controlhaus.schema.fedex.ReplyHeader replyHeader = fdxTrackReply.getReplyHeader();<br></pre>
+The ReplyHeader represents the following XML Schema fragment:<br>
+<br>
+<img style="width: 504px; height: 315px;" alt=""
+ src="images/ReplyHeaderSchema.bmp"><br>
+<br>
+ReplyHeader contains, customer transaction identifier (if you have
+provided one). This can be used for transaction handling.<br>
+<br>
+<h4>Getting the TrackProfile</h4>
+TrackProfile is one of the most important xml element, as it provides
+all the tracking information. The TrackProfile's are obtained as
+follows:<br>
+<pre>org.controlhaus.schema.fedex.TrackProfile[] trackProfiles = fdxTrackReply.getTrackProfileArray();<br></pre>
+The TrackProfile represents the following XML Schema fragment:<br>
+<br>
+<img style="width: 699px; height: 783px;" alt=""
+ src="images/TrackProfileSchema.bmp"><br>
+<br>
+<br>
+TrackProfile contains information about tracking number, carrier code,
+desitination address, delivered date, delivered time, package and scan
+information.<br>
+<br>
+<h4>Checking the Error from the response</h4>
+The Error is obtained as follows:<br>
+<pre>org.controlhaus.schema.fedex.Error error = fdxTrackReply.getError();<br></pre>
+The Error represents the following XML Schema fragment:<br>
+<br>
+<img style="width: 504px; height: 412px;" alt=""
+ src="images/ErrorSchema.bmp"><br>
+<br>
+Error contains details about the error
+e.g. Code and Message etc.<br>
+<br>
+The Java Page Flow sample that accompanies the Fedex Tracking Control
+demonstrates
+how to use control and how to navigate these XMLBeans in a JSP.<span
+ style="text-decoration: underline;"><br>
+</span>
+<br>
+</body>
+</html>

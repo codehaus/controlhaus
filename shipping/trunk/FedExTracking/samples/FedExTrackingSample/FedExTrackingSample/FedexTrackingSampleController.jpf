@@ -1,0 +1,225 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+
+import org.controlhaus.fedex.FedexTrackingControl;
+
+/**
+ * PageFlow class generated from control FedexTrackingControl
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/FedexTrackingSample/FedexTrackingSampleController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="120" name="x"/>
+ *   <property value="140" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:track.do#FedexTrackingSample.FedexTrackingSampleController.TrackForm">
+ *   <property value="860" name="x"/>
+ *   <property value="80" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:index.jsp">
+ *   <property value="420" name="x"/>
+ *   <property value="280" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:trackResponse.jsp">
+ *   <property value="860" name="x"/>
+ *   <property value="200" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:/error.jsp">
+ *   <property value="900" name="x"/>
+ *   <property value="40" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#index.jsp#@action:begin.do@">
+ *   <property value="156,270,270,384" name="elbowsX"/>
+ *   <property value="132,132,272,272" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#trackResponse.jsp#@action:track.do#FedexTrackingSample.FedexTrackingSampleController.TrackForm@">
+ *   <property value="860,860,860,860" name="elbowsX"/>
+ *   <property value="124,140,140,156" name="elbowsY"/>
+ *   <property value="South_1" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:org.controlhaus.fedex.FedexTrackingControl#myControl">
+ *   <property value="28" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:FedexTrackingSample.FedexTrackingSampleController.TrackForm#transactionId#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:FedexTrackingSample.FedexTrackingSampleController.TrackForm#accountNumber#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:FedexTrackingSample.FedexTrackingSampleController.TrackForm#meterNumber#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:FedexTrackingSample.FedexTrackingSampleController.TrackForm#carrierCode#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:FedexTrackingSample.FedexTrackingSampleController.TrackForm#packageIdentifier#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:FedexTrackingSample.FedexTrackingSampleController.TrackForm#packageIdentifierType#java.lang.String"/>
+ * <pageflow-object id="formbean:FedexTrackingSample.FedexTrackingSampleController.TrackForm"/>
+ * <pageflow-object id="action-call:@page:trackResponse.jsp@#@action:track.do#FedexTrackingSample.FedexTrackingSampleController.TrackForm@">
+ *   <property value="860,860,860,860" name="elbowsX"/>
+ *   <property value="156,140,140,124" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="South_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:index.jsp@#@action:track.do#FedexTrackingSample.FedexTrackingSampleController.TrackForm@">
+ *   <property value="456,640,640,824" name="elbowsX"/>
+ *   <property value="272,272,72,72" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ * </pageflow-object>
+ * </view-properties>
+ * ::
+ */
+public class FedexTrackingSampleController extends PageFlowController
+{
+    /**
+     * This is the control used to generate this pageflow
+     *  @common:control
+     *  
+     */
+    private FedexTrackingControl myControl;
+    
+    public static final String FEDEX_TRACK_REPLY = "FEDEX_TRACK_REPLY";
+
+
+    // Uncomment this declaration to access Global.app.
+    // 
+    //     protected global.Global globalApp;
+    // 
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="index.jsp"
+     */
+    protected Forward begin()
+    {
+        return new Forward("success");
+    }
+
+    /**
+     * Action encapsulating the control method :track
+     * @jpf:action
+     * @jpf:forward name="success" path="trackResponse.jsp"
+     * @jpf:catch method="exceptionHandler" type="Exception"
+     */
+    public Forward track(TrackForm aForm)
+        throws Exception
+    {
+        
+        org.controlhaus.fedex.impl.FedexTrackRequestImpl fedexTrackRequest = new org.controlhaus.fedex.impl.FedexTrackRequestImpl();
+        
+        fedexTrackRequest.setTransactionId(aForm.getTransactionId());
+        fedexTrackRequest.setAccountNumber(aForm.getAccountNumber());
+        fedexTrackRequest.setMeterNumber(aForm.getMeterNumber());
+        fedexTrackRequest.setCarrierCode(aForm.getCarrierCode());
+        fedexTrackRequest.setPackageIdentifier(aForm.getPackageIdentifier());
+        fedexTrackRequest.setPackageIdentifierType(aForm.getPackageIdentifierType());        
+        
+        org.controlhaus.schema.fedex.FDXTrackReplyDocument.FDXTrackReply fdxTrackReply = myControl.track(fedexTrackRequest);
+                
+        getRequest().setAttribute(FEDEX_TRACK_REPLY,fdxTrackReply);       
+        
+        return new Forward("success");
+    }
+
+    /**
+     * @jpf:exception-handler
+     * @jpf:forward name="errorPage" path="/error.jsp"
+     */
+    protected Forward exceptionHandler(Exception ex,String actionName,String message,FormData form)
+    {
+        String displayMessage = "An exception occurred in the action " + actionName;
+        getRequest().setAttribute("errorMessage", displayMessage);
+        return new Forward("errorPage");
+    }
+
+
+
+    /**
+     * FormData class TrackForm
+     * FormData get and set methods may be overwritten by the Form Bean editor.
+     */
+    public static class TrackForm extends FormData
+    {
+        private String transactionId = "123456789";
+        private String accountNumber = "";
+        private String meterNumber = "";
+        private String carrierCode = "FDXE";
+        private String packageIdentifier = "303757879906";
+        private String packageIdentifierType = "TRACKING_NUMBER_OR_DOORTAG";        
+
+        public void reset(org.apache.struts.action.ActionMapping mapping,javax.servlet.http.HttpServletRequest request)
+        {
+            // Todo - allocate the object <beanName> here.
+            // <beanName> = new <BeanName>();
+        }        
+
+        public String getTransactionId() {
+            return transactionId;
+        }
+
+        public void setTransactionId(String transactionId) {
+            this.transactionId = transactionId;
+        }
+
+        public String getAccountNumber() {
+            return accountNumber;
+        }
+
+        public void setAccountNumber(String accountNumber) {
+            this.accountNumber = accountNumber;
+        }
+
+        public String getMeterNumber() {
+            return meterNumber;
+        }
+
+        public void setMeterNumber(String meterNumber) {
+            this.meterNumber = meterNumber;
+        }
+
+        public String getCarrierCode() {
+            return carrierCode;
+        }
+
+        public void setCarrierCode(String carrierCode) {
+            this.carrierCode = carrierCode;
+        }
+
+        public String getPackageIdentifier() {
+            return packageIdentifier;
+        }
+
+        public void setPackageIdentifier(String packageIdentifier) {
+            this.packageIdentifier = packageIdentifier;
+        }
+
+        public String getPackageIdentifierType() {
+            return packageIdentifierType;
+        }
+
+        public void setPackageIdentifierType(String packageIdentifierType) {
+            this.packageIdentifierType = packageIdentifierType;
+        }
+    }
+}

@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.controlhaus.org/schema/fedex" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:api="http://www.fedex.com/fsmapi" xmlns="http://www.controlhaus.org/schema/fedex" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:simpleType name="CarrierCode">
+		<xs:restriction base="xs:NMTOKEN">
+			<xs:enumeration value="FDXE"/>
+			<xs:enumeration value="FDXG"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="StateOrProvinceCode">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="2"/>
+			<xs:maxLength value="2"/>
+			<xs:pattern value="[A-Z]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="PostalCode">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="16"/>
+			<xs:whiteSpace value="preserve"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="CountryCode">
+		<xs:restriction base="xs:string">
+			<xs:length value="2"/>
+			<xs:pattern value="[A-Z]{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="WeightUnits">
+		<xs:restriction base="xs:NMTOKEN">
+			<xs:enumeration value="LBS"/>
+			<xs:enumeration value="KGS"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ReplyHeader">
+		<xs:sequence>
+			<xs:element name="CustomerTransactionIdentifier" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>freeform text that was passed in in the request</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="40"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Error">
+		<xs:sequence>
+			<xs:element name="Code">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>error code returned when a transaction fails</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="8"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Message">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>error message returned when a transaction fails</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="120"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:any minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SoftError">
+		<xs:sequence>
+			<xs:element name="Type" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Optional</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="WARNING"/>
+						<xs:enumeration value="INFORMATIONAL"/>
+						<xs:enumeration value="SHIPPING_WARNING"/>
+						<xs:enumeration value="SHIPPING_INFO"/>
+						<xs:enumeration value="URSA_HARD"/>
+						<xs:enumeration value="URSA_SOFT"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Code">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="8"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Message">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>TBD</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="255"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:any minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="Address">
+		<xs:sequence>
+			<xs:element name="Line1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>address line 1</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>context-dependent; see particular transaction in XML Transaction Guide</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="35"/>
+						<xs:whiteSpace value="preserve"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Line2" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>address line 2</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>context-dependent; see particular transaction in XML Transaction Guide</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="35"/>
+						<xs:whiteSpace value="preserve"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="City" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>city</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>context-dependent; see particular transaction in XML Transaction Guide</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="35"/>
+						<xs:whiteSpace value="preserve"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="StateOrProvinceCode" type="StateOrProvinceCode" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>state or province code</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>context-dependent; see particular transaction in XML Transaction Guide</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PostalCode" type="PostalCode" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>postal code</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>context-dependent; see particular transaction in XML Transaction Guide</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CountryCode" type="CountryCode" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>country code</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>context-dependent; see particular transaction in XML Transaction Guide</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PackageIdentifier">
+		<xs:sequence>
+			<xs:element name="Value">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>an identifier that relates to one or more packages (or to the shipments of which they are part)</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="40"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Type">
+				<xs:annotation>
+					<xs:documentation>
+						<api:description>the type of the identifier; some identifiers apply to a single package, while others apply to multiple packages or shipments</api:description>
+						<api:applicableCarriers>ALL</api:applicableCarriers>
+						<api:validFor>ALL</api:validFor>
+						<api:requirementsAndDependencies>Required</api:requirementsAndDependencies>
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="TRACKING_NUMBER_OR_DOORTAG"/>
+						<xs:enumeration value="EXPRESS_MPS_MASTER"/>
+						<xs:enumeration value="EXPRESS_REFERENCE"/>
+						<xs:enumeration value="GROUND_PO"/>
+						<xs:enumeration value="GROUND_CUSTOMER_REFERENCE"/>
+						<xs:enumeration value="GROUND_INVOICE_NUMBER"/>
+						<xs:enumeration value="GROUND_SHIPMENT_ID"/>
+						<xs:enumeration value="GROUND_INTERNATIONAL"/>
+						<xs:enumeration value="NATB"/>
+						<xs:enumeration value="EMERGE_SHIPMENT_ID"/>
+						<xs:enumeration value="RMA"/>
+						<xs:enumeration value="IPD"/>
+						<xs:enumeration value="BARCODED_DOORTAG"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:any minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>
