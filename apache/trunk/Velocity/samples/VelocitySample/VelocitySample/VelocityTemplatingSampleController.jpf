@@ -1,0 +1,279 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+
+import org.controlhaus.apache.velocity.VelocityTemplateEngine;
+import java.util.HashMap;
+
+/**
+ * PageFlow class generated from control VelocityTemplateEngine
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/VelocityTemplatingSampleController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="240" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:evaluate.do#VelocityTemplatingSampleController.EvaluateForm">
+ *   <property value="560" name="x"/>
+ *   <property value="180" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:evaluate.jsp@#@action:evaluate.do#VelocityTemplatingSampleController.EvaluateForm@">
+ *   <property value="560,560,560,560" name="elbowsX"/>
+ *   <property value="256,240,240,224" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="South_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:evaluate.jsp">
+ *   <property value="560" name="x"/>
+ *   <property value="300" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:results.jsp">
+ *   <property value="720" name="x"/>
+ *   <property value="420" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:error.jsp">
+ *   <property value="60" name="x"/>
+ *   <property value="40" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#evaluate.jsp#@action:begin.do@">
+ *   <property value="276,400,400,524" name="elbowsX"/>
+ *   <property value="103,103,292,292" name="elbowsY"/>
+ *   <property value="East_2" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#results.jsp#@action:evaluate.do#VelocityTemplatingSampleController.EvaluateForm@">
+ *   <property value="596,640,640,684" name="elbowsX"/>
+ *   <property value="172,172,412,412" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:org.controlhaus.apache.velocity.VelocityTemplateEngine#myControl">
+ *   <property value="28" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#key1#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#key2#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#key3#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#key4#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#key5#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#value1#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#value2#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#value3#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#value4#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#value5#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#template#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:VelocityTemplatingSampleController.EvaluateForm#context#java.util.Map"/>
+ * <pageflow-object id="formbean:VelocityTemplatingSampleController.EvaluateForm"/>
+ * </view-properties>
+ * ::
+ */
+public class VelocityTemplatingSampleController extends PageFlowController
+{
+    /**
+     * This is the control used to generate this pageflow
+     *  @common:control
+     */
+    private VelocityTemplateEngine myControl;
+
+
+    // Uncomment this declaration to access Global.app.
+    // 
+    //     protected global.Global globalApp;
+    // 
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="evaluate.jsp"
+     */
+    protected Forward begin()
+    {
+        return new Forward("success");
+    }
+
+    /**
+     * Action encapsulating the control method :evaluate
+     * @jpf:action
+     * @jpf:forward name="success" path="results.jsp"
+     * @jpf:catch method="exceptionHandler" type="Exception"
+     */
+    public Forward evaluate(EvaluateForm aForm)
+        throws Exception
+    {
+        java.lang.String var = myControl.evaluate(aForm.getTemplate(), aForm.getContext());
+        getRequest().setAttribute("results", var);
+
+        return new Forward("success");
+    }
+
+    /**
+     * @jpf:exception-handler
+     * @jpf:forward name="errorPage" path="/error.jsp"
+     */
+    protected Forward exceptionHandler(Exception ex,String actionName,String message,FormData form)
+    {
+        String displayMessage = "An exception occurred in the action " + actionName;
+        getRequest().setAttribute("errorMessage", displayMessage);
+        return new Forward("errorPage");
+    }
+
+
+
+    /**
+     * FormData class EvaluateForm
+     * FormData get and set methods may be overwritten by the Form Bean editor.
+     */
+    public static class EvaluateForm extends FormData
+    {
+        private java.lang.String template = "$greetings from $controlName";
+        private java.util.Map context = new HashMap();
+    
+        private String key1 = "greetings";
+        private String key2 = "controlName";
+        private String key3;
+        private String key4;
+        private String key5;
+    
+        private String value1 = "Hello";
+        private String value2 = "Velocity Templating Control";
+        private String value3;
+        private String value4;
+        private String value5;
+    
+        public void reset(org.apache.struts.action.ActionMapping mapping,javax.servlet.http.HttpServletRequest request)
+        {
+            // Todo - allocate the object <beanName> here.
+            // <beanName> = new <BeanName>();
+        }
+    
+        public String getKey1() {
+            return key1;
+        }
+    
+        public void setKey1(String key1) {
+            this.key1 = key1;
+        }
+    
+        public String getKey2() {
+            return key2;
+        }
+    
+        public void setKey2(String key2) {
+            this.key2 = key2;
+        }
+    
+        public String getKey3() {
+            return key3;
+        }
+    
+        public void setKey3(String key3) {
+            this.key3 = key3;
+        }
+    
+        public String getKey4() {
+            return key4;
+        }
+    
+        public void setKey4(String key4) {
+            this.key4 = key4;
+        }
+    
+        public String getKey5() {
+            return key5;
+        }
+    
+        public void setKey5(String key5) {
+            this.key5 = key5;
+        }
+    
+        public String getValue1() {
+            return value1;
+        }
+    
+        public void setValue1(String value1) {
+            this.value1 = value1;
+        }
+    
+        public String getValue2() {
+            return value2;
+        }
+    
+        public void setValue2(String value2) {
+            this.value2 = value2;
+        }
+    
+        public String getValue3() {
+            return value3;
+        }
+    
+        public void setValue3(String value3) {
+            this.value3 = value3;
+        }
+    
+        public String getValue4() {
+            return value4;
+        }
+    
+        public void setValue4(String value4) {
+            this.value4 = value4;
+        }
+    
+        public String getValue5() {
+            return value5;
+        }
+    
+        public void setValue5(String value5) {
+            this.value5 = value5;
+        }        
+    
+        public void setTemplate(java.lang.String template)
+        {
+            this.template = template;
+        }
+    
+        public java.lang.String getTemplate()
+        {
+            return template;
+        }        
+    
+        public java.util.Map getContext()
+        {
+            checkAdd(this.key1 , this.value1);
+            checkAdd(this.key2 , this.value2);
+            checkAdd(this.key3 , this.value3);
+            checkAdd(this.key4 , this.value4);
+            checkAdd(this.key5 , this.value5);
+            return context;
+        }
+    
+        private void checkAdd(String key , String value){
+            if(key != null && !key.equals("") && value != null && !value.equals("")){
+            this.context.put(key , value);
+            }            
+        }
+    }
+
+}
