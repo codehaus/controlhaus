@@ -235,7 +235,7 @@ public interface JdbcControl {
      * This constant can be used as the value for the maxRows element of the SQL annotation.
      * It indicates that all rows should be returned (i.e. no limit)
      */
-    public final int MAXROWS_ALL = -1;
+    public final int MAXROWS_ALL = 0;
 
     /**
      * The default fetch size for result sets, indicates the database should determine the fetch size.

@@ -48,9 +48,9 @@ public class RowToObjectMapper extends RowMapper {
     /**
      * Create a new RowToObjectMapper.
      *
-     * @param resultSet ResultSet to map
+     * @param resultSet       ResultSet to map
      * @param returnTypeClass Class to map to.
-     * @param cal Calendar instance for date/time mappings.
+     * @param cal             Calendar instance for date/time mappings.
      * @throws SQLException on error.
      */
     RowToObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException, ControlException {
@@ -60,13 +60,12 @@ public class RowToObjectMapper extends RowMapper {
         _fields = null;
     }
 
-
     /**
      * Do the mapping.
      *
      * @return An object instance.
      * @throws ControlException on error.
-     * @throws SQLException on error.
+     * @throws SQLException     on error.
      */
     public Object mapRowToReturnType() throws ControlException, SQLException {
 
@@ -84,13 +83,14 @@ public class RowToObjectMapper extends RowMapper {
             getFieldMappings();
         }
 
-
         try {
             resultObject = _returnTypeClass.newInstance();
         } catch (InstantiationException e) {
-            throw new ControlException("Exception: ", e);
+            throw new ControlException("InstantiationException when trying to create instance of : "
+                                       + _returnTypeClass.getName(), e);
         } catch (IllegalAccessException e) {
-            throw new ControlException("Exception: ", e);
+            throw new ControlException("IllegalAccessException when trying to create instance of : "
+                                       + _returnTypeClass.getName(), e);
         }
 
         for (int i = 1; i < _fields.length; i++) {
@@ -139,20 +139,41 @@ public class RowToObjectMapper extends RowMapper {
     /**
      * Build the structures necessary to do the mapping
      *
-     * @throws SQLException on error.
+     * @throws SQLException     on error.
      * @throws ControlException on error.
      */
-    private void getFieldMappings() throws SQLException, ControlException {
+    protected void getFieldMappings() throws SQLException, ControlException {
 
         final String[] keys = getKeysFromResultSet();
 
         //
         // find fields or setters for return class
         //
-
         HashMap<String, AccessibleObject> mapFields = new HashMap<String, AccessibleObject>(_columnCount * 2);
         for (int i = 1; i <= _columnCount; i++) {
             mapFields.put(keys[i], null);
+        }
+
+        // public methods
+        Method[] classMethods = _returnTypeClass.getMethods();
+        for (Method m : classMethods) {
+
+            if (isSetterMethod(m)) {
+                final String fieldName = m.getName().substring(3).toUpperCase();
+                if (mapFields.containsKey(fieldName)) {
+
+                    // check for overloads
+                    Object field = mapFields.get(fieldName);
+                    if (field == null) {
+                        mapFields.put(fieldName, m);
+                    } else {
+                        throw new ControlException("Unable to choose between overloaded methods " + m.getName()
+                                                   + " on the " + _returnTypeClass.getName() + " class. Mapping is done using "
+                                                   + "a case insensitive comparision of SQL ResultSet columns to field "
+                                                   + "names and public setter methods on the return class.");
+                    }
+                }
+            }
         }
 
         // fix for 8813: include inherited and non-public fields
@@ -160,45 +181,15 @@ public class RowToObjectMapper extends RowMapper {
             Field[] classFields = clazz.getDeclaredFields();
             for (Field f : classFields) {
                 if (Modifier.isStatic(f.getModifiers())) continue;
+                if (!Modifier.isPublic(f.getModifiers())) continue;
                 String fieldName = f.getName().toUpperCase();
                 if (!mapFields.containsKey(fieldName)) continue;
-                mapFields.put(fieldName, f);
-            }
-        }
 
-        // public methods
-        Method[] classMethods = _returnTypeClass.getMethods();
-        for (Method m : classMethods) {
-
-            // method name checks
-            String methodName = m.getName();
-            if (methodName.length() < 4 || !methodName.startsWith("set")) continue;
-            if (!Character.isUpperCase(methodName.charAt(3))) continue;
-
-            // verify that the setter method's field has not already been captured
-            String fieldName = methodName.substring(3).toUpperCase();
-            if (!mapFields.containsKey(fieldName)) continue;
-            if (Modifier.isStatic(m.getModifiers())) continue;
-
-            // method parameter checks
-            Class[] params = m.getParameterTypes();
-            if (params.length != 1) continue;
-            if (TypeMappingsFactory.TYPE_UNKNOWN == _tmf.getTypeId(params[0])) continue;
-            if (!Void.TYPE.equals(m.getReturnType())) continue;
-
-            // check for overloads
-            Object field = mapFields.get(fieldName);
-            if (field != null) {
-                if (field instanceof Field) {
-                    continue;
-                } else {
-                    throw new ControlException("Unable to choose between overloaded methods " + methodName
-                                               + " on the " + _returnTypeClass.getName() + " class. Mapping is done using "
-                                               + "a case insensitive comparision of SQL ResultSet columns to field "
-                                               + "names and public setter methods on the return class.");
+                Object field = mapFields.get(fieldName);
+                if (field == null) {
+                    mapFields.put(fieldName, f);
                 }
             }
-            mapFields.put(fieldName, m);
         }
 
         // finally actually init the fields array
@@ -220,13 +211,6 @@ public class RowToObjectMapper extends RowMapper {
             } else {
                 _fieldTypes[i] = _tmf.getTypeId(((Method) f).getParameterTypes()[0]);
             }
-        }
-
-        AccessibleObject[] classFields = new AccessibleObject[_fields.length - 1];
-        System.arraycopy(_fields, 1, classFields, 0, classFields.length);
-        try {
-            AccessibleObject.setAccessible(classFields, true);
-        } catch (SecurityException e) {
         }
     }
 }

@@ -23,6 +23,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * Abstract base class for all row mappers.
@@ -35,8 +39,9 @@ import java.util.Calendar;
  */
 public abstract class RowMapper {
 
-
+    private static final String SETTER_NAME_REGEX = "^(set)([A-Z_]\\w*+)";
     protected static final TypeMappingsFactory _tmf = TypeMappingsFactory.getInstance();
+    protected static final Pattern _setterRegex = Pattern.compile(SETTER_NAME_REGEX);
 
     /** ResultSet to map. */
     protected final ResultSet _resultSet;
@@ -83,6 +88,29 @@ public abstract class RowMapper {
             keys[i] = md.getColumnName(i).toUpperCase();
         }
         return keys;
+    }
+
+    /**
+     * Determine if the given method is a java bean setter method.
+     * @param method Method to check
+     * @return True if the method is a setter method.
+     */ 
+    protected boolean isSetterMethod(Method method) {
+        Matcher matcher = _setterRegex.matcher(method.getName());
+        if (matcher.matches()) {
+
+            if (Modifier.isStatic(method.getModifiers())) return false;
+            if (!Modifier.isPublic(method.getModifiers())) return false;
+            if (!Void.TYPE.equals(method.getReturnType())) return false;
+
+            // method parameter checks
+            Class[] params = method.getParameterTypes();
+            if (params.length != 1) return false;
+            if (TypeMappingsFactory.TYPE_UNKNOWN == _tmf.getTypeId(params[0])) return false;
+
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -169,6 +197,7 @@ public abstract class RowMapper {
                     return _resultSet.wasNull() ? null : (i ? Boolean.TRUE : Boolean.FALSE);
                 }
             case TypeMappingsFactory.TYPE_STRING:
+            case TypeMappingsFactory.TYPE_XMLBEAN_ENUM:
                 return _resultSet.getString(index);
             case TypeMappingsFactory.TYPE_BIG_DECIMAL:
                 return _resultSet.getBigDecimal(index);

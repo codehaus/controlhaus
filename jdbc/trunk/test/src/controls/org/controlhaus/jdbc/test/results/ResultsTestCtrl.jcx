@@ -33,7 +33,7 @@ import org.controlhaus.jdbc.DefaultRowSetResultSetMapper;
 
 import javax.sql.RowSet;
 
-import test.customerDb.XCustomerRowDocument;
+import test.customerDb.XStoogeRowDocument;
 
 /**
  * This control is used for unit tests for results returned from the db control.
@@ -231,14 +231,20 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     // query returning an XmlObject
     //
-    @SQL(statement="SELECT * FROM USERS WHERE fname={someUser}")
-    public XCustomerRowDocument.XCustomerRow getAUserXmlBean(String someUser) throws SQLException;
+    @SQL(statement="SELECT * FROM XBEAN_USERS WHERE stooge_name={someStooge}")
+    public XStoogeRowDocument.XStoogeRow getAUserXmlBean(String someStooge) throws SQLException;
 
     //
     // query returning an array of XmlObjects
     //
-    @SQL(statement="SELECT * FROM USERS")
-    public XCustomerRowDocument.XCustomerRow[] getAllUserXmlBean() throws SQLException;
+    @SQL(statement="SELECT * FROM XBEAN_USERS")
+    public XStoogeRowDocument.XStoogeRow[] getAllUserXmlBean() throws SQLException;
+
+    //
+    // set a db row with a XmlObject
+    //
+    @SQL(statement="insert into XBEAN_USERS VALUES ({stooge.STOOGENAME}, {stooge.STOOGEPECKINGORDER}, {stooge.STOOGEPANTSIZE})")
+    public void insertAXmlBean(XStoogeRowDocument.XStoogeRow stooge) throws SQLException;
 
     //
     // query which invokes a stored procedure

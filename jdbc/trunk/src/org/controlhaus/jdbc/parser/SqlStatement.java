@@ -449,6 +449,8 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
 
     /**
      * The much maligned method for computing the maximum number of ResultSet rows this statement should return.
+     * The values of maxRows and arrayMaxLength are enforced at compile-time by the JdbcControlChecker to be the
+     * following: MAXROWS_ALL <= maxRows, 0 < arrayMaxLength
      *
      * @param method The annotated method.
      * @return max number of resultSet rows to return from the query.
@@ -461,12 +463,12 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
         final boolean isRowSet = returnType.equals(RowSet.class);
 
         int maxSet = _maxRows;
-        if (isArray && _maxArray != -1) {
-            maxSet = _maxRows == -1 ? _maxArray + 1 : Math.min(_maxArray + 1, _maxRows);
+        if (isArray && _maxArray != JdbcControl.MAXROWS_ALL) {
+            maxSet = _maxRows == JdbcControl.MAXROWS_ALL ? _maxArray + 1 : Math.min(_maxArray + 1, _maxRows);
         } else if (isRowSet && _maxRows > 0) {
             maxSet = _maxRows + 1;
         }
-
-        return (maxSet == -1) ? 0 : maxSet;
+    
+        return maxSet;
     }
 }

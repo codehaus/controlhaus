@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import org.controlhaus.jdbc.test.results.ResultsTestCtrl;
 import org.controlhaus.jdbc.units.utils.TestContextInitializer;
 import org.controlhaus.jdbc.JdbcControl;
-import test.customerDb.XCustomerRowDocument;
 
 import javax.sql.RowSet;
 import java.sql.Connection;
@@ -188,25 +187,6 @@ public class DBMultiRowResultsTest extends TestCase {
         customersRowSet.next();
         assertEquals(customersRowSet.getInt("USERID"), 21);
 
-    }
-
-    //
-    // test XmlBean array return type
-    //
-    public void testXmlBeanArrayReturnType() throws Exception {
-
-        XCustomerRowDocument.XCustomerRow[] customersXml = testCtrl.getAllUserXmlBean();
-        assertNotNull(customersXml);
-
-        assertEquals(customersXml.length, 4);
-        assertEquals(customersXml[0].getFNAME(), "tester1");
-        assertEquals(customersXml[0].getUSERID(), 21);
-        assertEquals(customersXml[1].getFNAME(), "tester2");
-        assertEquals(customersXml[1].getUSERID(), 22);
-        assertEquals(customersXml[2].getFNAME(), "tester3");
-        assertEquals(customersXml[2].getUSERID(), 23);
-        assertEquals(customersXml[3].getFNAME(), "tester4");
-        assertEquals(customersXml[3].getUSERID(), 24);
     }
 
     //

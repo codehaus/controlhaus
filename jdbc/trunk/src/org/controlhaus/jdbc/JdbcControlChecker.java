@@ -19,10 +19,9 @@ package org.controlhaus.jdbc;
 
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.Declaration;
+import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
-import com.sun.mirror.declaration.FieldDeclaration;
-import com.sun.mirror.declaration.ClassDeclaration;
 import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.DeclaredType;
 import com.sun.mirror.type.InterfaceType;
@@ -31,8 +30,8 @@ import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.type.TypeMirror;
 import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.bean.ControlChecker;
-import org.controlhaus.jdbc.parser.SqlParser;
 import org.controlhaus.jdbc.parser.ParameterChecker;
+import org.controlhaus.jdbc.parser.SqlParser;
 import org.controlhaus.jdbc.parser.SqlStatement;
 
 import java.util.Collection;
@@ -66,7 +65,7 @@ public class JdbcControlChecker implements ControlChecker {
                 checkSQL(method, env);
 
             }
-        } else if ( decl instanceof FieldDeclaration ) {
+        } else if (decl instanceof FieldDeclaration) {
 
             //
             // NOOP
@@ -81,13 +80,16 @@ public class JdbcControlChecker implements ControlChecker {
 
     /**
      * Check the ConnectionDataSource annotation.
+     *
      * @param decl
      * @param env
      */
     private void checkConnectionDataSource(TypeDeclaration decl, AnnotationProcessorEnvironment env) {
         final JdbcControl.ConnectionDataSource cds =
                 decl.getAnnotation(JdbcControl.ConnectionDataSource.class);
-        if (cds == null) { return; }
+        if (cds == null) {
+            return;
+        }
 
         //
         // NOOP
@@ -96,12 +98,15 @@ public class JdbcControlChecker implements ControlChecker {
 
     /**
      * Check the ConnectionDriver annotation.
+     *
      * @param decl
      * @param env
      */
     private void checkConnectionDriver(TypeDeclaration decl, AnnotationProcessorEnvironment env) {
         final JdbcControl.ConnectionDriver cd = decl.getAnnotation(JdbcControl.ConnectionDriver.class);
-        if (cd == null) { return; }
+        if (cd == null) {
+            return;
+        }
 
         //
         // NOOP
@@ -110,12 +115,15 @@ public class JdbcControlChecker implements ControlChecker {
 
     /**
      * Check the ConnectionOptions annotation.
+     *
      * @param decl
      * @param env
      */
     private void checkConnectionOptions(TypeDeclaration decl, AnnotationProcessorEnvironment env) {
         final JdbcControl.ConnectionOptions co = decl.getAnnotation(JdbcControl.ConnectionOptions.class);
-        if (co == null) { return; }
+        if (co == null) {
+            return;
+        }
 
         //
         // NOOP
@@ -124,6 +132,7 @@ public class JdbcControlChecker implements ControlChecker {
 
     /**
      * Check the SQL method annotation.  Lots to check here, stop checking as soon as an error is found.
+     *
      * @param method
      * @param env
      */
@@ -139,9 +148,31 @@ public class JdbcControlChecker implements ControlChecker {
         //
         if (methodSQL.statement() == null || methodSQL.statement().length() == 0) {
             env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                           + " contains an empty statement member.");
+                                                               + " contains an empty statement member.");
             return;
         }
+
+        //
+        // Make sure maxrows is not set to some negative number other than -1
+        //
+        int maxRows = methodSQL.maxRows();
+        if (maxRows < JdbcControl.MAXROWS_ALL) {
+            env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
+                                                               + " maxRows set to invalid value: " + maxRows);
+            return;
+        }
+
+        //
+        // Make sure maxArrayLength is not set to some negative number
+        //
+        int arrayMax = methodSQL.arrayMaxLength();
+        if (arrayMax < 1) {
+            env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
+                                                               + " arrayMaxLength set to invalid value (must be greater than 0): "
+                                                               + arrayMax);
+            return;
+        }
+
 
         //
         //
@@ -166,7 +197,7 @@ public class JdbcControlChecker implements ControlChecker {
         try {
             ParameterChecker.checkReflectionParameters(_statement, method);
         } catch (Exception e) {
-            env.getMessager().printError(method.getPosition(),  e.getMessage());
+            env.getMessager().printError(method.getPosition(), e.getMessage());
             return;
         }
 
@@ -178,7 +209,7 @@ public class JdbcControlChecker implements ControlChecker {
         final int[] generatedKeyIndexes = methodSQL.generatedKeyColumnIndexes();
         if (getGeneratedKeys == false && (generatedKeyColumnNames.length != 0 || generatedKeyIndexes.length != 0)) {
             env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                           + " getGeneratedKeys must be set to true in order to specify generatedKeyColumnNames or generatedKeyColumnIndexes.");
+                                                               + " getGeneratedKeys must be set to true in order to specify generatedKeyColumnNames or generatedKeyColumnIndexes.");
             return;
         }
 
@@ -186,7 +217,7 @@ public class JdbcControlChecker implements ControlChecker {
         // check that both generatedKeyColumnNames and generatedKeyColumnIndexes are not set
         if (generatedKeyColumnNames.length > 0 && generatedKeyIndexes.length > 0) {
             env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                           + " only one of generatedKeyColumnNames or generatedKeyColumnIndexes may be set in the method annotation.");
+                                                               + " only one of generatedKeyColumnNames or generatedKeyColumnIndexes may be set in the method annotation.");
 
             return;
         }
@@ -201,12 +232,12 @@ public class JdbcControlChecker implements ControlChecker {
                 final TypeMirror aType = ((ArrayType) returnType).getComponentType();
                 if (aType instanceof PrimitiveType == false || ((PrimitiveType) aType).getKind() != PrimitiveType.Kind.INT) {
                     env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                                   + " if batchUpdate is set to true, method must return an array of integers.");
+                                                                       + " if batchUpdate is set to true, method must return an array of integers.");
                     return;
                 }
             } else {
                 env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                               + " if batchUpdate is set to true, method must return an array of integers.");
+                                                                   + " if batchUpdate is set to true, method must return an array of integers.");
                 return;
             }
 
@@ -228,7 +259,7 @@ public class JdbcControlChecker implements ControlChecker {
 
                 if ("org.controlhaus.jdbc.JdbcControl.UndefinedIteratorType".equals(iteratorClassName)) {
                     env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                                   + " iteratorElementType must be specified if method returns an Iterator.");
+                                                                       + " iteratorElementType must be specified if method returns an Iterator.");
                     return;
 
                 }
@@ -252,7 +283,7 @@ public class JdbcControlChecker implements ControlChecker {
 
                 if (typeName == null || "java.sql.ResultSet".equals(typeName) == false) {
                     env.getMessager().printError(method.getPosition(), "@SQL annotation on method: " + method.getSimpleName()
-                                                                   + " element scrollableResultSet specified but method does not return a ResultSet.");
+                                                                       + " element scrollableResultSet specified but method does not return a ResultSet.");
                     break;
                 }
             case FORWARD_ONLY:

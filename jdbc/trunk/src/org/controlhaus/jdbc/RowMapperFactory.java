@@ -41,7 +41,7 @@ public final class RowMapperFactory {
     //@todo: to allow for more control when adding an new mapper.
     private static final ArrayList<RowMapping> _rowMappings = new ArrayList<RowMapping>();
 
-    private static final RowMapping DEFAULT_ROWMAPPING = new RowMapping(Object.class, RowToObjectMapper.class);
+    private static RowMapping DEFAULT_ROWMAPPING = new RowMapping(Object.class, RowToObjectMapper.class);
 
     static {
 
@@ -80,19 +80,40 @@ public final class RowMapperFactory {
     }
 
     /**
-     * Append a new row mapper to the list of available row mappers
+     * Append a new row mapper to the list of available row mappers.  The getRowMapper method traverses the
+     * list of mappers from beginning to end, checking to see if a mapper can handle the specified
+     * returnTypeClass.  There is a default mapper which is used if a match cannot be found in the list.
      *
-     * @param returnTypeClass
-     * @param rowMapperClass
+     * @param returnTypeClass Class which this mapper maps a row to.
+     * @param rowMapperClass The row mapper class.
      */
     public static void appendRowMapping(Class returnTypeClass, Class<? extends RowMapper> rowMapperClass) {
+        _rowMappings.add(new RowMapping(returnTypeClass, rowMapperClass));
+    }
+
+    /**
+     * Replace a row mapping.
+     *
+     * @param returnTypeClass Class which this mapper maps a row to.
+     * @param rowMapperClass The row mapper class.
+     * @return if the mapper was replaced, false mapper for returnTypeClass was not found, no action taken.
+     */
+    public static boolean replaceRowMapping(Class returnTypeClass, Class<? extends RowMapper> rowMapperClass) {
         for (RowMapping rm : _rowMappings) {
             if (rm._mapperFor == returnTypeClass) {
                 _rowMappings.set(_rowMappings.indexOf(rm), new RowMapping(rowMapperClass, rowMapperClass));
-                return;
+                return true;
             }
         }
-        _rowMappings.add(new RowMapping(returnTypeClass, rowMapperClass));
+        return false;
+    }
+
+    /**
+     * Sets the rowmapper for Object.class
+     * @param rowMapperClass
+     */
+    public static void setDefaultRowMapping(Class<? extends RowMapper> rowMapperClass) {
+        DEFAULT_ROWMAPPING = new RowMapping(Object.class, rowMapperClass);
     }
 
     /**
