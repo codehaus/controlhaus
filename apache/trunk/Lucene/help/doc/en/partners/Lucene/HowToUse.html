@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Using the Lucene Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the Lucene Control</h2>
+The Lucene Control provides two methods: one to put data into the
+Lucene search index, and another to execute queries on the index.&nbsp;
+<br>
+<h3>Indexing Data</h3>
+The operation to index data is as follows:<br>
+<pre>public void index(LuceneField []fields)</pre>
+where LuceneField is a name/value pair, as follows:<br>
+<pre>public class LuceneField {</pre>
+<pre>	public LuceneField(String name, String value){...}</pre>
+<pre>	public String getName(){...}</pre>
+<pre>	public String getValue(){...}</pre>
+<pre>}</pre>
+The array of LuceneFields passed to the index operation are considered
+to belong to the same "document".&nbsp; What this means is that a query
+on any field will make available the entire array of fields that were
+indexed with that field.&nbsp; An example should help to make it
+clear.&nbsp; Imagine you are indexing an email message.<br>
+<br>
+<pre>EmailMessage email = ...</pre>
+<pre>LuceneField fromField = new LuceneField("from", email.getFrom());</pre>
+<pre>LuceneField toField = new LuceneField("to", email.getTo());</pre>
+<pre>LuceneField subjectField = new LuceneField("subject", email.getSubject());</pre>
+<pre>luceneControl.index(new LuceneField[]{fromField, toField, subjectField});</pre>
+<br>
+Now fromField, toField and subjectField are considered to belong to the
+same "document".&nbsp; If you (later) execute a query on the fromField,
+for example, the toField and the subjectField will also be available to
+you in the query result, thereby enabling you to reconstitute the
+entire document.<br>
+<h3>Searching Data</h3>
+<br>
+The operation to search data is as follows:<br>
+<br>
+<pre>public LuceneHit[] search(String query, String searchFieldName, String[] returnFieldNames)</pre>
+The query is a plain query as you would enter into any search
+engine.&nbsp; The searchFieldName is the name of the field you want to
+query on.&nbsp; For example, "subject" is a possibility using the email
+example above.&nbsp; returnFieldNames is an array of names of
+LuceneFields that you want returned.&nbsp; You may, for example, use
+"from" and "to" using the email example above.&nbsp; LuceneHit is as
+follows:<br>
+<pre>public class LuceneHit {</pre>
+<pre>&nbsp;&nbsp;&nbsp; public Map getFields(){...}</pre>
+<pre>&nbsp;&nbsp;&nbsp; public float getScore(){...}</pre>
+<pre>}</pre>
+The score is a measure of how good a metch the Hit is.&nbsp; Its a
+value ranging from 0 to 1, with 1 being a perfect match.&nbsp;
+getFields() returns a Map containing LuceneField instanced keyed by
+name.&nbsp; This map will contain the LuceneFields you asked to have
+returned by specifying their names in the returnFieldNames string array
+in the search operation.&nbsp; It is best explained by way of example:<br>
+<br>
+<pre>LuceneHit []hits = luceneControl.search("tom@acme.com", "from", new String[]{"from","to","subject"});</pre>
+<pre>System.out.println("The number of emails from tom@acme.com is " + hits.length);</pre>
+<pre>LuceneHit firstHit = hits[0];</pre>
+<pre>System.out.println("Here is the content of the first email in the result list:");</pre>
+<pre>System.out.println("from: " + ((LuceneField)firstHit.getFields().get("from")).getValue());</pre>
+<pre>System.out.println("to: " + ((LuceneField)firstHit.getFields().get("to")).getValue());</pre>
+<pre>System.out.println("subject: " + ((LuceneField)firstHit.getFields().get("subject")).getValue());</pre>
+</body>
+</html>

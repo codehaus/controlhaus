@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE application PUBLIC '-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN' 'http://java.sun.com/dtd/application_1_3.dtd'>
+  <application>
+    <display-name>LuceneControl</display-name>
+    <module>
+      <web>
+        <web-uri>LuceneControlSample</web-uri>
+        <context-root>LuceneControlSample</context-root>
+      </web>
+    </module>
+    <module>
+      <ejb>.workshop/LuceneControlSample/EJB/MDBListener_-1x0154i4jz0he</ejb>
+    </module>
+    <module>
+      <ejb>.workshop/LuceneControlSample/EJB/TimerControl_-livsjc6qp6ws</ejb>
+    </module>
+    <module>
+      <ejb>.workshop/LuceneControlSample/EJB/GenericStateless</ejb>
+    </module>
+    <module>
+      <ejb>.workshop/LuceneControlSample/EJB/ProjectBeans</ejb>
+    </module>
+  </application>
