@@ -83,6 +83,22 @@ public final class ReflectionFragment extends SqlFragment {
     boolean hasParamValue() { return true; }
 
     /**
+     * Get the parameter name (as specified in the SQL statement).
+     * @return The parameter name.
+     */
+    String getParameterName() { return _parameterName; }
+
+    /**
+     * Get a copy of the array of parameter name qualifiers.
+     * @return An array of parameter name qualifiers.
+     */
+    String[] getParameterNameQualifiers() {
+        String[] nameQualifiersCopy = new String[_nameQualifiers.length];
+        System.arraycopy(_nameQualifiers, 0, nameQualifiersCopy, 0, _nameQualifiers.length);
+        return nameQualifiersCopy;
+    }
+
+    /**
      * Get the SQL data type of this param.
      * @return The SQL data type for this param.
      */
