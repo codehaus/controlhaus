@@ -1,5 +1,0 @@
-function initSkin()
-{
-    initDynamicMenus();
-    initPortletDeleteButtons();
-}
