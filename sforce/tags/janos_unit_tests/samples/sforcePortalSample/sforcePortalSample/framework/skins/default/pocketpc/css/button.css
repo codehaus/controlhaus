@@ -1,0 +1,23 @@
+/*
+// --------------------------------------------------------------------------------------------------------------------
+// Button
+// --------------------------------------------------------------------------------------------------------------------
+*/
+
+.bea-portal-button, .bea-portal-button-delete
+{
+}
+
+.bea-portal-button img, .bea-portal-button-delete img
+{
+    vertical-align: top;
+    margin: 1px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #666699;
+}
+
+.bea-portal-button-delete:hover img
+{
+    border-color: #000033;
+}

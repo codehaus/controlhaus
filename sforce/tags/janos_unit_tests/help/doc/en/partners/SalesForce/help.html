@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+<head><title>Page Flow Sample with Beta sforce Workshop Control</title>
+<meta http-equiv="content-type" content="text/html" />
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="Content-Language" content="en-us" />
+<link rel="stylesheet" href="resources/css/fonts.css">
+ 
+</head>
+<script language="javascript">
+var curPopupWindow = null;
+
+function openWindow(url, winName, width, height, center, winType) {
+
+   var xposition = 50; // Postions the window vertically in px
+   var yposition = 50; // Postions the window horizontally in px
+   var location, menubar, resizable, scrollbars, status, titlebar;
+
+   if ((parseInt(navigator.appVersion) >= 4 ) && (center)){
+       xposition = (screen.width - 800) / 2;
+       yposition = (screen.height - 600) / 2;
+   } 
+   
+   if (winType == "1") {           // winType 1 is for regular popup windows
+      location=1;
+      menubar=1;
+      resizable=1;
+      scrollbars=1;
+      status=1;
+      titlebar=1;
+   } else if (winType == "2") {   // winType 2 is for Quick Tour like popups
+      location=0;
+      menubar=0;
+      resizable=0;
+      scrollbars=0;
+      status=0;
+      titlebar=1;
+   } else if (winType == "3") {   // winType 3 is for footer like popups
+      location=0;
+      menubar=0;
+      resizable=1;
+      scrollbars=1;
+      status=0;
+      titlebar=1;
+   } else if (winType == "4") { // winType 4 sforce footer - no resizing
+      location=0;
+      menubar=0;
+      resizable=0;
+      scrollbars=1;
+      status=0;
+      titlebar=0;
+   } else if (winType == "5") {
+      location=0;
+      menubar=1;
+      resizable=0;
+      scrollbars=1;
+      status=0;
+      titlebar=0;
+   }else {                       // if no arg is passed for winType
+      location=1;
+      menubar=1;
+      resizable=1;
+      scrollbars=1;
+      status=1;
+      titlebar=1;
+   } 
+   
+   // Features to specify for a new window
+   args = "width=" + width + ","
+   + "height=" + height + ","
+   + "location=" + location + ","
+   + "menubar=" + menubar + ","
+   + "resizable=" + resizable + ","
+   + "scrollbars=" + scrollbars + ","
+   + "status=" + status + ","
+   + "titlebar=" + titlebar + ","
+   + "toolbar=0,"
+   + "hotkeys=0,"
+   + "screenx=" + xposition + ","  //NN Only
+   + "screeny=" + yposition + ","  //NN Only
+   + "left=" + xposition + ","     //IE Only
+   + "top=" + yposition;           //IE Only
+   
+	// Performs the opening of the window (and closing of a window already opened for that page).
+	if (curPopupWindow != null) {
+		curPopupWindow.close();
+	}
+	curPopupWindow = window.open(url, "me", args, false);
+	curPopupWindow.focus();
+}
+</script>
+<body bgcolor="#FFFFFF">                 
+<div id="header">
+    <div class="headergraphics">
+        <a href="http://www.sforce.com"><img src="resources/images/sforce_logo.gif" border="0"></a>
+    </div>
+	<div class="redline">&nbsp;</div>
+	<div class="graybar">
+		<div class="topnav">
+			<a href="http://www.sforce.com">Goto sforce</a>
+		</div>
+	</div>
+</div>		
+<div id="wrap">
+
+    <div id="summary">
+	
+	<div class="title_line"></div>
+	</div>
+	<div id="content">
+    <table cellspacing="0" cellpadding="0"width="100%" border="0" class="clsPart">
+        <tr>
+        	<td width="100%" valign="top">
+            &nbsp;
+		
+            
+            <br>
+            <span><font class="mainbody" style="font-size:12pt;"><b>sforce 3.0 Workshop Custom Control with sforce Explorer Extension</b></font></span><br>
+            <table width="100%" cellspacing="0" cellpadding="0"><tr><td  height="2" bgcolor="#999999"><img src="_.gif" width="20" height="1"></td></tr></table>
+            <img src="/_.gif" width="1" height="5"><br>
+            
+            <table cellspacing="0" cellpadding="0">
+            <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td valign="top">
+                Author: <b>Salesforce.com</b><br>
+                Last Updated: <b>May 25, 2004</b><br>
+                Requirements: <b>WebLogic Workshop</b><br>
+                Versions: <b>8.1 sp2</b><br>
+            </td>
+            <td>
+                <img src="_.gif" width="20" height="1">
+            </td>
+            <td valign="top">
+            </td>
+        </tr>
+    </table>
+		
+	<font class="mainbody"><br><b>What It Does</b><br>
+	<table width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+            <td bgcolor="#999999"><img src="/_.gif" width="1" height="1"></td>
+        </tr>
+    </table>
+	<img src="/_.gif" width="1" height="5"><br>
+    <b>sforce Explorer</b><BR>
+    The sforce Explorer is a Workshop Extension that provides ready access to the salesforce.com meta-data for your salesforce.com account.  Just select View/Windows/sforce Explorer from the Workshop built in menus to display a convenient hierarchical view of the objects accessible to you as well as detailed meta-data about each object.  The meta-data includes object and field permissions, data types, field lengths, labels and names, picklist values and valuable relationship information.<BR><BR>
+    
+    <b>sforce 3.0 Workshop Custom Control</b>
+    
+With sforce 3.0 Workshop Custom Control, application developers can easily incorporate salesforce.com functionality when building web applications, web services, portal or integration solutions on the BEA WebLogic Enterprise Platform 8.1. Salesforce.com is offering the release of the sforce 3.0 Workshop Custom Control to allow customers and developers the ability to build new applications that access sforce, the new client/service application development system from salesforce.com.<br><br>
+ 
+The sforce 3.0 Workshop Custom Control uses service-oriented components, introduced with BEA WebLogic Workshop 8.1, that make it easier to connect to and use any IT system or asset as a reusable service. Controls simplify development by abstracting the details of J2EE, encapsulating best-practice implementations of systems, logic, and ISV applications to serve as building blocks for the service-oriented assembly and integration of applications and business processes. The sforce 3.0 Workshop Custom Control will enable salesforce.com customers to easily connect to and extend salesforce.com functionality through sforce web services. Using industry-standard web services protocols, developers will be able to extend salesforce.com functionality and integrate salesforce.com with other applications.<br><br>
+
+For additional information on the release of the sforce 3.0 Workshop Custom Control, please contact either <a href="mailto:dcarroll@salesforce.com">Dave Carroll</a> or <a href="mailto:mkreaden@salesforce.com">Mike Kreaden</a> or visit the <a href="http://www.sforce.com">sforce website</a>.
+<br><br>
+<br> 
+	
+		<b>Installing sforce Explorer</b><br><br>
+<OL>
+<lI>SForce Explorer is installed automatically at first time when you are creating a control instance. In case of an error you should follow the following instructions.
+<LI>Shutdown Workshop if it is running.</LI>
+<li>Unzip the contents of the sforceExplorer.zip file to <beahome>\weblogic81\workshop\extensions.</LI>
+<li>Restart Weblogic Workshop</li>
+</OL>
+<BR>Using sforce Explorer
+<OL>
+<LI>From the View/Windows menu, select sforce Explorer</LI>
+<LI>A new tab will be added to the IDE next to the Application tab.</LI>
+<LI>Click the + sign for sforce Entities<\LI>
+<LI>Enter your username and password, then click OK.</LI>
+</OL>
+<BR>You can now see all of the objects that are available in salesforce.com.  Expanding the tree nodes will reveal additional information about each of the objects.  You can right-click anywhere on the tree to logout of the API or to find a link to the sforce Community forums.  You username and login information is securely saved as a property of the current project.  To modify the sforce Explorer properties for the project, right click the project and select properties.  The project properties dialog will be displayed.  Select sforce Explorer to modify your username, password or the web services endpoint.  The endpoint can be used to examine your meta-data for different versions of the API.  Please visit <a href="http://www.sforce.com">sforce.com</a> for more information.
+<BR><BR>
+		<b>Installing sforce Workshop Portal Sample</b><br>
+		<table width="100%" cellspacing="0" cellpadding="0"><tr><td bgcolor="#999999"><img src="/_.gif" width="1" height="1"></td></tr></table>
+		<img src="/_.gif" width="1" height="5"><br>
+		
+This version of the sforce Workshop Control supports WebLogic Workshop 8.1 sp2.<br><br>
+
+
+<OL>
+When you are using control at first time the samples are installed at BEA_HOME\weblogic81\samples\partners\controlhaus_sforce  
+</OL>
+<BR>To run the examples:
+<OL>
+<LI>From the Workshop File/Open/Application menu, open the SForcePortalSample.work file and run Controller.jpf
+<LI>Once the test browser displays the login page, you can enter you salesforce.com username and password to access your data.<BR><B>NOTE:</B> You must have a valid login for an API enabled salesforce.com account.  Visit <a href="https://www.sforce.com/us/orderEntry/signup.jsp">www.sforce.com</a> to sign up for a FREE API enabled developer account.
+</OL>
+<BR>For more information:
+<OL>
+<LI>see the javadocs contained in the download
+<LI>see <a href="http://www.sforce.com/us/docs/sforce30/wwhelp/wwhimpl/js/html/wwhelp.htm">sforce API documentation</a>. 
+<LI>the XML Schemas used by the sforce Workshop Control can be extracted from schemas.jar
+</OL>
+<blockquote>
+		<b>How It Works</b><br>
+		<table width="100%" cellspacing="0" cellpadding="0"><tr><td bgcolor="#999999"><img src="/_.gif" width="1" height="1"></td></tr></table>
+		<img src="/_.gif" width="1" height="5"><br>
+		
+The release of the sforce 3.0 Workshop Custom Control only works with the sp2 release of WebLogic Workshop 8.1.  The sforce 3.0 Workshop Custom Control provides an implementation of the sforce Enterprise WSDL (API 3.0) and exposes the following interfaces:<br><br>
+
+
+<br>
+
+		<br>
+		
+</blockquote>
+Click the following link for the SalesForce 3.0 WSDL exposed methods:  
+<a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_list.html"> sforce.com API </a> <br>
+For method exposed in the SalesForce Workshop Custom control click the following link:  
+<a href="./java-class/com/sforce/workshop/sForceWrapper.html"> sforceWrapper API </a>
+	</font>
+	</td>
+    </tr>
+</table>
+
+
+</div> 
+    
+	
+	
+
+</div>
+<div id="footer">
+    <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+            <td align="left">
+                <a href="http://www.salesforce.com/us/company/contact.jsp">Contact salesforce.com</a>&nbsp;&nbsp;&nbsp;
+            </td>
+            <td align="left">
+                <a href="javascript:openWindow('http://www.salesforce.com/us/statements.jsp?file=privacy&src=web', '', 500, 425, 0, 3);">salesforce.com Privacy</a>&nbsp;&nbsp;&nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td align="left">
+                <a href="http://www.bea.com/contact/index.shtml">Contact BEA Systems</a>&nbsp;&nbsp;&nbsp;
+            </td>
+            <td align="left">
+                <a href="http://www.bea.com/framework.jsp?CNT=privacy.htm&FP=/content/legal/">BEA Privacy</a>&nbsp;&nbsp;&nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td align="left">
+                &copy; 2004 salesforce.com &nbsp;&nbsp;&nbsp;
+            </td>
+            <td align="left">
+                &copy; 2004 BEA Systems&nbsp;&nbsp;&nbsp;
+            </td>
+        </tr>
+    </table>
+	
+	
+	<div class="twodots"><img src="/_.gif" width="300" height="4" alt="" /></div>
+	<div class="redline"><img src="_.gif" width="200" height="4" alt="" /></div>
+</div>
+<BR>
+<BR>
+</body>
+</html>

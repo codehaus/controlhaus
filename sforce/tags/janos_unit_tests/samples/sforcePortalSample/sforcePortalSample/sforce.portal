@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portal:root xmlns:html="http://www.w3.org/1999/xhtml-netuix-modified/1.0.0"
+    xmlns:netuix="http://www.bea.com/servers/netuix/xsd/controls/netuix/1.0.0"
+    xmlns:portal="http://www.bea.com/servers/netuix/xsd/portal/support/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bea.com/servers/netuix/xsd/portal/support/1.0.0 portal-support-1_0_0.xsd">
+    <portal:directive.page contentType="text/html;charset=UTF-8"/>
+    <netuix:desktop definitionLabel="sForce" markupName="desktop" markupType="Desktop" title="New Portal Desktop">
+        <netuix:lookAndFeel definitionLabel="classicLookAndFeel"
+            description="A cool look and feel using the classic skin and skeleton"
+            markupName="classicLookAndFeel" markupType="LookAndFeel" skin="classic" title="Classic"/>
+        <netuix:shell description="A header and footer is included in this shell."
+            markupName="headerFooter" markupType="Shell" title="Header-Footer Shell">
+            <netuix:head/>
+            <netuix:body>
+                <netuix:header/>
+                <netuix:book defaultPage="page" definitionLabel="case_page" markupName="book"
+                    markupType="Book" title="Case">
+                    <netuix:singleLevelMenu markupName="singleLevelMenu" markupType="Menu"/>
+                    <netuix:content>
+                        <netuix:page definitionLabel="sForce_page_9" hidden="true" markupName="page"
+                            markupType="Page" title="New Page">
+                            <netuix:content>
+                                <netuix:gridLayout columns="1"
+                                    description="This layout has a single placeholder."
+                                    htmlLayoutUri="/framework/markup/layout/singlecolumn.html.txt"
+                                    iconUri="/framework/markup/layout/singlecolumn.gif"
+                                    markupName="singleColumnLayout" markupType="Layout" title="Single Column Layout">
+                                    <netuix:placeholder
+                                        description="The only placeholder in this layout."
+                                        flow="vertical" markupName="singleColumn_columnOne"
+                                        markupType="Placeholder" title="single">
+                                        <netuix:portletInstance
+                                            contentUri="/portlets/userAndServer.portlet"
+                                            instanceLabel="portlet_1_1" markupType="Portlet" title="User and Server properties"/>
+                                        <netuix:book defaultPage="newPage.1"
+                                            definitionLabel="sForce_book_10" markupName="book"
+                                            markupType="Book" title="New Book">
+                                            <netuix:singleLevelMenu markupName="singleLevelMenu" markupType="Menu"/>
+                                            <netuix:content>
+                                                <netuix:page definitionLabel="sForce_page_7"
+                                                  hidden="true" markupName="page"
+                                                  markupType="Page" title="New Page">
+                                                  <netuix:content>
+                                                  <netuix:gridLayout columns="2"
+                                                  description="This layout has two columns (left, right) and the portlets flow vertically in the columns."
+                                                  htmlLayoutUri="/framework/markup/layout/twocolumn.html.txt"
+                                                  iconUri="/framework/markup/layout/twocolumn.gif"
+                                                  markupName="twoColumnLayout"
+                                                  markupType="Layout" title="Two Column Layout">
+                                                  <netuix:placeholder
+                                                  description="The left most placeholder in this layout."
+                                                  flow="vertical"
+                                                  markupName="twoColumn_left"
+                                                  markupType="Placeholder"
+                                                  title="left" usingFlow="true" width="30%">
+                                                  <netuix:portletInstance
+                                                  contentUri="/portlets/search.portlet"
+                                                  instanceLabel="portlet_2_2"
+                                                  markupType="Portlet" title="Search"/>
+                                                  <netuix:portletInstance
+                                                  contentUri="/portlets/accountManagement.portlet"
+                                                  instanceLabel="portlet_9_2"
+                                                  markupType="Portlet" title="Account management"/>
+                                                  </netuix:placeholder>
+                                                  <netuix:placeholder
+                                                  description="The right most placeholder in this layout."
+                                                  flow="vertical"
+                                                  markupName="twoColumn_right"
+                                                  markupType="Placeholder"
+                                                  title="right" usingFlow="true" width="70%">
+                                                  <netuix:book defaultPage="newPage.1"
+                                                  definitionLabel="sForce_book_3"
+                                                  hidden="true" markupName="book"
+                                                  markupType="Book" title="New Book">
+                                                  <netuix:singleLevelMenu
+                                                  markupName="singleLevelMenu" markupType="Menu"/>
+                                                  <netuix:content>
+                                                  <netuix:page
+                                                  definitionLabel="account_page"
+                                                  markupName="page"
+                                                  markupType="Page" title="Accounts">
+                                                  <netuix:content>
+                                                  <netuix:gridLayout
+                                                  columns="1"
+                                                  description="This layout has a single placeholder."
+                                                  htmlLayoutUri="/framework/markup/layout/singlecolumn.html.txt"
+                                                  iconUri="/framework/markup/layout/singlecolumn.gif"
+                                                  markupName="singleColumnLayout"
+                                                  markupType="Layout" title="Single Column Layout">
+
+                                                  <netuix:placeholder
+                                                  description="The only placeholder in this layout."
+                                                  flow="vertical"
+                                                  markupName="singleColumn_columnOne"
+                                                  markupType="Placeholder" title="single">
+
+                                                  <netuix:portletInstance
+                                                  contentUri="/portlets/accountList.portlet"
+                                                  instanceLabel="accountList"
+                                                  markupType="Portlet" title="Account list"/>
+
+                                                  <netuix:portletInstance
+                                                  contentUri="/portlets/accountDetails.portlet"
+                                                  instanceLabel="accountDetails"
+                                                  markupType="Portlet" title="Account details"/>
+                                                  </netuix:placeholder>
+                                                  </netuix:gridLayout>
+                                                  </netuix:content>
+                                                  </netuix:page>
+                                                  <netuix:page
+                                                  definitionLabel="contact_page"
+                                                  markupName="page"
+                                                  markupType="Page" title="Contacts">
+                                                  <netuix:content>
+                                                  <netuix:gridLayout
+                                                  columns="1"
+                                                  description="This layout has a single placeholder."
+                                                  htmlLayoutUri="/framework/markup/layout/singlecolumn.html.txt"
+                                                  iconUri="/framework/markup/layout/singlecolumn.gif"
+                                                  markupName="singleColumnLayout"
+                                                  markupType="Layout" title="Single Column Layout">
+
+                                                  <netuix:placeholder
+                                                  description="The only placeholder in this layout."
+                                                  flow="vertical"
+                                                  markupName="singleColumn_columnOne"
+                                                  markupType="Placeholder" title="single">
+
+                                                  <netuix:portletInstance
+                                                  contentUri="/portlets/contactList.portlet"
+                                                  instanceLabel="contactList"
+                                                  markupType="Portlet" title="contactList"/>
+
+                                                  <netuix:portletInstance
+                                                  contentUri="/portlets/contactDetails.portlet"
+                                                  instanceLabel="contactDetails"
+                                                  markupType="Portlet" title="contactDetails"/>
+                                                  </netuix:placeholder>
+                                                  </netuix:gridLayout>
+                                                  </netuix:content>
+                                                  </netuix:page>
+                                                  <netuix:page
+                                                  definitionLabel="case_page"
+                                                  markupName="page"
+                                                  markupType="Page" title="Cases">
+                                                  <netuix:content>
+                                                  <netuix:gridLayout
+                                                  columns="1"
+                                                  description="This layout has a single placeholder."
+                                                  htmlLayoutUri="/framework/markup/layout/singlecolumn.html.txt"
+                                                  iconUri="/framework/markup/layout/singlecolumn.gif"
+                                                  markupName="singleColumnLayout"
+                                                  markupType="Layout" title="Single Column Layout">
+
+                                                  <netuix:placeholder
+                                                  description="The only placeholder in this layout."
+                                                  flow="vertical"
+                                                  markupName="singleColumn_columnOne"
+                                                  markupType="Placeholder" title="single">
+
+                                                  <netuix:portletInstance
+                                                  contentUri="/portlets/caseList.portlet"
+                                                  instanceLabel="caseList"
+                                                  markupType="Portlet" title="Case list"/>
+
+                                                  <netuix:portletInstance
+                                                  contentUri="/portlets/caseDetails.portlet"
+                                                  instanceLabel="portlet_6_2"
+                                                  markupType="Portlet" title="Case details"/>
+                                                  </netuix:placeholder>
+                                                  </netuix:gridLayout>
+                                                  </netuix:content>
+                                                  </netuix:page>
+                                                  </netuix:content>
+                                                  </netuix:book>
+                                                  </netuix:placeholder>
+                                                  </netuix:gridLayout>
+                                                  </netuix:content>
+                                                </netuix:page>
+                                            </netuix:content>
+                                        </netuix:book>
+                                    </netuix:placeholder>
+                                </netuix:gridLayout>
+                            </netuix:content>
+                        </netuix:page>
+                    </netuix:content>
+                </netuix:book>
+                <netuix:footer/>
+            </netuix:body>
+        </netuix:shell>
+    </netuix:desktop>
+</portal:root>

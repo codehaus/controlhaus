@@ -1,0 +1,61 @@
+<!-- 
+Use this file to configure Services within this web-app.  Note that runtime configuration can 
+be accomplished by locating a runtime-wlw-config file in the root of the deployment domain.
+-->
+<wlw-config xmlns="http://www.bea.com/2003/03/wlw/config/">
+  <!-- hostname that will be in WSDL and Callback URL -->
+  <!-- <hostname>production_host</hostname> -->
+  <!-- default protocol for services in this web-app, can be overriden in "service" element -->
+  <!-- <protocol>http</protocol> -->
+  <!-- http port that will be in WSDL and Callback URL -->
+  <!-- <http-port>8000</http-port> -->
+  <!-- https port that will be in WSDL and Callback URL -->
+  <!-- <https-port>8003</https-port> -->
+  <!-- Service Specific Configuration-->
+  <!--
+	<service>
+		<class-name>com.myco.MyWebService</class-name>
+		<protocol>https</protocol>
+	</service>
+	-->
+  <!-- inclusion list for control bean generation -->
+  <!-- this is a list of control interface class names, no extension -->
+  <!--
+    <web-tier-controls>
+        <class-name>your.package.ClassName</class-name>
+        <class-name>com.bea.foo.Bar</class-name>
+    </web-tier-controls>
+    -->
+  <component-group URI="com/bea/p13n/controls/p13controls.jcx">
+    <component URI="com/bea/p13n/controls/CompositeControl.jcx" default="true"/>
+    <component URI="com/bea/p13n/controls/ejb/events/EventService.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/events/EventServiceEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/property/PropertySetManager.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/property/PropertySetManagerEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/property/EntityPropertyManager.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/property/EntityPropertyManagerEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/rules/RulesManager.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/rules/RulesManagerEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/GroupManager.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/GroupManagerEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/UserManager.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/UserManagerEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/RealmConfiguration.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/RealmConfigurationEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/profile/UserProfileManager.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/profile/UserProfileManagerEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/profile/GroupProfileManager.jcx"/>
+    <component URI="com/bea/p13n/controls/ejb/usermgmt/profile/GroupProfileManagerEJBControl.jcx"/>
+    <component URI="com/bea/p13n/controls/profile/UserProfileControl.jcx"/>
+    <component URI="com/bea/p13n/controls/login/UserLoginControl.jcx"/>
+    <component URI="com/bea/p13n/controls/createUser/CreateUserControl.jcx"/>
+    <component URI="com/bea/p13n/controls/userInfoQuery/UserInfoControl.jcx"/>
+    <component URI="com/bea/p13n/controls/events/standard/ClickContentEventControl.jcx"/>
+    <component URI="com/bea/p13n/controls/events/standard/DisplayContentEventControl.jcx"/>
+    <component URI="com/bea/p13n/controls/events/standard/RuleEventControl.jcx"/>
+    <component URI="com/bea/p13n/controls/events/standard/SessionLoginEventControl.jcx"/>
+    <component URI="com/bea/p13n/controls/events/standard/UserRegistrationEventControl.jcx"/>
+    <component URI="com/bea/p13n/controls/events/generic/GenericEventControl.jcx"/>
+    <component URI="com/bea/p13n/controls/events/generic/GenericTrackingControl.jcx"/>
+  </component-group>
+</wlw-config>
