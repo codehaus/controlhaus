@@ -27,5 +27,6 @@ public interface OrderQueue extends JMSControl
 	    private int buyerId;
 	    private String[] itemList;
 	}
-    public javax.jms.Message submitOrder(@Body Order order,@Property(name="DeliverBy") String deliverBy);
+	@Type("foo")
+    public javax.jms.Message submitOrder(Order order,@Property(name="DeliverBy") String deliverBy, @Type String type);
 }
