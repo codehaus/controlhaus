@@ -764,47 +764,54 @@ import org.apache.xmlbeans.XmlObject;
 		switch(type)
 		{
 
-	        case JMSMessageID:
+	        case JMSCorrelationID:
 	            try 
 	            {
-	                msg.setJMSMessageID((String)value);
-	            } 
-	            catch (javax.jms.JMSException e) 
-	            {
-	                throw new ControlException("Error setting JMSMessageID for message", e);
-	            }
-	            break;
-	        case JMSRedelivered:
-	            try 
-	            {
-	                if (value instanceof Boolean) 
+	                if (value instanceof byte[]) 
 	                {
-	                    msg.setJMSRedelivered(((Boolean)value).booleanValue());
+	                    msg.setJMSCorrelationIDAsBytes((byte[])value);
 	                } 
 	                else if (value instanceof String) 
 	                {
-	                    msg.setJMSRedelivered(Boolean.getBoolean((String)value));
+	                	msg.setJMSCorrelationID((String)value);
 	                }
 	            } 
 	            catch (javax.jms.JMSException e) 
 	            {
-	                throw new ControlException("Error setting JMSRedelivered for message", e);
+	                throw new ControlException("Error setting JMSCorrelationID for message", e);
 	            }
 	            break;
-	        case JMSTimestamp:
+	        case JMSPriority:
+	            try 
+	            {
+	                if (value instanceof Integer) 
+	                {
+	                    msg.setJMSPriority(((Integer)value).intValue());
+	                } 
+	                else if (value instanceof String) 
+	                {
+	                    msg.setJMSPriority(Integer.getInteger((String)value));
+	                }
+	            } 
+	            catch (javax.jms.JMSException e) 
+	            {
+	                throw new ControlException("Error setting JMSPriority for message", e);
+	            }
+	            break;
+	        case JMSExpiration:
 	            try 
 	            {
 	                if (value instanceof Long) 
 	                {
-	                    msg.setJMSTimestamp(((Long)value).longValue());
+	                    msg.setJMSExpiration(((Long)value).longValue());
 	                } 
 	                else if (value instanceof String) 
 	                {
-	                    msg.setJMSTimestamp(Long.parseLong((String)value));
+	                    msg.setJMSExpiration(Long.parseLong((String)value));
 	                }
 	            } catch (javax.jms.JMSException e) 
 	            {
-	                throw new ControlException("Error setting JMSTimestamp for message", e);
+	                throw new ControlException("Error setting JMSExpiration for message", e);
 	            }
 	            break;
 			case JMSType:
