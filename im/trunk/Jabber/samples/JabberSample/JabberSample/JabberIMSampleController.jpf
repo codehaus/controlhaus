@@ -1,0 +1,199 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+
+import org.controlhaus.im.jabber.JabberInstantMessenger;
+
+/**
+ * PageFlow class generated from control JabberInstantMessenger
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/JabberIMSampleController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="240" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:instantMessage.do#JabberIMSampleController.InstantMessageForm">
+ *   <property value="500" name="x"/>
+ *   <property value="180" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:instantMessage.jsp@#@action:instantMessage.do#JabberIMSampleController.InstantMessageForm@">
+ *   <property value="500,500,500,500" name="elbowsX"/>
+ *   <property value="256,240,240,224" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="South_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:instantMessage.jsp">
+ *   <property value="500" name="x"/>
+ *   <property value="300" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:result.jsp">
+ *   <property value="660" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:error.jsp">
+ *   <property value="60" name="x"/>
+ *   <property value="40" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#instantMessage.jsp#@action:begin.do@">
+ *   <property value="276,370,370,464" name="elbowsX"/>
+ *   <property value="92,92,292,292" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#result.jsp#@action:instantMessage.do#JabberIMSampleController.InstantMessageForm@">
+ *   <property value="536,580,580,624" name="elbowsX"/>
+ *   <property value="172,172,92,92" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:org.controlhaus.im.jabber.JabberInstantMessenger#myControl">
+ *   <property value="28" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:JabberIMSampleController.InstantMessageForm#userid#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:JabberIMSampleController.InstantMessageForm#password#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:JabberIMSampleController.InstantMessageForm#serverName#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:JabberIMSampleController.InstantMessageForm#toUser#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:JabberIMSampleController.InstantMessageForm#message#java.lang.String"/>
+ * <pageflow-object id="formbean:JabberIMSampleController.InstantMessageForm"/>
+ * </view-properties>
+ * ::
+ */
+public class JabberIMSampleController extends PageFlowController
+{
+    /**
+     * This is the control used to generate this pageflow
+     *  @common:control
+     */
+    private JabberInstantMessenger myControl;
+
+
+    // Uncomment this declaration to access Global.app.
+    // 
+    //     protected global.Global globalApp;
+    // 
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="instantMessage.jsp"
+     */
+    protected Forward begin()
+    {
+        return new Forward("success");
+    }
+
+    /**
+     * Action encapsulating the control method :instantMessage
+     * @jpf:action
+     * @jpf:catch method="exceptionHandler" type="Exception"
+     * @jpf:forward name="success" path="result.jsp"
+     */
+    public Forward instantMessage(InstantMessageForm aForm)
+        throws Exception
+    {
+        myControl.instantMessage(aForm.userid, aForm.password, aForm.serverName, aForm.toUser, aForm.message);
+
+        return new Forward("success");
+    }
+
+    /**
+     * @jpf:exception-handler
+     * @jpf:forward name="errorPage" path="/error.jsp"
+     */
+    protected Forward exceptionHandler(Exception ex,String actionName,String message,FormData form)
+    {
+        String displayMessage = "An exception occurred in the action " + actionName;
+        getRequest().setAttribute("errorMessage", displayMessage);
+        return new Forward("errorPage");
+    }
+
+
+
+    /**
+     * FormData class InstantMessageForm
+     * FormData get and set methods may be overwritten by the Form Bean editor.
+     */
+    public static class InstantMessageForm extends FormData
+    {
+        private java.lang.String userid = "powertoys";
+        private java.lang.String password = "powertoys";
+        private java.lang.String serverName ="jabber.org";
+        private java.lang.String toUser ="powertoys@jabber.org";
+        private java.lang.String message = "Hello from JabberIM powertoy";
+
+        public void setUserid(java.lang.String userid)
+        {
+            this.userid = userid;
+        }
+
+        public java.lang.String getUserid()
+        {
+            return userid;
+        }
+
+        public void setPassword(java.lang.String password)
+        {
+            this.password = password;
+        }
+
+        public java.lang.String getPassword()
+        {
+            return password;
+        }
+
+        public void setServerName(java.lang.String serverName)
+        {
+            this.serverName = serverName;
+        }
+
+        public java.lang.String getServerName()
+        {
+            return serverName;
+        }
+
+        public void setToUser(java.lang.String toUser)
+        {
+            this.toUser = toUser;
+        }
+
+        public java.lang.String getToUser()
+        {
+            return toUser;
+        }
+
+        public void setMessage(java.lang.String message)
+        {
+            this.message = message;
+        }
+
+        public java.lang.String getMessage()
+        {
+            return message;
+        }
+    }
+
+}

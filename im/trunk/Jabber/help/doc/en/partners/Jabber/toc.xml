@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- CDK TOC -->
+  <toc-root component="other" xmlns="http://www.bea.com/help/toc.xsd">
+  <toc-reference anchor="extensions">
+     <toc-node label="Jabber Control" url="JabberIM.html">
+        <toc-node label="Using the JabberIM Control" url="HowToUse.html" />
+    </toc-node>
+  </toc-reference>
+</toc-root>
