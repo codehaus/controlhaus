@@ -51,7 +51,7 @@ import java.util.Vector;
  * The implementation class for the database controller.
  */
 @ControlImplementation
-public class DatabaseControlImpl implements DatabaseControl, Extensible {
+public class JdbcControlImpl implements JdbcControl, Extensible {
 
     //
     // contexts provided by the beehive controls runtime
@@ -60,7 +60,7 @@ public class DatabaseControlImpl implements DatabaseControl, Extensible {
     @org.apache.beehive.controls.api.context.Context ResourceContext _resourceContext;
 
     private static final String EMPTY_STRING = "";
-    private static final Logger logger = Logger.getLogger(DatabaseControlImpl.class);
+    private static final Logger logger = Logger.getLogger(JdbcControlImpl.class);
 
     private transient Connection _connection;
     private transient DataSource _dataSource;
@@ -137,12 +137,12 @@ public class DatabaseControlImpl implements DatabaseControl, Extensible {
             return _connection;
         }
 
-        DatabaseControl.ConnectionDataSource _connSourceProp = _context.getControlPropertySet(ConnectionDataSource.class);
+        JdbcControl.ConnectionDataSource _connSourceProp = _context.getControlPropertySet(ConnectionDataSource.class);
         if (_connSourceProp != null && _connSourceProp.jndiName() != null) {
             return getConnectionFromDataSource(_connSourceProp.jndiName(), _connSourceProp.jndiContextFactory());
         }
 
-        DatabaseControl.ConnectionDriver _connDriver = _context.getControlPropertySet(ConnectionDriver.class);
+        JdbcControl.ConnectionDriver _connDriver = _context.getControlPropertySet(ConnectionDriver.class);
         if (_connDriver != null && _connDriver.databaseDriverClass() != null) {
             return getConnectionFromDriverManager(_connDriver.databaseDriverClass(), _connDriver.databaseURL(),
                                                   _connDriver.userName(), _connDriver.password(), _connDriver.properties());

@@ -19,7 +19,7 @@ package org.controlhaus.jdbc;
 
 import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.apache.xmlbeans.SchemaType;
-import org.controlhaus.jdbc.DatabaseControl.SQL;
+import org.controlhaus.jdbc.JdbcControl.SQL;
 
 import java.lang.reflect.Method;
 import java.sql.ResultSet;

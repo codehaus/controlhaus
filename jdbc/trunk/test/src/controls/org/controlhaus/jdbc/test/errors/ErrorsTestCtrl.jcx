@@ -17,7 +17,7 @@
 
 package org.controlhaus.jdbc.test.errors;
 
-import org.controlhaus.jdbc.DatabaseControl;
+import org.controlhaus.jdbc.JdbcControl;
 import test.customerDb.XCustomerRowDocument;
 import testBad.customerDb.XCustomerRowBadDocument;
 
@@ -28,8 +28,8 @@ import java.sql.SQLException;
  * This control is used for checking error reporting / recovery from the db control.
  */
 @org.apache.beehive.controls.api.bean.ControlExtension
-        @DatabaseControl.ConnectionDriver(databaseDriverClass = "org.apache.derby.jdbc.EmbeddedDriver", databaseURL = "jdbc:derby:MyDB")
-        public interface ErrorsTestCtrl extends DatabaseControl {
+        @JdbcControl.ConnectionDriver(databaseDriverClass = "org.apache.derby.jdbc.EmbeddedDriver", databaseURL = "jdbc:derby:MyDB")
+        public interface ErrorsTestCtrl extends JdbcControl {
 
     public static class BadCustomer {
         private String fnam;

@@ -24,7 +24,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.controlhaus.jdbc.test.results.ResultsTestCtrl;
 import org.controlhaus.jdbc.units.utils.AbstractControlTest;
-import org.controlhaus.jdbc.DatabaseControl;
+import org.controlhaus.jdbc.JdbcControl;
 
 import javax.sql.RowSet;
 import java.sql.Connection;
@@ -113,25 +113,25 @@ public class StoredProcsDBResultsTest extends AbstractControlTest {
         //
         // simple sp which does not do a database query in the sp
         //
-        DatabaseControl.SQLParameter[] params = new DatabaseControl.SQLParameter[1];
-        params[0] = new DatabaseControl.SQLParameter(new String(), Types.VARCHAR, DatabaseControl.SQLParameter.OUT);
+        JdbcControl.SQLParameter[] params = new JdbcControl.SQLParameter[1];
+        params[0] = new JdbcControl.SQLParameter(new String(), Types.VARCHAR, JdbcControl.SQLParameter.OUT);
         testCtrl.getExpensiveProduct(params);
         assertEquals(params[0].value, "foo");
 
         //
         // sp which does a database query
         //
-        params = new DatabaseControl.SQLParameter[1];
-        params[0] = new DatabaseControl.SQLParameter(new String[8], Types.VARCHAR, DatabaseControl.SQLParameter.OUT);
+        params = new JdbcControl.SQLParameter[1];
+        params[0] = new JdbcControl.SQLParameter(new String[8], Types.VARCHAR, JdbcControl.SQLParameter.OUT);
         testCtrl.getExpensiveProducts(params);
         assertEquals(params[0].value, "Widget 4");
 
         //
         // sp which does a database query and uses IN and OUT params
         //
-        params = new DatabaseControl.SQLParameter[2];
-        params[0] = new DatabaseControl.SQLParameter("red", Types.VARCHAR, DatabaseControl.SQLParameter.IN);
-        params[1] = new DatabaseControl.SQLParameter(new String[8], Types.VARCHAR, DatabaseControl.SQLParameter.OUT);
+        params = new JdbcControl.SQLParameter[2];
+        params[0] = new JdbcControl.SQLParameter("red", Types.VARCHAR, JdbcControl.SQLParameter.IN);
+        params[1] = new JdbcControl.SQLParameter(new String[8], Types.VARCHAR, JdbcControl.SQLParameter.OUT);
         testCtrl.getProductsByColor(params);
         assertEquals(params[1].value, "Widget 1,Widget 4,");
 

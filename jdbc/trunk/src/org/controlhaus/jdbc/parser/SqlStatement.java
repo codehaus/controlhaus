@@ -19,7 +19,7 @@ package org.controlhaus.jdbc.parser;
 
 import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
-import org.controlhaus.jdbc.DatabaseControl;
+import org.controlhaus.jdbc.JdbcControl;
 import org.controlhaus.jdbc.TypeMappingsFactory;
 
 import java.io.Serializable;
@@ -102,18 +102,18 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
                         throw new ControlException("Cannot use parameter substution and SQLParameter array in the same method.");
                     }
                 }
-                DatabaseControl.SQLParameter[] params = (DatabaseControl.SQLParameter[]) arguments[0];
+                JdbcControl.SQLParameter[] params = (JdbcControl.SQLParameter[]) arguments[0];
                 if (params == null) {
                     return preparedStatement;
                 }
                 for (int i = 0; i < params.length; i++) {
-                    DatabaseControl.SQLParameter p = params[i];
-                    if (p.dir != DatabaseControl.SQLParameter.OUT) {
+                    JdbcControl.SQLParameter p = params[i];
+                    if (p.dir != JdbcControl.SQLParameter.OUT) {
                         Object value = params[i].value;
                         setPreparedStatementParameter(preparedStatement, i + 1, value, params[i].type, calendar);
                     }
 
-                    if (p.dir != DatabaseControl.SQLParameter.IN) {
+                    if (p.dir != JdbcControl.SQLParameter.IN) {
                         ((CallableStatement) preparedStatement).registerOutParameter(i + 1, params[i].type);
                     }
                 }
@@ -273,7 +273,7 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
         // CallableStatement vs. PreparedStatement
         if (args != null && args.length == 1 && args[0] != null) {
             Class argClass = args[0].getClass();
-            if (argClass.isArray() && DatabaseControl.SQLParameter.class.isAssignableFrom(argClass.getComponentType())) {
+            if (argClass.isArray() && JdbcControl.SQLParameter.class.isAssignableFrom(argClass.getComponentType())) {
                 return true;
             }
         }
