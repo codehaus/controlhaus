@@ -50,8 +50,8 @@
 
     <!-- deploy.with.context ********************************************************** -->
     <target name="deploy.with.context" description="Deploys a webapp with its context.xml">
-         <property name="_url" value="file:///${webapp.dir}"/>
-         <property name="_config" value="file:///${webapp.dir}/META-INF/context.xml"/>
+         <property name="_url" value="file:${webapp.dir}"/>
+         <property name="_config" value="file:${webapp.dir}/META-INF/context.xml"/>
          <property name="tomcat.home" value="${os.CATALINA_HOME}"/>
 
          <echo>deploy app: ${_url}</echo>

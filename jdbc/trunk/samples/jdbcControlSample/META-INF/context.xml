@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 
-<Context path="/JdbcControlSample" docBase="/d:/beeline/samples/JdbcControlSample" debug="5" reloadable="true" crossContext="true">
+<Context path="/JdbcControlSample" docBase="/d:/beeline/samples/jdbcControlSample" debug="5" reloadable="true" crossContext="true">
 
   <Logger className="org.apache.catalina.logger.FileLogger" prefix="localhost_dataWeb_log." suffix=".txt" timestamp="true"/>
 

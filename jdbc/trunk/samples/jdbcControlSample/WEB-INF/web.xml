@@ -90,22 +90,6 @@
         <location>/error.jsp</location>
     </error-page>
 
-    <jsp-config>
-        <!-- Define the Beehive / NetUI tag libraries -->
-        <taglib>
-            <taglib-uri>http://beehive.apache.org/netui/tags-databinding-1.0</taglib-uri>
-            <taglib-location>/WEB-INF/beehive-netui-tags-databinding.tld</taglib-location>
-        </taglib>
-        <taglib>
-            <taglib-uri>http://beehive.apache.org/netui/tags-html-1.0</taglib-uri>
-            <taglib-location>/WEB-INF/beehive-netui-tags-html.tld</taglib-location>
-        </taglib>
-        <taglib>
-            <taglib-uri>http://beehive.apache.org/netui/tags-template-1.0</taglib-uri>
-            <taglib-location>/WEB-INF/beehive-netui-tags-template.tld</taglib-location>
-        </taglib>
-    </jsp-config>
-
   <resource-ref>
       <description>DB Connection</description>
       <res-ref-name>jdbc/TestDB</res-ref-name>
