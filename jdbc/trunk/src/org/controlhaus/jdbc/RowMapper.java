@@ -26,19 +26,32 @@ import java.util.Calendar;
 
 /**
  * Abstract base class for all row mappers.
+ *
+ * RowMappers are used to map the contents of a row in a ResultSet to the return type of an annotated method.
+ * Supported RowMapper types include: HashMap, Map, Object, XmlObject.  When a ResultSetMapper is ready to
+ * map a ResultSet row to an object, it requests a RowMapper for the return type of the method from the
+ * RowMapperFactory.
+ *
  */
 public abstract class RowMapper {
 
 
     protected static final TypeMappingsFactory _tmf = TypeMappingsFactory.getInstance();
 
+    /** ResultSet to map. */
     protected final ResultSet _resultSet;
+
+    /** Calendar instance for date/time mappings. */
     protected final Calendar _cal;
+
+    /** Class to map ResultSet Rows to. */
     protected final Class _returnTypeClass;
 
     /**
-     * Constructor
-     * @param resultSet
+     * Create a new RowMapper for the specified ResultSet and return type Class.
+     * @param resultSet ResultSet to map
+     * @param returnTypeClass Class to map ResultSet rows to.
+     * @param cal Calendar instance for date/time values.
      */
     protected RowMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) {
         _resultSet = resultSet;
@@ -47,17 +60,17 @@ public abstract class RowMapper {
     }
 
     /**
-     * This method must be implemented for all sub classes
-     * @return
-     * @throws ControlException
+     * Map a ResultSet row to the return type class
+     * @return An instance of class.
+     * @throws ControlException on error.
      */
     public abstract Object mapRowToReturnType() throws ControlException, SQLException;
 
 
     /**
-     * Build a String array of Column names from the restltSet
-     * @return
-     * @throws SQLException
+     * Build a String array of column names from the ResultSet.
+     * @return A String array containing the column names contained within the ResultSet.
+     * @throws SQLException on error
      */
     protected String[] getKeysFromResultSet() throws SQLException {
 
@@ -73,11 +86,11 @@ public abstract class RowMapper {
     }
 
     /**
-     * Map a ResultSet with a single column to the specifed returnTypeClass
+     * Map a ResultSet which contains a single column to the specifed returnTypeClass.
      *
-     * @param returnTypeClass
-     * @return
-     * @throws SQLException
+     * @param returnTypeClass Class to map the ResultSet row to.
+     * @return An instance of returnTypeClass.
+     * @throws SQLException on error.
      */
     protected Object mapSingleColumnResultSet(Class returnTypeClass) throws SQLException {
 
@@ -98,10 +111,10 @@ public abstract class RowMapper {
     /**
      * Extract a column value from the ResultSet and return it as resultType.
      *
-     * @param index
-     * @param resultType
-     * @return
-     * @throws java.sql.SQLException
+     * @param index The column index of the value to extract from the ResultSet.
+     * @param resultType The return type. Defined in TypeMappingsFactory.
+     * @return The extracted value
+     * @throws java.sql.SQLException on error.
      */
     protected Object extractColumnValue(int index, int resultType) throws SQLException {
 

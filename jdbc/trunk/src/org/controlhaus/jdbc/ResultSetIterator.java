@@ -27,7 +27,7 @@ import java.util.Calendar;
 import java.util.NoSuchElementException;
 
 /**
- * Iterator used for mapping a ResultSet to an Iterator type
+ * Used by DefaultIteratorResultSetMapper for mapping a ResultSet to an Iterator type.
  */
 public class ResultSetIterator implements java.util.Iterator {
 
@@ -37,6 +37,14 @@ public class ResultSetIterator implements java.util.Iterator {
 
     private boolean _primed = false;
 
+    /**
+     * Create a new ResultSetIterator.
+     * @param context A ControlBeanContext.
+     * @param method The annotated method.
+     * @param rs The ResultSet to map.
+     * @param cal A Calendar instance for mapping date/time values.
+     * @throws Exception On error.
+     */
     ResultSetIterator(ControlBeanContext context, Method method, ResultSet rs, Calendar cal) throws Exception {
         _rs = rs;
 
@@ -51,7 +59,8 @@ public class ResultSetIterator implements java.util.Iterator {
     }
 
     /**
-     * @return
+     * Does this iterater have more elements?
+     * @return true if there is another element
      */
     public boolean hasNext() {
         if (_primed) {
@@ -67,7 +76,8 @@ public class ResultSetIterator implements java.util.Iterator {
     }
 
     /**
-     * @return
+     * Get the next element in the iteration.
+     * @return The next element in the iteration.
      */
     public Object next() {
         try {
@@ -90,7 +100,7 @@ public class ResultSetIterator implements java.util.Iterator {
     }
 
     /**
-     *
+     * Remove is currently not supported.
      */
     public void remove() {
         throw new UnsupportedOperationException("remove not supported");

@@ -31,7 +31,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 /**
- * Map a ResultSet row to an Object
+ * Map a ResultSet row to an Object. This mapper uses Java reflection to perform the mapping.  The Class being mapped
+ * to must have setter methods which match the ResultSet column names.  For example, if a column in the ResultSet
+ * named USERID, the object must have a setter method named setUserid().  If a setter method cannot be class fields
+ * are also checked, the same naming conventions applies, USERID -> userid.
  */
 public class RowToObjectMapper extends RowMapper {
 
@@ -44,12 +47,11 @@ public class RowToObjectMapper extends RowMapper {
     private final Object _singleRowReturnValue;
 
     /**
-     * Constructor
-     *
-     * @param resultSet
-     * @param returnTypeClass
-     * @param cal
-     * @throws SQLException
+     * Create a new RowToObjectMapper.
+     * @param resultSet ResultSet to map
+     * @param returnTypeClass Class to map to.
+     * @param cal Calendar instance for date/time mappings.
+     * @throws SQLException on error.
      */
     RowToObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
         super(resultSet, returnTypeClass, cal);
@@ -70,9 +72,9 @@ public class RowToObjectMapper extends RowMapper {
     /**
      * Do the mapping
      *
-     * @return
-     * @throws ControlException
-     * @throws SQLException
+     * @return An object instance.
+     * @throws ControlException on error.
+     * @throws SQLException on error.
      */
     public Object mapRowToReturnType() throws ControlException, SQLException {
 
@@ -136,7 +138,7 @@ public class RowToObjectMapper extends RowMapper {
     /**
      * Build the structures necessary to do the mapping
      *
-     * @throws SQLException
+     * @throws SQLException on error.
      */
     private void getFieldMappings() throws SQLException {
 

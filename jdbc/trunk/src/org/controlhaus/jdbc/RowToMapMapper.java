@@ -26,17 +26,18 @@ import java.util.Collections;
 import java.util.Calendar;
 
 /**
- * Map a ResultSet row to a java.util.Map object
+ * Map a ResultSet row to a java.util.Map object.
  */
 public final class RowToMapMapper extends RowMapper {
     
     private final String[] _keys;
 
     /**
-     * Constructor
-     *
-     * @param resultSet
-     * @throws SQLException
+     * Create a new RowToMapMapper.
+     * @param resultSet ResultSet to map
+     * @param returnTypeClass Class to map to.
+     * @param cal Calendar instance for date/time mappings.
+     * @throws SQLException on error.
      */
     RowToMapMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
         super(resultSet, returnTypeClass, cal);
@@ -45,8 +46,8 @@ public final class RowToMapMapper extends RowMapper {
 
     /**
      * Do the mapping.
-     * @return
-     * @throws ControlException
+     * @return A Map.
+     * @throws ControlException on error.
      */
     public Object mapRowToReturnType() throws ControlException {
         try {

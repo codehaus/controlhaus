@@ -35,7 +35,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 /**
- * Maps a ResultSet row to an XmlObject
+ * Maps a ResultSet row to an XmlObject.
  */
 public class RowToXmlObjectMapper extends RowMapper {
 
@@ -49,12 +49,11 @@ public class RowToXmlObjectMapper extends RowMapper {
     private final Object[] _args = new Object[1];
 
     /**
-     * Constructor
-     *
-     * @param resultSet
-     * @param returnTypeClass
-     * @param cal
-     * @throws SQLException
+     * Create a new RowToXmlObjectMapper.
+     * @param resultSet ResultSet to map
+     * @param returnTypeClass Class to map to.
+     * @param cal Calendar instance for date/time mappings.
+     * @throws SQLException on error.
      */
     RowToXmlObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
         super(resultSet, returnTypeClass, cal);
@@ -68,9 +67,9 @@ public class RowToXmlObjectMapper extends RowMapper {
     /**
      * map a row from the ResultSet to an XmlObject instance
      *
-     * @return
-     * @throws ControlException
-     * @throws SQLException
+     * @return An XmlObject instance.
+     * @throws ControlException on error.
+     * @throws SQLException on error.
      */
     public Object mapRowToReturnType() throws ControlException, SQLException {
 
@@ -249,8 +248,9 @@ public class RowToXmlObjectMapper extends RowMapper {
     }
 
     /**
-     * @param returnType
-     * @return
+     * Get the SchemaType for the specified class.
+     * @param returnType Class to get the SchemaType for.
+     * @return SchemaType
      */
     private SchemaType getSchemaType(Class returnType) {
         SchemaType schemaType = null;

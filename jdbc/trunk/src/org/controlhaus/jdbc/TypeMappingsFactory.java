@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Currently contains all types of type mappings.  Need to determine what should be done with this class.
+ * Currently contains all types of type mappings. Implemented using singleton pattern.
  */
 //@todo: refactor!
 public final class TypeMappingsFactory {
@@ -35,6 +35,10 @@ public final class TypeMappingsFactory {
 
     private static TypeMappingsFactory _instance;
 
+    /**
+     * Get an instance of this class.
+     * @return TypeMappingsFactory instance.
+     */
     public static TypeMappingsFactory getInstance() {
         if (_instance == null) {
             _instance = new TypeMappingsFactory();
@@ -210,9 +214,9 @@ public final class TypeMappingsFactory {
     }
 
     /**
-     * Convert a type string to its SQL Type value.
-     * @param type
-     * @return
+     * Convert a type string to its SQL Type int value.
+     * @param type A String containing the SQL type name.
+     * @return The SQL type, TYPE_UNKNOWN if cannot convert.
      */
     public int convertStringToSQLType(String type) {
         if (_typeSqlNameMap.containsKey(type.toUpperCase())) {
@@ -223,8 +227,8 @@ public final class TypeMappingsFactory {
 
     /**
      * Get the SQL type of a class, start at top level class an check all super classes until match is found.
-     * @param classType
-     * @return
+     * @param classType Class to get SQL type of.
+     * @return Types.OTHER if cannot find SQL type.
      */
     public int getSqlType(Class classType) {
 
@@ -251,8 +255,8 @@ public final class TypeMappingsFactory {
 
     /**
      * Get the SQL type for an object.
-     * @param o
-     * @return
+     * @param o Object to get SQL type of.
+     * @return SQL type of the object, Types.OTHER if cannot classify.
      */
     public int getSqlType(Object o) {
         if (null == o) {
@@ -274,8 +278,8 @@ public final class TypeMappingsFactory {
 
     /**
      * Get the type id (defined by this class) for the given class.
-     * @param classType
-     * @return
+     * @param classType Class to get type of.
+     * @return Type id of class.
      */
     public int getTypeId(Class classType) {
 
@@ -301,7 +305,9 @@ public final class TypeMappingsFactory {
     }
 
    /**
-    * Returns a primitive legal value as opposed to null if type is primitive
+    * Returns a primitive legal value as opposed to null if type is primitive.
+    * @param type type to get null value for.
+    * @return null value for specifed type.
     */
    public Object fixNull(Class type) {
        return type.isPrimitive() ? _primitiveDefaults.get(type) : null;
@@ -310,8 +316,8 @@ public final class TypeMappingsFactory {
    /**
      * Create an Object array for the given array.
      *
-     * @param o
-     * @return
+     * @param o An array.
+     * @return A new object array.
      */
     public static Object[] toObjectArray(Object o) {
 

@@ -21,10 +21,16 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 /**
- * Default context factory implementation.  Overridden in classe's ConnectionDataSource annotation.
+ * Default context factory implementation.
+ * May be overridden in class's ConnectionDataSource annotation.
  */
 public class DefaultJndiContextFactory implements JdbcControl.IJndiContextFactory {
 
+    /**
+     * Return a Jndi InitialContext
+     * @return InitialContext instance
+     * @throws NamingException on error.
+     */
     public InitialContext getInitialContext() throws NamingException {
         return new InitialContext();
     }

@@ -38,15 +38,15 @@ public class DefaultIteratorResultSetMapper extends ResultSetMapper {
      * @param resultSet Result set to map.
      * @param cal       A Calendar instance for time/date value resolution.
      * @return          The Iterator object instance resulting from the ResultSet
-     * @throws Exception On error.
+     * @throws Exception on error.
      */
     public Iterator mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
         return new ResultSetIterator(context, m, resultSet, cal);
     }
 
     /**
-     * Can the ResultSet which this mapper uses be closed by the database control?
-     * @return defaults to false
+     * Can the ResultSet which this mapper uses be closed by the database control on return from its invoke() method?
+     * @return always returns false
      */
     public boolean canCloseResultSet() { return false; }
 }
