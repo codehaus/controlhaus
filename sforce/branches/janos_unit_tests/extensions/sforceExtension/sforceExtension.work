@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application>
+  <option name="excludedirs" value="cvs;sccs;rcs;.svn;" />
+  <option name="excludefiles" value="\..*|.*\.[0-9]+|wlw_[0-9]+\..*" />
+  <option name="excludefilesFromEar" value="[default]" />
+  <option name="name" value="sforceExtension" />
+  <option name="version" value="1" />
+  <components>
+    <component name="com.bea.ide.debug.IDebugClient">
+      <option name="SrcPath0_currproject_" value="Current Project" />
+      <option name="SrcPath1_project_" value="sforceExtension" />
+    </component>
+    <component name="com.bea.ide.workspace.IWorkspace">
+      <node name="ApplicationBuild" />
+    </component>
+    <component name="com.bea.portal.ide.actions.OpenAdministrationPageAction" />
+  </components>
+  <modules />
+  <projects>
+    <project name="sforceExtension">
+      <option name="project.path" value="./sforceExtension" />
+      <option name="type" value="urn:com-bea-ide:project.type:Java" />
+      <components>
+        <component name="com.bea.ide.JavaCompiler">
+          <option name="class.path" value="${workshop.home}/wlw-ide.jar;${weblogic.home}/server/lib/webserviceclient+ssl.jar;${weblogic.home}/server/lib/webserviceclient+ssl_pj.jar;${weblogic.home}/server/lib/webserviceclient.jar" />
+          <option name="source.path" value="${sforceExtension.root}/src" />
+        </component>
+        <component name="com.bea.ide.debug.IDebugData">
+          <option name="debug.appendLibrariesClassPath" value="true" />
+          <option name="debug.appendServerClassPath" value="true" />
+          <option name="debug.attachProc.server" value="" />
+          <option name="debug.attachProc.shmemAddress" value="" />
+          <option name="debug.attachProc.type" value="0" />
+          <option name="debug.buildBeforeDebugging" value="true" />
+          <option name="debug.class.path" value="${workshop.home}/wlw-ide.jar" />
+          <option name="debug.debuggingType" value="NewProcess" />
+          <option name="debug.home.path" value="${workshop.home}" />
+          <option name="debug.main" value="workshop.core.Workshop" />
+          <option name="debug.params" value="D:\bea812_SP2final\user_projects\applications\testSforce\testSforce.work" />
+          <option name="debug.port" value="" />
+          <option name="debug.smartDebugging" value="false" />
+          <option name="debug.vmParams" value="-ea -Xmx512m -Xms128m -Dsun.java2d.d3d=false -Dworkshop.home=../workshop -Djava.system.class.loader=&quot;workshop.core.AppClassLoader&quot;" />
+          <node name="com.bea.ide.debug.IDebugData.classList">
+            <option name="Generated classes" value="$Proxy*, *_wf$*, *_wf" />
+            <option name="JDK classes" value="javax.*, java.*, sun.*, com.sun.*" />
+            <option name="WebLogic Server classes" value="weblogic.*, weblogicx.*, com.pointbase.*, com.bea.*, COM.jrockit, com.octetstring.*, com.bluecast.*, netscape.ldap.*" />
+            <option name="WebLogic Workshop classes" value="knex.*, workshop.*, javelin.*" />
+            <option name="XML classes" value="org.apache.*, XMLRuntime.*, org.xml.*, org.xmlsoap.schemas.*" />
+          </node>
+        </component>
+        <component name="com.bea.portal.ide.rules.server.ConnectionInfoManager">
+          <option name="useAppSettings" value="true" />
+        </component>
+        <component name="workshop.workspace.project.build.JavaBuilderPrefs">
+          <option name="dir.path" value="" />
+          <option name="useJar" value="false" />
+        </component>
+        <component name="workshop.workspace.project.build.ProjectBuilderPrefs">
+          <option name="ant.classpath" value="" />
+          <option name="ant.path" value="${sforceExtension.root}/build.xml" />
+          <option name="buildTarget" value="build" />
+          <option name="useAnt" value="true" />
+        </component>
+      </components>
+    </project>
+  </projects>
+  <node name="roles" />
+</application>
+
