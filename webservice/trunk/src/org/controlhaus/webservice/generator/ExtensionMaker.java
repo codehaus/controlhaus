@@ -26,8 +26,6 @@ import javax.xml.namespace.QName;
 import org.apache.beehive.wsm.jsr181.model.Jsr181TypeMetadata;
 import org.apache.beehive.wsm.jsr181.model.Jsr181MethodMetadata;
 import org.apache.beehive.wsm.jsr181.model.Jsr181ParameterMetadata;
-import org.apache.beehive.wsm.jsr181.model.client.ClientMethodMetadata;
-import org.apache.beehive.wsm.jsr181.model.client.ClientParameterMetadata;
 import org.apache.beehive.wsm.jsr181.wsdl.XmlBeanWSDLProcessor;
 import org.apache.axis.wsdl.toJava.Namespaces;
 import org.apache.axis.wsdl.toJava.Utils;
@@ -103,15 +101,15 @@ public class ExtensionMaker {
                     if (javaType != null) {
                         returnVal = getClassName(javaType);
                     }
-                    else if (method instanceof ClientMethodMetadata) {
-                        QName q = ((ClientMethodMetadata)method)
+                    
+                        QName q = method
                             .getXmlReturnType();
                         if (q != null) {
                             returnVal = Utils
                                 .makePackageName(q.getNamespaceURI())
                                 + q.getLocalPart();
                         }
-                    }
+                    
                     jcxWriter.print(returnVal);
                     jcxWriter.write(' ');
                     jcxWriter.print(method.getWmOperationName());
@@ -150,14 +148,14 @@ public class ExtensionMaker {
             if (javaType != null) {
                 paramType = getClassName(javaType);
             }
-            else if (param instanceof ClientParameterMetadata) {
-                QName q = ((ClientParameterMetadata)param).getXmlType();
+            
+                QName q = param.getXmlType();
                 if (q != null) {
                     paramType = Utils
                         .makePackageName(q.getNamespaceURI())
                         + q.getLocalPart();
                 }
-            }
+           
             pw.print(paramType);
             pw.write(' ');
             String paramName = param.getWpName();

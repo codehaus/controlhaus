@@ -34,8 +34,8 @@ import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.server.AxisServer;
 import org.apache.beehive.wsm.axis.AnnotatedWebServiceDeploymentHandler;
 import org.apache.beehive.wsm.jsr181.model.Jsr181TypeMetadata;
-import org.apache.beehive.wsm.jsr181.processor.reflection
-    .WsmReflectionAnnotationProcessor;
+//import org.apache.beehive.wsm.jsr181.processor.reflection
+//    .WsmReflectionAnnotationProcessor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
@@ -68,9 +68,10 @@ public class AxisInvocationTest extends TestCase {
         Object obj = ait.invokeWebService(meth,
                                           new Object[0],
                                           new EmptyServiceControl(),
-                                          (Jsr181TypeMetadata)
-                                          WsmReflectionAnnotationProcessor
-                                          .getInstance().getObjectModel(cls),
+//                                          (Jsr181TypeMetadata)
+//                                          WsmReflectionAnnotationProcessor
+//                                          .getInstance().getObjectModel(cls),
+                                          null,  // There is no reflection package!   THIS SHOULD NOT USE REFLECTION ANYWAYS, it should build OM FROM wsdl.
                                           null);
     
         assertNotNull(obj);

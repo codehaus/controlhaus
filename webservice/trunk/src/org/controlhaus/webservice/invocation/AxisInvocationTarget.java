@@ -54,8 +54,6 @@ import org.apache.beehive.wsm.jsr181.model.Jsr181ParameterMetadata;
 import org.apache.beehive.wsm.jsr181.model.Jsr181MethodMetadata;
 import org.apache.beehive.wsm.jsr181.model.Jsr181TypeMetadata;
 import org.apache.beehive.wsm.jsr181.model.SOAPBindingInfo;
-import org.apache.beehive.wsm.jsr181.model.client.ClientMethodMetadata;
-import org.apache.beehive.wsm.jsr181.model.client.ClientParameterMetadata;
 import org.apache.beehive.wsm.jsr181.util.TypeMappingUtil;
 
 import org.apache.xmlbeans.XmlObject;
@@ -337,14 +335,10 @@ public class AxisInvocationTarget
             //Class metaReturnClass = meta.getJavaReturnType();
 
             QName type;
-            if (meta instanceof ClientMethodMetadata) {
+            
                 type = tmu.registerType(returnClass,
-                                        ((ClientMethodMetadata)meta)
-                                        .getXmlReturnType());
-            }
-            else {
-                type = tmu.registerType(returnClass);
-            }
+                                        meta.getXmlReturnType());
+          
 
             if (type == null) {
                 return null;
@@ -368,9 +362,9 @@ public class AxisInvocationTarget
             QName expectedType = null;
             // Just to be safe, the param should always be the ClientParameterMetadata
             // This is to make sure the model came from a wsdl processing...
-            if (param instanceof ClientParameterMetadata) {
-                expectedType = ((ClientParameterMetadata)param).getXmlType();
-            }
+
+                expectedType = param.getXmlType();
+
 
             Class providedClass = paramClasses[paramIndex];
 
