@@ -19,6 +19,7 @@ package org.controlhaus.jdbc.units.results;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.bean.Control;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
@@ -29,10 +30,10 @@ import test.customerDb.XCustomerRowDocument;
 import javax.sql.RowSet;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.ResultSet;
-import java.util.Iterator;
+import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  *
@@ -82,7 +83,7 @@ public class DBMultiRowResultsTest extends AbstractControlTest {
 
         HashMap[] customerHashMap = testCtrl.getCustomerHashMapArray(22);
         assertTrue(customerHashMap.length > 0);
-        assertEquals(customerHashMap[0].get("FNAME"),"tester2");
+        assertEquals(customerHashMap[0].get("FNAME"), "tester2");
         assertEquals(customerHashMap[0].get("USERID"), 22);
     }
 
@@ -150,25 +151,46 @@ public class DBMultiRowResultsTest extends AbstractControlTest {
     // test scrollable result set feature, sensitive / updateable
     //
     public void testScrollableInsensitiveUpdateablepResultSet() throws Exception {
-        ResultSet rs = testCtrl.getScrollableResultSet_IU();
-        rs.afterLast();
-        rs.previous();
-        assertEquals(rs.getString(1),"tester4");
-        rs.beforeFirst();
-        rs.close();
+        try {
+            ResultSet rs = testCtrl.getScrollableResultSet_IU();
+            fail("This feature has not been impelented in Derby yet (1/19/2005), need to add test case once it has.");
+        } catch (ControlException ce) {
+            assertTrue(true);
+        }
     }
 
     //
     // test scrollable result set feature, forward only / updateable
     //
     public void testScrollableSensitiveResultSet() throws Exception {
-        ResultSet rs = testCtrl.getScrollableResultSet_SR();
-        rs.afterLast();
-        rs.beforeFirst();
+        try {
+            ResultSet rs = testCtrl.getScrollableResultSet_SR();
+            fail("This feature has not been impelented in Derby yet (1/19/2005), need to add test case once it has.");
+        } catch (ControlException ce) {
+            assertTrue(true);
+        }
+//        rs.afterLast();
+//        rs.beforeFirst();
+//        rs.next();
+//        rs.next();
+//        assertEquals(rs.getInt(2), 22);
+//        rs.close();
+    }
+
+    //
+    // test holdable result set cursors
+    //
+    public void testResultSetHoldability() throws Exception {
+        ResultSet rs = testCtrl.getResultSetHoldablity();
+    }
+
+    //
+    // test for fetchSize / fetchDirection
+    //
+    public void testFetchSizeDirection() throws Exception {
+        ResultSet rs = testCtrl.getFetchOptmizedResultSet();
         rs.next();
-        rs.next();
-        assertEquals(rs.getInt(2), 22);
-        rs.close();
+        assertEquals(rs.getInt(2), 21);
     }
 
     public DBMultiRowResultsTest(String name) throws Exception {

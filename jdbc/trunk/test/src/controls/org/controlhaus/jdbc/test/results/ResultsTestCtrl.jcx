@@ -251,5 +251,17 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="SELECT * FROM USERS", scrollableResultSet=ScrollType.SCROLL_SENSITIVE)
     public ResultSet getScrollableResultSet_SR();
+
+    //
+    // a basic usage of the fetchSize/fetchDirection elements
+    //
+    @SQL(statement="SELECT * FROM USERS", fetchDirection=FetchDirection.REVERSE, fetchSize=10)
+    public ResultSet getFetchOptmizedResultSet();
+
+    //
+    // query with non-default holdability specified
+    //
+    @SQL(statement="SELECT * FROM USERS", methodHoldability=HoldabilityType.HOLD_CURSORS)
+    public ResultSet getResultSetHoldablity();
 }
 

@@ -27,6 +27,7 @@ import org.controlhaus.jdbc.JdbcControl;
 @org.apache.beehive.controls.api.bean.ControlExtension
 @JdbcControl.ConnectionDriver(databaseDriverClass="org.apache.derby.jdbc.EmbeddedDriver",
                                    databaseURL="jdbc:derby:MyDB;create=true")
+@JdbcControl.ConnectionOptions(readOnly=false)
 public interface DriverManagerConnectionCtrl extends JdbcControl {
 
     @SQL(statement = "CREATE TABLE FOO1 (BAR VARCHAR(3))")

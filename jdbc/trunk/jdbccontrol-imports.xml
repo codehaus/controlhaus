@@ -32,23 +32,66 @@
     <property name="dist.base.dir" location="${jdbcc.home}/build/dist"/>
     <property name="jdbcc.jar" location="${dist.base.dir}/${jdbcc.jar.name}"/>
 
-    
+    <!-- ======================================================================== -->
+    <!-- Properties for downloading dependency libs from maven respoistory        -->
+    <!-- ======================================================================== -->
+    <property name="lib.dir" location="${jdbcc.home}/lib"/>
+
+    <!-- velocity -->
+    <property name="velocity.maven.url" value="http://www.ibiblio.org/maven/velocity/jars/velocity-1.4.jar"/>
+    <property name="velocity.jar.dest" location="${lib.dir}/velocity-1.4.jar"/>
+    <property name="velocity.dep.maven.url" value="http://www.ibiblio.org/maven/velocity/jars/velocity-dep-1.4.jar"/>
+    <property name="velocity.dep.jar.dest" location="${lib.dir}/velocity-dep-1.4.jar"/>
+
+    <!-- log4j -->
+    <property name="log4j.maven.url" value="http://www.ibiblio.org/maven/log4j/jars/log4j-1.2.8.jar"/>
+    <property name="log4j.jar.dest" location="${lib.dir}/log4j-1.2.8.jar"/>
+
+    <!-- xmlbeans -->
+    <property name="xmlbean.maven.url" value="http://www.ibiblio.org/maven/xmlbeans/jars/xbean-1.0.3.jar"/>
+    <property name="xmlbean.jar.dest" location="${lib.dir}/xbean-1.0.3.jar"/>
+    <property name="jsr173.maven.url" value="http://www.ibiblio.org/maven/xmlbeans/jars/xmlbeans-jsr173-api-2.0-dev.jar"/>
+    <property name="jsr173.jar.dest" location="${lib.dir}/xmlbeans-jsr173-api-2.0-dev.jar"/>
+
+    <!-- junit -->
+    <property name="junit.maven.url" value="http://www.ibiblio.org/maven/junit/jars/junit-3.8.1.jar"/>
+    <property name="junit.jar.dest" location="${lib.dir}/junit-3.8.1.jar"/>
+
+    <!-- javacc -->
+    <property name="javacc.maven.url" value="http://www.ibiblio.org/maven/javacc/jars/javacc-3.2.jar"/>
+    <property name="javacc.jar.dest" location="${lib.dir}/javacc.jar"/>
+    <property name="javacc.home" location="${lib.dir}"/>
+
+    <!-- beehive controls jar -->
+    <!-- Not currently available from maven respository -->
+
+    <!-- derby jar -->
+    <!-- Not currently available from maven respository -->
+
     <!-- ======================================================================== -->
     <!-- Common JdbcControl paths                                                 -->
     <!-- ======================================================================== -->
 
     <fileset id="controls.fileset" file="${beehive.home}/controls/build/jars/controls.jar"/>
     <fileset id="jdbccontrol.fileset" file="${jdbcc.jar}"/>
-    <fileset id="log4j.fileset" file="${beehive.home}/external/log4j/log4j-1.2.8.jar"/>
-    <fileset id="xbean.fileset" file="${jdbcc.home}/external/xmlbeans/apache-xbean-1.0.3.jar"/>
-    <fileset id="jsr173.fileset" file="${jdbcc.home}/external/xmlbeans/jsr173_1.0_api.jar"/>
-    <fileset id="velocity.fileset" dir="${beehive.home}/external/velocity">
+    <fileset id="log4j.fileset" file="${lib.dir}/log4j-1.2.8.jar"/>
+    <fileset id="xbean.fileset" file="${lib.dir}/xbean-1.0.3.jar"/>
+    <fileset id="jsr173.fileset" file="${lib.dir}/xmlbeans-jsr173-api.2.0-dev.jar"/>
+    <fileset id="junit.fileset" file="${lib.dir}/junit-3.8.1.jar"/>
+    <fileset id="derby.fileset" file="${jdbcc.external.dir}/derby/derby-10.0.2.1.jar"/>
+
+
+    <fileset id="velocity.fileset" dir="${lib.dir}">
         <include name="velocity-1.4.jar"/>
         <include name="velocity-dep-1.4.jar"/>
     </fileset>
 
     <path id="controls.dependency.path">
         <pathelement location="${beehive.home}/controls/build/jars/controls.jar"/>
+    </path>
+
+    <path id="derby.dependency.path">
+        <fileset refid="derby.fileset"/>
     </path>
 
     <path id="apt.dependency.path">
@@ -85,7 +128,7 @@
 
     <!-- test  classpaths-->
     <path id="junit.dependency.path">
-        <pathelement location="${jdbcc.home}/external/junit/junit.jar"/>
+        <fileset refid="junit.fileset"/>
     </path>
 
 </project>
