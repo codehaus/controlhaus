@@ -10,10 +10,17 @@
     <logo>http://www.controlhaus.org/controlhaus-small.png</logo>
   </organization>
   <inceptionYear>2004</inceptionYear>
-  <package></package>
+  <package>org.controlhaus.xfire.client</package>
+  
   <description></description>
   <shortDescription></shortDescription>
-
+  
+  <url>http://www.controlhaus.org</url>
+  <siteAddress>www.controlhaus.org</siteAddress>
+  <siteDirectory>/home/projects/controlhaus/public_html/maven/xfire-client</siteDirectory>
+  <distributionSite>dist.codehaus.org</distributionSite>
+  <distributionDirectory>/dist</distributionDirectory>
+  
   <versions/>
   
   <branches/>
