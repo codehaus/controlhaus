@@ -28,8 +28,8 @@ import org.apache.log4j.Logger;
 import org.controlhaus.jdbc.parser.SqlParser;
 import org.controlhaus.jdbc.parser.SqlStatement;
 
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.Context;
 import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.sql.CallableStatement;
@@ -382,13 +382,13 @@ import java.util.Vector;
      * @throws ControlException
      * @throws SQLException
      */
-    private Connection getConnectionFromDataSource(String jndiName, Class<? extends IJndiContextFactory> jndiFactory)
+    private Connection getConnectionFromDataSource(String jndiName, Class<? extends JdbcControl.JndiContextFactory> jndiFactory)
             throws SQLException, ControlException {
 
         Connection con = null;
         try {
-            IJndiContextFactory jf = (IJndiContextFactory) jndiFactory.newInstance();
-            InitialContext jndiContext = jf.getInitialContext();
+            JndiContextFactory jf = (JndiContextFactory) jndiFactory.newInstance();
+            Context jndiContext = jf.getContext();
             _dataSource = (DataSource) jndiContext.lookup(jndiName);
             con = _dataSource.getConnection();
         } catch (IllegalAccessException iae) {

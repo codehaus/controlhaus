@@ -25,7 +25,7 @@ import org.controlhaus.jdbc.JdbcControl;
  * Test a datasource connection to the database.
  */
 @org.apache.beehive.controls.api.bean.ControlExtension
-@JdbcControl.ConnectionDataSource(jndiName="java:comp/env/jdbc/TestDB")
+@JdbcControl.ConnectionDataSource(jndiName="jdbc/TestDB")
 @JdbcControl.ConnectionOptions(readOnly=false)
 public interface DataSourceConnectionCtrl extends JdbcControl {
 
