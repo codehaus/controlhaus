@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<application>
+  <option name="excludedirs" value="cvs;sccs;rcs;.svn;" />
+  <option name="excludefiles"
+  value="\..*|.*\.[0-9]+|wlw_[0-9]+\..*" />
+  <option name="excludefilesFromEar" value="[default]" />
+  <option name="name" value="eBayAPIControl" />
+  <option name="version" value="1" />
+  <components>
+    <component name="com.bea.ide.debug.IDebugClient">
+      <option name="SrcPath0_currproject_"
+      value="Current Project" />
+      <option name="SrcPath1_project_" value="eBayAPIControl" />
+      <option name="SrcPath2_project_" value="eBayAPIControlSchemas" />
+    </component>
+    <component name="com.bea.ide.workspace.IWorkspace">
+      <node name="1">
+        <option name="includeProject" value="true" />
+        <option name="project" value="eBayAPIControlSchemas" />
+      </node>
+      <node name="2">
+        <option name="includeProject" value="true" />
+        <option name="project" value="eBayAPIControl" />
+      </node>
+    </component>
+    <component name="com.bea.portal.ide.actions.OpenAdministrationPageAction" />
+  </components>
+  <projects>
+    <project name="eBayAPIControl">
+      <option name="project.path" value="./eBayAPIControl" />
+      <option name="type"
+      value="urn:com-bea-ide:project.type:Control" />
+      <components>
+        <component name="com.bea.ide.debug.IDebugData" />
+        <component name="workshop.workspace.project.build.ControlBuilderPrefs" />
+        <component name="workshop.workspace.project.build.ProjectBuilderPrefs">
+
+          <option name="ant.classpath" value="" />
+          <option name="ant.path" value="" />
+          <option name="useAnt" value="false" />
+        </component>
+      </components>
+    </project>
+    <project name="eBayAPIControlSchemas">
+      <option name="project.path" value="./eBayAPIControlSchemas" />
+      <option name="type"
+      value="urn:com-bea-ide:project.type:Schema" />
+      <components>
+        <component name="workshop.workspace.project.build.SchemasBuilderPrefs" />
+      </components>
+    </project>
+  </projects>
+  <node name="roles" />
+</application>

@@ -1,0 +1,96 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+
+package org.controlhaus.ebay;
+
+import com.bea.control.*;
+import com.bea.xml.XmlException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import org.controlhaus.ebay.EBayDocument;
+import weblogic.net.http.HttpsURLConnection;
+
+/**
+ * @editor-info:code-gen control-interface="true"
+ * @jcs:control-tags file="EBayImplAnnotations.xml"
+ * @jcs:jc-jar icon-32="icon32.gif" icon-16="icon16.gif" version="1.0" description="EBay Item Information Control" label="eBay API"
+ */
+public class EBayImpl implements EBay, ControlSource
+{ 
+    static final long serialVersionUID = 1L;
+    
+    private static final String DETAIL_LEVEL = "0";
+    private static final String COMPATIBILITY_LEVEL = "339";
+    
+    /** @common:context */
+    ControlContext context;
+
+    /**
+     * @common:operation
+     */
+    public EBayXmlResponse getItem(String itemId) throws IOException, XmlException
+    {
+        if(itemId == null || itemId.equals("")) throw new IllegalArgumentException("Please enter the item no,it cannot be null");
+                
+        
+        String url = context.getControlAttribute("jc:ebay-control-tag","url-attr");
+        String userid = context.getControlAttribute("jc:ebay-control-tag","userid-attr");
+        String password = context.getControlAttribute("jc:ebay-control-tag","password-attr");
+        String devID = context.getControlAttribute("jc:ebay-control-tag","devid-attr");
+        String appID = context.getControlAttribute("jc:ebay-control-tag","appid-attr");
+        String certID = context.getControlAttribute("jc:ebay-control-tag","certid-attr");
+        
+        String detailLevel = DETAIL_LEVEL;
+        String siteId = context.getControlAttribute("jc:ebay-control-tag","siteId-attr");
+        String errorLevel = context.getControlAttribute("jc:ebay-control-tag","errorLevel-attr");
+        String compatibilityLevel = COMPATIBILITY_LEVEL;
+                
+                    
+        ConnectionDataImpl connectionData = new ConnectionDataImpl();
+        connectionData.setURL(url);
+        connectionData.setUserId(userid);
+        connectionData.setPassword(password);
+        connectionData.setDevID(devID);
+        connectionData.setAppID(appID);
+        connectionData.setCertID(certID);
+        
+        RequestDataImpl requestData = new RequestDataImpl();        
+        requestData.setDetailLevel(detailLevel);
+        requestData.setSiteId(siteId);
+        requestData.setErrorLevel(errorLevel);
+        requestData.setCompatibilityLevel(compatibilityLevel);        
+        requestData.setItemId(itemId);       
+        
+        EBayService eBayService = new EBayServiceImpl();
+                        
+        String result = eBayService.getItem(connectionData, requestData);        
+                    
+        result = result.replaceAll("<eBay>","<eBay xmlns=\"http://controlhaus.org/ebay\">");
+                            
+        EBayDocument ebayDoc = EBayDocument.Factory.parse(result);
+        org.controlhaus.ebay.EBayDocument.EBay eBay = ebayDoc.getEBay();
+        
+        EBayXmlResponse eBayXmlResponse = new EBayXmlResponse();
+        eBayXmlResponse.setEBay(eBay);       
+        
+        return eBayXmlResponse;                
+    }
+} 
