@@ -3,6 +3,8 @@
 <project name="xmlbea _service_control_sample" default="run.test">
 
 	  <property environment="env"/>
+	
+	   <property name="service.url" value="http://localhost:8080/AddressBookWS/web/Service.jws" />
  
 	  <property name="build.dir" value="./build"/>
 	  <property name="xbeangen.dir" value="${build.dir}/xbeangen"/>
@@ -18,7 +20,7 @@
 	<property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
 	<property name="axisbeangen.dir" value="${build.dir}/axisbeangen"/>
-    <property name="servicecontrol.jar" value="../../build/jars/webservice-control.jar" />
+    <property name="servicecontrol.jar" value="../../servicecontrol/build/jars/webservice-control.jar" />
  
 	<property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
 	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
@@ -40,7 +42,7 @@
 	  </path>
 	  	
     <path id="build.classpath">
-	    <fileset dir="../../lib">
+	    <fileset dir="../../servicecontrol/lib">
 	        <include name="**/*.jar"/>
 	    </fileset>
 	    
@@ -90,7 +92,7 @@
 	    		<path refid="build.classpath"/>
 	    		<pathelement location="${build.classes}"/>
 	    	</classpath>
-	      <arg line="-gen_root ${jcxgen.dir} -wsdl ${schema.dir} -serviceURL http://localhost:8080/AddressBookWS/web/Service.jws "/>
+	      <arg line="-gen_root ${jcxgen.dir} -wsdl ${schema.dir} -serviceURL ${service.url} "/>
 	    </java>
 
 	  </target>

@@ -156,6 +156,7 @@ public class ServiceControlImpl implements
 		String style;
 		if (omStyle == SOAPBinding.Style.DOCUMENT) {
 			if (mWSTM.getSoapBinding().getParameterStyle() == SOAPBinding.ParameterStyle.WRAPPED)
+        // wrapped implies document also!
 				style = "wrapped";
 			else 
 				style = "document";
@@ -166,8 +167,7 @@ public class ServiceControlImpl implements
 			throw new RuntimeException("Ivalid Binding style: " + omStyle);
 
 
-		// wrapped implies document also!
-
+		logger.debug("Call style: " + style);
 		call.setProperty(Call.OPERATION_STYLE_PROPERTY, style);
 
 		
