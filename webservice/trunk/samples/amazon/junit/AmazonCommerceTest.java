@@ -65,6 +65,7 @@ public class AmazonCommerceTest extends ControlTestCase {
         System.out.println(searchResults + " serachresult Type: " + searchResults.getClass().getCanonicalName());
 
         Items[] items = searchResults.getItemsArray();
+        System.out.println("Size of the array....:  " + items.length);
         //OperationRequest opReq = searchResults.getOperationRequest();
         assertNotNull(items);
         //assertNotNull(opReq);
