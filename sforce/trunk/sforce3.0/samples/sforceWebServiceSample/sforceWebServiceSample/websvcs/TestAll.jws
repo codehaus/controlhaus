@@ -25,6 +25,7 @@ import java.util.Calendar;
 public class TestAll implements com.bea.jws.WebService
 {
 
+
      /**
      * @common:control
      * @jc:sforce-properties validate-level="Verbose" http-url="https://www.salesforce.com/services/Soap/c/3.0" query-batch-size="30"
@@ -231,10 +232,10 @@ public class TestAll implements com.bea.jws.WebService
         QueryResult queryResult = null; 
         // Set up query options. Set the max batch size to 3 
         // so that we can exercise the queryMore call as well 
-        sForceValidate.setQueryOptions(4);
+        sForce.setQueryOptions(4);
  
         // Invoke the query call and save the results 
-        queryResult = sForceValidate.query("select FirstName, LastName from Contact"); 
+        queryResult = sForce.query("select FirstName, LastName from Contact"); 
         // Determine whether the query returned all the possible records 
         if (queryResult.getDone()) { 
         // Iterate through the records and process them 
@@ -259,7 +260,7 @@ public class TestAll implements com.bea.jws.WebService
                     break;                  
                 }
                 else {
-                    queryResult = sForceValidate.queryMore(queryResult.getQueryLocator()); 
+                    queryResult = sForce.queryMore(queryResult.getQueryLocator()); 
                 }
             } 
         }
