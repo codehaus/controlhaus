@@ -125,6 +125,8 @@ public class sforceCheckWizard extends ControlWizardSimple
             return false;
         }
         
+        //GMC: Schemas are embedded already in the control.
+        /*
         msgs = utils.checkSchemas();
         if (msgs!=null)
         {            
@@ -138,6 +140,7 @@ public class sforceCheckWizard extends ControlWizardSimple
             }
             //return true;                    
         }
+        */
         
         //Extensions are optional
         msgs = utils.checkExtensions();

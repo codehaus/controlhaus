@@ -250,7 +250,7 @@ public class ExtensionUtils
         
         String extensionJar = m_ExtensionsDir + sExtensionJar;            
             
-        ZipEntry entry = new ZipEntry("controls/"+sExtensionJar);
+        ZipEntry entry = new ZipEntry("extensions/"+sExtensionJar);
         // check if(entry == null)
         if(entry == null){
             throw new InstallExtensionException("Error "+sExtensionJar+" not found in zipfile!");
