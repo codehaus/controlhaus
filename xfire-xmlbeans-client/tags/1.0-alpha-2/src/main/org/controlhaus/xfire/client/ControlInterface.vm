@@ -1,0 +1,52 @@
+#if ( $package && $package.length() > 0 )package $package;
+
+#end
+import java.io.IOException;
+
+import org.apache.beehive.controls.api.bean.ControlInterface;
+import org.apache.beehive.controls.api.bean.ControlExtension;
+
+import org.controlhaus.xfire.client.XFireClientControl;
+import org.controlhaus.xfire.client.XFireClientControl.Asynchronous;
+import org.controlhaus.xfire.client.XFireClientControl.ServiceUrl;
+import org.controlhaus.xfire.client.XFireClientControl.SoapHeader;
+import org.codehaus.xfire.fault.XFireFault;
+import org.codehaus.xfire.client.ClientHandler;
+import org.codehaus.xfire.xmlbeans.client.XMLBeansClientHandler;
+
+#foreach ( $import in $service.Imports )
+import $import.FullJavaName;
+#end
+
+#macro( writeParam )
+
+#end
+
+/**
+ * Auto-generated client stub for $service.Name.
+ */
+@ServiceUrl("$service.Url")
+@ControlExtension
+public interface ${interfaceType}
+	     extends XFireClientControl
+{
+
+#foreach ($method in $service.Methods)
+#if ($method.ResponseParameters.size() > 1)
+  #set( $returnType = "XmlObject[]" )
+#else
+  #set( $returnType = "$method.ResponseParameters.get(0).Type.ShortJavaName" )
+#end
+#set( $first = true )
+    $returnType ${method.Name}(#foreach($p in $method.RequestParameters)#if($first) #set($first=false) #else,#end$p.Type.ShortJavaName $p.Name#end
+#foreach($p in $method.RequestHeaders)#if($first) #set($first=false) #else,#end @SoapHeader $p.Type.ShortJavaName $p.Name#end )
+        throws IOException, XFireFault;
+
+#set( $first = true )
+    @Asynchronous
+    void begin${method.Name}(#foreach($p in $method.RequestParameters)#if($first) #set($first=false) #else,#end$p.Type.ShortJavaName $p.Name#end
+#foreach($p in $method.RequestHeaders)#if($first) #set($first=false) #else,#end @SoapHeader $p.Type.ShortJavaName $p.Name#end );
+
+#end
+
+}
