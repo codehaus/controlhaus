@@ -3,7 +3,7 @@
   <name>Controlhaus Hibernate Control</name>
   <groupId>controlhaus</groupId>
   <artifactId>controlhaus-hibernate</artifactId>
-  <currentVersion>1.0-SNAPSHOT</currentVersion>
+  <currentVersion>1.0-alpha-2</currentVersion>
   <organization>
     <name>Controlhaus</name>
     <url>http://www.controlhaus.org/</url>
