@@ -36,12 +36,12 @@ public class DefaultRowSetResultSetMapper extends ResultSetMapper {
     /**
      * Map a ResultSet to a RowSet.  Type of RowSet is defined by the SQL annotation for the method.
      *
-     * @param context
-     * @param m         Method assoicated with this call
-     * @param resultSet Result set to map
-     * @param cal
-     * @return
-     * @throws Exception
+     * @param context   A ControlBeanContext instance.
+     * @param m         Method assoicated with this call.
+     * @param resultSet Result set to map.
+     * @param cal       A Calendar instance for resolving date/time values.
+     * @return          A RowSet object.
+     * @throws Exception On error.
      */
     public RowSet mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
         final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
@@ -58,7 +58,7 @@ public class DefaultRowSetResultSetMapper extends ResultSetMapper {
 
     /**
      * Can the ResultSet which this mapper uses be closed by the database control?
-     * @return
+     * @return always false
      */
     public boolean canCloseResultSet() { return false; }
 }

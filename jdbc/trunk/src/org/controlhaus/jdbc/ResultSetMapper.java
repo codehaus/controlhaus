@@ -27,7 +27,7 @@ import java.util.Calendar;
  * Extend this class to create new ResultSet mappers. The extended class will be invoked by the JdbcController
  * when it is time to map a ResultSet to a method's return type.
  *
- * ResultSet mappers must be specified on a per method basis using the SQL annotation's resultSetMapper field
+ * ResultSet mappers are specified on a per method basis using the SQL annotation's resultSetMapper field.
  */
 public abstract class ResultSetMapper {
 

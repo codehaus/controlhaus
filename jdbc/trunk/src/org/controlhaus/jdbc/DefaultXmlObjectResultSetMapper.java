@@ -30,14 +30,14 @@ import java.util.Calendar;
 public class DefaultXmlObjectResultSetMapper extends DefaultObjectResultSetMapper {
 
     /**
-     * Map a ResultSet to an Object.  Object type is defined by the return type of the method.
+     * Map a ResultSet to an XmlObject.  Object type is defined by the return type of the method.
      *
-     * @param context
-     * @param m         Method assoicated with this call
-     * @param resultSet Result set to map
-     * @param cal
-     * @return
-     * @throws Exception
+     * @param context   A ControlBeanContext instance.
+     * @param m         Method associated with this call.
+     * @param resultSet Result set to map.
+     * @param cal       A Calendar instance for resolving date/time values.
+     * @return          An XmlObject
+     * @throws Exception on error.
      */
     public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
 

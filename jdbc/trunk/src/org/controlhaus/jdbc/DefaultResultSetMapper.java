@@ -29,14 +29,14 @@ import java.util.Calendar;
 public class DefaultResultSetMapper extends ResultSetMapper {
 
     /**
-     * Map a ResultSet to an Object.  Object type is defined by the return type of the method.
+     * Maps a ResultSet to a ResultSet.  The default implementation is a NOOP.
      *
-     * @param context
-     * @param m         Method assoicated with this call
-     * @param resultSet Result set to map
-     * @param cal
-     * @return
-     * @throws Exception
+     * @param context   A ControlBeanContext instance.
+     * @param m         Method assoicated with this call.
+     * @param resultSet Result set to map.
+     * @param cal       A Calendar instance for resolving date/time values.
+     * @return          An object.
+     * @throws Exception On error.
      */
     public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
         return resultSet;
@@ -44,7 +44,7 @@ public class DefaultResultSetMapper extends ResultSetMapper {
 
     /**
      * Can the ResultSet which this mapper uses be closed by the database control?
-     * @return
+     * @return always false
      */
     public boolean canCloseResultSet() { return false; }
 }

@@ -27,14 +27,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Factory for creating row mappers which map a ResultSet row to a return type.
+ * Factory for creating row mappers.
+ * Row mapper types supported by this factory include: HashMap, Map, Object, XmlObject. The factory determines the
+ * proper row mapper to use by checking its List of RowMappers against the type of mapping requested.  When performing
+ * the lookup, the factory attempts to find the most specific type match.  If a match can't be found the most general
+ * type of RowMapper is returned, RowToObjectMapper.
  */
 public final class RowMapperFactory {
 
     //@todo: Re-evaluate: should the _rowMappings table be a static ?
-    // currently applies to all dbcontrol instances -- also need to enhance API
-    // to allow for more control when adding an new mapper.
-
+    //@todo: currently applies to all dbcontrol instances -- also need to enhance API
+    //@todo: to allow for more control when adding an new mapper.
     private static final ArrayList<RowMapping> _rowMappings = new ArrayList<RowMapping>();
 
     private static final RowMapping DEFAULT_ROWMAPPING = new RowMapping(Object.class, RowToObjectMapper.class);
@@ -54,13 +57,13 @@ public final class RowMapperFactory {
     }
 
     /**
-     * Return a RowMapper instance which knows how to map a ResultSet row to the given return type.
+     * Get a RowMapper instance which knows how to map a ResultSet row to the given return type.
      *
-     * @param rs
-     * @param returnTypeClass
-     * @param cal
-     * @return
-     * @throws ControlException
+     * @param rs The ResultSet to map.
+     * @param returnTypeClass The class to map a ResultSet row to.
+     * @param cal Calendar instance for mapping date/time values.
+     * @return A RowMapper instance.
+     * @throws ControlException on error.
      */
     public static RowMapper getRowMapper(ResultSet rs, Class returnTypeClass, Calendar cal) throws ControlException {
 
@@ -76,24 +79,25 @@ public final class RowMapperFactory {
         return DEFAULT_ROWMAPPING.getMapper(rs, returnTypeClass, cal);
     }
 
-    /**
-     * Append a new row mapper to the list of available row mappers
-     *
-     * @param returnTypeClass
-     * @param rowMapperClass
-     */
-    public static void appendRowMapping(Class returnTypeClass, Class<? extends RowMapper> rowMapperClass) {
-        for (RowMapping rm : _rowMappings) {
-            if (rm._mapperFor == returnTypeClass) {
-                _rowMappings.set(_rowMappings.indexOf(rm), new RowMapping(rowMapperClass, rowMapperClass));
-                return;
-            }
-        }
-        _rowMappings.add(new RowMapping(returnTypeClass, rowMapperClass));
-    }
+//@todo: either fully implement or remove
+//    /**
+//     * Append a new row mapper to the list of available row mappers
+//     *
+//     * @param returnTypeClass
+//     * @param rowMapperClass
+//     */
+//    public static void appendRowMapping(Class returnTypeClass, Class<? extends RowMapper> rowMapperClass) {
+//        for (RowMapping rm : _rowMappings) {
+//            if (rm._mapperFor == returnTypeClass) {
+//                _rowMappings.set(_rowMappings.indexOf(rm), new RowMapping(rowMapperClass, rowMapperClass));
+//                return;
+//            }
+//        }
+//        _rowMappings.add(new RowMapping(returnTypeClass, rowMapperClass));
+//    }
 
     /**
-     * Helper class for storing row mappers
+     * Helper class for storing row mappers.
      */
     private static final class RowMapping {
 
@@ -102,10 +106,10 @@ public final class RowMapperFactory {
         private final Class _rowMapper;
 
         /**
-         * constructor
+         * Create a new RowMapping associating a specific class to a RowMapper.
          *
-         * @param mapperFor
-         * @param rowMapper
+         * @param mapperFor Class this mapper maps to.
+         * @param rowMapper A RowMapper implementation.
          */
         RowMapping(Class mapperFor, Class<? extends RowMapper> rowMapper) {
             _mapperFor = mapperFor;
@@ -113,33 +117,23 @@ public final class RowMapperFactory {
         }
 
         /**
-         * Does this mapper map to the specified return type?
-         *
-         * @param type
-         * @return
-         */
-        boolean isMappingForType(Class type) {
-            return type == _mapperFor;
-        }
-
-        /**
          * Can this mapper map to the specified return type?
          *
-         * @param returnTypeClass
-         * @return
+         * @param returnTypeClass Class to attempt mapping to.
+         * @return true if this mapper can map the the returnTypeClass.
          */
         boolean canMapToReturnType(Class returnTypeClass) {
             return _mapperFor.isAssignableFrom(returnTypeClass);
         }
 
         /**
-         * get an instance of the RowMapper class
+         * Create an instance of the RowMapper class.
          *
-         * @param rs
-         * @param returnType
-         * @param cal
-         * @return
-         * @throws ControlException
+         * @param rs ResultSet we are mapping from.
+         * @param returnType Class to map rows to.
+         * @param cal Calendar instance for date/time values.
+         * @return A RowMapper instance.
+         * @throws ControlException on error.
          */
         RowMapper getMapper(ResultSet rs, Class returnType, Calendar cal) throws ControlException {
             Constructor c = null;

@@ -33,10 +33,11 @@ import java.util.Calendar;
  */
 public class DefaultObjectResultSetMapper extends ResultSetMapper {
 
+    /** static reference to the TypeMappingsFactory for this class */
     protected static final TypeMappingsFactory _tmf = TypeMappingsFactory.getInstance();
 
     /**
-     * Map a ResultSet to an object type. The object type returned is defined by the return type of the method.
+     * Map the ResultSet to the method's return type. The object type returned is defined by the return type of the method.
      *
      * @param context   A ControlBeanContext instance, see Beehive controls javadoc for additional information
      * @param m         Method assoicated with this call.
@@ -67,7 +68,7 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
     //
 
     /**
-     * This method is called when the return type of the method is an array type.
+     * Invoked when the return type of the method is an array type.
      *
      * @param rs         ResultSet to process.
      * @param maxRows    The maximum size of array to create
