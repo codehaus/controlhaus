@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+
+<project name="Beehive/RunTomcatTasks" default="usage" basedir=".">
+
+    <property environment="os"/>
+    <property file="beehive.tomcat.properties"/>
+    <property name="tomcat.dir" value="${os.CATALINA_HOME}"/>
+    <property name="beehive.home" value="${os.BEEHIVE_HOME}"/>
+    <dirname property="jdbcc.home" file="${ant.file}"/>
+    <property name="catalina.username" value="manager"/>
+    <property name="catalina.password" value="manager"/>
+
+    <property name="catalina-ant.jar" location="${tomcat.dir}/server/lib/catalina-ant.jar"/>
+
+    <path id="appserver.build.classpath">
+        <fileset dir="${tomcat.dir}/common/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- deploy.beehive.webapp.runtime ************************************************************ -->
+    <target name="deploy.beehive.webapp.runtime" description="Deploys webapp runtime to this location">
+       <ant dir="${beehive.home}/ant" antfile="webappRuntimeCore.xml" 
+            target="deploy.beehive.webapp.runtime">
+          <property name="webapp.dir" value="${jdbcc.home}/jdbcControlSample"/>
+      </ant>
+    </target>
+
+    <!-- build ***************************************************************************************** -->
+    <target name="build" depends="deploy.beehive.webapp.runtime" description="Build JdbcControl sample app">
+       <ant dir="${beehive.home}/ant" antfile="buildWebapp.xml" target="build">
+          <property name="webapp.dir" value="${jdbcc.home}/jdbcControlSample"/>
+          <property name="context.path" value="JdbcControlApp"/>
+       </ant>
+    </target>
+
+    <!-- deploy ********************************************************************************** -->
+    <target name="deploy" depends="build" description="deploys the JdbcControl sample app to tomcat.">
+        <antcall target="deploy.with.context">
+          <param name="webapp.dir" value="${jdbcc.home}/jdbcControlSample"/>
+          <param name="context.path" value="JdbcControlApp"/>
+        </antcall>
+    </target>
+
+    <!-- undeploy ***************************************************************** -->
+    <target name="undeploy" description="Undeploy a webapp running on a Tomcat server">
+        <taskdef name="tomcatundeploy" classname="org.apache.catalina.ant.UndeployTask" classpath="${catalina-ant.jar}"/>
+        <tomcatundeploy path="/JdbcControlSample" username="${catalina.username}" password="${catalina.password}"/>
+    </target>
+
+    <!-- deploy.with.context ********************************************************** -->
+    <target name="deploy.with.context" description="Deploys a webapp with its context.xml">
+         <property name="_url" value="file:///${webapp.dir}"/>
+         <property name="_config" value="file:///${webapp.dir}/META-INF/context.xml"/>
+         <property name="tomcat.home" value="${os.CATALINA_HOME}"/>
+
+         <echo>deploy app: ${_url}</echo>
+         <echo>with config: ${_config}</echo>
+
+         <taskdef name="tomcatdeploy" 
+                classname="org.apache.catalina.ant.DeployTask" 
+                classpath="${catalina-ant.jar}"/>
+
+         <tomcatdeploy path="/${context.path}"
+                       config="${_config}"
+                       localWar="${_url}" 
+                       username="${catalina.username}" 
+                       password="${catalina.password}"/>
+     </target>
+
+</project>
