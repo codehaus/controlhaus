@@ -81,7 +81,7 @@ public class AbstractHibernateTest
     protected void insertSqlFile( String filename ) throws Exception
     {
         if ( hibernate == null )
-            throw new RuntimeException("AbstractHibernate test was not initialized!");
+            throw new RuntimeException("AbstractHibernateTest was not initialized!");
         
         Session sess = hibernate.getSessionFactory().openSession();
         conn = sess.connection();
