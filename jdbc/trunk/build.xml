@@ -38,8 +38,6 @@ limitations under the License.
     <property name="build.generated.dir" location="${jdbcc.build.dir}/gensrc"/>
     <property name="sqlgrammar.file" value="${src.dir}/org/controlhaus/jdbc/parser/SqlGrammar.jj"/>
     <property name="sqlgrammar.gen.dir" value="${src.dir}/org/controlhaus/jdbc/parser"/>
-    <property name="aptmeta.dir" value="${src.dir}/org/controlhaus/jdbc/apt"/>
-    <property name="aptmeta.file" value="com.sun.mirror.apt.AnnotationProcessorFactory"/>
 
     <!-- test locations -->
     <property name="test.src.dir" location="${jdbcc.test.dir}/src"/>
@@ -105,11 +103,7 @@ limitations under the License.
         </apt>
 
         <mkdir dir="${dist.base.dir}"/>
-        <control-jar destfile="${jdbcc.jar}"  basedir="${build.classes.dir}">
-            <metainf dir="${aptmeta.dir}">
-                <filename name="services/${aptmeta.file}"/>
-            </metainf>
-        </control-jar>
+        <control-jar destfile="${jdbcc.jar}"  basedir="${build.classes.dir}"/>
 
         <echo message="--------------------------------------------------"/>
         <echo message="         ${project.name} build complete           "/>
