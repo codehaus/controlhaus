@@ -56,6 +56,7 @@ public class ExtensionMaker {
 
   File mOutputDir;
   String mWSDLPath = "<path to WSDL>";
+  String packageName = null;
 
   private String serviceURL = "http://???";
 
@@ -75,18 +76,24 @@ public class ExtensionMaker {
     this.serviceURL = serviceURL;
   }
 
+  
+  
   public void writeJCX(Jsr181TypeMetadata wsm) throws Exception {
     String serviceName = wsm.getWsServiceName();
-    String pkg = Utils.makePackageName(wsm.getWsTargetNamespace());
-    if (serviceName != null && pkg != null) {
-      File subDir = new File(mOutputDir, new Namespaces(null).toDir(pkg));
+    
+    // TODO: Should the class generation depend on Axis?
+    if( packageName == null ) {
+      packageName = Utils.makePackageName(wsm.getWsTargetNamespace());
+     }
+    if (serviceName != null && packageName != null) {
+      File subDir = new File(mOutputDir, new Namespaces(null).toDir(packageName));
       subDir.mkdirs();
       if (subDir.isDirectory()) {
         File jcx = new File(subDir, serviceName + ".jcx");
         PrintWriter jcxWriter = new PrintWriter(jcx, "UTF-8");
 
         jcxWriter.print("package ");
-        jcxWriter.print(pkg);
+        jcxWriter.print(packageName);
         jcxWriter.print(";\n\n");
 
         for (String imp : standardImports) {
@@ -203,13 +210,20 @@ public class ExtensionMaker {
     // For now make the service URL required.  Later get this information from the 
     // WSDL file.
     OptionBuilder.isRequired(true);
-   options.addOption(option);
+    options.addOption(option);
     
     OptionBuilder.hasArg();
     OptionBuilder.withArgName("dir");
     OptionBuilder.isRequired(false);
     OptionBuilder.withDescription("path annotation to use in the jcx");
     option = OptionBuilder.create("wsdl_path_annotation");
+    options.addOption(option);
+    
+    OptionBuilder.hasArg();
+    OptionBuilder.withArgName("package_name");
+    OptionBuilder.isRequired(false);
+    OptionBuilder.withDescription("Package name of the jcx");
+    option = OptionBuilder.create("pkg");
     options.addOption(option);
 
     return options;
@@ -221,6 +235,7 @@ public class ExtensionMaker {
     String wsdlDirName = null;
     String serviceURL = null;
     String wsdlPathAnnotation = null;
+    String pkgName = null;
 
     try {
       Options options = buildOptions();
@@ -233,6 +248,9 @@ public class ExtensionMaker {
         serviceURL = line.getOptionValue("serviceURL");
       if( line.hasOption("wsdl_path_annotation")) 
         wsdlPathAnnotation = line.getOptionValue("wsdl_path_annotation");
+      
+      if( line.hasOption("pkg")) 
+        pkgName = line.getOptionValue("pkg");
 
     } catch (ParseException exp) {
       // oops, something went wrong
@@ -243,6 +261,7 @@ public class ExtensionMaker {
     File out = new File(outFileName);
     ExtensionMaker em = new ExtensionMaker(out);
     em.setServiceURL(serviceURL);
+    em.setPackageName(pkgName);
     File wsdlDir = new File(wsdlDirName);
     if (wsdlDir.isDirectory()) {
       for (File wsdlFile : wsdlDir.listFiles(new WSDLFilter())) {
@@ -264,4 +283,10 @@ public class ExtensionMaker {
 
   }
 
+  /**
+   * @param packageName The packageName to set.
+   */
+  public void setPackageName(String packageName) {
+    this.packageName = packageName;
+  }
 }
