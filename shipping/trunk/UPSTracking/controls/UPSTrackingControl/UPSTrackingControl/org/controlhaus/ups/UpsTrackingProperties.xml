@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<control-tags xmlns="http://www.bea.com/2003/03/controls/">
+    <control-tag name="upsProperties">
+        <description>Properties relating to the UPS Shipment Tracking Control.</description>
+        
+        <attribute name="accessCode" required="true">
+            <description>
+                An access code string provided when you register with UPS, required to use their Web Services.
+            </description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        
+        <attribute name="username" required="true">
+            <description>
+                The username you chose when registering with UPS, required to use their Web Services.
+            </description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        
+        <attribute name="password" required="true">
+            <description>
+                The password you chose when registering with UPS, required to use their Web Services.
+            </description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+
+        <attribute name="serverUrl" required="false">
+            <description>
+                The URL at which the UPS Tracking Web Service Server listens.  Defaults to "https://www.ups.com/ups.app/xml/Track".
+            </description>
+            <type>
+                <text/>
+            </type>
+            <default-value>https://www.ups.com/ups.app/xml/Track</default-value>             
+        </attribute>
+                
+    </control-tag>
+</control-tags>
