@@ -30,6 +30,7 @@ import javax.sql.RowSet;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.sql.ResultSet;
 import java.util.Iterator;
 import java.util.HashMap;
 
@@ -145,6 +146,30 @@ public class DBMultiRowResultsTest extends AbstractControlTest {
         assertEquals(customersXml[3].getUSERID(), 24);
     }
 
+    //
+    // test scrollable result set feature, sensitive / updateable
+    //
+    public void testScrollableInsensitiveUpdateablepResultSet() throws Exception {
+        ResultSet rs = testCtrl.getScrollableResultSet_IU();
+        rs.afterLast();
+        rs.previous();
+        assertEquals(rs.getString(1),"tester4");
+        rs.beforeFirst();
+        rs.close();
+    }
+
+    //
+    // test scrollable result set feature, forward only / updateable
+    //
+    public void testScrollableSensitiveResultSet() throws Exception {
+        ResultSet rs = testCtrl.getScrollableResultSet_SR();
+        rs.afterLast();
+        rs.beforeFirst();
+        rs.next();
+        rs.next();
+        assertEquals(rs.getInt(2), 22);
+        rs.close();
+    }
 
     public DBMultiRowResultsTest(String name) throws Exception {
         super(name);

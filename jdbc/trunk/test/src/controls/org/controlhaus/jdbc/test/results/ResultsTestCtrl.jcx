@@ -239,5 +239,17 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true, generatedKeyColumnIndexes = {1})
     public ResultSet getGenKeys6(String aValue);
+
+    //
+    // a basic usage of the scrollableResultSet element
+    //
+    @SQL(statement="SELECT * FROM USERS", scrollableResultSet=ScrollType.SCROLL_INSENSITIVE_UPDATABLE)
+    public ResultSet getScrollableResultSet_IU();
+
+    //
+    // a basic usage of the scrollableResultSet element
+    //
+    @SQL(statement="SELECT * FROM USERS", scrollableResultSet=ScrollType.SCROLL_SENSITIVE)
+    public ResultSet getScrollableResultSet_SR();
 }
 
