@@ -2,8 +2,6 @@ package org.controlhaus.hibernate;
 
 import java.io.File;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.SessionFactory;
@@ -18,36 +16,34 @@ import org.apache.log4j.Logger;
 public class HibernateFactory
 {
     private static Logger logger = Logger.getLogger(HibernateFactory.class.getName());
-    
-    private Map<String,SessionFactory> factories = new HashMap<String,SessionFactory>();
-    
+
     private static HibernateFactory factory = new HibernateFactory();
 
+    private String location = "/hibernate.cfg.xml";
+    
+    private SessionFactory sessionFactory;
+    
     public SessionFactory getSessionFactory(HibernateControl control)
     {
-        String name = control.getHibernateInstance();
-        
-        SessionFactory factory = factories.get(name);
-        if ( factory == null )
+        if ( sessionFactory == null )
         {
-            synchronized( factories )
-            {
-                factory = initializeHibernate(control);
-                factories.put( name, factory );
-            }
+            sessionFactory = createSessionFactory();
         }
         
-        return factory;
+        return sessionFactory;
     }
     
-    private synchronized SessionFactory initializeHibernate(HibernateControl control)
+    private SessionFactory createSessionFactory()
     {
-        logger.info( "Initializing Hibernate instance " + control.getHibernateInstance() + "." );
+        logger.info( "Initializing Hibernate." );
         Configuration hibConfig = new Configuration();
         
         try
         {
-            String mapping = control.getConfigurationLocation();
+            String mapping = System.getProperty("hibernate.cfg.xml");
+            if ( mapping == null || mapping.equals("") )
+                mapping = location;
+            
             logger.debug("Configuration mapping " + mapping);
             File file = new File( mapping );
             
