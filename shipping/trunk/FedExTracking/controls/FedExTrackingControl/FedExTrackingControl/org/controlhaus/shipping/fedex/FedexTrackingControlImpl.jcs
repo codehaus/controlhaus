@@ -23,7 +23,7 @@ import java.net.UnknownHostException;
 /**
  * @editor-info:code-gen control-interface="true"
  * @jcs:control-tags file="FedexProperties.xml"
- * @jcs:jc-jar icon-32="icon32.gif" icon-16="icon16.gif" version="1.0" description="FedEx Tracking Control" label="FedEx Tracking Control"
+ * @jcs:jc-jar icon-32="icon32.gif" icon-16="icon16.gif" version="1.0" description="FedEx Tracking" label="FedEx Tracking"
  */
 public class FedexTrackingControlImpl implements FedexTrackingControl, ControlSource
 { 
