@@ -89,7 +89,9 @@ public interface ServiceControl
     @Target({ElementType.TYPE})  // JCX only
     public @interface WSDL
     {
-        @AnnotationMemberTypes.FilePath
+        //   @AnnotationMemberTypes.FilePath
+        // File path checking is removed for now because the controls checker
+        // can't deal with realtive path.  -- Daryoush 
         String path();
         String service() default "";
     }

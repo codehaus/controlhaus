@@ -61,9 +61,9 @@ import org.apache.beehive.wsm.jsr181.model.Jsr181MethodMetadata;
 import org.apache.beehive.wsm.jsr181.model.Jsr181ParameterMetadata;
 import org.apache.beehive.wsm.jsr181.model.Jsr181TypeMetadata;
 import org.apache.beehive.wsm.jsr181.wsdl.XmlBeanWSDLProcessor;
-import org.apache.beehive.wsm.axis.dataBinding.SystemLookUpService;
+import org.apache.beehive.wsm.axis.databinding.SystemLookUpService;
 import org.apache.beehive.wsm.axis.registration.AxisTypeRegistrar;
-import org.apache.beehive.wsm.dataBinding.BindingLookupService;
+import org.apache.beehive.wsm.databinding.BindingLookupService;
 import org.apache.beehive.wsm.registration.TypeRegistrar;
 import org.apache.log4j.Logger;
 

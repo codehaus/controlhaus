@@ -1,5 +1,7 @@
 package org.apache.beehive.sample;
 
+import javax.naming.InvalidNameException;
+
 /*
  * Copyright 2004 The Apache Software Foundation
  *
@@ -20,7 +22,7 @@ package org.apache.beehive.sample;
 
 public interface AddressBook
 {
-    void addEntry(java.lang.String name, Address address);
+    void addEntry(java.lang.String name, Address address) throws InvalidNameException;
 
-    Address getAddressFromName(java.lang.String name);
+    Address getAddressFromName(java.lang.String name)throws InvalidNameException;
 }
