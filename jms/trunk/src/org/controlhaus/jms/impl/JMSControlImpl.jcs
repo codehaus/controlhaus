@@ -25,13 +25,12 @@ import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 
 
-import org.apache.beehive.controls.spi.svc.JndiService;
-import org.apache.beehive.controls.spi.svc.ServiceException;
 import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.context.*;
 import org.apache.beehive.controls.api.bean.*;
 import org.apache.beehive.controls.api.events.*;
 import org.apache.beehive.controls.api.packaging.*;
+import org.controlhaus.jndi.*;
 import org.controlhaus.jms.JMSControl;
 import org.apache.xmlbeans.XmlObject;
 
@@ -52,34 +51,27 @@ import org.apache.xmlbeans.XmlObject;
             try
             {
 
-	            Destination props = getDestination();
-	            AcknowledgeMode ackMode = props.acknowledgeMode();
-	            boolean transacted = props.transacted();
 	            
-	            String factory = props.jndiConnectionFactory();
-	            if (isTopic())
+	            switch(getDestinationType())
 	            {
-	                TopicConnectionFactory connFactory = (TopicConnectionFactory) getJndiService()
-	                        .getResource(factory,
-	                                TopicConnectionFactory.class);
-	                _connection = connFactory.createTopicConnection();
-	                _session = ((TopicConnection) _connection).createTopicSession(
-	                        transacted, modeToJmsMode(ackMode));
-	
-	            } else
-	            {
-	                QueueConnectionFactory connFactory = (QueueConnectionFactory) getJndiService()
-	                        .getResource(factory,
-	                                QueueConnectionFactory.class);
-	                _connection = connFactory.createQueueConnection();
-	                _session = ((QueueConnection) _connection).createQueueSession(
-	                        transacted, modeToJmsMode(ackMode));
-	
+	            	case Auto:
+	            		try
+	            		{
+	            			createQueueSession();
+	            		}
+	            		catch(JMSException e)
+	            		{
+	            			createTopicSession();
+	            		}
+	            		break;
+	            	case Topic:
+	            		createTopicSession();
+	            		break;
+	            	case Queue:
+	            		createQueueSession();
+	            		break;
 	            }
-            }
-            catch(ServiceException e)
-            {
-                throw new ControlException("Failure to get JMS connection factory");
+
             }
             catch(JMSException e)
             {
@@ -88,6 +80,32 @@ import org.apache.xmlbeans.XmlObject;
         }
         return _session;
     }
+    
+    /**
+     * Get the jms-destination.
+     * 
+     * @see JMSControl#getDestination.
+     */
+    public javax.jms.Destination getDestination() throws ControlException
+    {
+        if (_destination == null)
+        {
+             _destination = (javax.jms.Destination) getJndiControl().getResource(
+                    getDestinationProperties().sendJndiName(), javax.jms.Destination.class);
+
+        }
+        return _destination;
+    }
+    
+    /**
+     * @see JMSControl#getConnection
+     */
+    public javax.jms.Connection getConnection() throws ControlException
+    {
+    	getSession();
+    	return _connection;
+   	}
+   	
     /**
      * @see JMSControl#setHeaders
      */
@@ -199,14 +217,14 @@ import org.apache.xmlbeans.XmlObject;
     	boolean isBody = false;
         try
         {
-	        Destination props = getDestination();
+	        Destination props = getDestinationProperties();
 	        Session session = getSession();
 	        /*
 	         * Set the deliveryMode, priority and expiration.
 	         */
-	        int deliveryMode = _producer.getDeliveryMode();
-		    int priority = _producer.getPriority();
-		    long expiration = _producer.getTimeToLive();
+	        int deliveryMode = getProducer().getDeliveryMode();
+		    int priority = getProducer().getPriority();
+		    long expiration = getProducer().getTimeToLive();
 		    Object mode = getHeader(HeaderType.JMSDeliveryMode);
 		    if(mode != null)
 	        {
@@ -234,12 +252,34 @@ import org.apache.xmlbeans.XmlObject;
 	                isBody = true;
 	            }
 	        }
+	        /*
+	         * Get the method level annotation properties.
+	         */
+	        Priority pri = _context.getMethodPropertySet(method,Priority.class);
+	        if(pri != null)
+	        {
+	        	priority = pri.value();
+	        }
+	        Expiration exp = _context.getMethodPropertySet(method,Expiration.class);
+	        if(exp != null)
+	        {
+	        	expiration = exp.value();
+	        }
+	        Delivery del = _context.getMethodPropertySet(method,Delivery.class);
+	        if(del != null)
+	        {
+	        	deliveryMode = deliveryModeToJmsMode(del.value());
+	        }
 	        
 	        /*
 	         * Create a message of the appropriate type and set the body.
 	         */
 	        JMSControl.Message mess = _context.getMethodPropertySet(method,JMSControl.Message.class);
-	        MessageType type = mess.value();
+	        MessageType type = MessageType.Auto; 
+	        if(mess != null)
+	        {
+	        	type = mess.value();
+	        }
 	        if(type.equals(MessageType.Auto))
 	        {
 	        	if(body instanceof byte[])
@@ -380,14 +420,14 @@ import org.apache.xmlbeans.XmlObject;
 	        /*
 	         * Send the message.
 	         */
-	        if(isTopic())
+	        switch(getDestinationType())
 	        {
-	            ((TopicPublisher)_producer).publish(m,deliveryMode,priority,expiration);
-	            
-	        }
-	        else
-	        {
-	            ((QueueSender)_producer).send(m,deliveryMode,priority,expiration);
+	        	case Topic:
+	            	((TopicPublisher)getProducer()).publish(m,deliveryMode,priority,expiration);
+	            	break;
+	            case Queue:
+	            	((QueueSender)getProducer()).send(m,deliveryMode,priority,expiration);
+	            	break;
 	        }
         }
 
@@ -396,31 +436,13 @@ import org.apache.xmlbeans.XmlObject;
             throw new ControlException("Error in sending message",e);
         }
         return m;
-    }
+    }  
+
     
         @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onAcquire") 
     public void onAcquire()
     {
-        //
-        // Acquire the publisher/sender.
-        //
-        try
-        {
-	        if (isTopic())
-	        {
-	            _producer = ((TopicSession) getSession())
-	                    .createPublisher((Topic) getJmsDestination());
-	        } else
-	        {
-	            _producer = ((QueueSession) getSession())
-	                    .createSender((Queue) getJmsDestination());
-	        }
-        } catch (JMSException jmse)
-        {
-            throw new ControlException("Unable to acquire JMS resource", jmse);
-        }
     }
-
     /*
      * The onRelease event handler for the associated context This method will
      * release all resource acquired by onAcquire.
@@ -450,7 +472,80 @@ import org.apache.xmlbeans.XmlObject;
             throw new ControlException("Unable to release JMS resource", jmse);
         }
     }
+    /* Protected Method(s) */
+    /**
+     * Get the queue/topic producer.
+     * @return the JMS producer.
+     */
+    protected MessageProducer getProducer()
+    {
+    	if(_producer == null)
+    	{
+	        //
+	        // Acquire the publisher/sender.
+	        //
+	        try
+	        {
+	        	javax.jms.Session sess = getSession();
+		        switch(getDestinationType())
+		        {
+		        	case Topic:
+		            	_producer = ((TopicSession)sess).createPublisher((Topic) getDestination());
+		        		break;
+		        	case Queue:
+		            	_producer = ((QueueSession)sess).createSender((Queue) getDestination());
+		            	break;
+		        }
+	        } catch (JMSException jmse)
+	        {
+	            throw new ControlException("Unable to acquire JMS resource", jmse);
+	        }
+	    }
+	    return _producer;
+    }
 
+    
+    /**
+     * Creates a topic session.
+     */
+	protected void createTopicSession() throws JMSException
+    {
+	    Destination props = getDestinationProperties();
+	    String factory = props.jndiConnectionFactory();
+	    boolean transacted = props.transacted();
+	    AcknowledgeMode ackMode = props.acknowledgeMode();
+    	_destinationType = DestinationType.Queue;
+        TopicConnectionFactory connFactory = (TopicConnectionFactory) getJndiControl()
+                .getResource(factory,
+                        TopicConnectionFactory.class);
+        _connection = connFactory.createTopicConnection();
+        _session = ((TopicConnection) _connection).createTopicSession(
+                transacted, modeToJmsMode(ackMode));
+
+    }
+    
+
+    
+    
+        
+    /**
+     * Creates a queue session.
+     */
+	protected void createQueueSession() throws JMSException
+    {
+    	Destination props = getDestinationProperties();
+	    String factory = props.jndiConnectionFactory();
+	    boolean transacted = props.transacted();
+	    AcknowledgeMode ackMode = props.acknowledgeMode();
+    	_destinationType = DestinationType.Queue;
+        QueueConnectionFactory connFactory = (QueueConnectionFactory) getJndiControl()
+                .getResource(factory,
+                        QueueConnectionFactory.class);
+        _connection = connFactory.createQueueConnection();
+        _session = ((QueueConnection) _connection).createQueueSession(
+                transacted, modeToJmsMode(ackMode));
+
+    }
     /**
      * Convert the enum to the JMS ack mode.
      * @param mode the enum mode.
@@ -513,7 +608,7 @@ import org.apache.xmlbeans.XmlObject;
      * Get the destination annotation info for the message.
      * @return the destination method annotation.
      */
-    protected Destination getDestination()
+    protected Destination getDestinationProperties()
     {
         return (Destination) _context.getControlPropertySet(Destination.class);
     }
@@ -525,83 +620,23 @@ import org.apache.xmlbeans.XmlObject;
      * annotation element.
      * @return true if the destination is a topic.
      */
-    protected boolean isTopic() throws ControlException
+    protected DestinationType getDestinationType() throws ControlException
     {
-    	Destination d = getDestination();
-		javax.jms.Destination dest = getJmsDestination();
-    	boolean isTopic = false;
-    	switch(d.sendType())
+    	if(_destinationType != DestinationType.Auto)
     	{
-    		case Queue:
-    			isTopic = false;
-    			break;
-    		case Topic:
-    			isTopic = true;
-    			break;
-    		case Auto:
-		        if (dest instanceof Topic)
-		        {
-    				isTopic = true;
-		        } else if (dest instanceof Queue)
-		        {
-    				isTopic = false;
-		        }
-		        break;
-	    }
-	    if(isTopic && !(dest instanceof Topic))
-	    {
-        	throw new IllegalArgumentException(
-                "Destination is not a topic");
- 	    }
-	    if(!isTopic && !(dest instanceof Queue))
-	    {
-        	throw new IllegalArgumentException(
-                "Destination is not a queue");
- 
-	    }
-	    return isTopic;
+    		return _destinationType;
+    	}
+    	Destination d = getDestinationProperties();
+    	if(d.sendType() != DestinationType.Auto)
+    	{
+    		_destinationType = d.sendType();
+    	}
+    	return d.sendType();
    }
 
-    /**
-     * Get the jms-destination.
-     * 
-     * @return an instance destination object.
-     */
-    protected javax.jms.Destination getJmsDestination() throws ControlException
-    {
-        if (_destination == null)
-        {
-            try
-            {
-                _destination = (javax.jms.Destination) getJndiService().getResource(
-                    getDestination().sendJndiName(), javax.jms.Destination.class);
-            }
-            catch(ServiceException e)
-            {
-                throw new ControlException("Cannot get destination queue or topic:"+e);
-            }
-        }
-        return _destination;
-    }
 
-    /**
-     * Get the jndi-service.
-     * 
-     * @return an instance of the service object.
-     */
-    protected JndiService getJndiService() throws ControlException
-    {
-        if (_jndiService == null)
-        {
-            _jndiService = (JndiService) _context.getService(
-                  JndiService.class, null);
-            if (_jndiService == null)
-            {
-                throw new ControlException("Cannot obtain JNDI service");
-            }
-        }
-        return _jndiService;
-    }
+
+
     /**
      * Set the properties of the given message.
      * @param msg the message.
@@ -753,7 +788,11 @@ import org.apache.xmlbeans.XmlObject;
     	Object obj = getHeader(name);
     	return valueAsInteger(getHeader(name));
     }
-    
+    /**
+     * Return the given value as an integer.
+     * @param obj a string or number object.
+     * @return the integer value or null.
+     */
     protected Integer valueAsInteger(Object obj)
     {
     	if(obj instanceof String)
@@ -779,7 +818,11 @@ import org.apache.xmlbeans.XmlObject;
     {
     	return valueAsLong(getHeader(name));
     }
-    
+    /**
+     * Return the given value as a long.
+     * @param obj a string or number object.
+     * @return the long value or null.
+     */
     protected Long valueAsLong(Object obj)
     {
     	if(obj instanceof String)
@@ -796,17 +839,41 @@ import org.apache.xmlbeans.XmlObject;
     	}
     	return null;
     }
+    /**
+     * Get the JNDI control instance.
+     * @return the jndi-control.
+     */
+    protected JndiControlBean getJndiControl()
+    {
+    	if(!_jndiInitialized)
+    	{
+    		_jndiInitialized = true;
+	    	Destination dest = getDestinationProperties();
+	    	if(dest.jndiContextFactory() != null && dest.jndiContextFactory().length() != 0)
+	    	{
+	    		_jndiControl.setFactory(dest.jndiContextFactory());
+	    	}
+	    	if(dest.jndiProviderURL() != null && dest.jndiProviderURL().length() != 0)
+	    	{
+	    		_jndiControl.setUrl(dest.jndiProviderURL());
+	    	}
+    	}
+    	return _jndiControl;
+    }
     @Context
     private ResourceContext _resourceContext;
     
     @Context
     private ControlBeanContext _context;
     
-    /** The JNDI service */
-    private transient JndiService _jndiService;
+    @Control
+    private JndiControlBean _jndiControl;
+    
     
     /** The destination */
     private transient javax.jms.Destination _destination;
+    
+    private transient DestinationType _destinationType = DestinationType.Auto;
     
     /** The connection. */
     private transient javax.jms.Connection _connection;
@@ -816,6 +883,9 @@ import org.apache.xmlbeans.XmlObject;
     
     /** The message producer. */
     private transient MessageProducer _producer;
+    
+    /** The JNDI control has been initialized */
+    private boolean _jndiInitialized;
     
     /** The headers to set in the next message to be sent. */
     private Map<HeaderType,Object> _headers;
