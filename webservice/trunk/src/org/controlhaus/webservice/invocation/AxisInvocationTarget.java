@@ -20,12 +20,17 @@
  */
 package org.controlhaus.webservice.invocation;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.jws.WebParam;
 import javax.xml.namespace.QName;
+import javax.xml.rpc.holders.Holder;
 import javax.xml.soap.SOAPHeader;
 import javax.wsdl.OperationType;
 
@@ -37,6 +42,7 @@ import org.apache.axis.constants.Use;
 import org.apache.axis.description.FaultDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.description.ParameterDesc;
+import org.apache.axis.encoding.XMLType;
 import org.apache.axis.encoding.TypeMapping;
 import org.apache.axis.message.SOAPHeaderElement;
 import org.apache.axis.utils.BeanPropertyDescriptor;
@@ -90,8 +96,36 @@ public class AxisInvocationTarget
             operationName = method.getName();
         }
 
-        Class[] paramTypes = method.getParameterTypes();
-        
+
+        // NOTE jcolwell@bea.com 2005-Jan-04 -- 
+        // convert holder classes to underlying type to retrieve the method metadata
+        Type[] genericParamTypes = method.getGenericParameterTypes();
+        Class[] paramTypes = new Class[genericParamTypes.length];
+        int paramIndex = 0;
+        for (Type t : genericParamTypes) {
+            if (t instanceof Class) {
+                paramTypes[paramIndex++] = (Class)t;
+            }
+            else if (t instanceof java.lang.reflect.ParameterizedType) {
+                java.lang.reflect.ParameterizedType pt =
+                    ((java.lang.reflect.ParameterizedType)t);
+                Type[] typeArgs = pt.getActualTypeArguments();
+                Type raw = pt.getRawType();
+                if (GenericHolder.class.isAssignableFrom((Class)raw)
+                    && typeArgs.length == 1) {
+                    paramTypes[paramIndex++] = (Class)typeArgs[0];
+                }
+                else {
+                    throw new Exception(raw + " ~ " + typeArgs[0]);
+                }
+            }
+            else {
+                throw new Exception("Only Classes and ParameterizedTypes"
+                                    + " are currently handled, support for " 
+                                    + t.getClass() + " should be added.");
+            }
+        }
+
         Jsr181MethodMetadata wmm = wstm.getMethod(operationName, paramTypes);
 
         if (wmm == null) {
@@ -114,11 +148,15 @@ public class AxisInvocationTarget
         }
         else {
          
-       
+            List<Object> argList = new ArrayList<Object>(Arrays.asList(args));
+            List<Object> outList = new ArrayList<Object>(argList.size());
             OperationDesc od = createOperationDesc(wmm,
                                                    method,
+                                                   paramTypes,
                                                    tm,
-                                                   wstm.getWsTargetNamespace());
+                                                   wstm.getWsTargetNamespace(),
+                                                   argList,
+                                                   outList);
 
             //System.out.println(od);
             configureSoapBinding(od, wstm.getSoapBinding());
@@ -166,11 +204,65 @@ public class AxisInvocationTarget
 
             
             System.out.println("invoking " + od.getElementQName()
-                               + " with " + args.length
-                               + " arguments while " + od.getNumParams() 
+                               + " with " + argList.size()
+                               + " arguments while " + od.getNumInParams() 
                                + " are expected");
             
-            Object ret = call.invoke(od.getElementQName(), args);
+            Object ret = call.invoke(od.getElementQName(), argList.toArray());
+            
+            int expectedOuts = od.getNumOutParams();
+            if (expectedOuts > 0) {
+               
+                Map outParamMap = call.getOutputParams();
+                if (outParamMap != null) {
+                    
+                    int actualOuts = outParamMap.size();
+                            
+                    if (expectedOuts == actualOuts) {
+                        // NOTE jcolwell@bea.com 2005-Jan-06 -- 
+                        // iterate through the parameters looking for QNames
+                        // matching the returned out params
+                        ArrayList allParams = od.getParameters();
+                        int outParamIndex = 0;
+                        for (Object paramObj : allParams) {
+
+                            Object currentArg = args[outParamIndex++];
+                            
+                            ParameterDesc pd = (ParameterDesc)paramObj;
+                            if (pd.getMode() != ParameterDesc.IN) {
+                                QName q = pd.getQName();
+                                Object op = outParamMap.get(q);
+                                Class cl = pd.getJavaType();
+                                
+                                if (currentArg instanceof Holder) {
+                                    Holder h = (Holder)currentArg;
+                                    Field value = h.getClass().getField("value");
+                                    if (cl.isAssignableFrom(op.getClass())) {
+                                        value.set(h, op);
+                                    }
+                                    else {
+                                        throw new Exception("out param mismatch "
+                                                            + cl
+                                                            + " not assignable from " 
+                                                            + op.getClass());
+                                    }
+                                }
+                                else {
+                                    throw new Exception("out parameters must provide a holder class");
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        throw new Exception("out param count mismatch: " 
+                                            + actualOuts
+                                            + " out params returned while "
+                                            + expectedOuts
+                                            + " were expected");
+                    }
+                }
+            }
+            
             if (ret != null) {
                 Class retClass = ret.getClass();
                 Class expectedRetClass = od.getReturnClass();
@@ -202,8 +294,11 @@ public class AxisInvocationTarget
     // in AxisHook to reduce the copy-and-pasted code and get more consistency.
     private OperationDesc createOperationDesc(Jsr181MethodMetadata meta,
                                               Method meth,
+                                              Class[] paramTypes,
                                               TypeMapping tm,
-                                              String defaultNamespace) throws Exception {
+                                              String defaultNamespace,
+                                              List argList,
+                                              List outList) throws Exception {
         
         TypeMappingUtil tmu = new AxisTypeMappingUtil(tm);
         String operationName = meta.getWmOperationName();
@@ -214,14 +309,20 @@ public class AxisInvocationTarget
         od.setName(operationName);
         od.setElementQName(opQName);
         od.setSoapAction(meta.getWmAction());
-   
+        
+        Class returnClass = meth.getReturnType();
+
         if (meta.isOneWay()) {
             od.setMep(OperationType.ONE_WAY);
-        } else {
+        } 
+        else if (returnClass == null || Void.TYPE.equals(returnClass)) {
+            od.setReturnClass(Void.TYPE);
+            od.setReturnType(XMLType.AXIS_VOID);
+        }
+        else {
             od.setReturnQName(new QName(meta.getWrTargetNamespace(),
                                         meta.getWrName()));
 
-            Class returnClass = meth.getReturnType();
             //Class metaReturnClass = meta.getJavaReturnType();
 
             QName type;
@@ -242,28 +343,39 @@ public class AxisInvocationTarget
         }
 
         List<Jsr181ParameterMetadata> parameters = meta.getParams();
-        Class[] paramClasses = meth.getParameterTypes();
+        Class[] paramClasses = paramTypes;
+        Class[] originalParamClasses = meth.getParameterTypes();
         int paramIndex = 0;
-            
+        int argIndex = 0;
+        
         for (Jsr181ParameterMetadata param : parameters) {
             
             ParameterDesc pd = new ParameterDesc();
             pd.setQName(new QName(param.getWpTargetNamespace(),
                                   param.getWpName()));
 
-            //System.out.println("registering " + paramClasses[paramIndex]);
-            pd.setJavaType(paramClasses[paramIndex]);
             QName expectedType = null;
             if (param instanceof ClientParameterMetadata) {
                 expectedType = ((ClientParameterMetadata)param).getXmlType();
             }
 
-            QName paramType = tmu.registerType(paramClasses[paramIndex++],
+            Class providedClass = paramClasses[paramIndex];
+
+            if (Holder.class.isAssignableFrom(providedClass)) {
+                //providedClass = (Class)
+                    providedClass.getField("value")
+                    .getGenericType().toString();
+            }
+
+            System.out.println("registering " + providedClass.getName() 
+                               + " with " + expectedType);
+
+            QName paramType = tmu.registerType(providedClass,
                                                expectedType);
            
             if (paramType == null) {
                 throw new Exception("failed to register "
-                                    + paramClasses[paramIndex-1].getName());
+                                    + providedClass.getName());
             }
             
             if (paramType.equals(expectedType)) {
@@ -274,18 +386,31 @@ public class AxisInvocationTarget
             }
 
             pd.setTypeQName(paramType);
+
+            // FIXME jcolwell@bea.com 2005-Jan-06 -- 
+            // ParameterDesc.setJavaType should not throw and
+            // IllegalArgumentException when OUT and INOUT params are set that
+            // are not holders since Clients do not even use holders in their
+            // descriptions
+            pd.setJavaType(paramClasses[paramIndex]);
             WebParam.Mode mo = param.getWpMode();
             switch (mo) {
             case OUT:
                 pd.setMode(ParameterDesc.OUT);
                 pd.setInHeader(false);
                 pd.setOutHeader(param.isWpHeader());
+                outList.add(argList.remove(argIndex--));
                 break;
             case INOUT:
                 pd.setMode(ParameterDesc.INOUT);
                 boolean header = param.isWpHeader();
                 pd.setInHeader(header);
                 pd.setOutHeader(header);
+                Holder inout = (Holder)argList.get(argIndex);
+                Class holderClass = inout.getClass();
+                Field value = holderClass.getField("value");                
+                outList.add(inout);
+                argList.set(argIndex, value.get(inout));
                 break;
             case IN:
             default:
@@ -293,11 +418,13 @@ public class AxisInvocationTarget
                 pd.setInHeader(param.isWpHeader());
                 pd.setOutHeader(false);
             }
-            /*
+            paramIndex++;
+            argIndex++;
+
             System.out.println("adding parameter " + pd.getQName() + " of type "
                                + pd.getTypeQName() + " | "  + pd.getJavaType()
                                .getName());
-            */
+
             od.addParameter(pd);
         }
         for (Class thrown : meth.getExceptionTypes()) {
@@ -312,7 +439,7 @@ public class AxisInvocationTarget
 
 
     protected void configureSoapBinding(OperationDesc od,
-                                               SOAPBindingInfo sbi) {
+                                        SOAPBindingInfo sbi) {
         javax.jws.soap.SOAPBinding.Style style
                 = javax.jws.soap.SOAPBinding.Style.DOCUMENT;
         javax.jws.soap.SOAPBinding.Use use
