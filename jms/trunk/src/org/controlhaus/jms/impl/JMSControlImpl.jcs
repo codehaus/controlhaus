@@ -1,0 +1,783 @@
+package org.controlhaus.jms;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.HashMap;
+
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueSender;
+import javax.jms.QueueSession;
+import javax.jms.Session;
+import javax.jms.Destination;
+import javax.jms.StreamMessage;
+import javax.jms.TopicConnection;
+import javax.jms.TopicConnectionFactory;
+import javax.jms.Topic;
+import javax.jms.TopicPublisher;
+import javax.jms.TopicSession;
+
+
+import org.apache.beehive.controls.spi.svc.JndiService;
+import org.apache.beehive.controls.spi.svc.ServiceException;
+import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.context.*;
+import org.apache.beehive.controls.api.bean.*;
+import org.apache.beehive.controls.api.events.*;
+import org.apache.beehive.controls.api.packaging.*;
+import org.controlhaus.jms.JMSControl;
+
+/**
+ * Implementation of the jms control.
+ */
+@ControlImplementation public class JMSControlImpl implements
+        JMSControl, Extensible
+{
+
+    /**
+     * @see JMSControl.getSession()
+     */
+    public Session getSession() throws ControlException
+    {
+        if (_session == null)
+        {
+            try
+            {
+
+	            Destination props = getDestination();
+	            AcknowledgeMode ackMode = props.acknowledgeMode();
+	            boolean transacted = props.transacted();
+	            
+	            String factory = props.jndiConnectionFactory();
+	            if (isTopic())
+	            {
+	                TopicConnectionFactory connFactory = (TopicConnectionFactory) getJndiService()
+	                        .getResource(factory,
+	                                TopicConnectionFactory.class);
+	                _connection = connFactory.createTopicConnection();
+	                _session = ((TopicConnection) _connection).createTopicSession(
+	                        transacted, modeToJmsMode(ackMode));
+	
+	            } else
+	            {
+	                QueueConnectionFactory connFactory = (QueueConnectionFactory) getJndiService()
+	                        .getResource(factory,
+	                                QueueConnectionFactory.class);
+	                _connection = connFactory.createQueueConnection();
+	                _session = ((QueueConnection) _connection).createQueueSession(
+	                        transacted, modeToJmsMode(ackMode));
+	
+	            }
+            }
+            catch(ServiceException e)
+            {
+                throw new ControlException("Failure to get JMS connection factory");
+            }
+            catch(JMSException e)
+            {
+                throw new ControlException("Failure to get JMS connection or session",e);
+            }
+        }
+        return _session;
+    }
+    /**
+     * @see JMSControl#setHeaders
+     */
+    public void setHeaders(Map headers) 
+    {
+    	_headers = new HashMap<HeaderType,Object>();
+        Iterator i = headers.keySet().iterator();
+        while (i.hasNext()) 
+        {
+            Object name = i.next();
+            Object value = _properties.get(name);
+            HeaderType type = null;
+            /*
+             * Allow for string valued or HeaderType valued
+             * map entries.
+             */
+            if(name instanceof HeaderType)
+            {
+            	type = (HeaderType)type;
+            }
+            else
+            {
+                    if (name.equals(HeaderType.JMSCorrelationID.toString())) 
+        			{
+        				type = HeaderType.JMSCorrelationID;
+			        } 
+			        else if (name.equals(HeaderType.JMSDeliveryMode.toString())) 
+			        {
+        				type = HeaderType.JMSDeliveryMode;
+			        } 
+			        else if (name.equals(HeaderType.JMSExpiration.toString())) 
+			        {
+        				type = HeaderType.JMSExpiration;
+			        } 
+			        else if (name.equals(HeaderType.JMSMessageID.toString())) 
+			        {
+        				type = HeaderType.JMSMessageID;
+			        } 
+			        else if (name.equals(HeaderType.JMSPriority.toString())) 
+			        {
+        				type = HeaderType.JMSPriority;
+			        } 
+			        else if (name.equals(HeaderType.JMSRedelivered.toString())) 
+			        {
+        				type = HeaderType.JMSRedelivered;
+			        } 
+			        else if (name.equals(HeaderType.JMSTimestamp.toString())) 
+			        {
+        				type = HeaderType.JMSTimestamp;
+			        }
+			        else if (name.equals(HeaderType.JMSType.toString())) 
+			        {
+        				type = HeaderType.JMSType;
+			        }
+			        else
+			        {
+			        	throw new IllegalArgumentException("Invalid JMS header type '"+name+"'");
+			        }
+            }
+            headers.put(type,value);
+        }
+    }
+    
+    /**
+     * @see JMSControl#setProperties
+     */
+    public void setProperties(Map properties) 
+    {
+        _properties = properties;
+    }
+    
+    /**
+     * @see com.bea.control.Extensible#invoke}. 
+     */
+    public Object invoke(Method method, Object[] args) throws ControlException 
+    {
+        assert (method != null && args != null);
+        javax.jms.Message m = null;
+    
+        try
+        {
+	        Destination props = getDestination();
+	        Session session = getSession();
+	        /*
+	         * Set the deliveryMode, priority and expiration.
+	         */
+	        int deliveryMode = _producer.getDeliveryMode();
+		    int priority = _producer.getPriority();
+		    long expiration = _producer.getTimeToLive();
+		    Object mode = getHeader(HeaderType.JMSDeliveryMode);
+		    if(mode != null)
+	        {
+	        	deliveryMode = deliveryModeToJmsMode(mode);
+	        }
+	        Integer v = getHeaderAsInteger(HeaderType.JMSPriority);
+	        if(v != null)
+	        {
+	        	priority = v.intValue();
+	        }
+	        Long l = getHeaderAsLong(HeaderType.JMSExpiration);
+	        if(l != null)
+	        {
+	        	expiration = l.longValue();
+	        }
+	        /*
+	         * Get the body of the message.
+	         */
+	        Object body = null;
+	        for (int i= 0; i< args.length; i++)
+	        {
+	            if (_context.getParameterPropertySet(method, i, Body.class) != null)
+	            {
+	                body = args[i];
+	            }
+	        }
+	        
+	        /*
+	         * Create a message of the appropriate type and set the body.
+	         */
+	        JMSControl.Message mess = _context.getMethodPropertySet(method,JMSControl.Message.class);
+	        MessageType type = mess.value();
+	        if(type.equals(MessageType.Auto))
+	        {
+	        	if(body instanceof byte[])
+	        	{
+	        		type = MessageType.Bytes;
+	        	}
+	        	else if(body instanceof Map)
+	        	{
+	        		type = MessageType.Map;
+	        	}
+	        	else if(body instanceof String)
+	        	{
+	        		type = MessageType.Text;
+	        	}
+	        	else if(body instanceof javax.jms.Message)
+	        	{
+	        		type = MessageType.JMSMessage;
+	        	}
+	        	else if(body instanceof Serializable)
+	        	{
+	        		type = MessageType.Object;
+	        	}
+	        	else
+	        	{
+	        		throw new ControlException("Cannot determine message type from body");
+	        	}	
+	        }
+	        switch(type)
+	        {
+	        	case Object:
+	        	    checkBody(body,Serializable.class);
+	        	    m = session.createObjectMessage((Serializable)body);
+	        		break;
+	        	case Bytes:
+	        	    StreamMessage sm;
+	        	    checkBody(body,byte[].class);
+	        		m = sm = session.createStreamMessage();
+	        		sm.writeBytes((byte[])body);
+	        		break;
+	        	case Text:
+	        	    checkBody(body,String.class);
+	        	    m = session.createTextMessage((String)body);
+	        		break;
+	        	case Map:
+	        	    MapMessage mm;
+	        	    checkBody(body,Map.class);
+	        	    m = mm = session.createMapMessage();
+	        	    Map map =(Map)body;
+	        	    Iterator iter = map.keySet().iterator();
+	        	    while(iter.hasNext())
+	        	    {
+	        	        String key = (String)iter.next();
+	        	        mm.setObject(key,map.get(key));
+	        	    }
+	        		break;
+	        	case JMSMessage:
+	        	    checkBody(body,javax.jms.Message.class);
+	        	    m = (javax.jms.Message)body;
+	        		break;
+	        }
+	        /*
+	         * Set the correlation id if given.
+	         */
+	        String correlationId = props.sendCorrelationProperty();
+			if(correlationId == null)
+			{
+				correlationId = getHeaderAsString(HeaderType.JMSCorrelationID);
+			}
+	        if(correlationId != null)
+	        {
+	            m.setJMSCorrelationID(correlationId);
+	        }
+	        /*
+	         * Set the properties/headers of the message from
+	         * the parameters to the invoke.
+	         */
+	        for (int i= 0; i< args.length; i++)
+	        {
+	            Property jmsProp =
+	                (Property)_context.getParameterPropertySet(method,i, Property.class);
+	            if (jmsProp != null)
+	            {
+	                String name = jmsProp.name();
+	                if (args[i] instanceof String)
+	                    m.setStringProperty(name, (String)args[i]);
+	                    else if (args[i] instanceof Integer)
+	                        m.setIntProperty(name, ((Integer)args[i]).intValue());
+	                    else
+	                        m.setObjectProperty(name, args[i]);
+	            }
+	            Priority jmsPriority = 
+	                (Priority)_context.getParameterPropertySet(method,i, Priority.class);
+	            if (jmsPriority != null)
+	            {
+	            	Integer p = valueAsInteger(args[i]);
+	            	if(p != null)
+	            	{	            	
+	            		priority = p.intValue();
+	            	}
+	            }
+	            Expiration jmsExpiration = 
+	                (Expiration)_context.getParameterPropertySet(method,i, Expiration.class);
+	            if (jmsExpiration != null)
+	            {
+	            	Long e = valueAsLong(args[i]);
+	            	if(e != null)
+	            	{
+	            		expiration = e.longValue();
+	            	}
+	            }
+	            Delivery jmsDelivery = 
+	                (Delivery)_context.getParameterPropertySet(method,i, Delivery.class);
+	            if (jmsDelivery != null && args[i] != null)
+	            {
+	            	deliveryMode = deliveryModeToJmsMode(args[i]);
+	            }
+	        }
+	        /*
+	         * Set the headers and properties from maps provided
+	         * by setProperties() and setHeaders()
+	         */
+	        setMessageHeaders(m);
+	        setMessageProperties(m);
+	        _headers = null;
+	        _properties = null;
+	        
+	        /*
+	         * Send the message.
+	         */
+	        if(isTopic())
+	        {
+	            ((TopicPublisher)_producer).publish(m,deliveryMode,priority,expiration);
+	            
+	        }
+	        else
+	        {
+	            ((QueueSender)_producer).send(m,deliveryMode,priority,expiration);
+	        }
+        }
+
+        catch(JMSException e)
+        {
+            throw new ControlException("Error in sending message",e);
+        }
+        return m;
+    }
+    
+        @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onAcquire") 
+    public void onAcquire()
+    {
+        //
+        // Acquire the publisher/sender.
+        //
+        try
+        {
+	        if (isTopic())
+	        {
+	            _producer = ((TopicSession) getSession())
+	                    .createPublisher((Topic) getJmsDestination());
+	        } else
+	        {
+	            _producer = ((QueueSession) getSession())
+	                    .createSender((Queue) getJmsDestination());
+	        }
+        } catch (JMSException jmse)
+        {
+            throw new ControlException("Unable to acquire JMS resource", jmse);
+        }
+    }
+
+    /*
+     * The onRelease event handler for the associated context This method will
+     * release all resource acquired by onAcquire.
+     */
+    @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onRelease") 
+    public void onRelease()
+    {
+        try
+        {
+            if (_producer != null)
+            {
+                _producer.close();
+                _producer = null;
+            }
+            if (_session != null)
+            {
+                _session.close();
+                _session = null;
+            }
+            if (_connection != null)
+            {
+                _connection.close();
+                _connection = null;
+            }
+        } catch (JMSException jmse)
+        {
+            throw new ControlException("Unable to release JMS resource", jmse);
+        }
+    }
+
+    /**
+     * Convert the enum to the JMS ack mode.
+     * @param mode the enum mode.
+     * @return the JMS mode.
+     */
+    protected int modeToJmsMode(AcknowledgeMode mode)
+    {
+        if (mode == AcknowledgeMode.Auto)
+        {
+            return Session.AUTO_ACKNOWLEDGE;
+        } else if (mode == AcknowledgeMode.Client)
+        {
+            return Session.CLIENT_ACKNOWLEDGE;
+        } else
+        {
+            return Session.DUPS_OK_ACKNOWLEDGE;
+        }
+    }
+    /**
+     * Convert the object to the JMS delivery mode.
+     * @param value a integer valued string, integer or DeliveryMode.
+     * @return the JMS delivery mode.
+     */
+    protected int deliveryModeToJmsMode(Object value)
+    {
+    	if(value instanceof DeliveryMode)
+    	{
+    	    DeliveryMode mode = (DeliveryMode)value;
+    		switch(mode)
+    		{
+    			case Persistent:
+    				return javax.jms.DeliveryMode.PERSISTENT;
+    			case NonPersistent:
+    				return javax.jms.DeliveryMode.NON_PERSISTENT;
+    		}
+	    }
+        if (value instanceof Number) 
+        {
+            return ((Number)value).intValue();
+        } 
+        else if (value instanceof String) 
+        {
+            return Integer.parseInt((String)value);
+        }
+        throw new IllegalArgumentException("Invalid delivery mode value");
+    }
+    /**
+     * Check the given value to see if is appropriate for the given message value class.
+     * @param value the body.
+     * @param cls the expected class.
+     */
+    protected void checkBody(Object value,Class cls) throws ControlException
+    {
+        if(!cls.isInstance(value))
+        {
+            throw new ControlException("Message body is not of correct type expected "+cls.getName());
+        }
+    }
+    /**
+     * Get the destination annotation info for the message.
+     * @return the destination method annotation.
+     */
+    protected Destination getDestination()
+    {
+        return (Destination) _context.getControlPropertySet(Destination.class);
+    }
+
+    /**
+     * Get the topic/queue state.
+     * Determine what connection and session from the destination
+     * itself if sendType is Auto otherwise use the Destination
+     * annotation element.
+     * @return true if the destination is a topic.
+     */
+    protected boolean isTopic() throws ControlException
+    {
+    	Destination d = getDestination();
+		javax.jms.Destination dest = getJmsDestination();
+    	boolean isTopic = false;
+    	switch(d.sendType())
+    	{
+    		case Queue:
+    			isTopic = false;
+    			break;
+    		case Topic:
+    			isTopic = true;
+    			break;
+    		case Auto:
+		        if (dest instanceof Topic)
+		        {
+    				isTopic = true;
+		        } else if (dest instanceof Queue)
+		        {
+    				isTopic = false;
+		        }
+		        break;
+	    }
+	    if(isTopic && !(dest instanceof Topic))
+	    {
+        	throw new IllegalArgumentException(
+                "Destination is not a topic");
+ 	    }
+	    if(!isTopic && !(dest instanceof Queue))
+	    {
+        	throw new IllegalArgumentException(
+                "Destination is not a queue");
+ 
+	    }
+	    return isTopic;
+   }
+
+    /**
+     * Get the jms-destination.
+     * 
+     * @return an instance destination object.
+     */
+    protected javax.jms.Destination getJmsDestination() throws ControlException
+    {
+        if (_destination == null)
+        {
+            try
+            {
+                _destination = (javax.jms.Destination) getJndiService().getResource(
+                    getDestination().sendJndiName(), javax.jms.Destination.class);
+            }
+            catch(ServiceException e)
+            {
+                throw new ControlException("Cannot get destination queue or topic",e);
+            }
+        }
+        return _destination;
+    }
+
+    /**
+     * Get the jndi-service.
+     * 
+     * @return an instance of the service object.
+     */
+    protected JndiService getJndiService() throws ControlException
+    {
+        if (_jndiService == null)
+        {
+            _jndiService = (JndiService) _context.getService(
+                  JndiService.class, null);
+            if (_jndiService == null)
+            {
+                throw new ControlException("Cannot obtain JNDI service");
+            }
+        }
+        return _jndiService;
+    }
+    /**
+     * Set the properties of the given message.
+     * @param msg the message.
+     */
+    protected void setMessageProperties(javax.jms.Message msg)
+            throws ControlException 
+    {
+    	if(_properties == null)
+    	{
+    		return;
+    	}
+        Iterator i = _properties.keySet().iterator();
+        while (i.hasNext()) 
+        {
+            String name = (String) i.next();
+            Object value = _properties.get(name);
+            try
+            {
+            	msg.setObjectProperty(name,value);
+            }
+            catch(JMSException e)
+            {
+            	throw new ControlException("Cannot set property '"+name+"' into JMS message");
+            }
+        }
+    }
+    
+    /**
+     * Set the headers. Accessing msg may throw exception.
+     * @param msg the message.
+     */
+    protected void setMessageHeaders(javax.jms.Message msg)
+            throws ControlException 
+    {
+    	if(_headers == null)
+    	{
+    		return;
+    	}
+        Iterator<HeaderType> i = _headers.keySet().iterator();
+        while (i.hasNext()) 
+        {
+            HeaderType name = i.next();
+            Object value = _headers.get(name);
+			setMessageHeader(msg,name,value);
+		}
+	}
+	/**
+     * Set the header value of the given message.
+     * @param msg the message.
+     * @param type the header type.
+     * @param value the value.
+     */
+	protected void setMessageHeader(javax.jms.Message msg,HeaderType type,Object value)
+	{
+		switch(type)
+		{
+
+	        case JMSMessageID:
+	            try 
+	            {
+	                msg.setJMSMessageID((String)value);
+	            } 
+	            catch (javax.jms.JMSException e) 
+	            {
+	                throw new ControlException("Error setting JMSMessageID for message", e);
+	            }
+	            break;
+	        case JMSRedelivered:
+	            try 
+	            {
+	                if (value instanceof Boolean) 
+	                {
+	                    msg.setJMSRedelivered(((Boolean)value).booleanValue());
+	                } 
+	                else if (value instanceof String) 
+	                {
+	                    msg.setJMSRedelivered(Boolean.getBoolean((String)value));
+	                }
+	            } 
+	            catch (javax.jms.JMSException e) 
+	            {
+	                throw new ControlException("Error setting JMSRedelivered for message", e);
+	            }
+	            break;
+	        case JMSTimestamp:
+	            try 
+	            {
+	                if (value instanceof Long) 
+	                {
+	                    msg.setJMSTimestamp(((Long)value).longValue());
+	                } 
+	                else if (value instanceof String) 
+	                {
+	                    msg.setJMSTimestamp(Long.parseLong((String)value));
+	                }
+	            } catch (javax.jms.JMSException e) 
+	            {
+	                throw new ControlException("Error setting JMSTimestamp for message", e);
+	            }
+	            break;
+			case JMSType:
+	            try 
+	            {
+	                msg.setJMSType((String)value);
+	            } 
+	            catch (javax.jms.JMSException e) 
+	            {
+	                throw new ControlException("Error setting JMSType for message", e);
+	            }
+	            break;
+        }
+    }
+    
+    /**
+     * Get the header type value.
+     * @param name the header type.
+     * @return the value or null.
+     */
+    protected Object getHeader(HeaderType name)
+    {
+    	if(_headers == null)
+    	{
+    		return null;
+    	}
+    	return _headers.get(name.toString());
+    }
+    /**
+     * Get the header type value as a string.
+     * @param name the header type.
+     * @return the string value or null.
+     */
+    protected String getHeaderAsString(HeaderType name)
+    {
+        Object obj = getHeader(name);
+    	if(obj != null)
+    	{
+    		return obj.toString();
+    	}
+    	return null;
+    }
+    
+    /**
+     * Get the header type value as a int.
+     * @param name the header type.
+     * @return the int value or null.
+     */
+    protected Integer getHeaderAsInteger(HeaderType name)
+    {
+    	Object obj = getHeader(name);
+    	return valueAsInteger(getHeader(name));
+    }
+    
+    protected Integer valueAsInteger(Object obj)
+    {
+    	if(obj instanceof String)
+    	{
+    		return Integer.parseInt((String)obj);
+    	}
+    	else if(obj instanceof Integer)
+    	{
+    		return (Integer)obj;
+    	}
+    	else if(obj instanceof Number)
+    	{
+    		return new Integer(((Number)obj).intValue());
+    	}
+    	return null;
+    }
+    /**
+     * Get the header type value as a long.
+     * @param name the header type.
+     * @return the long value or null.
+     */
+    protected Long getHeaderAsLong(HeaderType name)
+    {
+    	return valueAsLong(getHeader(name));
+    }
+    
+    protected Long valueAsLong(Object obj)
+    {
+    	if(obj instanceof String)
+    	{
+    		return Long.parseLong((String)obj);
+    	}
+    	else if(obj instanceof Long)
+    	{
+    		return (Long)obj;
+    	}
+    	else if(obj instanceof Number)
+    	{
+    		return new Long(((Number)obj).longValue());
+    	}
+    	return null;
+    }
+    @Context
+    private ResourceContext _resourceContext;
+    
+    @Context
+    private ControlBeanContext _context;
+    
+    /** The JNDI service */
+    private transient JndiService _jndiService;
+    
+    /** The destination */
+    private transient javax.jms.Destination _destination;
+    
+    /** The connection. */
+    private transient javax.jms.Connection _connection;
+    
+    /** The session */
+    private transient Session _session;
+    
+    /** The message producer. */
+    private transient MessageProducer _producer;
+    
+    /** The headers to set in the next message to be sent. */
+    private Map<HeaderType,Object> _headers;
+    
+    /** The properties to set in the next message to be sent. */
+    private Map<String,Object> _properties;
+
+}
