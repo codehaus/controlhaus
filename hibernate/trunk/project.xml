@@ -3,7 +3,7 @@
   <name>Controlhaus Hibernate Control</name>
   <groupId>controlhaus</groupId>
   <artifactId>controlhaus-hibernate</artifactId>
-  <currentVersion>1.0-alpha-2</currentVersion>
+  <currentVersion>1.0-alpha-3-SNAPSHOT</currentVersion>
   <organization>
     <name>Controlhaus</name>
     <url>http://www.controlhaus.org/</url>
@@ -35,11 +35,18 @@
     </dependency>
             
     <dependency>
-      <groupId>beehive</groupId>
-      <artifactId>controls</artifactId>
-      <version>svn-snapshot</version>
+      <groupId>controlhaus</groupId>
+      <artifactId>beehive-controls</artifactId>
+      <version>unofficial-1</version>
     </dependency>
-
+            
+    <dependency>
+      <groupId>controlhaus</groupId>
+      <artifactId>beehive-maven-plugin</artifactId>
+      <version>1.0-SNAPSHOT</version>
+      <type>plugin</type>
+    </dependency>
+        
     <dependency>
       <id>log4j</id>
       <version>1.2.8</version>
