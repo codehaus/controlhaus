@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=windows-1252">
+  <title>HTTP Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>HTTP Control</h2>
+The HTTP Control provides a simple API for performing HTTP GET and POST
+operations.&nbsp; A GET operation is performed as follows:<br>
+<br>
+<pre>StringBuffer responseHolder = new StringBuffer();<br>Map map = new HashMap();<br>MapDataAdapter data = new MapDataAdapter(map);<br>map.put("s", "BEAS");<br>URL target = new URL("http://finance.yahoo.com/q");<br><br>int responseCode = httpControl.get(target, data, responseHolder);<br><br>System.out.println("The HTTP Status code is " + responseCode);<br>System.out.println("The response text is " + responseHolder.toString());<br><br></pre>
+The get() method requires a URL to invoke on.&nbsp; It requires an
+instance of the DataAdapter interface to define what parameters are
+involved in the GET.&nbsp; And it requires a StringBuffer instance to
+store the response in.&nbsp; Finally, the HTTP Status code is returned
+by the get() call.<br>
+<br>
+The control comes with one implementation of the DataAdapter interface,
+namey MapDataAdapter, which uses a java.util.Map instance to store its
+parameters.&nbsp; Other implementations are possible.<br>
+<br>
+HTTP POST operations are performed in a similar way, except the post()
+method is designed to be "fire and forget" in that there is no HTTP
+response code returned, neither is there response text returned.&nbsp;
+It is invoked as follows:<br>
+<br>
+<pre>Map map = new HashMap();<br>MapDataAdapter data = new MapDataAdapter(map);<br>map.put("s", "BEAS");<br>URL target = new URL("http://finance.yahoo.com/q");<br><br>httpControl.post(target, data);<br></pre>
+<br>
+<br>
+<br>
+</body>
+</html>
