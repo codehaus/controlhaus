@@ -25,8 +25,8 @@
 
     <ant:mkdir dir="target/generated-main"/>
 
-    <apt srcdir="${maven.build.dir}/xfire-xmlbeans-main"
-         destdir="${basedir}/target/classes" 
+    <apt srcdir="${basedir}/src/main"
+         destdir="${maven.build.dest}" 
          gendir="${basedir}/target/generated-main"
          classpathref="task.path"
          debug="on"
@@ -37,7 +37,8 @@
  
   </goal>
   
-  <goal name="xfire:generate">
+  <!-- This only needs to be run if the schema has changed. -->
+  <goal name="xfire:generate-client">
     
     <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-main"/>
   
@@ -68,19 +69,33 @@
     <echo>Creating Amazon Client</echo>
     <generate overwrite="true"
               package="org.controlhaus.amazon"
-              outputDir="${maven.build.dir}/xfire-xmlbeans-main"
+              outputDir="${basedir}/src/main"
               wsdl="${basedir}/src/schemas/Amazon.wsdl"
               name="Amazon"
               classpathref="generate.path"
-              strategy="org.controlhaus.xfire.client.BeehiveClientStrategy" />   
-
-    <ant:path id="xfire.client.generated.dir" 
-              location="${maven.build.dir}/xfire-xmlbeans-main"/>
-
-    <maven:addPath id="maven.compile.src.set"  
-                   refid="xfire.client.generated.dir"/>
+              strategy="org.controlhaus.xfire.client.BeehiveClientStrategy" />
   </goal>
+
+  <goal name="xmlbeans:generate">
     
+    <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-main"/>
+  
+    <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          classpathref="task.path"
+          fork="true">
+      <arg value="-d"/>
+      <arg value="${maven.build.dest}"/>
+      <arg value="${basedir}/src/schemas"/>
+    </java>
+    
+    <ant:copy todir="${maven.build.dest}">
+      <ant:fileset dir="${maven.build.dir}/xfire-xmlbeans-main">
+        <ant:include name="**/*.xsb"/>
+      </ant:fileset>
+    </ant:copy>
+	
+  </goal>
+  
   <!-- Compile annotation generated classes from the test cases -->
   <goal name="beehive:test-compile">
 
@@ -110,10 +125,11 @@
       <arg value="${basedir}/target/amazon.jar"/>
       <arg value="${basedir}/src/schemas"/>
     </java>
+
   </goal>
 
   <preGoal name="java:compile">
-    <attainGoal name="xfire:generate"/>
+    <attainGoal name="xmlbeans:generate"/>
     <attainGoal name="beehive:compile"/>
   </preGoal>
   
