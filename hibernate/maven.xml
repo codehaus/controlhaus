@@ -1,0 +1,63 @@
+<project
+  default="java:jar"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant"
+  xmlns:i="jelly:interaction"
+  xmlns:maven="jelly:maven">
+    
+    <ant:path id="task.path">
+      <ant:path refid="maven.dependency.classpath"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+    </ant:path>
+    
+    <ant:taskdef name="apt" 
+                classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+                classpathref="task.path" 
+                onerror="report" />
+                
+    <ant:taskdef name="control-jar" 
+                 classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
+                 classpathref="task.path" 
+                 onerror="report" /> 
+                 
+  <goal name="beehive:compile">
+
+    <ant:mkdir dir="target/generated-main"/>
+
+    <apt srcdir="${basedir}/src/main"
+         destdir="${basedir}/target/classes" 
+         gendir="${basedir}/target/generated-main"
+         classpathref="task.path"
+         debug="on"
+         compileByExtension="true"
+         srcExtensions="*.java,*.jcx,*.jcs"
+       	 nocompile="true"
+         target="1.5"/>
+
+         
+  </goal>
+  
+  <goal name="beehive:test-compile">
+
+    <ant:mkdir dir="target/generated-test"/>
+
+    <apt srcdir="${basedir}/src/test"
+         destdir="${basedir}/target/test-classes" 
+         gendir="${basedir}/target/generated-test"
+         classpathref="task.path"
+         debug="on"
+         compileByExtension="true"
+         srcExtensions="*.java,*.jcx,*.jcs"
+       	 nocompile="true"
+         target="1.5"/>
+         
+  </goal>
+    
+  <preGoal name="java:compile">
+    <attainGoal name="beehive:compile"/>
+  </preGoal>
+  
+  <preGoal name="test:compile">
+    <attainGoal name="beehive:test-compile"/>
+  </preGoal>  
+</project>
