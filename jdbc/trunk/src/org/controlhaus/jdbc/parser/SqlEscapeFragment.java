@@ -18,6 +18,7 @@
 package org.controlhaus.jdbc.parser;
 
 import org.apache.beehive.controls.api.context.ControlBeanContext;
+import org.controlhaus.jdbc.TypeMappingsFactory;
 
 import java.lang.reflect.Method;
 
@@ -104,7 +105,7 @@ public class SqlEscapeFragment extends SqlFragmentContainer {
 
         Object[] arr = null;
         if (value != null) {
-            arr = toObjectArray(value);
+            arr = TypeMappingsFactory.toObjectArray(value);
         }
 
         if (value == null || (arr != null && arr.length == 0)) {
@@ -123,65 +124,5 @@ public class SqlEscapeFragment extends SqlFragmentContainer {
         } else {
             return value.toString();
         }
-    }
-
-    /**
-     * Create an Object array for the given array.
-     *
-     * @param o
-     * @return
-     */
-    private Object[] toObjectArray(Object o) {
-
-        Class clas = o.getClass().getComponentType();
-
-        if (null == clas) return null;
-
-        Object[] arr;
-
-        if (clas == Boolean.TYPE) {
-            boolean[] src = (boolean[]) o;
-            arr = new Object[src.length];
-            for (int i = 0; i < src.length; i++)
-                arr[i] = new Boolean(src[i]);
-        } else if (clas == Character.TYPE) {
-            char[] src = (char[]) o;
-            arr = new Object[src.length];
-            for (int i = 0; i < src.length; i++)
-                arr[i] = new Character(src[i]);
-        } else if (clas == Byte.TYPE) {
-            byte[] src = (byte[]) o;
-            arr = new Object[src.length];
-            for (int i = 0; i < src.length; i++)
-                arr[i] = new Byte(src[i]);
-        } else if (clas == Short.TYPE) {
-            short[] src = (short[]) o;
-            arr = new Object[src.length];
-            for (int i = 0; i < src.length; i++)
-                arr[i] = new Short(src[i]);
-        } else if (clas == Integer.TYPE) {
-            int[] src = (int[]) o;
-            arr = new Object[src.length];
-            for (int i = 0; i < src.length; i++)
-                arr[i] = new Integer(src[i]);
-        } else if (clas == Long.TYPE) {
-            long[] src = (long[]) o;
-            arr = new Object[src.length];
-            for (int i = 0; i < src.length; i++)
-                arr[i] = new Long(src[i]);
-        } else if (clas == Float.TYPE) {
-            float[] src = (float[]) o;
-            arr = new Object[src.length];
-            for (int i = 0; i < src.length; i++)
-                arr[i] = new Float(src[i]);
-        } else if (clas == Double.TYPE) {
-            double[] src = (double[]) o;
-            arr = new Object[src.length];
-            for (int i = 0; i < src.length; i++)
-                arr[i] = new Double(src[i]);
-        } else {
-            arr = (Object[]) o;
-        }
-        return arr;
     }
 }

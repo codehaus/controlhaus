@@ -36,8 +36,10 @@ import java.util.Calendar;
  */
 public final class SqlStatement extends SqlFragmentContainer implements Serializable {
 
+    private static final TypeMappingsFactory _tmf = TypeMappingsFactory.getInstance();
     private boolean _callableStatement = false;
     private boolean _cacheableStatement = true;
+    private boolean _isBatchUpdate = false;
 
     /**
      * Constructor
@@ -74,6 +76,12 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
     public boolean isCallableStatement() { return _callableStatement; }
 
     /**
+     * Is this a batch update?
+     * @return
+     */
+    public boolean isBatchUpdate() { return _isBatchUpdate; }
+
+    /**
      * Generates the prepared statement for this SQL.
      *
      * @param context    ControlBeanContext instance.
@@ -90,12 +98,15 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
 
         PreparedStatement preparedStatement = null;
         _callableStatement = setCallableStatement(arguments);
+        _isBatchUpdate = isBatchUpdate(arguments);
 
         try {
             final String sql = getPreparedStatementText(context, method, arguments);
             preparedStatement = (_callableStatement) ? connection.prepareCall(sql) : connection.prepareStatement(sql);
 
-            // SPECIAL CASE: provides _parameters explicitly
+            //
+            // If the method argument is of type SQLParameter, treat this statement as a CallableStatement,
+            //
             if (_callableStatement) {
                 for (SqlFragment sf : _children) {
                     if (sf.hasParamValue()) {
@@ -117,6 +128,15 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
                         ((CallableStatement) preparedStatement).registerOutParameter(i + 1, params[i].type);
                     }
                 }
+
+            //
+            // special handling for batch updates
+            //
+            } else if (_isBatchUpdate)  {
+                doBatchUpdate(preparedStatement, arguments, calendar);
+            //
+            // standard case, not a batch or callable
+            //
             } else {
                 int pIndex = 1;
                 for (SqlFragment sf : _children) {
@@ -153,7 +173,7 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
             throws SQLException {
 
         if (sqlType == Types.NULL) {
-            sqlType = TypeMappingsFactory.getInstance().getSqlType(value);
+            sqlType = _tmf.getSqlType(value);
         }
 
         if (value == null) {
@@ -278,5 +298,64 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
             }
         }
         return false;
+    }
+
+    /**
+     * Should this update be done as a batch update? Yes if all parameters
+     * are arrays and this is not a callable statement
+     *
+     * @param args
+     * @return
+     */
+    private boolean isBatchUpdate(Object[] args) {
+
+        if (args != null && args.length > 1) {
+            for (int i = 0; i < args.length; i++) {
+                Class argClass = args[i].getClass();
+                if (!argClass.isArray()) {
+                    return false;
+                }
+            }
+        } else {
+            return false;
+        }
+
+        final int arraySize = ((Object[])args[0]).length;
+        for (int i = 1; i < args.length; i++) {
+
+           if (((Object[])args[0]).length != arraySize) {
+                //@todo: throw control exception in this case?
+                return false;
+           }
+        }
+        return true;
+    }
+
+
+    /**
+     * Build a prepared statement for a batch update
+     * @param ps
+     * @param args
+     * @param cal
+     * @throws SQLException
+     */
+    private void doBatchUpdate(PreparedStatement ps, Object[] args, Calendar cal) throws SQLException {
+
+        final int updateCount = ((Object[])args[0]).length;
+        final int[] sqlTypes = new int[args.length];
+        final Object[] objArrays = new Object[args.length];
+
+        // build an array of type values
+        for (int i = 0; i < args.length; i++) {
+            sqlTypes[i] = _tmf.getSqlType(args[i].getClass().getComponentType());
+            objArrays[i] = TypeMappingsFactory.toObjectArray(args[i]);
+        }
+
+        for (int i = 0; i < updateCount; i++) {
+            for (int j = 0; j < args.length; j++) {
+               setPreparedStatementParameter(ps, j+1, ((Object[])objArrays[j])[i], sqlTypes[j], cal);
+            }
+            ps.addBatch();
+        }
     }
 }

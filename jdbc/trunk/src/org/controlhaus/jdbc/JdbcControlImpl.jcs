@@ -59,8 +59,8 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
     protected transient Connection _connection;
     protected transient ConnectionDataSource _connectionDataSource;
-    protected transient ConnectionDriver _connectionDriver;
     protected transient DataSource _dataSource;
+    protected transient ConnectionDriver _connectionDriver;
     protected HashMap<Class, ResultSetMapper> _resultMappers;
     protected Class _xmlObjectClass;
 
@@ -263,9 +263,31 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             }
 
             //
+            // special processing for batch updates
+            //
+            if (parsedSql.isBatchUpdate()) {
+                return ps.executeBatch();
+            }
+
+            //
             // execute
             //
             boolean hasResults = ps.execute();
+
+
+            //
+            // callable statement
+            //
+            if (parsedSql.isCallableStatement()) {
+                SQLParameter[] params = (SQLParameter[]) args[0];
+                for (int i = 0; i < params.length; i++) {
+                    if (params[i].dir != SQLParameter.IN) {
+                        params[i].value = ((CallableStatement) ps).getObject(i + 1);
+                    }
+                }
+                return null;
+            }
+
 
             //
             // process returned data
@@ -296,7 +318,6 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
             Object returnObject = null;
             if (hasResults) {
-
 
                 //
                 // if a result set mapper was specified in the methods annotation, use it
@@ -336,18 +357,6 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
                     returnObject = new Integer(updateCount);
                 } else if (!parsedSql.isCallableStatement()) {
                     throw new ControlException("Method " + method.getName() + "is DML but does not return void or int");
-                }
-            }
-
-            //
-            // callable statement
-            //
-            if (parsedSql.isCallableStatement()) {
-                SQLParameter[] params = (SQLParameter[]) args[0];
-                for (int i = 0; i < params.length; i++) {
-                    if (params[i].dir != SQLParameter.IN) {
-                        params[i].value = ((CallableStatement) ps).getObject(i + 1);
-                    }
                 }
             }
             return returnObject;
