@@ -183,7 +183,7 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     // batch updates
     //
-    @SQL(statement="INSERT INTO users VALUES ({fname}, {userid})")
+    @SQL(statement="INSERT INTO users VALUES ({fname}, {userid})",  batchUpdate=true)
     public int[] doABatchUpdate(String[] fname, int[] userid);
 
     //

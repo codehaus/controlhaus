@@ -62,8 +62,7 @@ public class SqlParserTest extends TestCase {
     private static final String SimpleSQLPARAMS_2_RESULT = "INSERT INTO USERS (username, password) \nVALUES(?),?)";
     private static final String SimpleSQLPARAMS_3 = "INSERT INTO USERS (username, password) \nVALUES({sql: x}),{password})";
     private static final String SimpleSQLPARAMS_3_RESULT = "INSERT INTO USERS (username, password) \nVALUES(?),?)";
-    private static final String SimpleSQLPARAMS_4 = "SELECT FROM USERS WHERE INSERT INTO USERS (username, password) \nVALUES({sql: x}),{password})";
-    private static final String SimpleSQLPARAMS_4_RESULT = "INSERT INTO USERS (username, password) \nVALUES(?),?)";
+
 
     private static final String BADLY_FORMED_1 = "INSERT INTO USERS (username, password) \nVALUES({sql: x}),{password)";
     private static final String BADLY_FORMED_2 = "INSERT INTO USERS (username, password) \nVALUES(sql: x}),{password})";
@@ -74,13 +73,13 @@ public class SqlParserTest extends TestCase {
     private static final String BADLY_FORMED_7 = "INSERT INTO USERS (username, password) \nVALUES(({sql: x}),{})";
     private static final String BADLY_FORMED_8 = "INSERT INTO USERS (username, password) \nVALUES(({sql: x}),{p)";
 
-    private static final String CORE_SQL_1 = "create table users (username VARCHAR(50), password VARCHAR(50))";
-    private static final String CORE_SQL_2 = "INSERT INTO USERS (username, password) \nVALUES(({x}),{p})";
-    private static final String CORE_SQL_3 = "INSERT INTO USERS (username, password) \nVALUES(({sql:x}),{p})";
-    private static final String CORE_SQL_4 = "INSERT INTO USERS (username, password) \nVALUES({sql:fn in(x,{y})},{password})";
-    private static final String CORE_SQL_4_OUT = "INSERT INTO USERS (username, password) \nVALUES({x IN (y)},{password})";
-    private static final String CORE_SQL_5 = "INSERT INTO USERS (username, password) \nVALUES({call {foo}},{password})";
-    private static final String CORE_SQL_6 = "INSERT INTO USERS (username, password) \nVALUES({?= username},{password})";
+//    private static final String CORE_SQL_1 = "create table users (username VARCHAR(50), password VARCHAR(50))";
+//    private static final String CORE_SQL_2 = "INSERT INTO USERS (username, password) \nVALUES(({x}),{p})";
+//    private static final String CORE_SQL_3 = "INSERT INTO USERS (username, password) \nVALUES(({sql:x}),{p})";
+//    private static final String CORE_SQL_4 = "INSERT INTO USERS (username, password) \nVALUES({sql:fn in(x,{y})},{password})";
+//    private static final String CORE_SQL_4_OUT = "INSERT INTO USERS (username, password) \nVALUES({x IN (y)},{password})";
+//    private static final String CORE_SQL_5 = "INSERT INTO USERS (username, password) \nVALUES({call {foo}},{password})";
+//    private static final String CORE_SQL_6 = "INSERT INTO USERS (username, password) \nVALUES({?= username},{password})";
 
     private SqlParser _parser;
 
@@ -94,155 +93,316 @@ public class SqlParserTest extends TestCase {
     //
     // tests for basic param sub parsing
     //
-    public void testSimpleReflection() throws Exception {
+
+
+    //
+    // parse with no substitutions
+    //
+    public void testSimpleParse() throws Exception {
         SqlStatement frag = null;
         assertNotNull(_parser);
 
         frag = _parser.parse(SimpleREFLECTPARAMS);
         assertEquals(SimpleREFLECTPARAMS, frag.toString());
+    }
+
+    //
+    // test parsing with several reflected params
+    //
+    public void testParamReflection() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleREFLECTPARAMS_2);
         assertEquals(SimpleREFLECTPARAMS_2_RESULT, frag.toString());
+    }
+
+    //
+    // test parsing with several reflected params
+    //
+    public void testParamReflection2() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleREFLECTPARAMS_3);
         assertEquals(SimpleREFLECTPARAMS_3_RESULT, frag.toString());
+    }
+
+    //
+    // test parsing with several reflected params which specify types
+    //
+    public void testParamReflectionWithTypes() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleREFLECTPARAMS_4);
         assertEquals(SimpleREFLECTPARAMS_3_RESULT, frag.toString());
+    }
+
+    //
+    // test parsing with several reflected params + whitespace
+    //
+    public void testParamReflectionWhitespace() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleREFLECTPARAMS_5);
         assertEquals(SimpleREFLECTPARAMS_5_RESULT, frag.toString());
+    }
+
+    //
+    // test parsing with several reflected params + a literal brace
+    //
+    public void testParamReflectionLiteralBrace() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleREFLECTPARAMS_6);
         assertEquals(SimpleREFLECTPARAMS_6, frag.toString());
     }
 
+// //////////////////////////////////////// END REFLECTION TESTS //////////////////////////////////////////////////
+
     //
     // tests for jdbc escape parsing
     //
-    public void testSimpleJDBC() throws Exception {
+
+
+    //
+    // JDBC call cmd
+    //
+    public void testJdbcCall() throws Exception {
         SqlStatement frag = null;
         assertNotNull(_parser);
 
         frag = _parser.parse(SimpleJDBCPARAMS_1);
         assertEquals(SimpleJDBCPARAMS_1_RESULT, frag.toString());
+    }
+
+    //
+    // JDBC ?= cmd
+    //
+    public void testJdbcReturnCmd() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleJDBCPARAMS_2);
         assertEquals(SimpleJDBCPARAMS_2_RESULT, frag.toString());
+    }
+
+    //
+    // JDBC d cmd
+    //
+    public void testJdbcDateCmd() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleJDBCPARAMS_3);
         assertEquals(SimpleJDBCPARAMS_3_RESULT, frag.toString());
+    }
+
+    //
+    // JDBC escape cmd
+    //
+    public void testJdbcEscapeCmd() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleJDBCPARAMS_4);
         assertEquals(SimpleJDBCPARAMS_4, frag.toString());
+    }
+
+    //
+    // JDBC fn cmd
+    //
+    public void testJdbcFnCmd() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleJDBCPARAMS_5);
         assertEquals(SimpleJDBCPARAMS_5, frag.toString());
+    }
+
+    //
+    // JDBC d, t, ts cmds
+    //
+    public void testJdbcTimeCmds() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleJDBCPARAMS_6);
         assertEquals(SimpleJDBCPARAMS_6_RESULT, frag.toString());
+    }
+
+    //
+    // JDBC outerjoin cmds
+    //
+    public void testJdbcOuterJoinCmd() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleJDBCPARAMS_7);
         assertEquals(SimpleJDBCPARAMS_7, frag.toString());
     }
 
+    // ///////////////////////////////////////// End of JDBC cmd tests ////////////////////////////////////////////
+
     //
     // tests for sql escape parsing
     //
-    public void testSimpleSQL() throws Exception {
+
+
+    //
+    // tests sql:fn sub
+    //
+    public void testSqlFn() throws Exception {
         SqlStatement frag = null;
         assertNotNull(_parser);
 
         frag = _parser.parse(SimpleSQLPARAMS_1);
         assertEquals(SimpleSQLPARAMS_1_RESULT, frag.toString());
+    }
+
+    //
+    // tests sql:subst
+    //
+    public void testSqlSubst() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleSQLPARAMS_2);
         assertEquals(SimpleSQLPARAMS_2_RESULT, frag.toString());
+    }
+
+    //
+    // tests implicit sql:subst
+    //
+    public void testSqlImplicitSubst() {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
 
         frag = _parser.parse(SimpleSQLPARAMS_3);
         assertEquals(SimpleSQLPARAMS_3_RESULT, frag.toString());
     }
 
+   // ///////////////////////////////////////////// End of Sql Subst Tests ////////////////////////////////////////
+
     //
     // tests for badly formed sql expression parsing
     //
-    public void testBadlyFormedSQL() throws Exception {
+
+    //
+    // statement missing '}'
+    //
+    public void testParseErrorMissingCloseBrace() throws Exception {
         SqlStatement frag = null;
         assertNotNull(_parser);
 
-        //
-        // statement missing '}'
-        //
         try {
             frag = _parser.parse(BADLY_FORMED_1);
             fail("SQL statements missing '}' should raise SqlException");
         } catch (ControlException spe) {
             assertTrue(true);
         }
+    }
 
-        //
-        // statement missing '{'
-        //
+    //
+    // statement missing '{'
+    //
+    public void testParseErrorMissingOpenBrace() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
+
         try {
             frag = _parser.parse(BADLY_FORMED_2);
             fail("SQL statements with unbalanced '{}'s should raise SqlException");
         } catch (ControlException spe) {
             assertTrue(true);
         }
+    }
 
-        //
-        // statement has unbalanced 's
-        //
+    //
+    // statement has unbalanced 's
+    //
+    public void testParseErrorUnbalancedSquotes() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
+
         try {
             frag = _parser.parse(BADLY_FORMED_3);
             fail("SQL statements with unbalanced 's should raise SqlException");
         } catch (ControlException spe) {
             assertTrue(true);
         }
+    }
 
-        //
-        // statement has unbalanced invalid escape sequence 'sqlxxxx:'
-        //
+    //
+    // statement has unbalanced invalid escape sequence 'sqlxxxx:'
+    //
+    public void testParseErrorInvalidEscape() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
+
         try {
             frag = _parser.parse(BADLY_FORMED_4);
             fail("SQL statements with invalid escape sequences should raise SqlException");
         } catch (ControlException spe) {
             assertTrue(true);
         }
+    }
 
-        //
-        // SQLEscapeFragment: statement has unbalanced invalid sql: keyword, must be either fn or subst
-        //
+    //
+    // SQLEscapeFragment: statement has unbalanced invalid sql: keyword, must be either fn or subst
+    //
+    public void testParseErrorInvalidKeyWord() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
+
         try {
             frag = _parser.parse(BADLY_FORMED_5);
             fail("SQL statements with sql: escapes can only map to 'fn' or 'subst' functions");
         } catch (ControlException spe) {
             assertTrue(true);
         }
+    }
 
-        //
-        // SQLEscapeFragment: statement missing '}'
-        //
+    //
+    // SQLEscapeFragment: statement missing '}'
+    //
+    public void testParseErrorMissingEscapeBrace() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
+
         try {
             frag = _parser.parse(BADLY_FORMED_6);
             fail("SQL statements with unbalanced 's should raise SqlException");
         } catch (ControlException spe) {
             assertTrue(true);
         }
+    }
 
-        //
-        // ReflectFragment: statement missing param name
-        //
+    //
+    // ReflectFragment: statement missing param name
+    //
+    public void testParseErrorMissingParamName() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
+
         try {
             frag = _parser.parse(BADLY_FORMED_7);
             fail("SQL statements with empty '{}'s should raise SqlException");
         } catch (ControlException spe) {
             assertTrue(true);
         }
+    }
 
-        //
-        // ReflectFragment: statement missing '}'
-        //
+    //
+    // ReflectFragment: statement missing '}'
+    //
+    public void testParseErrorMissingReflectBrace() throws Exception {
+        SqlStatement frag = null;
+        assertNotNull(_parser);
+
         try {
             frag = _parser.parse(BADLY_FORMED_8);
             fail("SQL statements with unbalanced {}'s should raise SqlException");

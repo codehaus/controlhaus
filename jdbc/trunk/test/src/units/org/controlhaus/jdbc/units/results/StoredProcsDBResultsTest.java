@@ -49,6 +49,63 @@ public class StoredProcsDBResultsTest extends AbstractControlTest {
     public void setUp() throws Exception {
         BasicConfigurator.configure();
         super.setUp();
+    }
+
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+
+    //
+    // simple sp which does not do a database query in the sp
+    //
+    public void testSimpleSP() throws Exception {
+
+        assertNotNull(testCtrl);
+
+        JdbcControl.SQLParameter[] params = new JdbcControl.SQLParameter[1];
+        params[0] = new JdbcControl.SQLParameter(new String(), Types.VARCHAR, JdbcControl.SQLParameter.OUT);
+        testCtrl.getExpensiveProduct(params);
+        assertEquals(params[0].value, "foo");
+    }
+
+    //
+    // sp which does a database query
+    //
+    public void testSP() throws Exception {
+        assertNotNull(testCtrl);
+
+        JdbcControl.SQLParameter[] params = new JdbcControl.SQLParameter[1];
+        params[0] = new JdbcControl.SQLParameter(new String[8], Types.VARCHAR, JdbcControl.SQLParameter.OUT);
+        testCtrl.getExpensiveProducts(params);
+        assertEquals(params[0].value, "Widget 4");
+    }
+
+    //
+    // sp which does a database query and uses IN and OUT params
+    //
+    public void testSPOutParams() throws Exception {
+        assertNotNull(testCtrl);
+
+        JdbcControl.SQLParameter[] params = new JdbcControl.SQLParameter[2];
+        params[0] = new JdbcControl.SQLParameter("red", Types.VARCHAR, JdbcControl.SQLParameter.IN);
+        params[1] = new JdbcControl.SQLParameter(new String[8], Types.VARCHAR, JdbcControl.SQLParameter.OUT);
+        testCtrl.getProductsByColor(params);
+        assertEquals(params[1].value, "Widget 1,Widget 4,");
+    }
+
+    //
+    // create a stored proc with the dbControl then run it -- only contains IN parameters
+    //
+    public void testSPGeneration() throws Exception {
+        assertNotNull(testCtrl);
+
+        testCtrl.createStoredProc();
+        testCtrl.getProduct("red", 1234);
+    }
+
+    public StoredProcsDBResultsTest(String name) throws Exception {
+        super(name);
 
         // setup the database
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -56,11 +113,11 @@ public class StoredProcsDBResultsTest extends AbstractControlTest {
         Statement s = conn.createStatement();
 
         try {
-        s.executeUpdate("DROP TABLE PRODUCTS");
-        s.executeUpdate("DROP PROCEDURE getExpensiveProductsSP");
-        s.executeUpdate("DROP PROCEDURE getExpensiveProductSP");
-        s.executeUpdate("DROP PROCEDURE getProductsByColorSP");
-        s.executeUpdate("DROP PROCEDURE getProductSP");
+            s.executeUpdate("DROP TABLE PRODUCTS");
+            s.executeUpdate("DROP PROCEDURE getExpensiveProductsSP");
+            s.executeUpdate("DROP PROCEDURE getExpensiveProductSP");
+            s.executeUpdate("DROP PROCEDURE getProductsByColorSP");
+            s.executeUpdate("DROP PROCEDURE getProductSP");
         } catch (Exception e) {}
 
         s.executeUpdate("CREATE TABLE PRODUCTS (SKU INT, PRODUCT_NAME VARCHAR(128), PRICE FLOAT, COLOR VARCHAR(64))");
@@ -90,61 +147,6 @@ public class StoredProcsDBResultsTest extends AbstractControlTest {
 
         conn.close();
     }
-
-    public void tearDown() throws Exception {
-//        Connection conn = DriverManager.getConnection("jdbc:derby:MyDB");
-//        Statement s = conn.createStatement();
-//        s.executeUpdate("DROP TABLE PRODUCTS");
-//        s.executeUpdate("DROP PROCEDURE getExpensiveProductsSP");
-//        s.executeUpdate("DROP PROCEDURE getExpensiveProductSP");
-//        s.executeUpdate("DROP PROCEDURE getProductsByColorSP");
-//        s.executeUpdate("DROP PROCEDURE getProductSP");
-//        s.close();
-//        conn.close();
-
-        super.tearDown();
-    }
-
-    public void testStoredProcedures() throws Exception {
-
-
-        assertNotNull(testCtrl);
-
-        //
-        // simple sp which does not do a database query in the sp
-        //
-        JdbcControl.SQLParameter[] params = new JdbcControl.SQLParameter[1];
-        params[0] = new JdbcControl.SQLParameter(new String(), Types.VARCHAR, JdbcControl.SQLParameter.OUT);
-        testCtrl.getExpensiveProduct(params);
-        assertEquals(params[0].value, "foo");
-
-        //
-        // sp which does a database query
-        //
-        params = new JdbcControl.SQLParameter[1];
-        params[0] = new JdbcControl.SQLParameter(new String[8], Types.VARCHAR, JdbcControl.SQLParameter.OUT);
-        testCtrl.getExpensiveProducts(params);
-        assertEquals(params[0].value, "Widget 4");
-
-        //
-        // sp which does a database query and uses IN and OUT params
-        //
-        params = new JdbcControl.SQLParameter[2];
-        params[0] = new JdbcControl.SQLParameter("red", Types.VARCHAR, JdbcControl.SQLParameter.IN);
-        params[1] = new JdbcControl.SQLParameter(new String[8], Types.VARCHAR, JdbcControl.SQLParameter.OUT);
-        testCtrl.getProductsByColor(params);
-        assertEquals(params[1].value, "Widget 1,Widget 4,");
-
-
-        //
-        // create a stored proc with the dbControl then run it -- only contains IN parameters
-        //
-        testCtrl.createStoredProc();
-        testCtrl.getProduct("red", 1234);
-    }
-
-
-    public StoredProcsDBResultsTest(String name) { super(name); }
 
     public static Test suite() { return new TestSuite(StoredProcsDBResultsTest.class); }
 

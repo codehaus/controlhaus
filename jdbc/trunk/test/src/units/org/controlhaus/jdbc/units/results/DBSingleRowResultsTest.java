@@ -46,6 +46,130 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     public void setUp() throws Exception {
         BasicConfigurator.configure();
         super.setUp();
+    }
+
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    //
+    // test query return ResultSet
+    //
+    public void testResultSetReturnType() throws Exception {
+
+        assertNotNull(testCtrl);
+
+        ResultSet rs = testCtrl.getAllUsers();
+        assertNotNull(rs);
+        rs.next();
+        String name = rs.getString("FNAME");
+        assertEquals(name, "tester1");
+        rs.close();
+    }
+
+    //
+    // test query with sql: escape, returns ResultSet
+    //
+    public void testSqlEscapeResultSet() throws Exception {
+
+        ResultSet rs = testCtrl.getSomeUser("tester4");
+        assertNotNull(rs);
+        rs.next();
+        String name = rs.getString("FNAME");
+        assertEquals(name, "tester4");
+        rs.close();
+
+        rs = testCtrl.getSomeUser(24);
+        assertNotNull(rs);
+        rs.next();
+        name = rs.getString("FNAME");
+        assertEquals(name, "tester4");
+        rs.close();
+    }
+
+    //
+    // test query with sql: escape
+    //
+    public void testSqlEscape() throws Exception {
+
+        ResultSet rs = testCtrl.getJustOneUser("fname='tester4'");
+        assertNotNull(rs);
+        rs.next();
+        String name = rs.getString("FNAME");
+        assertEquals(name, "tester4");
+        rs.close();
+    }
+
+    //
+    // test HashMap return type
+    //
+    public void testHashMapReturnType() throws Exception {
+
+        HashMap customerHashMap = testCtrl.getCustomerHashMap(23);
+        assertNotNull(customerHashMap);
+        assertEquals(customerHashMap.get("FNAME"), "tester3");
+    }
+
+    //
+    // test Map return type
+    //
+    public void testMapReturnType() throws Exception {
+
+        Map customerMap = testCtrl.getCustomerMap(22);
+        assertNotNull(customerMap);
+        assertEquals(customerMap.get("FNAME"), "tester2");
+    }
+
+    //
+    // test null / both Object and int return Types
+    //
+    public void testNullReturnType() throws Exception {
+
+        int prim = testCtrl.getNoUsers(111);
+        assertEquals(prim, 0);
+
+        ResultsTestCtrl.Customer customer = testCtrl.getACustomer(111);
+        assertNull(customer);
+    }
+
+    //
+    // test Object return type
+    //
+    public void testObjectReturnType() throws Exception {
+
+        ResultsTestCtrl.Customer customer = testCtrl.getACustomer(23);
+        assertNotNull(customer);
+        assertEquals(customer.getFname(), "tester3");
+        assertEquals(customer.userid, 23);
+    }
+
+    //
+    // test XmlBean return type
+    //
+    public void testXmlBeanReturnType() throws Exception {
+
+        XCustomerRowDocument.XCustomerRow customerXmlObj = testCtrl.getAUserXmlBean("tester2");
+        assertNotNull(customerXmlObj);
+
+        assertEquals(customerXmlObj.getUSERID(), 22);
+        assertEquals(customerXmlObj.getFNAME(), "tester2");
+    }
+
+    //
+    // add some new users to the table using batch update
+    //
+    public void testBatchUpdate() throws Exception {
+
+        int[] results = testCtrl.doABatchUpdate(
+                new String[] {"tester44", "tester55", "tester66"}, new int[] {44, 55, 66});
+        assertEquals(1, results[0]);
+        assertEquals(1, results[1]);
+        assertEquals(1, results[2]);
+    }
+
+
+    public DBSingleRowResultsTest(String name) throws Exception {
+        super(name);
 
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         // setup the database
@@ -63,106 +187,6 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
         s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
         conn.close();
     }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    public void testSingleRowResults() throws Exception {
-
-        assertNotNull(testCtrl);
-
-        //
-        // test query return ResultSet
-        //
-        ResultSet rs = testCtrl.getAllUsers();
-        assertNotNull(rs);
-        rs.next();
-        String name = rs.getString("FNAME");
-        assertEquals(name, "tester1");
-        rs.close();
-
-        //
-        // test query with sql: escape, returns ResultSet
-        //
-        rs = testCtrl.getSomeUser("tester4");
-        assertNotNull(rs);
-        rs.next();
-        name = rs.getString("FNAME");
-        assertEquals(name, "tester4");
-        rs.close();
-
-        rs = testCtrl.getSomeUser(24);
-        assertNotNull(rs);
-        rs.next();
-        name = rs.getString("FNAME");
-        assertEquals(name, "tester4");
-        rs.close();
-
-        //
-        // test query with sql: escape
-        //
-        rs = testCtrl.getJustOneUser("fname='tester4'");
-        assertNotNull(rs);
-        rs.next();
-        name = rs.getString("FNAME");
-        assertEquals(name, "tester4");
-        rs.close();
-
-        //
-        // test HashMap return type
-        //
-        HashMap customerHashMap = testCtrl.getCustomerHashMap(23);
-        assertNotNull(customerHashMap);
-        assertEquals(customerHashMap.get("FNAME"), "tester3");
-
-        //
-        // test Map return type
-        //
-        Map customerMap = testCtrl.getCustomerMap(22);
-        assertNotNull(customerMap);
-        assertEquals(customerMap.get("FNAME"), "tester2");
-
-        //
-        // test null / both Object and int return Types
-        //
-        int prim = testCtrl.getNoUsers(111);
-        assertEquals(prim, 0);
-
-        ResultsTestCtrl.Customer customer = testCtrl.getACustomer(111);
-        assertNull(customer);
-
-        //
-        // test Object return type
-        //
-
-        customer = testCtrl.getACustomer(23);
-        assertNotNull(customer);
-        assertEquals(customer.getFname(), "tester3");
-        assertEquals(customer.userid, 23);
-
-
-        //
-        // test XmlBean return type
-        //
-        XCustomerRowDocument.XCustomerRow customerXmlObj = testCtrl.getAUserXmlBean("tester2");
-        assertNotNull(customerXmlObj);
-
-        assertEquals(customerXmlObj.getUSERID(), 22);
-        assertEquals(customerXmlObj.getFNAME(), "tester2");
-
-        //
-        // add some new users to the table using batch update
-        //
-        int[] results = testCtrl.doABatchUpdate(
-                new String[] {"tester44", "tester55", "tester66"}, new int[] {44, 55, 66});
-        assertEquals(1, results[0]);
-        assertEquals(1, results[1]);
-        assertEquals(1, results[2]);
-    }
-
-
-    public DBSingleRowResultsTest(String name) { super(name); }
 
     public static Test suite() { return new TestSuite(DBSingleRowResultsTest.class); }
 

@@ -47,31 +47,14 @@ public class JdbcTypesTest extends AbstractControlTest {
             public ResultsTestCtrl testCtrl;
 
     public void setUp() throws Exception {
-        BasicConfigurator.configure();
         super.setUp();
-
-        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-        // setup the database
-        Connection conn = DriverManager.getConnection("jdbc:derby:MyDB");
-        Statement s = conn.createStatement();
-        try {
-            s.executeUpdate("DROP TABLE blob_table");
-            s.executeUpdate("DROP TABLE clob_table");
-        } catch (Exception e) {
-        }
-
-        s.executeUpdate("CREATE TABLE blob_table (id INT, BLB BLOB(4k))");
-        s.executeUpdate("CREATE TABLE clob_table (id INT, CLB CLOB(8k))");
-        s.executeUpdate("INSERT INTO clob_table VALUES (1234, 'thisisaclob1')");
-        s.executeUpdate("INSERT INTO clob_table VALUES (5678, 'thisisaclob2')");
-        conn.close();
     }
 
     public void tearDown() throws Exception {
         super.tearDown();
     }
 
-    public void testBlobClob() throws Exception {
+    public void testBlob() throws Exception {
 
         assertNotNull(testCtrl);
 
@@ -89,20 +72,42 @@ public class JdbcTypesTest extends AbstractControlTest {
         assertNotNull(b);
         byte[] check = b.getBlb().getBytes(1,3);
         assertEquals(check[0], 1);
+    }
+
+    public void testClob() throws Exception {
+
+        assertNotNull(testCtrl);
 
         //
         // get a clob and validate
         //
-//        ResultsTestCtrl.ClobInfo c = testCtrl.getAClob(1234);
         Clob c = testCtrl.getAClob(1234);
         assertNotNull(c);
-//        assertEquals(c.getClb().getSubString(1,3), "thi");
         assertEquals(c.getSubString(1,3), "thi");
-
     }
 
 
-    public JdbcTypesTest(String name) { super(name); }
+
+    public JdbcTypesTest(String name) throws Exception {
+        super(name);
+
+        //BasicConfigurator.configure();
+        Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+        // setup the database
+        Connection conn = DriverManager.getConnection("jdbc:derby:MyDB");
+        Statement s = conn.createStatement();
+        try {
+            s.executeUpdate("DROP TABLE blob_table");
+            s.executeUpdate("DROP TABLE clob_table");
+        } catch (Exception e) {
+        }
+
+        s.executeUpdate("CREATE TABLE blob_table (id INT, BLB BLOB(4k))");
+        s.executeUpdate("CREATE TABLE clob_table (id INT, CLB CLOB(8k))");
+        s.executeUpdate("INSERT INTO clob_table VALUES (1234, 'thisisaclob1')");
+        s.executeUpdate("INSERT INTO clob_table VALUES (5678, 'thisisaclob2')");
+        conn.close();
+    }
 
     public static Test suite() { return new TestSuite(JdbcTypesTest.class); }
 

@@ -45,6 +45,109 @@ public class DBMultiRowResultsTest extends AbstractControlTest {
     public void setUp() throws Exception {
         BasicConfigurator.configure();
         super.setUp();
+    }
+
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    //
+    // test array return type
+    //
+    public void testArrayReturnType() throws Exception {
+
+        ResultsTestCtrl.Customer[] customers = testCtrl.getCustomerArray();
+        assertNotNull(customers);
+        assertEquals(customers.length, 4);
+        assertEquals(customers[0].getFname(), "tester1");
+        assertEquals(customers[3].userid, 24);
+    }
+
+    //
+    // test array return type, restricted array size returned (2)
+    //
+    public void testArrayReturnTypeMaxSize() throws Exception {
+
+        ResultsTestCtrl.Customer[] customers = testCtrl.getCustomerArrayLimitedSize();
+        assertNotNull(customers);
+        assertEquals(customers.length, 2);
+    }
+
+
+    //
+    // test array of HashMap return type
+    //
+    public void testArrayHashMapReturnType() throws Exception {
+
+        HashMap[] customerHashMap = testCtrl.getCustomerHashMapArray(22);
+        assertTrue(customerHashMap.length > 0);
+        assertEquals(customerHashMap[0].get("FNAME"),"tester2");
+        assertEquals(customerHashMap[0].get("USERID"), 22);
+    }
+
+
+    //
+    // test EMPTY array of HashMap return type
+    //
+    public void testEmptyArrayHashMapReturnType() throws Exception {
+
+        HashMap[] customerHashMap = testCtrl.getCustomerHashMapArray(1000);
+        assertEquals(customerHashMap.length, 0);
+    }
+
+    //
+    // test Iterator return type
+    //
+    public void testIteratorReturnType() throws Exception {
+
+        Iterator customersIterator = testCtrl.getCustomerIterator();
+        assertNotNull(customersIterator);
+        int idCheck = 21;
+        assertTrue(customersIterator.hasNext());
+        while (customersIterator.hasNext()) {
+            ResultsTestCtrl.Customer c = (ResultsTestCtrl.Customer) customersIterator.next();
+            assertEquals(idCheck, c.userid);
+            idCheck++;
+        }
+        assertEquals(idCheck, 25);
+    }
+
+    //
+    // test RowSet return type, defines its own rowset mapper
+    //
+    public void testRowSetReturnType() throws Exception {
+
+        RowSet customersRowSet = testCtrl.getAllUsersINRS();
+        assertNotNull(customersRowSet);
+
+        customersRowSet.beforeFirst();
+        customersRowSet.next();
+        assertEquals(customersRowSet.getInt("USERID"), 21);
+
+    }
+
+    //
+    // test XmlBean array return type
+    //
+    public void testXmlBeanArrayReturnType() throws Exception {
+
+        XCustomerRowDocument.XCustomerRow[] customersXml = testCtrl.getAllUserXmlBean();
+        assertNotNull(customersXml);
+
+        assertEquals(customersXml.length, 4);
+        assertEquals(customersXml[0].getFNAME(), "tester1");
+        assertEquals(customersXml[0].getUSERID(), 21);
+        assertEquals(customersXml[1].getFNAME(), "tester2");
+        assertEquals(customersXml[1].getUSERID(), 22);
+        assertEquals(customersXml[2].getFNAME(), "tester3");
+        assertEquals(customersXml[2].getUSERID(), 23);
+        assertEquals(customersXml[3].getFNAME(), "tester4");
+        assertEquals(customersXml[3].getUSERID(), 24);
+    }
+
+
+    public DBMultiRowResultsTest(String name) throws Exception {
+        super(name);
 
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
         // setup the database
@@ -62,89 +165,6 @@ public class DBMultiRowResultsTest extends AbstractControlTest {
         s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
         conn.close();
     }
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    public void testMultiRowResults() throws Exception {
-
-        //
-        // test array return type
-        //
-        ResultsTestCtrl.Customer[] customers = testCtrl.getCustomerArray();
-        assertNotNull(customers);
-        assertEquals(customers.length, 4);
-        assertEquals(customers[0].getFname(), "tester1");
-        assertEquals(customers[3].userid, 24);
-
-        //
-        // test array return type, restricted array size returned (2)
-        //
-        customers = testCtrl.getCustomerArrayLimitedSize();
-        assertNotNull(customers);
-        assertEquals(customers.length, 2);
-
-
-        //
-        // test array of HashMap return type
-        //
-        HashMap[] customerHashMap = testCtrl.getCustomerHashMapArray(22);
-        assertTrue(customerHashMap.length > 0);
-        assertEquals(customerHashMap[0].get("FNAME"),"tester2");
-        assertEquals(customerHashMap[0].get("USERID"), 22);
-
-
-        //
-        // test EMPTY array of HashMap return type
-        //
-        customerHashMap = testCtrl.getCustomerHashMapArray(1000);
-        assertEquals(customerHashMap.length, 0);
-
-
-        //
-        // test Iterator return type
-        //
-        Iterator customersIterator = testCtrl.getCustomerIterator();
-        assertNotNull(customers);
-        int idCheck = 21;
-        assertTrue(customersIterator.hasNext());
-        while (customersIterator.hasNext()) {
-            ResultsTestCtrl.Customer c = (ResultsTestCtrl.Customer) customersIterator.next();
-            assertEquals(idCheck, c.userid);
-            idCheck++;
-        }
-        assertEquals(idCheck, 25);
-
-        //
-        // test RowSet return type, defines its own rowset mapper
-        //
-        RowSet customersRowSet = testCtrl.getAllUsersINRS();
-        assertNotNull(customersRowSet);
-
-        customersRowSet.beforeFirst();
-        customersRowSet.next();
-        assertEquals(customersRowSet.getInt("USERID"), 21);
-
-        //
-        // test XmlBean array return type
-        //
-        XCustomerRowDocument.XCustomerRow[] customersXml = testCtrl.getAllUserXmlBean();
-        assertNotNull(customers);
-
-        assertEquals(customersXml.length, 4);
-        assertEquals(customersXml[0].getFNAME(), "tester1");
-        assertEquals(customersXml[0].getUSERID(), 21);
-        assertEquals(customersXml[1].getFNAME(), "tester2");
-        assertEquals(customersXml[1].getUSERID(), 22);
-        assertEquals(customersXml[2].getFNAME(), "tester3");
-        assertEquals(customersXml[2].getUSERID(), 23);
-        assertEquals(customersXml[3].getFNAME(), "tester4");
-        assertEquals(customersXml[3].getUSERID(), 24);
-    }
-
-
-    public DBMultiRowResultsTest(String name) { super(name); }
 
     public static Test suite() { return new TestSuite(DBMultiRowResultsTest.class); }
 
