@@ -73,12 +73,17 @@
     <ant antfile="drt/build.xml"/>
   </target>
 
+  <target name="nettests" depends="build">
+    <ant antfile="drt/build.xml" target="nettests"/>
+  </target>
+
   <target name="clean">
     <delete dir="${classes.dir}"/>
     <delete dir="${scgen.dir}"/>
     <delete dir="${xbeangen.dir}"/>
     <delete dir="${axisbeangen.dir}"/>
     <delete dir="${extgen.dir}"/>
+    <delete file="velocity.log"/>
     <ant antfile="drt/build.xml" target="clean"/>
   </target>
 
@@ -141,7 +146,10 @@
       classpathref="project.class.path">
       <arg line="${wsdl.dir} ${extgen.dir}"/>
     </java>
+    <antcall target="extcomp"/>
+  </target>
 
+  <target name="extcomp">
     <apt srcdir="${extgen.dir}" 
       destdir="${classes.dir}" 
       gendir="${extgen.dir}" 
