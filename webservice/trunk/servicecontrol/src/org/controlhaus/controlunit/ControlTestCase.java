@@ -22,6 +22,7 @@ package org.controlhaus.controlunit;
  */
 
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
@@ -40,6 +41,7 @@ public abstract class ControlTestCase extends TestCase {
     private ControlContainerContext mContext;
 
     public void setUp() throws Exception {
+        try { 
         mContext = ControlThreadContext.getContext();
         if(mContext == null) {
             mContext = new org.apache.beehive.controls.runtime.bean.
@@ -60,6 +62,16 @@ public abstract class ControlTestCase extends TestCase {
             clientInitializer.getMethod("initialize",
                                         ControlBeanContext.class, cls);
         init.invoke(null, mContext, this);
+        } catch ( InvocationTargetException ite) {
+            Throwable t = ite.getCause();
+            System.out.println("Error in method invocation original cause: " + t.getMessage());
+            t.printStackTrace();
+            ite.printStackTrace();
+            throw ite;
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
         
     }
 
