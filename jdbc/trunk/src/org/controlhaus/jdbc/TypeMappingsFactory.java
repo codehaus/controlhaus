@@ -79,6 +79,12 @@ public final class TypeMappingsFactory {
     static final int TYPE_MAX = 30;
 
     private Map<Class, Object> _primitiveDefaults;
+
+    //
+    // keys in this map are the class of the method's return type,
+    // values are the set of constants defined above all prefixed with
+    // TYPE_
+    //
     private Map<Class, Integer> _typeMap;
     private Map<Class, Integer> _typeSqlMap;
 

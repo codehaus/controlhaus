@@ -51,7 +51,7 @@ public class DBMultiRowResultsTest extends TestCase {
     public ResultsTestCtrl testCtrl;
 
     @Control
-    @JdbcControl.ConnectionDataSource(jndiName="java:comp/env/jdbc/TestDB")
+    @JdbcControl.ConnectionDataSource(jndiName="jdbc/TestDB")
     private ResultsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {

@@ -47,7 +47,7 @@ public final class ErrorPathsTest extends TestCase {
     public ErrorsTestCtrl testCtrl;
 
     @Control
-    @JdbcControl.ConnectionDataSource(jndiName="java:comp/env/jdbc/TestDB")
+    @JdbcControl.ConnectionDataSource(jndiName="jdbc/TestDB")
     private ErrorsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {

@@ -22,8 +22,8 @@ import org.apache.beehive.controls.api.bean.AnnotationMemberTypes;
 import org.apache.beehive.controls.api.bean.ControlInterface;
 import org.apache.beehive.controls.api.properties.PropertySet;
 
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.Context;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -93,11 +93,11 @@ public interface JdbcControl {
 
 
     /**
-     * Interface for a user defined Jndi Context factory which can be used
+     * Abstract base class for a user defined Jndi Context factory which can be used
      * as a value for the jndiContextFactory member of the ConnectionDataSource
      * annotation.
      */
-    public interface IJndiContextFactory {
+    public static abstract class JndiContextFactory {
 
         /**
          * Get a JNDI InitialContext instance.
@@ -105,7 +105,7 @@ public interface JdbcControl {
          * @return InitialContext instance
          * @throws NamingException if context could not be found.
          */
-        public InitialContext getInitialContext() throws NamingException;
+        public abstract Context getContext() throws NamingException;
     }
 
     /**
@@ -129,7 +129,7 @@ public interface JdbcControl {
          * The name of a class which implements the IJndiContextFactory interface. This is an optional element of this annotation.
          */
         @AnnotationMemberTypes.Optional
-        Class<? extends IJndiContextFactory> jndiContextFactory() default DefaultJndiContextFactory.class;
+        Class<? extends JndiContextFactory> jndiContextFactory() default DefaultJndiContextFactory.class;
     }
 
 

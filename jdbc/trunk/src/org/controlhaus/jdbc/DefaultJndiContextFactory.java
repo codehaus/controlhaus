@@ -19,19 +19,21 @@ package org.controlhaus.jdbc;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.Context;
 
 /**
  * Default context factory implementation.
  * May be overridden in class's ConnectionDataSource annotation.
  */
-public class DefaultJndiContextFactory implements JdbcControl.IJndiContextFactory {
+class DefaultJndiContextFactory extends JdbcControl.JndiContextFactory {
 
     /**
      * Return a Jndi InitialContext
      * @return InitialContext instance
      * @throws NamingException on error.
      */
-    public InitialContext getInitialContext() throws NamingException {
-        return new InitialContext();
+    public Context getContext() throws NamingException {
+        Context initCtxt = new InitialContext();
+        return (Context) initCtxt.lookup("java:/comp/env");
     }
 }
