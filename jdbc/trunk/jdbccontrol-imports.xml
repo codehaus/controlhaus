@@ -58,7 +58,7 @@
     <!-- Common JdbcControl paths                                                 -->
     <!-- ======================================================================== -->
 
-    <fileset id="controls.fileset" file="${beehive.home}/controls/controls.jar"/>
+    <fileset id="controls.fileset" file="${beehive.home}/lib/controls/controls.jar"/>
     <fileset id="jdbccontrol.fileset" file="${jdbcc.jar}"/>
     <fileset id="log4j.fileset" file="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
     <fileset id="xbean.fileset" file="${beehive.common.lib.dir}/apache-xbean.jar"/>
