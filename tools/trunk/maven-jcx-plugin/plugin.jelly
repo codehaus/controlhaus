@@ -36,7 +36,9 @@
 
     <ant:property name="weblogic.home" value="${context.getVariable('maven.jcx.beahome')}/weblogic81"/>
 
-    <ant:property name="server.classpath" value="${weblogic.home}/../jdk141_05/jre/lib/rt.jar;${weblogic.home}/../jdk141_05/lib/tools.jar;${weblogic.home}/server/lib/knex.jar;${weblogic.home}/common/lib/log4j.jar;${weblogic.home}/server/lib/debugging.jar;${weblogic.home}/javelin/lib/javelin.jar;${weblogic.home}/server/lib/wlw-lang.jar;${weblogic.home}/server/lib/weblogic.jar;${weblogic.home}/common/eval/pointbase/lib/pbserver44.jar;${weblogic.home}/common/eval/pointbase/lib/pbclient44.jar;${weblogic.home}/server/lib/webservices.jar;${weblogic.home}/server/lib/webserviceclient.jar;${weblogic.home}/server/lib/webserviceclient+ssl.jar;${weblogic.home}/server/lib/wli.jar;${weblogic.home}/server/lib/xbean.jar;${weblogic.home}/server/lib/wlxbean.jar;${weblogic.home}/server/lib/xqrl.jar;${weblogic.home}/server/lib/netui/netui-compiler.jar"/>
+    <ant:property name="server.classpath.additions" value="${context.getVariable('maven.jcx.server.classpath.additions')}"/>
+
+    <ant:property name="server.classpath" value="${weblogic.home}/../jdk141_05/jre/lib/rt.jar;${weblogic.home}/../jdk141_05/lib/tools.jar;${weblogic.home}/server/lib/knex.jar;${weblogic.home}/common/lib/log4j.jar;${weblogic.home}/server/lib/debugging.jar;${weblogic.home}/javelin/lib/javelin.jar;${weblogic.home}/server/lib/wlw-lang.jar;${weblogic.home}/server/lib/weblogic.jar;${weblogic.home}/common/eval/pointbase/lib/pbserver44.jar;${weblogic.home}/common/eval/pointbase/lib/pbclient44.jar;${weblogic.home}/server/lib/webservices.jar;${weblogic.home}/server/lib/webserviceclient.jar;${weblogic.home}/server/lib/webserviceclient+ssl.jar;${weblogic.home}/server/lib/wli.jar;${weblogic.home}/server/lib/xbean.jar;${weblogic.home}/server/lib/wlxbean.jar;${weblogic.home}/server/lib/xqrl.jar;${weblogic.home}/server/lib/netui/netui-compiler.jar;${server.classpath.additions}"/>
 
     <ant:taskdef name="wlwBuild" classname="workshop.core.WlwBuildTask" classpath="${weblogic.home}/workshop/wlw-ide.jar"/>
 
