@@ -219,6 +219,8 @@ import org.apache.xmlbeans.XmlObject;
         {
 	        Destination props = getDestinationProperties();
 	        Session session = getSession();
+	        String jmsType = null;
+	        String correlationId = null;
 	        /*
 	         * Set the deliveryMode, priority and expiration.
 	         */
@@ -246,31 +248,61 @@ import org.apache.xmlbeans.XmlObject;
 	        Object body = null;
 	        for (int i= 0; i< args.length; i++)
 	        {
-	            if (_context.getParameterPropertySet(method, i, Body.class) != null)
+	            if (_context.getParameterPropertySet(method, i, Priority.class) != null)
 	            {
-	                body = args[i];
-	                isBody = true;
+	            	continue;
 	            }
+	            if (_context.getParameterPropertySet(method, i, Property.class) != null)
+	            {
+	            	continue;
+	            }
+	            if (_context.getParameterPropertySet(method, i, Expiration.class) != null)
+	            {
+	            	continue;
+	            }
+	            if (_context.getParameterPropertySet(method, i, Delivery.class) != null)
+	            {
+	            	continue;
+	            }
+	            if (_context.getParameterPropertySet(method, i, Type.class) != null)
+	            {
+	            	continue;
+	            }
+	            if (_context.getParameterPropertySet(method, i, CorrelationId.class) != null)
+	            {
+	            	continue;
+	            }
+	            body = args[i];
+	            isBody = true;
 	        }
 	        /*
 	         * Get the method level annotation properties.
 	         */
 	        Priority pri = _context.getMethodPropertySet(method,Priority.class);
-	        if(pri != null)
+	        if(pri != null && pri.value() != -1)
 	        {
 	        	priority = pri.value();
 	        }
 	        Expiration exp = _context.getMethodPropertySet(method,Expiration.class);
-	        if(exp != null)
+	        if(exp != null && exp.value() != -1L)
 	        {
 	        	expiration = exp.value();
 	        }
 	        Delivery del = _context.getMethodPropertySet(method,Delivery.class);
-	        if(del != null)
+	        if(del != null && del.value() != DeliveryMode.Auto)
 	        {
 	        	deliveryMode = deliveryModeToJmsMode(del.value());
 	        }
-	        
+	        Type t = _context.getMethodPropertySet(method,Type.class);
+	        if(t != null && t.value().length() != 0)
+	        {
+	        	jmsType = t.value();
+	        }
+	        CorrelationId id = _context.getMethodPropertySet(method,CorrelationId.class);
+	        if(id != null && id.value().length() != 0)
+	        {
+	        	correlationId = id.value();
+	        }
 	        /*
 	         * Create a message of the appropriate type and set the body.
 	         */
@@ -350,19 +382,16 @@ import org.apache.xmlbeans.XmlObject;
 	        /*
 	         * Set the correlation id if given.
 	         */
-	        String correlationId = props.sendCorrelationProperty();
-	        if(correlationId != null && correlationId.length() == 0)
+	        String correlationProp = props.sendCorrelationProperty();
+	        if(correlationProp != null && correlationId.length() == 0)
 	        {
-	        	correlationId = null;
+	        	correlationProp = null;
 	        }
 			if(correlationId == null)
 			{
 				correlationId = getHeaderAsString(HeaderType.JMSCorrelationID);
 			}
-	        if(correlationId != null)
-	        {
-	            m.setJMSCorrelationID(correlationId);
-	        }
+
 	        /*
 	         * Set the properties/headers of the message from
 	         * the parameters to the invoke.
@@ -407,6 +436,26 @@ import org.apache.xmlbeans.XmlObject;
 	            {
 	            	deliveryMode = deliveryModeToJmsMode(args[i]);
 	            }
+	            t = 
+	                (Type)_context.getParameterPropertySet(method,i, Type.class);
+	            if (t != null && args[i] != null)
+	            {
+	            	jmsType = (String)args[i];
+	            }
+	            CorrelationId jmsId = 
+	                (CorrelationId)_context.getParameterPropertySet(method,i, CorrelationId.class);
+	            if (jmsId != null && args[i] != null)
+	            {
+	            	correlationId = (String)args[i];
+	            }
+	        }
+	        if(correlationProp != null)
+	        {
+	        	m.setStringProperty(correlationProp,correlationId);
+	        }
+	        else
+	        {
+	            m.setJMSCorrelationID(correlationId);
 	        }
 	        /*
 	         * Set the headers and properties from maps provided
