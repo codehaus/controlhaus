@@ -26,7 +26,7 @@
   </service>
   
   
-  <handler type="java:org.apache.beehive.wsm.axis.AnnotatedWebServiceDeploymentHandler">
+  <handler type="java:org.apache.beehive.wsm.axis.handlers.AnnotatedWebServiceDeploymentHandler">
     <parameter name="scope" value="session"/>
    </handler>
   <handler type="java:org.apache.axis.handlers.JWSHandler">
