@@ -23,7 +23,10 @@ package org.wsm.samples.client.header;
 import javax.xml.rpc.ServiceException;
 import javax.xml.rpc.ServiceFactory;
 import javax.xml.rpc.holders.StringHolder;
+import javax.xml.soap.Name;
 import javax.xml.soap.SOAPElement;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPFactory;
 import javax.xml.soap.SOAPHeaderElement;
 
 import junit.framework.TestCase;
@@ -57,43 +60,59 @@ public class HeaderTest extends ControlTestCase {
 
     @Control StockQuoteImplService client;
 
-    SignatureTool signatureTool;
 
     public void setUp() throws Exception {
         super.setUp(); // initialize my control instance....
-        signatureTool = new SignatureToolImpl();
+
     }
 
     public void testBadHeader() throws Exception {
-        SOAPElement signature = signatureTool.getSignature("InvalidName");
-        SOAPHeaderElement headerRoot = new org.apache.axis.message.SOAPHeaderElement(SIGN_ELEMENT,
-                                                            SIGN_PREFIX);
+        SOAPElement signature = SignatureUtilities.getSignature("beehive", "invalidSeal");    
+        SOAPHeaderElement headerRoot = new org.apache.axis.message.SOAPHeaderElement(getSignatureRootName());
         headerRoot.setActor("simple-security");
         headerRoot.addChildElement(signature);
+        
         Element[] badHeader = { headerRoot };
         client.setOutputHeaders(badHeader);
-        client.getQuote("bea");
-        Element[] respHeader = client.getInputHeaders();
-        System.out.println("Response header");
-        for(Element nxtHeader : respHeader) {
-            System.out.println(nxtHeader);
+        try { 
+            client.getQuote("bea");
+            fail("Should have caused a security violation");
+        } catch (Exception e) {
+           // good case
         }
     }
 
+
+
     public void testGoodHeader() throws Exception {
-        SOAPElement signature = signatureTool.getSignature("InvalidName");
-        SOAPHeaderElement headerRoot = new org.apache.axis.message.SOAPHeaderElement(SIGN_ELEMENT,
-                                                            SIGN_PREFIX);
+        SOAPElement signature = SignatureUtilities.getSignature("beehive", "beehive");       
+        SOAPHeaderElement headerRoot = new org.apache.axis.message.SOAPHeaderElement(getSignatureRootName());
         headerRoot.setActor("simple-security");
         headerRoot.addChildElement(signature);
+ 
         Element[] goodHeader = { headerRoot };
         client.setOutputHeaders(goodHeader);
         client.getQuote("bea");
         Element[] respHeader = client.getInputHeaders();
-       System.out.println("Response header");
-        for(Element nxtHeader : respHeader) {
-            System.out.println(nxtHeader);
-        }
+      System.out.println("Response header");
+      for(Element nxtHeader : respHeader) {
+          System.out.println(nxtHeader);
+      }
+        assertNotNull("The response message didn't have the header set!", respHeader );
+        assertNotNull("The response message didn't have the header set!", respHeader[0] );
+        assertTrue("response message didn't have the correct signature/seal", SignatureUtilities.isValidSignature((SOAPElement) respHeader[0]));
+
+    }
+    
+    /**
+     * @return
+     * @throws SOAPException 
+     */
+    private Name getSignatureRootName() throws SOAPException {
+        SOAPFactory factory = SOAPFactory.newInstance();
+
+        return factory.createName("sign",
+                "sign", "uri://org.example.webservices.signature.Sign");
     }
 
 }
