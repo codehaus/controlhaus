@@ -1,6 +1,3 @@
-//
-// Copyright (c) 2001-2002 BEA Systems.  All rights reserved.
-//
 package org.controlhaus.ejb;
 
 /******************************************************************************
@@ -31,9 +28,6 @@ import org.apache.beehive.controls.api.bean.ControlImplementation;
 public class SessionEJBControlImpl extends EJBControlImpl implements SessionEJBControl
 {
     static final long serialVersionUID = 1L;
-    /* knex log4j */
-    //static private  final com.bea.wlw.util.Logger _log = new com.bea.wlw.runtime.core.util.InternalLogger("com.bea.wlw.runtime.core.control.SessionEJBControlImpl");//a0632345e77b6fad3bbc2dc674d0578b
-
     //
     // Override ejbControl.onCreate to perform additional processing
     //
@@ -42,12 +36,6 @@ public class SessionEJBControlImpl extends EJBControlImpl implements SessionEJBC
         super.onCreate();
         if (_beanType != EJBControlImpl.SESSION_BEAN)
         {
-            /* knex exception
-               Attempting to use a session bean control with a bean that is not
-               a session bean
-               throw: ControlException
-               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_1765246952")));//2b7b3807a5db594904daa0656be07bbc
-             */
              throw new ControlException("Attempting to use a session bean control with a bean that is not a session bean");
         }
     }
@@ -63,20 +51,13 @@ public class SessionEJBControlImpl extends EJBControlImpl implements SessionEJBC
         Object fromHandle = resolveBeanInstanceFromHandle();
         if (fromHandle != null)
         {
-            /* knex logdebug Resolved bean instance from handle */
-            //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=Wiki.wikiToPlainText(java.text.MessageFormat.format("Resolved bean instance from handle",__args));_log.debug(__msg);}//ecc53e814be86766b4cd46944c41e836
             return fromHandle;
         }
 
         // Find null arg create() on the home interface, and use it to get
         // an instance
-        /* knex logdebug Auto-creating bean instance */
-        //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=Wiki.wikiToPlainText(java.text.MessageFormat.format("Auto-creating bean instance",__args));_log.debug(__msg);}//4b5cdf4e5e833e7ec2b14f82b49b4651
         try
         {
-            /* knex logdebug Resolving bean instance via creation */
-            //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=Wiki.wikiToPlainText(java.text.MessageFormat.format("Resolving bean instance via creation",__args));_log.debug(__msg);}//ac6fee0c63c541bca3f5148187625537
-
             // TODO: for efficiency, this could be done once per home
             // interface and cached.
             Method createMethod = _homeInterface.getMethod("create", new Class []{ });
@@ -86,35 +67,16 @@ public class SessionEJBControlImpl extends EJBControlImpl implements SessionEJBC
         }
         catch (NoSuchMethodException nsme)
         {
-            /* knex exception
-               Cannot auto-create session bean instance because no null argument
-               create() method exists.  To use this bean, you will need to call
-               create() directly with the appropriate parameters
-               throw: ControlException
-               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_1909438076")));//3ecc0bd4753a8d6d19eb98589dbfb31e
-             */
              throw new ControlException("Cannot auto-create session bean instance because no null argument create() method exists.  To use this bean, you will need to call create() directly with the appropriate parameters");
         }
         catch (InvocationTargetException ite)
         {
             _lastException = ite.getTargetException();
 
-            /* knex exception
-               Unable to create session bean instance
-               throw: ControlException
-               nested: _lastException
-               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_1437065047")),_lastException);//d3831c691eb8630194b5e206997aceef
-             */
              throw new ControlException("Unable to create session bean instance", _lastException);
         }
         catch (Exception e)
         {
-            /* knex exception
-               Unable to invoke home interface create method
-               throw: ControlException
-               nested: e
-               throw new ControlException(Wiki.wikiToPlainText(ControlResources.getString("knex_287957622")),e);//469ae4cd7fa41a138dd1da0782333e61
-             */
              throw new ControlException("Unable to invoke home interface create method",e);
         }
     }
@@ -128,8 +90,6 @@ public class SessionEJBControlImpl extends EJBControlImpl implements SessionEJBC
         //
         if (_beanInstance != null && _autoCreated && !alreadyRemoved)
         {
-            /* knex logdebug Removing bean instance */
-            //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=Wiki.wikiToPlainText(java.text.MessageFormat.format("Removing bean instance",__args));_log.debug(__msg);}//ff839241c98fd7d6f35f11af1a623ffd
             try
             {
                 if (EJBObject.class.isAssignableFrom(_beanInterface))
@@ -140,11 +100,6 @@ public class SessionEJBControlImpl extends EJBControlImpl implements SessionEJBC
             catch (Exception e) // RemoteException or REmoveException
             {
                 _lastException = e;
-                /* knex logerror
-                 * Unable to remove bean instance:
-                 * throwable: e
-                 */
-                 //if (_log.isErrorEnabled()){Object __args[]=new Object[0];String __msg=Wiki.wikiToPlainText(java.text.MessageFormat.format("Unable to remove bean instance:",__args));_log.error(__msg, e);}//b9c12e39d73f7973c1c522d909678f96
             }
         }
 
