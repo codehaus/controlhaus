@@ -70,6 +70,7 @@
               package="org.controlhaus.amazon"
               outputDir="${maven.build.dir}/xfire-xmlbeans-main"
               wsdl="${basedir}/src/schemas/Amazon.wsdl"
+              name="Amazon"
               classpathref="generate.path"
               strategy="org.controlhaus.xfire.client.BeehiveClientStrategy" />   
 

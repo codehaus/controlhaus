@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import org.apache.beehive.controls.api.bean.Control;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.apache.beehive.controls.runtime.bean.ControlContainerContext;
-import org.controlhaus.amazon.AWSECommerceServiceClientControl;
+import org.controlhaus.amazon.AmazonClientControl;
 
 import com.amazon.webservices.awseCommerceService.x20041019.ItemLookupDocument;
 import com.amazon.webservices.awseCommerceService.x20041019.ItemLookupRequest;
@@ -23,7 +23,7 @@ import junit.framework.TestCase;
 public class AmazonClientTest 
     extends AbstractControlTest
 {
-    @Control AWSECommerceServiceClientControl amazon;
+    @Control AmazonClientControl amazon;
 
     public void testControl() 
         throws Exception
