@@ -394,7 +394,7 @@ import org.apache.xmlbeans.XmlObject;
 			}
 	        Properties jmsProps =
 	                (Properties)_context.getMethodPropertySet(method,Properties.class);
-			if(jmsProps != null)
+			if(jmsProps != null && jmsProps.value() != null)
 			{
 				PropertyValue[] jprops = jmsProps.value();
 				for(int i = 0; i < jprops.length; i++)
