@@ -1,12 +1,13 @@
 Testsuite: model.GoogleControlTest
-Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 9.104 sec
+Tests run: 3, Failures: 0, Errors: 0, Time elapsed: 9.694 sec
 ------------- Standard Output ---------------
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: invoke method: suggestSpelling
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: invoke method: suggestSpelling
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:GoogleSearch.wsdl
+#####################aFTER GETresource as steram..... WSDLsTREAM: java.io.BufferedInputStream@8bdcd2
 no schematype found for {urn:GoogleSearch}GoogleSearchResult
 - org.apache.axis.utils.JavaUtils: Unable to find required classes (javax.activation.DataHandler and javax.mail.internet.MimeMultipart). Attachment support is disabled. 
 - org.apache.axis.utils.JavaUtils: Unable to find required classes (javax.activation.DataHandler and javax.mail.internet.MimeMultipart). Attachment support is disabled. 
@@ -23,10 +24,11 @@ no schematype found for {urn:GoogleSearch}GoogleSearchResult
 - org.apache.beehive.wsm.registration.TypeRegistrar: Type is already registered.
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: invoke method: getCachedPage
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: invoke method: getCachedPage
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:GoogleSearch.wsdl
+#####################aFTER GETresource as steram..... WSDLsTREAM: java.io.BufferedInputStream@83b1b
 no schematype found for {urn:GoogleSearch}GoogleSearchResult
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: endpoint: http://api.google.com/search/beta2
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: endpoint: http://api.google.com/search/beta2
@@ -41,10 +43,11 @@ no schematype found for {urn:GoogleSearch}GoogleSearchResult
 - org.apache.beehive.wsm.registration.TypeRegistrar: Type is already registered.
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: invoke method: search
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: invoke method: search
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
-- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: read wsdl from: GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:GoogleSearch.wsdl
+- org.controlhaus.webservice.jaxrpc.ServiceControlImpl: wsdl at:GoogleSearch.wsdl
+#####################aFTER GETresource as steram..... WSDLsTREAM: java.io.BufferedInputStream@17aece8
 no schematype found for {urn:GoogleSearch}GoogleSearchResult
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: endpoint: http://api.google.com/search/beta2
 - org.controlhaus.webservice.jaxrpc.ServiceControlImpl: endpoint: http://api.google.com/search/beta2
@@ -89,6 +92,6 @@ no schematype found for {urn:GoogleSearch}GoogleSearchResult
 - org.apache.beehive.wsm.registration.TypeRegistrar: Type is already registered.
 ------------- ---------------- ---------------
 
-Testcase: testSpelling took 4.647 sec
-Testcase: testCache took 1.112 sec
-Testcase: testSearch took 3.315 sec
+Testcase: testSpelling took 4.807 sec
+Testcase: testCache took 1.442 sec
+Testcase: testSearch took 3.415 sec
