@@ -2,9 +2,9 @@
 
 <project name="ejb-control" default="usage">
 
-    <property environment="os"/>
+    <property environment="env"/>
     <property name="source.dir" value="${basedir}/src"/>
-    <property name="beehive.home" location="${os.BEEHIVE_HOME}"/>
+    <property name="beehive.home" location="${env.BEEHIVE_HOME}"/>
     <property name="lib.dir" value="${basedir}/lib"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.classes" value="${build.dir}/classes"/>
@@ -48,7 +48,7 @@
             <fileset dir="${lib.dir}">
                 <include name="*.jar" />
             </fileset>
-	    <pathelement location="${beehive.home}/controls/controls.jar"/>
+	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
             <pathelement path="${build.classes}" />
         </path>
 
