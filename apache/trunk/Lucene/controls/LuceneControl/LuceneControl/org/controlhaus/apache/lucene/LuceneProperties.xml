@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<control-tags xmlns="http://www.bea.com/2003/03/controls/">
+    <control-tag name="luceneProperties">
+        <description>Properties relating to the Lucene Control.</description>
+        
+        <attribute name="indexPath" required="true">
+            <description>
+                The path to the directory in which the Lucene index resides.
+            </description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        
+    </control-tag>
+</control-tags>

@@ -1,0 +1,71 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+
+package org.controlhaus.apache.lucene; 
+
+import com.bea.control.*;
+import org.controlhaus.apache.lucene.pojo.LuceneField;
+import org.controlhaus.apache.lucene.pojo.LuceneHit;
+import org.controlhaus.apache.lucene.pojo.LucenePojo;
+import org.apache.lucene.queryParser.ParseException;
+import java.io.File;
+import java.io.IOException;
+/**
+ * @editor-info:code-gen control-interface="true"
+ * @jcs:control-tags file="LuceneProperties.xml"
+ * @jcs:jc-jar icon-32="icon32.gif" icon-16="icon16.gif" version="1.0" description="Lucene Search Engine interface" label="Lucene"
+ */
+public class LuceneControlImpl implements LuceneControl, ControlSource
+{ 
+    static final long serialVersionUID = 1L;
+    
+    /**
+     * @common:context
+     */
+    ControlContext context;
+
+    /**
+     * @common:operation
+     */
+    public void index(LuceneField []fields)
+    {
+        final String indexPath = context.getControlAttribute("jc:luceneProperties", "indexPath");
+        LucenePojo pojo = new LucenePojo(new File(indexPath));
+        try {
+            pojo.index(fields);
+        } catch ( IOException ex ) {
+            throw new ControlException("Problem indexing data into Lucene index", ex);
+        } 
+        
+    }
+
+    /**
+     * @common:operation
+     */    
+    public LuceneHit[] search(String query, String searchFieldName, String[] returnFieldNames) {
+        LuceneHit []result = null;
+        final String indexPath = context.getControlAttribute("jc:luceneProperties", "indexPath");
+        LucenePojo pojo = new LucenePojo(new File(indexPath));
+        try {
+            result = pojo.search(query, searchFieldName, returnFieldNames);
+        } catch ( IOException ex ) {
+            throw new ControlException("Problem querying Lucene index with query '" + query + "'", ex);
+        } catch ( ParseException ex) {
+            throw new ControlException("Problem parsing search query '" + query + "'", ex);
+        }
+        return result;
+    }
+} 
