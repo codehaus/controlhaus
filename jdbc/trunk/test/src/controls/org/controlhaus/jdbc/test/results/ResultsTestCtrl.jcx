@@ -263,5 +263,12 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="SELECT * FROM USERS", resultSetHoldabilityOverride=HoldabilityType.HOLD_CURSORS)
     public ResultSet getResultSetHoldablity();
+
+    //
+    // select a single column of values from the users table,
+    // specifically tests mapping single column result set values to return type
+    //
+    @SQL(statement="SELECT fname FROM users")
+    public String[] getFnameColumn();
 }
 
