@@ -13,7 +13,7 @@
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
 	<property name="axisbeangen.dir" value="${build.dir}/axisbeangen"/>
 	<property name="wsdl.dir" value="${source.dir}/model"/>
-    <property name="servicecontrol.jar" value="../../build/jars/webservice-control.jar" />
+    <property name="servicecontrol.jar" value="../../servicecontrol/build/jars/webservice-control.jar" />
  
 	<property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
 	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
@@ -35,7 +35,7 @@
 	  </path>
 	  	
     <path id="build.classpath">
-	    <fileset dir="../../lib">
+	    <fileset dir="../../servicecontrol/lib">
 	        <include name="**/*.jar"/>
 	    </fileset>
 	    
