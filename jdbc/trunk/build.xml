@@ -23,11 +23,6 @@ limitations under the License.
 
     <import file="jdbccontrol-imports.xml"/>
 
-    <!-- local libs -->
-    <property name="derby.jar" location="${jdbcc.external.dir}/derby/derby-10.0.2.1.jar"/>
-    <property name="junit.jar" location="${jdbcc.external.dir}/junit/junit.jar"/>
-    <property name="javacc.home" location="${jdbcc.external.dir}/javacc"/>
-
     <!-- taskdefs -->
     <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask"
         classpathref="apt.dependency.path" onerror="report"/>
@@ -35,8 +30,6 @@ limitations under the License.
         classpathref="controls.dependency.path" onerror="report"/>
     <taskdef name="control-jar" classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask"
         classpathref="controls.dependency.path" onerror="report"/>
-    <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean"
-        classpathref="xbean.dependency.path" onerror="report"/>
 
     <!-- build locations -->
     <property name="project.name" value="Jdbc Control"/>
@@ -82,15 +75,16 @@ limitations under the License.
         <path refid="build.classpath"/>
         <pathelement location="${testcontrols.jar}"/>
         <pathelement location="${jdbcc.jar}"/>
-        <pathelement location="${derby.jar}"/>
-        <pathelement location="${junit.jar}"/>
+        <path refid="derby.dependency.path"/>
+        <path refid="junit.dependency.path"/>
         <pathelement path="${test.units.classes.dir}"/>
     </path>
 
     <!-- =================================================================== -->
     <!-- build - build the Jdbc Control                                      -->
     <!-- =================================================================== -->
-    <target name="build" depends="sqlgrammar_javacc" description="Compiles and builds the database control.">
+    <target name="build" depends="check-dependencies,sqlgrammar_javacc"
+        description="Compiles and builds the database control.">
 
         <echo message="--------------------------------------------------"/>
         <echo message="       ${project.name} build starting             "/>
@@ -111,7 +105,7 @@ limitations under the License.
         <mkdir dir="${dist.base.dir}"/>
         <jar jarfile="${jdbcc.jar}" basedir="${build.classes.dir}">
             <metainf dir="${aptmeta.dir}">
-                   <filename name="services/${aptmeta.file}"/>
+                <filename name="services/${aptmeta.file}"/>
             </metainf>
         </jar>
 
@@ -155,7 +149,9 @@ limitations under the License.
         <property name="testout.dir" value="${test.logs.dir}"/>
         <property name="fail" value="true"/>
         <property name="formatter.type" value="xml"/>
+        <!--
         <copy file="${junit.jar}" todir="${ant.home}/lib"/>
+        -->
 
         <echo>testout.dir: ${testout.dir}</echo>
 
@@ -209,10 +205,13 @@ limitations under the License.
 
         <echo message="** Generating test Xml Beans **"/>
 
+        <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean"
+            classpathref="xbean.dependency.path" onerror="report"/>
+
         <xmlbean classgendir="${test.controls.classes.dir}"
-                 classpathref="test.classpath"
-                 schema="${test.controls.src.dir}/schemas"
-                 includeJavaRuntime="yes">
+            classpathref="test.classpath"
+            schema="${test.controls.src.dir}/schemas"
+            includeJavaRuntime="yes">
         </xmlbean>
 
 
@@ -288,6 +287,174 @@ limitations under the License.
         <java fork="no" classname="org.apache.tools.ant.Main">
             <arg line="-projecthelp"/>
         </java>
+    </target>
+
+
+
+    <!-- =================================================================== -->
+    <!-- download-dependencies - downloads jdbccontrol external dependencies -->
+    <!-- from the Maven repository.                                          -->
+    <!-- =================================================================== -->
+    <target name="download-dependencies" description="Download JdbcControl dependencies from the Maven repository.">
+
+        <mkdir dir="${lib.dir}"/>
+
+        <get src="${velocity.maven.url}"
+            dest="${velocity.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${velocity.dep.maven.url}"
+            dest="${velocity.dep.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${log4j.maven.url}"
+            dest="${log4j.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${xmlbean.maven.url}"
+            dest="${xmlbean.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${jsr173.maven.url}"
+            dest="${jsr173.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${junit.maven.url}"
+            dest="${junit.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${javacc.maven.url}"
+            dest="${javacc.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- check-dependencies - checks that all necessary libs are present     -->
+    <!-- for the build.                                                      -->
+    <!-- =================================================================== -->
+    <target name="check-dependencies" description="Check external dependencies required for the build.">
+
+        <available file="${lib.dir}" type="dir" property="lib.dir.present"/>
+
+        <fail unless="lib.dir.present">
+External libraries not found!
+
+********************************************************************************
+********************************************************************************
+
+The jdbcControl.home/lib directory was not found.  Run ant target 'download-dependencies'
+to create and populate the lib directory with external dependencies.  External libraries
+will be downloaded by Ant from the Maven repository.
+
+   -- OR --
+
+Download files manually and add them to the lib directory.  The following external
+libraries are required to build the Jdbc Control:
+
+   ${velocity.jar.dest}
+   ${velocity.dep.jar.dest}
+   ${log4j.jar.dest}
+   ${xmlbean.jar.dest}
+   ${jsr173.jar.dest}
+   ${junit.jar.dest}
+   ${javacc.jar.dest}
+
+********************************************************************************
+********************************************************************************
+        </fail>
+
+        <available file="${velocity.jar.dest}" type="file" property="velocity.jar.present"/>
+        <available file="${velocity.dep.jar.dest}" type="file" property="velocity.dep.jar.present"/>
+        <available file="${log4j.jar.dest}" type="file" property="log4j.jar.present"/>
+        <available file="${xmlbean.jar.dest}" type="file" property="xmlbean.jar.present"/>
+        <available file="${jsr173.jar.dest}" type="file" property="jsr173.jar.present"/>
+        <available file="${junit.jar.dest}" type="file" property="junit.jar.present"/>
+        <available file="${javacc.jar.dest}" type="file" property="javacc.jar.present"/>
+
+        <fail unless="velocity.jar.present">
+********************************************************************************
+********************************************************************************
+            
+Missing ${velocity.jar.dest}.
+            
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.            
+            
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="velocity.dep.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${velocity.dep.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="log4j.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${log4j.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="xmlbean.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${xmlbean.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="jsr173.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${jsr173.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="junit.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${junit.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="javacc.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${javacc.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
     </target>
 
 </project>

@@ -30,9 +30,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.sql.ResultSet;
 import java.util.Calendar;
 
 /**
@@ -47,6 +47,50 @@ import java.util.Calendar;
 @ControlInterface
 public interface JdbcControl {
 
+
+    /**
+     * Returns a database connection to the server associated
+     * with the control. It is typically not necessary to call this method
+     * when using the control.
+     *
+     * @return A Connection a database.
+     */
+    public Connection getConnection() throws SQLException;
+
+    /**
+     * Sets the Calendar instance that should be used when setting and getting
+     * {@link java.sql.Date Date}, {@link java.sql.Time Time}, and
+     * {@link java.sql.Timestamp Timestamp} values.
+     *
+     * @see java.sql.ResultSet#getDate(int, Calendar) java.sql.ResultSet#getDate(int, Calendar)
+     * @see java.sql.ResultSet#getTime(int, Calendar) java.sql.ResultSet#getTime(int, Calendar)
+     * @see java.sql.ResultSet#getTimestamp(int, Calendar) java.sql.ResultSet#getTimestamp(int, Calendar)
+     * @see java.sql.PreparedStatement#setDate(int, java.sql.Date, Calendar) java.sql.PreparedStatement#setDate(int, Date, Calendar)
+     * @see java.sql.PreparedStatement#setTime(int, java.sql.Time, Calendar) java.sql.PreparedStatement#setTime(int, Time, Calendar)
+     * @see java.sql.PreparedStatement#setTimestamp(int, java.sql.Timestamp, Calendar) java.sql.PreparedStatement#setTimestamp(int, Timestamp, Calendar)
+     */
+    public void setDataSourceCalendar(Calendar cal);
+
+    /**
+     * Gets the Calendar instance used when setting and getting
+     * {@link java.sql.Date Date}, {@link java.sql.Time Time}, and
+     * {@link java.sql.Timestamp Timestamp} values. This is the Calendar
+     * set by the setDataSourceCalendar method.
+     *
+     * @return The Calendar instance.
+     */
+    public Calendar getDataSourceCalendar();
+
+
+
+
+// ********************************************************************************************************************
+// ********************************************************************************************************************
+//                          Database Class-level Connection Annotations and Supporting Constructs
+// ********************************************************************************************************************
+// ********************************************************************************************************************
+
+
     /**
      * Interface for a user defined Jndi Context factory which can be used
      * as a value for the jndiContextFactory member of the ConnectionDataSource
@@ -56,71 +100,124 @@ public interface JdbcControl {
 
         /**
          * Get a JNDI InitialContext instance.
+         *
          * @return InitialContext instance
          * @throws NamingException if context could not be found.
          */
         public InitialContext getInitialContext() throws NamingException;
     }
 
+
     /**
      * Class-level annotation for making a DataSource available for use with the Jdbc Control. Either this annotation or
      * the ConnectionDriver annotation must be set for a jcx which extends the JdbcControl interface.
      */
-    @PropertySet
+    @PropertySet(prefix = "ConnectionDataSource")
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.FIELD})
     public @interface ConnectionDataSource {
 
-        /** The jndi name of the DataSource. This is a required element for this annotation. */
+        /**
+         * The jndi name of the DataSource. This is a required element for this annotation.
+         */
         @AnnotationMemberTypes.JndiName(resourceType = AnnotationMemberTypes.JndiName.ResourceType.DATASOURCE)
         String jndiName();
 
-        /** The name of a class which implements the IJndiContextFactory interface. This is an optional element of this annotation. */
+        /**
+         * The name of a class which implements the IJndiContextFactory interface. This is an optional element of this annotation.
+         */
+        @AnnotationMemberTypes.Optional
         Class<? extends IJndiContextFactory> jndiContextFactory() default DefaultJndiContextFactory.class;
     }
+
 
     /**
      * Class-level annotation for making a ConnectionDriver available for use with the Jdbc Control. Either this
      * annotation or the ConnectionDataSource annotation must be set for a jcx which extends the JdbcControl interface.
      * See java.sql.DatabaseConnection for additional information about the elements of this annotation.
      */
-    @PropertySet
+    @PropertySet(prefix = "ConnectionDriver")
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.FIELD})
     public @interface ConnectionDriver {
-        /** A String containing the fully qualified name of the database driver class. Required element. */
+
+        /**
+         * A String containing the fully qualified name of the database driver class. Required element.
+         */
         String databaseDriverClass();
 
-        /** A String containing the database URL to connect to. Required element. */
+        /**
+         * A String containing the database URL to connect to. Required element.
+         */
         String databaseURL();
 
-        /** A String containing the user name to connect to the database as. Optional element. */
-        String userName() default "";
+        /**
+         * A String containing the user name to connect to the database as. Optional element.
+         */
+        @AnnotationMemberTypes.Optional
+        String userName()                   default "";
 
-        /** A String containing the password associated with userName. Optional element. */
-        String password() default "";
+        /**
+         * A String containing the password associated with userName. Optional element.
+         */
+        @AnnotationMemberTypes.Optional
+        String password()                   default "";
 
-        /** A String containing a comma seperated list of name/value pairs for the DatabaseConnection. Optional element. */
-        String properties() default "";
+        /**
+         * A String containing a comma seperated list of name/value pairs for the DatabaseConnection. Optional element.
+         */
+        @AnnotationMemberTypes.Optional
+        String properties()                 default "";
     }
 
+
     /**
-     * Returns a database connection to the server associated
-     * with the control. It is typically not necessary to call this method
-     * when using the control.
-     * @return A Connection a database.
+     * Class level annotation used to set options on the JDBC connnection.
      */
-    public Connection getConnection() throws SQLException;
+    @PropertySet(prefix = "ConnectionOptions")
+    @Inherited
+    @AnnotationConstraints.AllowExternalOverride
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE, ElementType.FIELD})
+    public @interface ConnectionOptions {
+
+        /**
+         * If set to true, database connection will optimize for read only queries, writes still permitted.
+         * Optional, defaults to false.
+         */
+        @AnnotationMemberTypes.Optional
+        boolean readOnly()                  default false;
+
+        /**
+         * Specifies ResultSet holdability for the connection.  May be overridden at method level.
+         * Optional, defaults to close cursors at commit.
+         */
+        @AnnotationMemberTypes.Optional
+        HoldabilityType holdability()       default HoldabilityType.CLOSE_CURSORS;
+    }
+
+
+
+// ********************************************************************************************************************
+// ********************************************************************************************************************
+//                          SQL Method-level Annotation and Supporting Constructs
+// ********************************************************************************************************************
+// ********************************************************************************************************************
 
     /**
      * This constant can be used as the value for the maxRows element of the SQL annotation.
      * It indicates that all rows should be returned (i.e. no limit)
      */
     public final int MAXROWS_ALL = -1;
+
+    /**
+     * The default fetch size for result sets, indicates the database should determine the fetch size.
+     */
+    public final int DEFAULT_FETCH_SIZE = 0;
 
     /**
      * Default value for the iteratorElementType element of the
@@ -151,14 +248,15 @@ public interface JdbcControl {
         private final int _type;
         private final int _concurrencyType;
 
-        ScrollType(int scrollType, int concurrencyType ) {
+        ScrollType(int scrollType, int concurrencyType) {
             _type = scrollType;
             _concurrencyType = concurrencyType;
         }
 
         public int getType() { return _type; }
+
         public int getConcurrencyType() { return _concurrencyType; }
-        
+
         public String toString() {
             StringBuilder sb = new StringBuilder();
             if (_type == ResultSet.TYPE_FORWARD_ONLY) {
@@ -179,103 +277,171 @@ public interface JdbcControl {
     }
 
     /**
+     * Enumeration of supported fetch directions.
+     */
+    public enum FetchDirection {
+        FORWARD (ResultSet.FETCH_FORWARD),
+        REVERSE (ResultSet.FETCH_REVERSE),
+        UNKNOWN (ResultSet.FETCH_UNKNOWN);
+
+        private final int _direction;
+
+        FetchDirection(int direction) {
+            _direction = direction;
+        }
+
+        public int getDirection() { return _direction; }
+    }
+
+    /**
+     * Enumeration of supported fetch directions.
+     */
+    public enum HoldabilityType {
+        HOLD_CURSORS (ResultSet.HOLD_CURSORS_OVER_COMMIT),
+        CLOSE_CURSORS (ResultSet.CLOSE_CURSORS_AT_COMMIT);
+
+        private final int _holdability;
+
+        HoldabilityType(int holdability) {
+            _holdability = holdability;
+        }
+
+        public int getHoldability() { return _holdability; }
+
+        public String toString() {
+            if (_holdability == ResultSet.HOLD_CURSORS_OVER_COMMIT) {
+                return "HOLD_CURSORS_OVER_COMMIT";
+            } else {
+                return "CLOSE_CURSORS_AT_COMMIT";
+            }
+        }
+    }
+
+    /**
      * Method-level annotation for methods in a jcx which wish to access a database instance.
      */
-    @PropertySet
+    @PropertySet(prefix = "SQL")
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
     @AnnotationConstraints.AllowExternalOverride
     @Target({ElementType.METHOD})
     public @interface SQL {
-        /** The SQL statement to send to the database. Required annotation element */
+
+        /**
+         * The SQL statement to send to the database. Required annotation element.
+         */
         String statement();
 
-        /** Maximum array length.
+
+        /**
+         * Maximum array length.
          * This element has no effect on the call unless the method return type is an array.
          * Optional element.
          */
         @AnnotationMemberTypes.Optional
-        int arrayMaxLength()            default 1024;
+        int arrayMaxLength()                default 1024;
 
-        /** Max number of ResultSet rows to return.
+
+        /**
+         * Max number of ResultSet rows to return.
          * If used with arrayMaxLength the smaller value is used.
          * Optional element, default value is no limit on number of rows returned.
          */
         @AnnotationMemberTypes.Optional
-        int maxRows()                   default MAXROWS_ALL;
+        int maxRows()                       default MAXROWS_ALL;
 
-        /** Execute the SQL statement as a batch update.
+
+        /**
+         * Execute the SQL statement as a batch update.
          * Methods which have this element set to true must return an array of ints.
          * Optional element, defaults to false.
          */
         @AnnotationMemberTypes.Optional
-        boolean batchUpdate()           default false;
+        boolean batchUpdate()               default false;
 
-        /** Specify that the ResultSet returned by the method is scrollable. Valid only for methods which
-         *  return a ResultSet, otherwise a compile-time error will occur.  Valid element values
-         *  are defined by the ScrollType enumeration.
-         *  Optional element, defaults to non-scrollable.
+
+        /**
+         * Specify the fetch size for the ResultSet. Optional element, defaults to 0.
          */
         @AnnotationMemberTypes.Optional
-        ScrollType scrollableResultSet()  default ScrollType.FORWARD_ONLY;
+        int fetchSize()                     default DEFAULT_FETCH_SIZE;
 
-        /** Return the generated key values generated by the SQL statement. Optional element, defaults to false. */
+
+        /**
+         * Specify the fetch direction for the ResultSEt. Optional element, defaults to FORWARD.
+         */
         @AnnotationMemberTypes.Optional
-        boolean getGeneratedKeys()      default false;
+        FetchDirection fetchDirection()     default FetchDirection.FORWARD;
 
-        /** Specify generated key columns by column names to return when the getGeneratedKeys element is true.
-         *  May only be set if getGeneratedKeys is set to true, otherwise a compile time error is generated.
+
+        /**
+         * Return the generated key values generated by the SQL statement. Optional element, defaults to false.
+         */
+        @AnnotationMemberTypes.Optional
+        boolean getGeneratedKeys()          default false;
+
+
+        /**
+         * Specify generated key columns by column names to return when the getGeneratedKeys element is true.
+         * May only be set if getGeneratedKeys is set to true, otherwise a compile time error is generated.
          * Optional element.
          */
         @AnnotationMemberTypes.Optional
         String[] generatedKeyColumnNames()  default {};
 
-        /** Specify generated key columns by column number to return when the getGeneratedKeys element is true.
-         *  May only be set if getGeneratedKeys is set to true, otherwise a compile time error is generated
-         *  Optional element.
+
+        /**
+         * Specify generated key columns by column number to return when the getGeneratedKeys element is true.
+         * May only be set if getGeneratedKeys is set to true, otherwise a compile time error is generated
+         * Optional element.
          */
         @AnnotationMemberTypes.Optional
-        int[] generatedKeyColumnIndexes()  default {};
+        int[] generatedKeyColumnIndexes()   default {};
 
-        /** Specify a custom result set mapper for the ResultSet generated by the SQL statement.
-         *  ResultSet mappers must extend the ResultSetMapper abstract base class.  If a value is specified
-         *  it will be used to map the ResultSet of the query to the return type of the method.
-         *  See org.controlhaus.jdbc.ResultSetMapper for additional information.
-         *  Optional element.
+        /**
+         * Specify the holdability type for the annotated method.  Overrides the holability annotation element
+         * of the ConnectionOptions annotation.  The holdability type will be in effect for the duration of this
+         * method call. Optional, defaults to CLOSE_CURSORS_AFTER_COMMIT.
          */
         @AnnotationMemberTypes.Optional
-        Class resultSetMapper()         default UndefinedResultSetMapper.class;
+        HoldabilityType methodHoldability() default HoldabilityType.CLOSE_CURSORS;
 
-        /** Specify the type of element to be interated over when the method's return type is java.util.Iterator.
-         *  Optional element.
+
+        /**
+         * Specify the type of element to be interated over when the method's return type is java.util.Iterator.
+         * Optional element.
          */
         @AnnotationMemberTypes.Optional
-        Class iteratorElementType()     default UndefinedIteratorType.class;
-    }
+        Class iteratorElementType()         default UndefinedIteratorType.class;
 
-    /**
-     * Sets the Calendar instance that should be used when setting and getting
-     * {@link java.sql.Date Date}, {@link java.sql.Time Time}, and
-     * {@link java.sql.Timestamp Timestamp} values.
-     *
-     * @see java.sql.ResultSet#getDate(int, Calendar) java.sql.ResultSet#getDate(int, Calendar)
-     * @see java.sql.ResultSet#getTime(int, Calendar) java.sql.ResultSet#getTime(int, Calendar)
-     * @see java.sql.ResultSet#getTimestamp(int, Calendar) java.sql.ResultSet#getTimestamp(int, Calendar)
-     * @see java.sql.PreparedStatement#setDate(int, java.sql.Date, Calendar) java.sql.PreparedStatement#setDate(int, Date, Calendar)
-     * @see java.sql.PreparedStatement#setTime(int, java.sql.Time, Calendar) java.sql.PreparedStatement#setTime(int, Time, Calendar)
-     * @see java.sql.PreparedStatement#setTimestamp(int, java.sql.Timestamp, Calendar) java.sql.PreparedStatement#setTimestamp(int, Timestamp, Calendar)
-     */
-    public void setDataSourceCalendar(Calendar cal);
 
-    /**
-     * Gets the Calendar instance used when setting and getting
-     * {@link java.sql.Date Date}, {@link java.sql.Time Time}, and
-     * {@link java.sql.Timestamp Timestamp} values. This is the Calendar
-     * set by the setDataSourceCalendar method.
-     *
-     * @return The Calendar instance.
-     */
-    public Calendar getDataSourceCalendar();
+        /**
+         * Specify a custom result set mapper for the ResultSet generated by the SQL statement.
+         * ResultSet mappers must extend the ResultSetMapper abstract base class.  If a value is specified
+         * it will be used to map the ResultSet of the query to the return type of the method.
+         * See org.controlhaus.jdbc.ResultSetMapper for additional information.
+         * Optional element.
+         */
+        @AnnotationMemberTypes.Optional
+        Class resultSetMapper()             default UndefinedResultSetMapper.class;
+
+
+        /**
+         * Specify that the ResultSet returned by the method is scrollable. Valid only for methods which
+         * return a ResultSet, otherwise a compile-time error will occur.  Valid element values
+         * are defined by the ScrollType enumeration.
+         * Optional element, defaults to non-scrollable.
+         */
+        @AnnotationMemberTypes.Optional
+        ScrollType scrollableResultSet()    default ScrollType.FORWARD_ONLY;
+    } // SQL annotation declaration
+
+
+// ********************************************************************************************************************
+// ********************************************************************************************************************
+//                                               Innerclasses
+// ********************************************************************************************************************
+// ********************************************************************************************************************
 
     /**
      * Nested class used for specifing parameters for a callable statement.  If a method in a .jcx takes an array of
@@ -284,22 +450,35 @@ public interface JdbcControl {
      * int the SQLParameter array.
      */
     public static class SQLParameter {
-        /** IN direction constant. */
+        /**
+         * IN direction constant.
+         */
         public static final int IN = 1;
-        /** OUT direction constant. */
+        /**
+         * OUT direction constant.
+         */
         public static final int OUT = 2;
-        /** IN and OUT directions constant. */
+        /**
+         * IN and OUT directions constant.
+         */
         public static final int INOUT = IN | OUT;
 
-        /** Parameter value. */
+        /**
+         * Parameter value.
+         */
         public Object value = null;
-        /** Parameter SQL data type. See java.sql.Types. */
+        /**
+         * Parameter SQL data type. See java.sql.Types.
+         */
         public int type = Types.NULL;
-        /** Parameter direction. */
+        /**
+         * Parameter direction.
+         */
         public int dir = IN;
 
         /**
          * Create a new SQLParameter with the specified value.
+         *
          * @param value The parameter value.
          */
         public SQLParameter(Object value) {
@@ -308,8 +487,9 @@ public interface JdbcControl {
 
         /**
          * Create a new SQLParameter with the specified value and SQL data type.
+         *
          * @param value The parameter value.
-         * @param type SQL data type.
+         * @param type  SQL data type.
          */
         public SQLParameter(Object value, int type) {
             this(value);
@@ -318,9 +498,10 @@ public interface JdbcControl {
 
         /**
          * Create a new SQLParameter with the specified value, SQL data type and direction.
+         *
          * @param value The parameter value.
-         * @param type SQL data type.
-         * @param dir IN / OUT or INOUT
+         * @param type  SQL data type.
+         * @param dir   IN / OUT or INOUT
          */
         public SQLParameter(Object value, int type, int dir) {
             this(value, type);
@@ -329,6 +510,7 @@ public interface JdbcControl {
 
         /**
          * Clone this parameter.
+         *
          * @return A copy of this parameter.
          */
         public Object clone() {
