@@ -21,15 +21,10 @@
  */
 package org.controlhaus.webservice;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.beehive.controls.api.bean.Control;
-import org.apache.beehive.controls.api.context.ControlContainerContext;
-import org.apache.beehive.controls.api.context.ControlThreadContext;
 
 import net.xmethods.www.interfaces.query_xsd.IDNamePair;
 import net.xmethods.www.interfaces.query_xsd.ServiceDetail;

@@ -257,7 +257,7 @@ public class ServiceControlImpl
         // FIXME jcolwell@bea.com 2004-Dec-02 -- 
         // call getResourceAsStream() directly once the ControlBeanContext
         // is fixed to load resources.
-        System.out.println("WSDL path: " + pathToWSDL);
+        //System.out.println("WSDL path: " + pathToWSDL);
 
         InputStream wsdlStream = null;
         
@@ -269,11 +269,11 @@ public class ServiceControlImpl
         if (wsdlStream == null) {
             File f = new File(pathToWSDL);
             boolean readable = f.canRead();
-            System.out.println("WSDL file absolute path: "
+            /*System.out.println("WSDL file absolute path: "
                                + f.getAbsolutePath() 
                                + (readable
                                   ? " and it's readable"
-                                  : " but it's not there or not readable"));
+                                  : " but it's not there or not readable"));*/
             if (!readable) {
                 if (pathToWSDL.startsWith("/") || pathToWSDL.startsWith("\\")) {
                     pathToWSDL = pathToWSDL.substring(1);
@@ -283,12 +283,15 @@ public class ServiceControlImpl
                 }
 
                 f = new File(pathToWSDL);
-                readable = f.canRead();
+                /*
+                  readable = f.canRead();
+                
                 System.out.println("WSDL file absolute path: "
                                    + f.getAbsolutePath() 
                                    + (readable
                                       ? " and it's readable"
                                       : " but it's not there or not readable"));
+                */
             }
             wsdlStream = new FileInputStream(f);
         }
@@ -307,7 +310,7 @@ public class ServiceControlImpl
                 // supports WSDLs with more than one service.
                 // mServiceName = wsdl.service();
                
-                System.out.println(wsdl.path());
+                //System.out.println(wsdl.path());
                 InputStream wsdlStream = getWSDLStream(wsdl.path());
                 
                 if (wsdlStream != null) {

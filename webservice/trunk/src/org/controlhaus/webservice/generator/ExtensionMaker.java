@@ -90,7 +90,7 @@ public class ExtensionMaker {
                 jcxWriter.print("\",\n\tservice = \"");
                 jcxWriter.print(serviceName);
                 jcxWriter.print("\")\n");
-                jcxWriter.print("@WSDLProcessorImpl");
+                jcxWriter.print("@WSDLProcessorImpl\n");
                 jcxWriter.print("@InvocationTargetImpl");
                 jcxWriter.print("\n\npublic interface ");
                 jcxWriter.print(serviceName);
@@ -182,12 +182,13 @@ public class ExtensionMaker {
             em.setWSDLPath(wsdlDir.getAbsolutePath());
             if (wsdlDir.isDirectory()) {
                 for (File wsdlFile : wsdlDir.listFiles(new WSDLFilter())) {
+                    /*
                     System.out.println("WSDL file absolute path: "
                                        + wsdlFile.getAbsolutePath() 
                                        + (wsdlFile.canRead() 
                                           ? " and it's readable"
                                           : " but it's not there or not readable"));
-                    
+                    */
                     em.writeJCX(new XmlBeanWSDLProcessor()
                                 .createObjectModel
                                 (new FileInputStream(wsdlFile)));

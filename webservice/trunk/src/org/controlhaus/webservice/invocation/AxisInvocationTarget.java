@@ -32,6 +32,8 @@ import javax.wsdl.OperationType;
 import org.apache.axis.Message;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
+import org.apache.axis.constants.Style;
+import org.apache.axis.constants.Use;
 import org.apache.axis.description.FaultDesc;
 import org.apache.axis.description.OperationDesc;
 import org.apache.axis.description.ParameterDesc;
@@ -45,6 +47,7 @@ import org.apache.beehive.wsm.axis.util.AxisTypeMappingUtil;
 import org.apache.beehive.wsm.jsr181.model.Jsr181ParameterMetadata;
 import org.apache.beehive.wsm.jsr181.model.Jsr181MethodMetadata;
 import org.apache.beehive.wsm.jsr181.model.Jsr181TypeMetadata;
+import org.apache.beehive.wsm.jsr181.model.SOAPBindingInfo;
 import org.apache.beehive.wsm.jsr181.model.client.ClientMethodMetadata;
 import org.apache.beehive.wsm.jsr181.model.client.ClientParameterMetadata;
 import org.apache.beehive.wsm.jsr181.util.TypeMappingUtil;
@@ -117,11 +120,14 @@ public class AxisInvocationTarget
                                                    tm,
                                                    wstm.getWsTargetNamespace());
 
-            System.out.println(od);
-
+            //System.out.println(od);
+            configureSoapBinding(od, wstm.getSoapBinding());
             call.setOperation(od);
             call.setOperationName(od.getElementQName());
             call.setTargetEndpointAddress(serviceControl.getEndPoint());
+            String action = od.getSoapAction();
+            call.setUseSOAPAction(action != null);
+            call.setSOAPActionURI(action);
             QName port = serviceControl.getWsdlPort();
             if (port != null) {
                 call.setPortName(port);
@@ -158,14 +164,17 @@ public class AxisInvocationTarget
             // call.getMessageContext().setSchemaVersion(SchemaVersion
             //                                        .SchemaVersion1999);
 
+            
             System.out.println("invoking " + od.getElementQName()
                                + " with " + args.length
                                + " arguments while " + od.getNumParams() 
                                + " are expected");
+            
             Object ret = call.invoke(od.getElementQName(), args);
             if (ret != null) {
                 Class retClass = ret.getClass();
                 Class expectedRetClass = od.getReturnClass();
+                
                 System.out.println(od.getName() + " returned " 
                                    + retClass.getName() 
                                    + (expectedRetClass
@@ -205,6 +214,7 @@ public class AxisInvocationTarget
         od.setName(operationName);
         od.setElementQName(opQName);
         od.setSoapAction(meta.getWmAction());
+   
         if (meta.isOneWay()) {
             od.setMep(OperationType.ONE_WAY);
         } else {
@@ -241,7 +251,7 @@ public class AxisInvocationTarget
             pd.setQName(new QName(param.getWpTargetNamespace(),
                                   param.getWpName()));
 
-            System.out.println("registering " + paramClasses[paramIndex]);
+            //System.out.println("registering " + paramClasses[paramIndex]);
             pd.setJavaType(paramClasses[paramIndex]);
             QName expectedType = null;
             if (param instanceof ClientParameterMetadata) {
@@ -257,7 +267,7 @@ public class AxisInvocationTarget
             }
             
             if (paramType.equals(expectedType)) {
-                System.out.println("parameter type" + paramType + " as expected");
+                //System.out.println("parameter type" + paramType + " as expected");
             }
             else {
                 System.out.println("parameter type" + paramType + " does not match " + expectedType);
@@ -283,10 +293,11 @@ public class AxisInvocationTarget
                 pd.setInHeader(param.isWpHeader());
                 pd.setOutHeader(false);
             }
-
+            /*
             System.out.println("adding parameter " + pd.getQName() + " of type "
                                + pd.getTypeQName() + " | "  + pd.getJavaType()
                                .getName());
+            */
             od.addParameter(pd);
         }
         for (Class thrown : meth.getExceptionTypes()) {
@@ -295,7 +306,45 @@ public class AxisInvocationTarget
             od.addFault(fd);
         }
         od.setMethod(meth);
-        System.out.println("done creating OperationDesc");
+        //System.out.println("done creating OperationDesc");
         return od;
+    }
+
+
+    protected void configureSoapBinding(OperationDesc od,
+                                               SOAPBindingInfo sbi) {
+        javax.jws.soap.SOAPBinding.Style style
+                = javax.jws.soap.SOAPBinding.Style.DOCUMENT;
+        javax.jws.soap.SOAPBinding.Use use
+                = javax.jws.soap.SOAPBinding.Use.LITERAL;
+        javax.jws.soap.SOAPBinding.ParameterStyle paramStyle
+                = javax.jws.soap.SOAPBinding.ParameterStyle.WRAPPED;
+        if (sbi != null) {
+            style = sbi.getStyle();
+            use = sbi.getUse();
+            paramStyle = sbi.getParameterStyle();
+        }
+        if (style == style.RPC) {
+            od.setStyle(Style.RPC);
+            if (use == use.ENCODED) {
+                od.setUse(Use.ENCODED);
+            } else {
+                od.setUse(Use.LITERAL);
+            }
+        } else {
+            /*
+             * since DOCUMENT ENCODED is not valid so
+             * force to use LITERAL
+             */
+            od.setUse(Use.LITERAL);
+
+            // check if this is a wrapped document literal 
+            if (paramStyle == paramStyle.WRAPPED) {
+                od.setStyle(Style.WRAPPED);
+            } else {
+                // just regular document style
+                od.setStyle(Style.DOCUMENT);
+            }
+        }
     }
 }

@@ -5,9 +5,9 @@
   <property name="test.root" location="${basedir}/drt"/>
   <property name="web.inf" location="${basedir}/WEB-INF"/>
   <property name="tests.src" location="${test.root}/tests"/>
-  <property name="build.dir" location="${test.root}/build"/>
-  <property name="build.classes" location="${build.dir}/classes"/>
-  <property name="build.gen" location="${build.dir}/gen"/>
+  <property name="test.dir" location="${test.root}/build"/>
+  <property name="test.classes" location="${test.dir}/classes"/>
+  <property name="test.gen" location="${test.dir}/gen"/>
   <property name="drt.logs" location="${test.root}/logs"/>
   <condition property="drt.os" value="windows">
     <os family="windows"/>
@@ -55,13 +55,13 @@
 
   <path id="drt.classpath">
     <pathelement location="${os.JAVA_HOME}/lib/tools.jar"/>
-    <pathelement location="${basedir}/classes"/>
+    <pathelement location="${basedir}/build/classes"/>
     <fileset refid="libs"/>
     <path refid="beehive.class.path"/>
   </path>
 
   <target name="clean">
-    <delete dir="${build.dir}"/>
+    <delete dir="${test.dir}"/>
     <delete dir="${drt.logs}"/>
     <delete dir="${web.inf}"/>
     <delete>
@@ -70,13 +70,13 @@
   </target>
 
   <target name="dirs">
-    <mkdir dir="${build.classes}"/>
+    <mkdir dir="${test.classes}"/>
     <mkdir dir="${drt.logs}"/>
     <mkdir dir="${web.inf}"/>
   </target>
   <target name="build" depends="dirs">
     <antcall target="build-tests"/>
-  </target>    <copy todir="${build.classes}">
+  </target>    <copy todir="${test.classes}">
       <fileset dir="${tests.src}" 
         includes="org/controlhaus/webservice/google.key"/>
     </copy>
@@ -90,8 +90,8 @@
       </classpath>
     </taskdef>
     <apt srcdir="${tests.src}"
-      destdir="${build.classes}"
-      gendir="${build.gen}" 
+      destdir="${test.classes}"
+      gendir="${test.gen}" 
       classpathref="drt.classpath"
       compileByExtension="true" 
       srcExtensions="*.jcx,*.java,*.jws"
@@ -104,22 +104,22 @@
       <fileset dir="${basedir}/schemas"
         includes="*.wsdl,*.WSDL"/>
     </copy>
-    <copy todir="${build.classes}">
+    <copy todir="${test.classes}">
       <fileset dir="${tests.src}" 
         includes="org/controlhaus/webservice/google.key"/>
     </copy>
   </target>
 
   <target name="nettests">
-    <available file="${build.classes}/org/controlhaus/webservice/google.key"
+    <available file="${test.classes}/org/controlhaus/webservice/google.key"
       property="googleKeyAvailable" />    
     <junit failureproperty="networktestsfailed"
       dir="${basedir}"
       printsummary="on"
-      tempdir="${build.dir}"
+      tempdir="${test.dir}"
       fork="yes">
       <classpath>
-        <pathelement location="${build.classes}"/>
+        <pathelement location="${test.classes}"/>
         <path refid="drt.classpath"/>
       </classpath>
       <formatter type="plain"/>
@@ -141,10 +141,10 @@
     <junit failureproperty="drtfailed"
       dir="${basedir}"
       printsummary="on"
-      tempdir="${build.dir}"
+      tempdir="${test.dir}"
       fork="yes">
       <classpath>
-        <pathelement location="${build.classes}"/>
+        <pathelement location="${test.classes}"/>
         <path refid="drt.classpath"/>
       </classpath>
       <formatter type="plain"/>

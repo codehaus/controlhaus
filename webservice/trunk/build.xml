@@ -23,14 +23,15 @@
   <condition property="isJDKOver5">
     <equals arg1="${ant.java.version}" arg2="1.5"/>
   </condition>
-  <property name="classes.dir" value="classes"/>
+  <property name="build.dir" value="build"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
   <property name="lib.dir" value="lib"/>
   <property name="src.dir" value="src"/>
   <property name="samples.dir" value="samples"/>
-  <property name="scgen.dir" value="gen"/>
-  <property name="xbeangen.dir" value="xbeangen"/>
-  <property name="axisbeangen.dir" value="axisbeangen"/>
-  <property name="extgen.dir" value="extgen"/>
+  <property name="scgen.dir" value="${build.dir}/gen"/>
+  <property name="xbeangen.dir" value="${build.dir}/xbeangen"/>
+  <property name="axisbeangen.dir" value="${build.dir}/axisbeangen"/>
+  <property name="extgen.dir" value="${build.dir}/extgen"/>
   <property name="schema.dir" value="schemas"/>
   <property name="wsdl.dir" value="encodedWSDLs"/>
   <path id="beehive.class.path">
@@ -78,11 +79,7 @@
   </target>
 
   <target name="clean">
-    <delete dir="${classes.dir}"/>
-    <delete dir="${scgen.dir}"/>
-    <delete dir="${xbeangen.dir}"/>
-    <delete dir="${axisbeangen.dir}"/>
-    <delete dir="${extgen.dir}"/>
+    <delete dir="${build.dir}"/>
     <delete file="velocity.log"/>
     <ant antfile="drt/build.xml" target="clean"/>
   </target>
