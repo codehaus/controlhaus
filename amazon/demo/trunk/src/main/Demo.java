@@ -30,6 +30,9 @@ public class Demo
         throws Exception
     {
         Demo d = new Demo();
-        d.getFinder().findBook("0486411214");
+        if (args.length == 0)
+            System.out.println("Usage: Demo <ISBN>");
+        else
+            d.getFinder().findBook(args[0]);
     }
 }
