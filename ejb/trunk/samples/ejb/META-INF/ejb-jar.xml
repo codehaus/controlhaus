@@ -10,6 +10,8 @@
       <ejb-name>HelloBean</ejb-name>
       <home>org.controlhaus.ejb.sample.bean.HelloHome</home>
       <remote>org.controlhaus.ejb.sample.bean.HelloRemote</remote>
+      <local-home>org.controlhaus.ejb.sample.bean.HelloLocalHome</local-home>
+      <local>org.controlhaus.ejb.sample.bean.HelloLocal</local>
       <ejb-class>org.controlhaus.ejb.sample.bean.HelloBean</ejb-class>
       <session-type>Stateless</session-type>
       <transaction-type>Container</transaction-type>

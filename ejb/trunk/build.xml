@@ -4,9 +4,10 @@
 
     <property environment="env"/>
     <property name="source.dir" value="${basedir}/src"/>
-    <property name="samples.ejb.dir" value="${basedir}/samples/ejb"/>
-    <property name="samples.control.dir" value="${basedir}/samples/control"/>
-    <property name="samples.client.dir" value="${basedir}/samples/client"/>
+    <property name="samples.dir" value="${basedir}/samples"/>    
+    <property name="samples.ejb.dir" value="${samples.dir}/ejb"/>
+    <property name="samples.control.dir" value="${samples.dir}/control"/>
+    <property name="samples.client.dir" value="${samples.dir}/client"/>
     <property name="beehive.home" location="${env.BEEHIVE_HOME}"/>
     <property name="lib.dir" value="${basedir}/lib"/>
     <property name="build.dir" value="${basedir}/build"/>
@@ -21,7 +22,7 @@
     <property name="dist.dir" value="${build.dir}/dist"/>
     <property name="docs.dir" value="${build.dir}/docs"/>
     <property name="api.dir" value="${docs.dir}/api"/>
-    <property name="ejbXMLbeans.jar" value="ejbXMLBeans.jar"/>	
+    <property name="ejbXMLbeans.jar" value="ejbXMLBeans.jar"/>  
     <property name="build.jar" value="ejb-control.jar"/>
     <property name="build.samples.jar" value="ejb-control-samples.jar"/>
     <property name="xbean.marker" location="${build.xbeansrc}/XBEAN" />
@@ -56,11 +57,11 @@
                 <include name="apache-xbean.jar"/>
                 <include name="jsr173_1.0_api.jar"/>
             </fileset>
-	        <pathelement location="${beehive.home}/lib/netui/commons-collections.jar"/>
+            <pathelement location="${beehive.home}/lib/netui/commons-collections.jar"/>
             <fileset dir="${lib.dir}">
                 <include name="*.jar" />
             </fileset>
-	        <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
+            <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
             <pathelement path="${build.classes}" />
             <pathelement path="${build.samples.classes}" />
         </path>
@@ -72,8 +73,8 @@
 
         <taskdef name="assemble" 
                  classname="org.apache.beehive.controls.runtime.assembly.AssembleTask" 
-        	     classpathref="build.classpath" 
-        	     onerror="report" />
+                 classpathref="build.classpath" 
+                 onerror="report" />
 
         <taskdef name="control-jar" 
                  classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
@@ -115,10 +116,11 @@
              debug="on"
              target="1.5">
         </javac>
-    	<jar jarfile="${build.dir}/helloEJB.jar">
-    		 <fileset dir="${samples.ejb.dir}"/>
-    	</jar>
-	</target>
+        <jar jarfile="${build.dir}/HelloEJB.jar">
+             <fileset dir="${build.samples.classes}" includes="org/controlhaus/ejb/sample/bean/**"/>
+             <fileset dir="${samples.ejb.dir}" includes="META-INF/**"/>
+        </jar>
+    </target>
 
     <target name="build_samples_control" depends="build, build_samples_ejb" description="Builds sample control control">
         <apt srcdir="${samples.control.dir}" destdir="${build.samples.classes}" gendir="${build.samples.beansrc}"
@@ -128,8 +130,8 @@
              srcExtensions="*.java,*.jcx,*.jcs"
              target="1.5">
         </apt>
-	</target>
-    	
+    </target>
+        
     <target name="samples" depends="build_samples_control" description="Builds sample control client">
         <apt srcdir="${samples.client.dir}" destdir="${build.samples.classes}" gendir="${build.samples.beansrc}"
              classpathref="build.classpath"
@@ -151,7 +153,7 @@
         <control-jar destfile="${build.dir}/${build.samples.jar}"  basedir="${build.samples.classes}" />
     </target>
 
-	
+    
     <target name="docs">
         <property name="classpath" refid="build.classpath"/>
         <mkdir dir="${api.dir}" />
@@ -164,16 +166,30 @@
 
     <target name="dist" depends="build,docs">
         <mkdir dir="${dist.dir}" />
-        <zip basedir="${basedir}" destfile="${dist.dir}/${dist.src}.zip"
-            includes="build.xml,src/**,samples/**"/> 
-        <tar basedir="${basedir}" destfile="${dist.dir}/${dist.src}.tar"
-            includes="build.xml,src/**,samples/**"/> 
-        <gzip src="${dist.dir}/${dist.src}.tar" destfile="${dist.dir}/${dist.src}.tar.gz"/>
-        <zip basedir="${build.dir}" destfile="${dist.dir}/${dist.name}.zip"
-            includes="${build.jar}, docs/**"/> 
-        <tar basedir="${build.dir}" destfile="${dist.dir}/${dist.name}.tar"
-            includes="${build.jar}, docs/**"/> 
+        <tar destfile="${dist.dir}/${dist.name}.tar">
+            <tarfileset dir="${build.dir}">
+            	<include name="${build.jar}"/>
+            	<include name="docs/**"/>
+            </tarfileset>
+            <tarfileset dir="${lib.dir}">
+            	<include name="${ejbXMLbeans.jar}"/>
+            </tarfileset>
+        </tar>
+	    <zip destfile="${dist.dir}/${dist.name}.zip">
+	    	<zipfileset dir="${build.dir}">
+	    		<include name="${build.jar}"/>
+	    		<include name="docs/**"/>
+	    	</zipfileset>
+	    	<zipfileset dir="${lib.dir}">
+	    		<include name="${ejbXMLbeans.jar}"/>
+	    	</zipfileset>
+	    </zip>
         <gzip src="${dist.dir}/${dist.name}.tar" destfile="${dist.dir}/${dist.name}.tar.gz"/>
+        <zip basedir="${basedir}" destfile="${dist.dir}/${dist.src}.zip"
+            includes="build.xml,src/**,samples/**,schema/**"/> 
+        <tar basedir="${basedir}" destfile="${dist.dir}/${dist.src}.tar"
+            includes="build.xml,src/**,samples/**,schema/**"/> 
+        <gzip src="${dist.dir}/${dist.src}.tar" destfile="${dist.dir}/${dist.src}.tar.gz"/>
     </target>
 
     
@@ -189,7 +205,7 @@
         </uptodate>
         <pathconvert property="xbean.args" pathsep=" " refid="xbean.sources"/>
         <antcall target="xbean_schema_compiler"/>
-        <jar destfile="${lib.dir}/${ejbXMLbeans.jar}" basedir="${build.xbeanclasses}"/>    	
+        <jar destfile="${lib.dir}/${ejbXMLbeans.jar}" basedir="${build.xbeanclasses}"/>     
     </target>
 
     <!-- ==================================================================== -->
@@ -205,6 +221,4 @@
           <arg line="-src ${build.xbeansrc} -d ${build.xbeanclasses} ${xbean.args}"/>
     </java>
     </target>
-
-
 </project>

@@ -6,5 +6,6 @@
         <ejb-name>HelloBean</ejb-name>
         <enable-call-by-reference>true</enable-call-by-reference>
         <jndi-name>org.controlhaus.ejb.sample.HelloHome</jndi-name>
+        <local-jndi-name>org.controlhaus.ejb.sample.HelloLocalHome</local-jndi-name>
     </weblogic-enterprise-bean>
 </weblogic-ejb-jar>
