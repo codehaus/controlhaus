@@ -1,15 +1,20 @@
 
 package org.controlhaus.jms.samples;
 
+import java.util.Date;
+
 import javax.jms.Message;
 import javax.jms.Queue;
 
 import org.apache.beehive.controls.api.bean.Control;
-import org.apache.beehive.controls.junit.ControlTestCase;
 import org.controlhaus.jms.samples.OrderQueueBean;
 import org.controlhaus.jndi.JndiControlBean;
 
-
+/**
+ * Test the order-queue jms-control.
+ * This test case will work with an ejb-container. Just set 
+ * the system properties jndi.provider and jndi.factory.
+ */
 public class TestOrderQueue extends ControlTestCase
 {    
     public TestOrderQueue(String name) throws Exception
@@ -33,7 +38,8 @@ public class TestOrderQueue extends ControlTestCase
         }
         // Submit an order.
         OrderQueue.Order order = new OrderQueue.Order(5,new String[] { "hair spray"});
-        Message mess = orders.submitOrder(order,"today");
+        Date now = new Date();
+        Message mess = orders.submitOrder(order,now);
         javax.jms.QueueSession sess = (javax.jms.QueueSession)orders.getSession();
         sess.commit();
         // Read the queue using the same session/connection.
@@ -44,7 +50,7 @@ public class TestOrderQueue extends ControlTestCase
         assertNotNull(qmess);
         String by = qmess.getStringProperty("DeliverBy");
         assertNotNull(by);
-        assertEquals(by,"today");
+        assertEquals(by,now);
     }
 
 }
