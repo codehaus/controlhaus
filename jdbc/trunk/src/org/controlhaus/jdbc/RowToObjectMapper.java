@@ -44,10 +44,10 @@ public class RowToObjectMapper extends RowMapper {
     private int[] _fieldTypes;
 
     private final Object[] _args = new Object[1];
-    private final Object _singleRowReturnValue;
 
     /**
      * Create a new RowToObjectMapper.
+     *
      * @param resultSet ResultSet to map
      * @param returnTypeClass Class to map to.
      * @param cal Calendar instance for date/time mappings.
@@ -57,20 +57,12 @@ public class RowToObjectMapper extends RowMapper {
         super(resultSet, returnTypeClass, cal);
 
         _columnCount = resultSet.getMetaData().getColumnCount();
-        
-        // if the ResultSet only contains a single column we may be able to map directly
-        // to the return type -- if so we don't need to build any structures to support
-        // mapping
-        _singleRowReturnValue = (_columnCount == 1) ?  mapSingleColumnResultSet(_returnTypeClass) : null;
-
-        if (_singleRowReturnValue == null) {
-            getFieldMappings();
-        }
+        _fields = null;
     }
 
 
     /**
-     * Do the mapping
+     * Do the mapping.
      *
      * @return An object instance.
      * @throws ControlException on error.
@@ -80,9 +72,18 @@ public class RowToObjectMapper extends RowMapper {
 
         Object resultObject = null;
 
-        if (_singleRowReturnValue != null) {
-            return _singleRowReturnValue;
+        // if the ResultSet only contains a single column we may be able to map directly
+        // to the return type -- if so we don't need to build any structures to support
+        // mapping
+        if (_columnCount == 1) {
+            resultObject = mapSingleColumnResultSet(_returnTypeClass);
+            if (resultObject != null) return resultObject;
         }
+
+        if (_fields == null) {
+            getFieldMappings();
+        }
+
 
         try {
             resultObject = _returnTypeClass.newInstance();

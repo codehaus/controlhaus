@@ -193,6 +193,15 @@ public class DBMultiRowResultsTest extends AbstractControlTest {
         assertEquals(rs.getInt(2), 21);
     }
 
+    //
+    // test single column result set mapping
+    //
+    public void testSingleColumnResultSetMapping() throws Exception {
+        String fnames[] = testCtrl.getFnameColumn();
+        assertEquals(fnames[1], "tester2");
+        assertEquals(fnames[3], "tester4");
+    }
+
     public DBMultiRowResultsTest(String name) throws Exception {
         super(name);
 
