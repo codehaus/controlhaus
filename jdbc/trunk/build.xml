@@ -1,27 +1,27 @@
 <?xml version="1.0"?>
 
 <!-- =================================================================== -->
-<!-- Build file for the Jdbc Control project                             -->
+<!-- Build file for the JdbcControl project                              -->
 <!-- =================================================================== -->
 <project name="Jdbc Control Build" default="build" basedir=".">
 
     <property environment="os"/>
-    <property file="${os.JDBCCONTROL_HOME}/beeline.properties"/>
+    <property file="${os.JDBCCONTROL_HOME}/jdbccontrol.properties"/>
 
     <!-- libraries -->
-    <property name="controls.jar" location="${beeline.external.dir}/beehive-controls/controls.jar"/>
-    <property name="derby.jar" location="${beeline.external.dir}/derby/derby-10.0.2.1.jar"/>
-    <property name="jsr173.jar" location="${beeline.external.dir}/xmlbeans/jsr173_1.0_api.jar"/>
-    <property name="junit.jar" location="${beeline.external.dir}/junit/junit.jar"/>
-    <property name="log4j.jar" location="${beeline.external.dir}/log4j/log4j-1.2.8.jar"/>
-    <property name="velocity14.jar" location="${beeline.external.dir}/velocity/velocity-1.4.jar"/>
-    <property name="velocitydep14.jar" location="${beeline.external.dir}/velocity/velocity-dep-1.4.jar"/>
-    <property name="xmlbeans.jar" location="${beeline.external.dir}/xmlbeans/apache-xbean-1.0.3.jar"/>
-    <property name="javacc.home" location="${beeline.external.dir}/javacc"/>
+    <property name="controls.jar" location="${jdbcc.external.dir}/beehive-controls/controls.jar"/>
+    <property name="derby.jar" location="${jdbcc.external.dir}/derby/derby-10.0.2.1.jar"/>
+    <property name="jsr173.jar" location="${jdbcc.external.dir}/xmlbeans/jsr173_1.0_api.jar"/>
+    <property name="junit.jar" location="${jdbcc.external.dir}/junit/junit.jar"/>
+    <property name="log4j.jar" location="${jdbcc.external.dir}/log4j/log4j-1.2.8.jar"/>
+    <property name="velocity14.jar" location="${jdbcc.external.dir}/velocity/velocity-1.4.jar"/>
+    <property name="velocitydep14.jar" location="${jdbcc.external.dir}/velocity/velocity-dep-1.4.jar"/>
+    <property name="xmlbeans.jar" location="${jdbcc.external.dir}/xmlbeans/apache-xbean-1.0.3.jar"/>
+    <property name="javacc.home" location="${jdbcc.external.dir}/javacc"/>
 
     <!-- taskdefs -->
     <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask"
-        classpath="${controls.jar};${beeline.jar}" onerror="report"/>
+        classpath="${controls.jar};${jdbcc.jar}" onerror="report"/>
     <taskdef name="assemble" classname="org.apache.beehive.controls.runtime.assembly.AssembleTask"
         classpath="${controls.jar}" onerror="report"/>
     <taskdef name="control-jar" classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask"
@@ -32,16 +32,16 @@
     <!-- build locations -->
     <property name="project.name" value="Jdbc Control"/>
     <property name="src.dir" location="${os.JDBCCONTROL_HOME}/src"/>
-    <property name="build.classes.dir" location="${beeline.build.dir}/classes"/>
-    <property name="build.generated.dir" location="${beeline.build.dir}/gensrc"/>
+    <property name="build.classes.dir" location="${jdbcc.build.dir}/classes"/>
+    <property name="build.generated.dir" location="${jdbcc.build.dir}/gensrc"/>
     <property name="sqlgrammar.file" value="${src.dir}/org/controlhaus/jdbc/parser/SqlGrammar.jj"/>
     <property name="sqlgrammar.gen.dir" value="${src.dir}/org/controlhaus/jdbc/parser"/>
     <property name="aptmeta.dir" value="${src.dir}/org/controlhaus/jdbc/apt"/>
     <property name="aptmeta.file" value="com.sun.mirror.apt.AnnotationProcessorFactory"/>
 
     <!-- test locations -->
-    <property name="test.src.dir" location="${beeline.test.dir}/src"/>
-    <property name="test.build.dir" location="${beeline.build.dir}/test"/>
+    <property name="test.src.dir" location="${jdbcc.test.dir}/src"/>
+    <property name="test.build.dir" location="${jdbcc.build.dir}/test"/>
     <property name="test.build.classes.dir" location="${test.build.dir}/classes"/>
     <property name="test.build.jars.dir" location="${test.build.dir}/jars"/>
     <property name="test.logs.dir" location="${test.build.dir}/logs"/>
@@ -74,7 +74,7 @@
     <path id="test.classpath">
         <path refid="build.classpath"/>
         <pathelement location="${testcontrols.jar}"/>
-        <pathelement location="${beeline.jar}"/>
+        <pathelement location="${jdbcc.jar}"/>
         <pathelement location="${derby.jar}"/>
         <pathelement location="${junit.jar}"/>
         <pathelement path="${test.units.classes.dir}"/>
@@ -102,7 +102,7 @@
         </apt>
 
         <mkdir dir="${dist.base.dir}"/>
-        <jar jarfile="${beeline.jar}" basedir="${build.classes.dir}">
+        <jar jarfile="${jdbcc.jar}" basedir="${build.classes.dir}">
             <metainf dir="${aptmeta.dir}">
                    <filename name="services/${aptmeta.file}"/>
             </metainf>
@@ -130,7 +130,7 @@
     <!-- clean - cleans the Jdbc Control                                     -->
     <!-- =================================================================== -->
     <target name="clean" description="Cleans the Jdbc Control build.">
-        <!-- TODO: There is a 'velocity.log' file which is created in BEELINE.HOME
+        <!-- TODO: There is a 'velocity.log' file which is created in JDBCCONTROL_HOME
              when the apt task is run. -->
         <delete dir="./build/"/>
     </target>
@@ -171,14 +171,6 @@
             <test name="org.controlhaus.jdbc.units.results.StoredProcsDBResultsTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.results.JdbcTypesTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.errors.ErrorPathsTest" todir="${testout.dir}"/>
-            <!--
-                <batchtest fork="yes" todir="${testout.dir}">
-                    <fileset dir="${test.src.dir}/junitTests">
-                        <include name="org/apache/beehive/netui/test/script/el/**/*Test.java"/>
-                        <exclude name="org/apache/beehive/netui/test/script/el/NetUIELCustomBindingContextTest.java"/>
-                    </fileset>
-                </batchtest>
-            -->
         </junit>
 
         <antcall target="make.report">
