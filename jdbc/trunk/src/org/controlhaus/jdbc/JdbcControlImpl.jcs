@@ -42,9 +42,9 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
-import java.util.Map;
 
 /**
  * The implementation class for the database controller.
@@ -56,9 +56,9 @@ import java.util.Map;
     // contexts provided by the beehive controls runtime
     //
     @org.apache.beehive.controls.api.context.Context
-    protected ControlBeanContext _context;
+            protected ControlBeanContext _context;
     @org.apache.beehive.controls.api.context.Context
-    protected ResourceContext _resourceContext;
+            protected ResourceContext _resourceContext;
 
     protected transient Connection _connection;
     protected transient ConnectionDataSource _connectionDataSource;
@@ -100,7 +100,7 @@ import java.util.Map;
      * Invoked by the controls runtime when a new instance of this class is aquired by the runtime
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceEvents.class, eventName = "onAcquire")
-    public void onAquire() {
+            public void onAquire() {
         logger.info("onAcquire() invoked.");
         try {
             getConnection();
@@ -113,7 +113,7 @@ import java.util.Map;
      * Invoked by the controls runtime when an instance of this class is released by the runtime
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onRelease")
-    public void onRelease() {
+            public void onRelease() {
         logger.info("onRelease() invoked.");
 
         for (int i = 0; i < _resources.size(); i++) {
@@ -181,12 +181,14 @@ import java.util.Map;
 
                 DatabaseMetaData dbMetadata = _connection.getMetaData();
 
-                final int holdability = connectionOptions.resultSetHoldability().getHoldability();
-                if (dbMetadata.supportsResultSetHoldability(holdability)) {
-                    _connection.setHoldability(holdability);
-                } else {
-                    throw new ControlException("Database does not support ResultSet holdability type: "
-                                               + connectionOptions.resultSetHoldability().toString());
+                final HoldabilityType holdability = connectionOptions.resultSetHoldability();
+                if (holdability != HoldabilityType.DRIVER_DEFAULT) {
+                    if (dbMetadata.supportsResultSetHoldability(holdability.getHoldability())) {
+                        _connection.setHoldability(holdability.getHoldability());
+                    } else {
+                        throw new ControlException("Database does not support ResultSet holdability type: "
+                                                   + holdability.toString());
+                    }
                 }
 
                 setTypeMappers(connectionOptions.typeMappers());

@@ -32,6 +32,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.sql.ResultSet;
 import java.util.Calendar;
 
 /**
@@ -123,7 +124,7 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
             throws SQLException {
 
         PreparedStatement preparedStatement = null;
-        loadSQLAnnotationStatmentOptions(context, method);
+        loadSQLAnnotationStatmentOptions(context, method, connection);
         checkJdbcSupport(connection.getMetaData());
 
         _callableStatement = setCallableStatement(arguments);
@@ -179,11 +180,14 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
                     }
                 }
 
+
                 //
                 // special handling for batch updates
                 //
             } else if (_batchUpdate) {
                 doBatchUpdate(preparedStatement, arguments, calendar);
+
+
                 //
                 // standard case, not a batch or callable
                 //
@@ -388,8 +392,10 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
      *
      * @param context ControlBeanContext instance.
      * @param method  Annotated method.
+     * @param conn The JDBC connection.
      */
-    private void loadSQLAnnotationStatmentOptions(ControlBeanContext context, Method method) {
+    private void loadSQLAnnotationStatmentOptions(ControlBeanContext context, Method method, Connection conn)
+            throws SQLException {
 
         final JdbcControl.SQL methodSQL = (JdbcControl.SQL) context.getMethodPropertySet(method, JdbcControl.SQL.class);
 
@@ -400,9 +406,18 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
         _scrollType = methodSQL.scrollableResultSet();
         _fetchDirection = methodSQL.fetchDirection();
         _fetchSize = methodSQL.fetchSize();
-        _holdability = methodSQL.resultSetHoldabilityOverride();
         _maxRows = methodSQL.maxRows();
         _maxArray = methodSQL.arrayMaxLength();
+
+        _holdability = methodSQL.resultSetHoldabilityOverride();
+        if (_holdability == JdbcControl.HoldabilityType.DRIVER_DEFAULT) {
+            final int chold = conn.getHoldability();
+            if (chold == ResultSet.CLOSE_CURSORS_AT_COMMIT) {
+                _holdability = JdbcControl.HoldabilityType.CLOSE_CURSORS;
+            } else {
+                _holdability = JdbcControl.HoldabilityType.HOLD_CURSORS;
+            }
+        }
     }
 
     /**

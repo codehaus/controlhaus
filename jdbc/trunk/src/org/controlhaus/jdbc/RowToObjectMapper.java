@@ -53,7 +53,7 @@ public class RowToObjectMapper extends RowMapper {
      * @param cal Calendar instance for date/time mappings.
      * @throws SQLException on error.
      */
-    RowToObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
+    RowToObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException, ControlException {
         super(resultSet, returnTypeClass, cal);
 
         _columnCount = resultSet.getMetaData().getColumnCount();
@@ -139,8 +139,9 @@ public class RowToObjectMapper extends RowMapper {
      * Build the structures necessary to do the mapping
      *
      * @throws SQLException on error.
+     * @throws ControlException on error.
      */
-    private void getFieldMappings() throws SQLException {
+    private void getFieldMappings() throws SQLException, ControlException {
 
         final String[] keys = getKeysFromResultSet();
 

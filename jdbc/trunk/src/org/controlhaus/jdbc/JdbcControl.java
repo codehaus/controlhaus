@@ -194,10 +194,10 @@ public interface JdbcControl {
 
         /**
          * Specifies ResultSet holdability for the connection.  May be overridden at method level.
-         * Optional, defaults to close cursors at commit.
+         * Optional, defaults to jdbc driver's default setting.
          */
         @AnnotationMemberTypes.Optional
-        HoldabilityType resultSetHoldability()          default HoldabilityType.CLOSE_CURSORS;
+        HoldabilityType resultSetHoldability()          default HoldabilityType.DRIVER_DEFAULT;
 
         /**
          * Specifies type mappings for SQL user defined types (UDTs).  Any type mappings set here will be used
@@ -320,6 +320,7 @@ public interface JdbcControl {
      * Enumeration of supported fetch directions.
      */
     public enum HoldabilityType {
+        DRIVER_DEFAULT (0),
         HOLD_CURSORS (ResultSet.HOLD_CURSORS_OVER_COMMIT),
         CLOSE_CURSORS (ResultSet.CLOSE_CURSORS_AT_COMMIT);
 
@@ -334,8 +335,10 @@ public interface JdbcControl {
         public String toString() {
             if (_holdability == ResultSet.HOLD_CURSORS_OVER_COMMIT) {
                 return "HOLD_CURSORS_OVER_COMMIT";
-            } else {
+            } else if (_holdability == ResultSet.CLOSE_CURSORS_AT_COMMIT) {
                 return "CLOSE_CURSORS_AT_COMMIT";
+            } else {
+                return "Default driver holdability";
             }
         }
     }
@@ -425,10 +428,10 @@ public interface JdbcControl {
         /**
          * Specify the holdability type for the annotated method.  Overrides the holability annotation element
          * of the ConnectionOptions annotation.  The holdability type will be in effect for the duration of this
-         * method call. Optional, defaults to CLOSE_CURSORS_AFTER_COMMIT.
+         * method call. Optional, defaults to DRIVER_DEFAULT.
          */
         @AnnotationMemberTypes.Optional
-        HoldabilityType resultSetHoldabilityOverride()  default HoldabilityType.CLOSE_CURSORS;
+        HoldabilityType resultSetHoldabilityOverride()  default HoldabilityType.DRIVER_DEFAULT;
 
 
         /**
