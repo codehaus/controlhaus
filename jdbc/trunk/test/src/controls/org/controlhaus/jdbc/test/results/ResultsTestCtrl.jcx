@@ -261,7 +261,7 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     // query with non-default holdability specified
     //
-    @SQL(statement="SELECT * FROM USERS", methodHoldability=HoldabilityType.HOLD_CURSORS)
+    @SQL(statement="SELECT * FROM USERS", resultSetHoldabilityOverride=HoldabilityType.HOLD_CURSORS)
     public ResultSet getResultSetHoldablity();
 }
 

@@ -400,7 +400,7 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
         _scrollType = methodSQL.scrollableResultSet();
         _fetchDirection = methodSQL.fetchDirection();
         _fetchSize = methodSQL.fetchSize();
-        _holdability = methodSQL.methodHoldability();
+        _holdability = methodSQL.resultSetHoldabilityOverride();
         _maxRows = methodSQL.maxRows();
         _maxArray = methodSQL.arrayMaxLength();
     }

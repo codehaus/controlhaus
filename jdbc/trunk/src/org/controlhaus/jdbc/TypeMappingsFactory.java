@@ -75,7 +75,8 @@ public final class TypeMappingsFactory {
     static final int TYPE_REF = 26;
     static final int TYPE_DATE = 27;
     static final int TYPE_CALENDAR = 28;
-    static final int TYPE_MAX = 29;
+    static final int TYPE_STRUCT = 29;
+    static final int TYPE_MAX = 30;
 
     private Map<Class, Object> _primitiveDefaults;
     private Map<Class, Integer> _typeMap;
@@ -130,6 +131,7 @@ public final class TypeMappingsFactory {
         _typeMap.put(java.sql.Blob.class, new Integer(TYPE_BLOB));
         _typeMap.put(java.sql.Clob.class, new Integer(TYPE_CLOB));
         _typeMap.put(java.sql.Array.class, new Integer(TYPE_ARRAY));
+        _typeMap.put(java.sql.Struct.class, new Integer(TYPE_STRUCT));
         _typeMap.put(java.io.Reader.class, new Integer(TYPE_READER));
         _typeMap.put(java.io.InputStream.class, new Integer(TYPE_STREAM));
         _typeMap.put(java.util.Date.class, new Integer(TYPE_DATE));
@@ -162,6 +164,7 @@ public final class TypeMappingsFactory {
         _typeSqlMap.put(java.sql.Blob.class, new Integer(Types.BLOB));
         _typeSqlMap.put(java.sql.Clob.class, new Integer(Types.CLOB));
         _typeSqlMap.put(java.sql.Array.class, new Integer(Types.ARRAY));
+        _typeSqlMap.put(java.sql.Struct.class, new Integer(Types.STRUCT));
         _typeSqlMap.put(java.util.Date.class, new Integer(Types.TIMESTAMP));
         _typeSqlMap.put(java.util.Calendar.class, new Integer(Types.TIMESTAMP));
         _typeSqlMap.put(java.util.GregorianCalendar.class, new Integer(Types.TIMESTAMP));

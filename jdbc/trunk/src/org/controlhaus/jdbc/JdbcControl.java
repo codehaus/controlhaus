@@ -33,6 +33,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.sql.SQLData;
 import java.util.Calendar;
 
 /**
@@ -107,7 +108,6 @@ public interface JdbcControl {
         public InitialContext getInitialContext() throws NamingException;
     }
 
-
     /**
      * Class-level annotation for making a DataSource available for use with the Jdbc Control. Either this annotation or
      * the ConnectionDriver annotation must be set for a jcx which extends the JdbcControl interface.
@@ -116,7 +116,7 @@ public interface JdbcControl {
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE, ElementType.FIELD})
+    @Target({ElementType.TYPE})
     public @interface ConnectionDataSource {
 
         /**
@@ -142,7 +142,7 @@ public interface JdbcControl {
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE, ElementType.FIELD})
+    @Target({ElementType.TYPE})
     public @interface ConnectionDriver {
 
         /**
@@ -159,19 +159,19 @@ public interface JdbcControl {
          * A String containing the user name to connect to the database as. Optional element.
          */
         @AnnotationMemberTypes.Optional
-        String userName()                   default "";
+        String userName()                               default "";
 
         /**
          * A String containing the password associated with userName. Optional element.
          */
         @AnnotationMemberTypes.Optional
-        String password()                   default "";
+        String password()                               default "";
 
         /**
          * A String containing a comma seperated list of name/value pairs for the DatabaseConnection. Optional element.
          */
         @AnnotationMemberTypes.Optional
-        String properties()                 default "";
+        String properties()                             default "";
     }
 
 
@@ -182,7 +182,7 @@ public interface JdbcControl {
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE, ElementType.FIELD})
+    @Target({ElementType.TYPE})
     public @interface ConnectionOptions {
 
         /**
@@ -190,15 +190,38 @@ public interface JdbcControl {
          * Optional, defaults to false.
          */
         @AnnotationMemberTypes.Optional
-        boolean readOnly()                  default false;
+        boolean readOnly()                              default false;
 
         /**
          * Specifies ResultSet holdability for the connection.  May be overridden at method level.
          * Optional, defaults to close cursors at commit.
          */
         @AnnotationMemberTypes.Optional
-        HoldabilityType holdability()       default HoldabilityType.CLOSE_CURSORS;
+        HoldabilityType resultSetHoldability()          default HoldabilityType.CLOSE_CURSORS;
+
+        /**
+         * Specifies type mappings for SQL user defined types (UDTs).  Any type mappings set here will be used
+         * by the underlying JDBC Connection for UDT type mappings.  These mappings can be overridden by using
+         * the SQL annotations methodTypeMappers element.  Optional element.
+         */
+        @AnnotationMemberTypes.Optional
+        TypeMapper[] typeMappers()                      default {};
     }
+
+    /**
+     * Class / method level annotation for mapping SQL user defined types (UDTs) to and from java objects.
+     * The mapper class element must implement the java.sql.SQLData interface.
+     */
+    @PropertySet(prefix = "TypeMapper")
+            @Inherited
+            @AnnotationConstraints.AllowExternalOverride
+            @Retention(RetentionPolicy.RUNTIME)
+            @Target({ElementType.TYPE, ElementType.METHOD})
+            public @interface TypeMapper {
+        String UDTName();
+        Class<? extends SQLData> mapperClass();
+    }
+
 
 
 
@@ -339,7 +362,7 @@ public interface JdbcControl {
          * Optional element.
          */
         @AnnotationMemberTypes.Optional
-        int arrayMaxLength()                default 1024;
+        int arrayMaxLength()                            default 1024;
 
 
         /**
@@ -348,7 +371,7 @@ public interface JdbcControl {
          * Optional element, default value is no limit on number of rows returned.
          */
         @AnnotationMemberTypes.Optional
-        int maxRows()                       default MAXROWS_ALL;
+        int maxRows()                                   default MAXROWS_ALL;
 
 
         /**
@@ -357,28 +380,28 @@ public interface JdbcControl {
          * Optional element, defaults to false.
          */
         @AnnotationMemberTypes.Optional
-        boolean batchUpdate()               default false;
+        boolean batchUpdate()                           default false;
 
 
         /**
          * Specify the fetch size for the ResultSet. Optional element, defaults to 0.
          */
         @AnnotationMemberTypes.Optional
-        int fetchSize()                     default DEFAULT_FETCH_SIZE;
+        int fetchSize()                                 default DEFAULT_FETCH_SIZE;
 
 
         /**
          * Specify the fetch direction for the ResultSEt. Optional element, defaults to FORWARD.
          */
         @AnnotationMemberTypes.Optional
-        FetchDirection fetchDirection()     default FetchDirection.FORWARD;
+        FetchDirection fetchDirection()                 default FetchDirection.FORWARD;
 
 
         /**
          * Return the generated key values generated by the SQL statement. Optional element, defaults to false.
          */
         @AnnotationMemberTypes.Optional
-        boolean getGeneratedKeys()          default false;
+        boolean getGeneratedKeys()                      default false;
 
 
         /**
@@ -387,7 +410,7 @@ public interface JdbcControl {
          * Optional element.
          */
         @AnnotationMemberTypes.Optional
-        String[] generatedKeyColumnNames()  default {};
+        String[] generatedKeyColumnNames()              default {};
 
 
         /**
@@ -396,7 +419,8 @@ public interface JdbcControl {
          * Optional element.
          */
         @AnnotationMemberTypes.Optional
-        int[] generatedKeyColumnIndexes()   default {};
+        int[] generatedKeyColumnIndexes()               default {};
+
 
         /**
          * Specify the holdability type for the annotated method.  Overrides the holability annotation element
@@ -404,7 +428,16 @@ public interface JdbcControl {
          * method call. Optional, defaults to CLOSE_CURSORS_AFTER_COMMIT.
          */
         @AnnotationMemberTypes.Optional
-        HoldabilityType methodHoldability() default HoldabilityType.CLOSE_CURSORS;
+        HoldabilityType resultSetHoldabilityOverride()  default HoldabilityType.CLOSE_CURSORS;
+
+
+        /**
+         * Specifies type mappings for SQL user defined types (UDTs).  Any type mappings set here will be used
+         * by the underlying JDBC Connection for UDT type mappings. These type mappings will REPLACE any set on
+         * the JDBC connection for the duration of the method call. Optional element.
+         */
+        @AnnotationMemberTypes.Optional
+        TypeMapper[] typeMappersOverride()              default {};
 
 
         /**
@@ -412,7 +445,7 @@ public interface JdbcControl {
          * Optional element.
          */
         @AnnotationMemberTypes.Optional
-        Class iteratorElementType()         default UndefinedIteratorType.class;
+        Class iteratorElementType()                     default UndefinedIteratorType.class;
 
 
         /**
@@ -423,7 +456,7 @@ public interface JdbcControl {
          * Optional element.
          */
         @AnnotationMemberTypes.Optional
-        Class resultSetMapper()             default UndefinedResultSetMapper.class;
+        Class resultSetMapper()                         default UndefinedResultSetMapper.class;
 
 
         /**
@@ -433,7 +466,7 @@ public interface JdbcControl {
          * Optional element, defaults to non-scrollable.
          */
         @AnnotationMemberTypes.Optional
-        ScrollType scrollableResultSet()    default ScrollType.FORWARD_ONLY;
+        ScrollType scrollableResultSet()                default ScrollType.FORWARD_ONLY;
     } // SQL annotation declaration
 
 
