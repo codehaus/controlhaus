@@ -19,61 +19,110 @@ import com.bea.control.Control;
 
 public interface sforce3_0Enterprise extends Control
 { 
+    /**
+     * Start a session with the sforce web service.  
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_search.html">Online API reference</a> for usage
+     * @param username  An sforce user name (email format)
+     * @param password  The corresponding sforce password
+     * @return LoginResult Contains the session key and a new endpoint URL to use for subsequent calls
+     */
 
     com.sforce.soap.enterprise.LoginResult login(java.lang.String username, java.lang.String password);
 
+    /**
+     * Query for sforce objects based on a query string similar to a SQL SELECT statement.
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_query.html">Online API reference</a> for usage
+     * @param queryString  A string specifying SELECT <field names> FROM <sObject type> WHERE <criteria>
+     * @return QueryResult The objects that match the criteria specified by the query
+     */
     com.sforce.soap.enterprise.QueryResult query(java.lang.String queryString);
 
+    /**
+     * Query for more results based on a previous call to query() that returned more than the 
+     * current batch size (default 2000).
+     * @param queryLocator  The identifier returned by the query() method if number of objects that 
+     * qualify exceeds the batch size
+     * @return QueryResult The objects that match the criteria specified by the query
+     */
     com.sforce.soap.enterprise.QueryResult queryMore(java.lang.String queryLocator);
 
     /**
-     * Create a Sales Force object array
-     * @param sObjects A base Sales Force object
+     * Search among sforce objects based on a search string, similar to internet search syntax.
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_search.html">Online API reference</a> for usage
+     * @param searchString
+     * @return SearchResult The result of the search
+     */
+    com.sforce.soap.enterprise.SearchResult search(java.lang.String searchString);
+
+    /**
+     * Use the retrieve call to retrieve individual sforce objects when you knowo their ID.
+     * object. User passes the fields to retrieve, the object, and the ID to retrieve.
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_retrieve.html">Online API reference</a> for usage
+     * @param fieldList Field to retrieve
+     * @param sObjectType The sforce object
+     * @param id The ID to retireve
+     * @return SObject A standard base sforce object
+     */
+    com.sforce.soap.enterprise.sobject.SObject retrieve(java.lang.String fieldList, java.lang.String sObjectType, java.lang.String id);
+
+    /**
+     * A variant of the retrieve method that uses document-type XMLBean objects for the input and return.  
+     * For use in Java Process Flows.
+     * @param requestDoc A document-type XMLBean containing the parameters to the retrieve method.
+     * @return CreateResponseDocument The returned document-type XMLBean that contains the retrieved sObject.
+     */
+    com.sforce.soap.enterprise.RetrieveResponseDocument retrieveDoc(com.sforce.soap.enterprise.RetrieveDocument requestDoc);
+
+    /**
+     * Create one or more sforce objects
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_create.html">Online API reference</a> for usage
+     * @param sObjects An array of any type of sforce objects (objects in package com.sforce.soap.sobject)
      * @return SaveResult[] Result array of the save operation
      */
     com.sforce.soap.enterprise.SaveResult[] create(com.sforce.soap.enterprise.sobject.SObject[] sObjects);
 
     /**
-     * Retrieves a SOAP message document
-     * @param requestDoc A SOAP request document
-     * @return CreateResponseDocument The retrieved SOAP message document
+     * A variant of the create method that uses document-type XMLBean objects for the input and return.  
+     * For use in Java Process Flows.
+     * @param requestDoc A document-type XMLBean containing the array of sObjects to create.
+     * @return CreateResponseDocument The returned document-type XMLBean that contains the SaveResult array.
      */
     com.sforce.soap.enterprise.CreateResponseDocument createDoc(com.sforce.soap.enterprise.CreateDocument requestDoc);
 
     /**
-     * Create a Sales Force object - It is a simplified method, user can avoid
-     * tedious array coding usin this method
-     * @param sObjects A base Sales Force object
-     * @return SaveResult Result of the save operation
+     * A simplified variant of the create method for a single object instead of an array of objects.
+     * @param sObject A single instance of an sforce object. Can be any subclass of sObject.
+     * @return SaveResult Result of the create operation
      */
     com.sforce.soap.enterprise.SaveResult createOne(com.sforce.soap.enterprise.sobject.SObject sObject);
 
     /**
-     * Deletes a Sales Force object array
-     * @param sObjects A base Sales Force object
+     * Deletes one or more sforce objects
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_delete.html">Online API reference</a> for usage
+     * @param sObjects An array of any type of sforce objects (objects in package com.sforce.soap.sobject)
      * @return DeleteResult[] Result array of the delete operation
      */
     com.sforce.soap.enterprise.DeleteResult[] delete(java.lang.String[] ids);
 
     /**
-     * Retrieves a SOAP message document
-     * @param requestDoc A SOAP request document
-     * @return DeleteResponseDocument The retrieved SOAP message document
+     * A variant of the delete method that uses document-type XMLBean objects for the input and return.  
+     * For use in Java Process Flows.
+     * @param requestDoc A document-type XMLBean containing the array of sObjects to delete.
+     * @return DeleteResponseDocument The returned document-type XMLBean that contains the DeleteResult array.
      */
     com.sforce.soap.enterprise.DeleteResponseDocument deleteDoc(com.sforce.soap.enterprise.DeleteDocument requestDoc);
 
     /**
-     * Deletes a Sales Force object - It is a simplified method, user can avoid
-     * tedious array coding usin this method
-     * @param sObjects A base Sales Force object
-     * @return DeleteResult Result of the update operation
+     * A simplified variant of the delete method for a single object instead of an array of objects.
+     * @param sObject A single instance of an sforce object. Can be any subclass of sObject.
+     * @return DeleteResult Result of the delete operation
      */
     com.sforce.soap.enterprise.DeleteResult deleteOne(java.lang.String id);
 
     /**
      * Retrieves the list of individual objects that have been deleted within the
      * given timespan for the specified object
-     * @param sObjectType Sales Force object type
+     * @param sObjectType sforce object type
      * @param startDate Date where to start
      * @param endDate Date where to end
      * @return GetDeletedResult The result in SOAP object
@@ -81,9 +130,31 @@ public interface sforce3_0Enterprise extends Control
     com.sforce.soap.enterprise.GetDeletedResult getDeleted(java.lang.String sObjectType, java.util.Calendar startDate, java.util.Calendar endDate);
 
     /**
+     * Update one or more sforce objects
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_update.html">Online API reference</a> for usage
+     * @param sObjects An array of any type of sforce objects (objects in package com.sforce.soap.sobject)
+     * @return SaveResult[] Result array of the save operation
+     */
+    com.sforce.soap.enterprise.SaveResult[] update(com.sforce.soap.enterprise.sobject.SObject[] sObjects);
+    
+    /**
+     * A variant of the update method that takes a document-type object, used in Java Process Flows
+     * @param requestDoc The document-type XMLBean containing the array of sObjects to update 
+     * @return UpdateResponseDocument The retrieved document-type object containing the SaveResult array
+     */
+    com.sforce.soap.enterprise.UpdateResponseDocument updateDoc(com.sforce.soap.enterprise.UpdateDocument requestDoc);
+
+    /**
+     * A simplified variant of the update method for a single object instead of an array of objects.
+     * @param sObject A single instance of an sforce object. Can be any subclass of sObject.
+     * @return SaveResult Result of the update operation
+     */
+    com.sforce.soap.enterprise.SaveResult updateOne(com.sforce.soap.enterprise.sobject.SObject sObject);
+    
+    /**
      * Retrieves the list of individual objects that have been updated within the
      * given timespan for the specified object
-     * @param sObjectType Sales Force object type
+     * @param sObjectType sforce object type
      * @param startDate Date where to start
      * @param endDate Date where to end
      * @return GetUpdatedResult The result in SOAP object
@@ -93,6 +164,7 @@ public interface sforce3_0Enterprise extends Control
     /**
      * Use describeGlobal to obtain the list of available objects for your
      * organization.
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_describeGlobal.html">Online API reference</a> for usage
      * @return DescribeGlobalResult use this object to navigate through.
      */
     com.sforce.soap.enterprise.DescribeGlobalResult describeGlobal();
@@ -100,7 +172,8 @@ public interface sforce3_0Enterprise extends Control
     /**
      * Describes metadata (field list and object properties) for the specified
      * object.
-     * @param sObjectType Typwe of the Sales Force object
+     * See the <a href="http://www.sforce.com/us/docs/sforce30/sforce_API_calls_describeSObject.html">Online API reference</a> for usage
+     * @param sObjectType Typwe of the sforce object
      * @return DescribeSObjectResult The described object properties
      */
     com.sforce.soap.enterprise.DescribeSObjectResult describeSObject(java.lang.String sObjectType);
@@ -112,9 +185,8 @@ public interface sforce3_0Enterprise extends Control
     java.util.Calendar getServerTimestamp();
 
     /**
-     * Retrieves personal information for the user associated with the current
-     * session.
-     * @return GetUserInfoResult The returned result
+     * Retrieves personal information for the user associated with the current session.
+     * @return GetUserInfoResult The returned user information.
      */
     com.sforce.soap.enterprise.GetUserInfoResult getUserInfo();
 
@@ -141,71 +213,33 @@ public interface sforce3_0Enterprise extends Control
     com.sforce.soap.enterprise.SetPasswordResult setPassword(java.lang.String userId, java.lang.String password);
 
     /**
-     * use this call to set the query option programmatically. It lasts until
-     * user calls resetQueryOptionsToDefault - default means annotation value, if
-     * any, or the system default
-     * @param batchSize The new batch size
+     * Set the query-batch-size value programmatically, overriding the value of the corresponding @jc:sforce-properties 
+     * (if any) or the system defaults. The new options stay in effect until  another call to setQueryOptions 
+     * or a call to resetQueryOptionsToDefault.
+     * @param batchSize The new batch size value, setting the maximum number of objects to return
+     * in one call to query() or queryMore()
      */
     void setQueryOptions(int batchSize);
 
     /**
-     * Reset query options to default - default means annotation value, if any,
-     * or the system default
-     */
-    void resetQueryOptionsToDefault();
-
-    /**
-     * Use this call to set the save options programmatically. It lasts until
-     * user call resetSaveOptionsToDefault - default means annotation value, if
-     * any, or the system default
+     * Set the save options programatically, overriding the value of the corresponding @jc:sforce-properties 
+     * (if any) or the system defaults. The new options stay in effect until  another call to setSaveOptions 
+     * or a call to resetSaveOptionsToDefault.
      * @param assignmentRuleId The new assignment rule Id
      * @param autoAssign The new autoAssign parameter. By default is true
      */
     void setSaveOptions(java.lang.String assignmentRuleId, boolean autoAssign);
 
     /**
-     * Reset query options to default - default means annotation value, if any,
-     * or the system default
+     * Resets query options to the @jc:sforce-properties query-batch-size value, if one
+     * is specified, or reset to the system default (2000) if the query-batch-size is not specified.
+     */
+    void resetQueryOptionsToDefault();
+
+    /**
+     * Resets save options to the @jc:sforce-properties save-auto-assign and save-assign-rule-id values
+     * if specified, or reset to the system defaults if values are not specified on the control.
      */
     void resetSaveOptionsToDefault();
 
-    /**
-     * Search among Sales Force objects
-     * @param searchString
-     * @return SearchResult The result of the search
-     */
-    com.sforce.soap.enterprise.SearchResult search(java.lang.String searchString);
-
-    /**
-     * Use the retrieve call to retrieve individual objects from an sforce API
-     * object. User passes the field to retrieve, the object, and the ID to
-     * retrieve.
-     * @param fieldList Field to retrieve
-     * @param sObjectType The Sales Force object
-     * @param id The ID to retireve
-     * @return SObject A standard base Sales Force object
-     */
-    com.sforce.soap.enterprise.sobject.SObject retrieve(java.lang.String fieldList, java.lang.String sObjectType, java.lang.String id);
-
-    /**
-     * Retrieves a SOAP message document
-     * @param requestDoc A SOAP request document
-     * @return UpdateResponseDocument The retrieved SOAP message document
-     */
-    com.sforce.soap.enterprise.UpdateResponseDocument updateDoc(com.sforce.soap.enterprise.UpdateDocument requestDoc);
-
-    /**
-     * Retrieves a SOAP message document
-     * @param requestDoc A SOAP request document
-     * @return RetrieveResponseDocument The retrieved SOAP message document
-     */
-    com.sforce.soap.enterprise.RetrieveResponseDocument retrieveDoc(com.sforce.soap.enterprise.RetrieveDocument requestDoc);
-
-    /**
-     * Updates a Sales Force object - It is a simplified method, user can avoid
-     * tedious array coding usin this method
-     * @param sObjects A base Sales Force object
-     * @return SaveResult Result of the update operation
-     */
-    com.sforce.soap.enterprise.SaveResult updateOne(com.sforce.soap.enterprise.sobject.SObject sObject);
 } 
