@@ -76,7 +76,8 @@ public final class TypeMappingsFactory {
     static final int TYPE_DATE = 27;
     static final int TYPE_CALENDAR = 28;
     static final int TYPE_STRUCT = 29;
-    static final int TYPE_MAX = 30;
+    static final int TYPE_XMLBEAN_ENUM = 30;
+    static final int TYPE_MAX = 31;
 
     private Map<Class, Object> _primitiveDefaults;
 
@@ -143,6 +144,7 @@ public final class TypeMappingsFactory {
         _typeMap.put(java.util.Date.class, new Integer(TYPE_DATE));
         _typeMap.put(java.util.Calendar.class, new Integer(TYPE_CALENDAR));
         _typeMap.put(java.util.GregorianCalendar.class, new Integer(TYPE_CALENDAR));
+        _typeMap.put(org.apache.xmlbeans.StringEnumAbstractBase.class, new Integer(TYPE_XMLBEAN_ENUM));
 
         // Class to java.sql.Types
         _typeSqlMap = new HashMap<Class, Integer>(TYPE_MAX * 2);
@@ -174,6 +176,7 @@ public final class TypeMappingsFactory {
         _typeSqlMap.put(java.util.Date.class, new Integer(Types.TIMESTAMP));
         _typeSqlMap.put(java.util.Calendar.class, new Integer(Types.TIMESTAMP));
         _typeSqlMap.put(java.util.GregorianCalendar.class, new Integer(Types.TIMESTAMP));
+        _typeSqlMap.put(org.apache.xmlbeans.StringEnumAbstractBase.class, new Integer(Types.VARCHAR));
 
         // String to java.sql.Types
         _typeSqlNameMap = new HashMap<String, Integer>(TYPE_MAX * 2);

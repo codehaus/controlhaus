@@ -23,7 +23,6 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,17 +41,15 @@ public class RowToXmlObjectMapper extends RowMapper {
     private final int _columnCount;
     private final SchemaType _schemaType;
 
-    private AccessibleObject[] _fields;
-    private AccessibleObject[] _fieldNilable;
-    private int[] _fieldTypes;
-
+    private SetterMethod[] _setterMethods;
     private final Object[] _args = new Object[1];
 
     /**
      * Create a new RowToXmlObjectMapper.
-     * @param resultSet ResultSet to map
+     *
+     * @param resultSet       ResultSet to map
      * @param returnTypeClass Class to map to.
-     * @param cal Calendar instance for date/time mappings.
+     * @param cal             Calendar instance for date/time mappings.
      * @throws SQLException on error.
      */
     RowToXmlObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
@@ -60,8 +57,7 @@ public class RowToXmlObjectMapper extends RowMapper {
 
         _columnCount = resultSet.getMetaData().getColumnCount();
         _schemaType = getSchemaType(_returnTypeClass);
-
-        getFieldMappings();
+        _setterMethods = null;
     }
 
     /**
@@ -69,7 +65,7 @@ public class RowToXmlObjectMapper extends RowMapper {
      *
      * @return An XmlObject instance.
      * @throws ControlException on error.
-     * @throws SQLException on error.
+     * @throws SQLException     on error.
      */
     public Object mapRowToReturnType() throws ControlException, SQLException {
 
@@ -79,35 +75,48 @@ public class RowToXmlObjectMapper extends RowMapper {
             if (resultObject != null) return resultObject;
         }
 
+        if (_setterMethods == null) {
+            getResultSetMappings();
+        }
+
         resultObject = XmlObject.Factory.newInstance(new XmlOptions().setDocumentType(_schemaType));
 
-        for (int i = 1; i < _fields.length; i++) {
-            AccessibleObject f = _fields[i];
-            Object resultValue = extractColumnValue(i, _fieldTypes[i]);
+        for (int i = 1; i < _setterMethods.length; i++) {
+            Method setterMethod = _setterMethods[i].getSetter();
+            Object resultValue = extractColumnValue(i, _setterMethods[i].getParameterType());
 
             try {
-                _args[0] = resultValue;
-                ((Method) f).invoke(resultObject, _args);
 
-                if (_fieldNilable != null) {
+                // if the setter is for an xmlbean enum type, convert the extracted resultset column
+                // value to the proper xmlbean enum type. All xmlbean enums are derived from the class
+                // StringEnumAbstractBase
+                if (_setterMethods[i].getParameterType() == TypeMappingsFactory.TYPE_XMLBEAN_ENUM) {
+                    Class parameterClass = _setterMethods[i].getParameterClass();
+                    Method m = parameterClass.getMethod("forString", new Class[]{String.class});
+                    resultValue = m.invoke(null, new Object[]{resultValue});
+                }
+
+                _args[0] = resultValue;
+                setterMethod.invoke(resultObject, _args);
+
+                if (_setterMethods[i].getNilable() != null) {
                     if (_resultSet.wasNull()) {
-                        Method setNil = (Method) _fieldNilable[i];
-                        if (setNil != null) {
-                            setNil.invoke(resultObject, (Object[]) null);
-                        }
+                        _setterMethods[i].getNilable().invoke(resultObject, (Object[]) null);
                     }
                 }
             } catch (IllegalArgumentException iae) {
                 ResultSetMetaData md = _resultSet.getMetaData();
-                throw new ControlException("The declared Java type for method " + ((Method) f).getName()
-                                           + ((Method) f).getParameterTypes()[0].toString()
+                throw new ControlException("The declared Java type for method " + setterMethod.getName()
+                                           + setterMethod.getParameterTypes()[0].toString()
                                            + " is incompatible with the SQL format of column " + md.getColumnName(i).toString()
                                            + md.getColumnTypeName(i).toString()
                                            + " which returns objects of type " + resultValue.getClass().getName());
             } catch (IllegalAccessException e) {
-                throw new ControlException("IllegalAccessException when trying to access method " + ((Method) f).getName(), e);
+                throw new ControlException("IllegalAccessException when trying to access method " + setterMethod.getName(), e);
+            } catch (NoSuchMethodException e) {
+                throw new ControlException("NoSuchMethodException when trying to map schema enum value using Enum.forString().", e);
             } catch (InvocationTargetException e) {
-                throw new ControlException("IllegalInvocationException when trying to access method " + ((Method) f).getName(), e);
+                throw new ControlException("IllegalInvocationException when trying to access method " + setterMethod.getName(), e);
             }
         }
         return resultObject;
@@ -121,7 +130,7 @@ public class RowToXmlObjectMapper extends RowMapper {
      *
      * @throws SQLException
      */
-    private void getFieldMappings() throws SQLException {
+    private void getResultSetMappings() throws SQLException {
 
         //
         // special case for XmlObject, find factory class
@@ -131,6 +140,51 @@ public class RowToXmlObjectMapper extends RowMapper {
         }
 
         final String[] keys = getKeysFromResultSet();
+
+        //
+        // find setters for return class
+        //
+        HashMap<String, Method> mapFields = new HashMap<String, Method>(_columnCount * 2);
+        for (int i = 1; i <= _columnCount; i++) {
+            mapFields.put(keys[i], null);
+        }
+
+        // public methods
+        Method[] classMethods = _returnTypeClass.getMethods();
+        for (Method method : classMethods) {
+
+            if (isSetterMethod(method)) {
+                final String fieldName = method.getName().substring(3).toUpperCase();
+                if (mapFields.containsKey(fieldName)) {
+                    mapFields.put(fieldName, method);
+                }
+            }
+        }
+
+        // finally actually init the fields array
+        _setterMethods = new SetterMethod[_columnCount + 1];
+
+        for (int i = 1; i < _setterMethods.length; i++) {
+            Method setterMethod = mapFields.get(keys[i]);
+            if (setterMethod == null) {
+                throw new ControlException("Unable to map the SQL column " + keys[i]
+                                           + " to a field on the " + _returnTypeClass.getName() +
+                                           " class. Mapping is done using a case insensitive comparision of SQL ResultSet "
+                                           + "columns to public setter methods on the return class.");
+            }
+
+            _setterMethods[i] = new SetterMethod(setterMethod);
+        }
+    }
+
+    /**
+     * Build a String array of column names from the ResultSet.
+     * @return A String array containing the column names contained within the ResultSet.
+     * @throws SQLException on error
+     */
+    protected String[] getKeysFromResultSet() throws SQLException {
+
+        String[] keys = super.getKeysFromResultSet();
 
         // check schemaProperty mapping names for more accurate column->field mapping
         SchemaProperty[] props = _schemaType.getElementProperties();
@@ -146,109 +200,12 @@ public class RowToXmlObjectMapper extends RowMapper {
                 keys[col] = props[i].getJavaPropertyName().toUpperCase();
             }
         }
-
-        //
-        // find fields or setters for return class
-        //
-
-        HashMap<String, AccessibleObject> mapFields = new HashMap<String, AccessibleObject>(_columnCount * 2);
-        for (int i = 1; i <= _columnCount; i++) {
-            mapFields.put(keys[i], null);
-        }
-
-        // public methods
-        Method[] classMethods = _returnTypeClass.getMethods();
-        for (Method m : classMethods) {
-
-            // method name checks
-            String methodName = m.getName();
-            if (methodName.length() < 4 || !methodName.startsWith("set")) continue;
-            if (!Character.isUpperCase(methodName.charAt(3))) continue;
-
-            // verify that the setter method's field has not already been captured
-            String fieldName = methodName.substring(3).toUpperCase();
-            if (!mapFields.containsKey(fieldName)) continue;
-            if (Modifier.isStatic(m.getModifiers())) continue;
-
-            // method parameter checks
-            Class[] params = m.getParameterTypes();
-            if (params.length != 1) continue;
-            if (TypeMappingsFactory.TYPE_UNKNOWN == _tmf.getTypeId(params[0])) continue;
-            if (!Void.TYPE.equals(m.getReturnType())) continue;
-
-            mapFields.put(fieldName, m);
-        }
-
-        // finally actually init the fields array
-        _fields = new AccessibleObject[_columnCount + 1];
-        _fieldTypes = new int[_columnCount + 1];
-
-        for (int i = 1; i < _fields.length; i++) {
-            AccessibleObject f = mapFields.get(keys[i]);
-            if (f == null) {
-                throw new ControlException("Unable to map the SQL column " + keys[i]
-                                           + " to a field on the " + _returnTypeClass.getName() +
-                                           " class. Mapping is done using a case insensitive comparision of SQL ResultSet "
-                                           + "columns to field names and public setter methods on the return class.");
-            }
-
-            _fields[i] = f;
-            _fieldTypes[i] = _tmf.getTypeId(((Method) f).getParameterTypes()[0]);
-        }
-
-        AccessibleObject[] classFields = new AccessibleObject[_fields.length - 1];
-        System.arraycopy(_fields, 1, classFields, 0, classFields.length);
-        try {
-            AccessibleObject.setAccessible(classFields, true);
-        } catch (SecurityException e) {
-        }
-
-        // this takes care of the special case for xml beans return types.
-        // since they return primitive types even if they are nillable, we
-        // must explicitly call setNil after getting the column out of the resultSet.
-        // for that, we need to keep track of each field's setNil method.
-        // if the field is not nillable, it will not have a setNil method, and
-        // that array index will be null.
-        //
-        // here is a summary of the arrays this method sets up:
-        // the fields array is an array of AccessibleObjects (either fields or methods)
-        // fieldTypes is an array where the indexes match fields, and the values contain the typeId for that item in fields
-        // Ex
-        // fields[1]       = setBlah(int i)
-        // fieldTypes[1]   = TYPE_INT
-        // fieldNilable[1] = setNilBlah()
-        _fieldNilable = new AccessibleObject[_fields.length];
-
-        for (int i = 0; i < _fields.length; i++) {
-            AccessibleObject mm = _fields[i];
-            if (mm != null) {
-                if (Method.class.isAssignableFrom(mm.getClass())) {
-                    Method meth = (Method) mm;
-                    String fieldname = meth.getName().substring(3);
-                    String setnilmethodname = "setNil" + fieldname;
-                    Method[] returnClassMethods = _returnTypeClass.getMethods();
-
-                    for (int j = 0; j < returnClassMethods.length; j++) {
-                        Method mmm = returnClassMethods[j];
-                        String mmmname = mmm.getName();
-                        Class mmmreturntype = mmm.getReturnType();
-                        Class[] mmmparametertype = mmm.getParameterTypes();
-
-                        if (mmmname.equals(setnilmethodname) &&
-                                mmmreturntype.equals(Void.TYPE) &&
-                                mmmparametertype.length == 0) {
-                            _fieldNilable[i] = mmm;
-                            break;
-                        }
-                    }
-                }
-            }
-        } // for
-        // end of special case stuff for returnTypeIsXmlBean
+        return keys;
     }
 
     /**
      * Get the SchemaType for the specified class.
+     *
      * @param returnType Class to get the SchemaType for.
      * @return SchemaType
      */
@@ -257,13 +214,80 @@ public class RowToXmlObjectMapper extends RowMapper {
         if (XmlObject.class.isAssignableFrom(returnType)) {
             try {
                 Field f = returnType.getField("type");
-                if (SchemaType.class.isAssignableFrom(f.getType()) &&
-                        Modifier.isStatic(f.getModifiers()))
+                if (SchemaType.class.isAssignableFrom(f.getType()) && Modifier.isStatic(f.getModifiers())) {
                     schemaType = (SchemaType) f.get(null);
+                }
             } catch (NoSuchFieldException x) {
             } catch (IllegalAccessException x) {
             }
         }
         return schemaType;
+    }
+
+    // /////////////////////////////////////////////INNER CLASSES/////////////////////////////////////////////////
+
+    /**
+     * Helper class which contains setter method information.
+     */
+    private final class SetterMethod {
+        private final Method _setter;
+        private final int _parameterType;
+        private final Class _parameterClass;
+        private final Method _nilable;
+
+        /**
+         * Create a new setter method.
+         * @param setter Method instance.
+         */
+        SetterMethod(Method setter) {
+            _setter = setter;
+            _parameterClass = _setter.getParameterTypes()[0];
+            _parameterType = _tmf.getTypeId(_parameterClass);
+            _nilable = isNilable();
+        }
+
+        /**
+         * Return the setter method.
+         * @return Method
+         */
+        Method getSetter() { return _setter; }
+
+        /**
+         * Return the class of the setter method's paramater.
+         * @return Class of the setter method's param.
+         */
+        Class getParameterClass() { return _parameterClass; }
+
+        /**
+         * Get the type of the methods paramter.
+         * Type is defined by the TypeMappingsFactory, prefixed by TYPE_.
+         * @return int type.
+         */
+        int getParameterType() { return _parameterType; }
+
+        /**
+         * Get the nilable method for this setter.
+         * @return Method.
+         */
+        Method getNilable() { return _nilable; }
+
+        /**
+         * This takes care of the special case for xml beans return types.
+         * since they return primitive types even if they are nillable, we
+         * must explicitly call setNil after getting the column out of the resultSet.
+         * for that, we need to keep track of each field's setNil method.
+         * if the field is not nillable, it will not have a setNil method, and
+         * that array index will be null.
+         *
+         * @return Method
+         */
+        private Method isNilable() {
+            try {
+                return _returnTypeClass.getMethod("setNil" + _setter.getName().substring(3), new Class[] {});
+            } catch (NoSuchMethodException e) {
+                // NOOP - just means there is no setNil
+            }
+            return null;
+        }
     }
 }

@@ -28,6 +28,7 @@ import org.controlhaus.jdbc.units.errors.ErrorPathsTest;
 import org.controlhaus.jdbc.units.results.DBMultiRowResultsTest;
 import org.controlhaus.jdbc.units.results.DBSingleRowResultsTest;
 import org.controlhaus.jdbc.units.results.JdbcTypesTest;
+import org.controlhaus.jdbc.units.results.XmlBeanResultsTest;
 import org.controlhaus.jdbc.units.sqlparser.SqlParserTest;
 
 import java.sql.Connection;
@@ -52,6 +53,7 @@ public class TestJdbcControlContainer extends TestCase {
         suite.addTestSuite(TestJdbcControlContainer.class);
         suite.addTestSuite(DBSingleRowResultsTest.class);
         suite.addTestSuite(DBMultiRowResultsTest.class);
+        suite.addTestSuite(XmlBeanResultsTest.class);
         suite.addTestSuite(JdbcTypesTest.class);
         suite.addTestSuite(SqlParserTest.class);
         suite.addTestSuite(ErrorPathsTest.class);

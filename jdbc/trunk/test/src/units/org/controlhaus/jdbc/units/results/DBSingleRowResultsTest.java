@@ -26,7 +26,6 @@ import org.apache.beehive.controls.api.context.ControlThreadContext;
 import org.controlhaus.jdbc.JdbcControl;
 import org.controlhaus.jdbc.test.results.ResultsTestCtrl;
 import org.controlhaus.jdbc.units.utils.TestContextInitializer;
-import test.customerDb.XCustomerRowDocument;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -239,18 +238,6 @@ public class DBSingleRowResultsTest extends TestCase {
         assertNotNull(customer);
         assertEquals(customer.getFname(), "tester3");
         assertEquals(customer.userid, 23);
-    }
-
-    //
-    // test XmlBean return type
-    //
-    public void testXmlBeanReturnType() throws Exception {
-
-        XCustomerRowDocument.XCustomerRow customerXmlObj = testCtrl.getAUserXmlBean("tester2");
-        assertNotNull(customerXmlObj);
-
-        assertEquals(customerXmlObj.getUSERID(), 22);
-        assertEquals(customerXmlObj.getFNAME(), "tester2");
     }
 
     //
