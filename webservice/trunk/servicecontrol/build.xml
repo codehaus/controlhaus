@@ -127,7 +127,7 @@
   <!-- gather.deps - download dependencies       -->
   <!-- ========================================= -->
 
-  <target name="gather.deps" description="Gather dependencies">
+  <target name="gather.deps" description="Gather dependencies" unless="no-web">
     <get
         src="http://www.ibiblio.org/maven/junit/jars/junit-3.8.1.jar"
         dest="${basedir}/lib/junit-3.8.1.jar"

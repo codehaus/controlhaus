@@ -68,7 +68,7 @@
         <delete dir="${build.dir}"/>
         <delete file="velocity.log"/>
         <delete dir="${xbeangen.dir}" />
-           <delete dir="${test.logs}" />
+        <delete dir="${test.logs}" />
 	    <delete dir="${extgen.dir}"/>
 	    <delete dir="${jcxgen.dir}"/>
    </target>
@@ -81,12 +81,12 @@
 	    <mkdir dir="${jcxgen.dir}"/>
      </target>
 
-    <target name="build" depends="build_jcx, build_junit" description="Builds source, and servlets" />
+    <target name="build" depends="gen_jcx, build_junit" description="Builds source, and servlets" />
    	
 
 
-	
 	  <target name="gen_jcx" depends="gen_xmlbeans">
+
 	    <java classname="org.controlhaus.webservice.generator.ExtensionMaker">
 	    	<classpath> 
 	    		<path refid="build.classpath"/>
@@ -129,18 +129,20 @@
 
 	
 	
-	  <target name="checkxbean">
+	  <target name="gen_xmlbeans">
 	    <uptodate property="noxbeanrebuild" targetfile="${xbeangen.dir}">
 	      <srcfiles dir="${schema.dir}" includes="*.wsdl,*.xsd"/> 
 	    </uptodate>
+	  	<antcall target="do_gen_xmlbeans"></antcall>
 	  </target>
 
-	  <target name="gen_xmlbeans" depends="checkxbean, dirs" unless="noxbeanrebuild">
+	  <target name="do_gen_xmlbeans" depends="dirs" unless="noxbeanrebuild">
+	  	
 	    <xmlbeanbuild
 	      schema="${schema.dir}" 
 	      srcgendir="${xbeangen.dir}"
 	      classgendir="${build.classes}"
-	      failonerror="true">
+	      failonerror="true" ignoreduplicatesinnamespaces="http://webparam.web">
 	      <classpath>
 	        <path refid="build.classpath"/>
 	      </classpath>
@@ -167,6 +169,7 @@
 	    <copy todir="${build.classes}">
 	       <fileset dir="${junit.source.dir}" >
 	        <include name="**/*.key"/>       <!-- get google key -->
+	        <include name="**/*.properties"/>  
 	       </fileset>
 	     </copy>
 	   		
@@ -185,6 +188,6 @@
 	                </fileset>
 	            </batchtest>
 	        </junit>
-	        <fail if="testfailed" message="One or more tests in the Google test failed." />
+	        <fail if="testfailed" message="One or more tests failed." />
 	    </target>
 </project>

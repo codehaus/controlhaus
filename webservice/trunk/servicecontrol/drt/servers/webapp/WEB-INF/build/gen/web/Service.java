@@ -24,6 +24,7 @@ import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.naming.InvalidNameException;
 
 import org.apache.beehive.sample.Address;
 import org.apache.beehive.sample.AddressBook;
@@ -49,7 +50,7 @@ public class Service implements AddressBook {
      * @param address
      */
     @WebMethod
-    public void addEntry(String name, Address address) {
+    public void addEntry(String name, Address address) throws InvalidNameException {
         addressBook.addEntry(name, address);
     }
 
@@ -59,7 +60,7 @@ public class Service implements AddressBook {
      * @return
      */
     @WebMethod
-    public Address getAddressFromName(String name) {
+    public Address getAddressFromName(String name) throws InvalidNameException {
     	System.out.println("Get Address for: " + name);
     	if(name == null) return null;
     	if( 0 == "Jack".compareTo(name)) {
@@ -72,7 +73,7 @@ public class Service implements AddressBook {
     }
     
     @WebMethod
-    public Address[] getAddressFromNames(String[] name) {
+    public Address[] getAddressFromNames(String[] name) throws InvalidNameException {
     	if(null == name) return null;
     	Address[] result = new Address[name.length];
     	for(int i=0; i< name.length; i++) {

@@ -87,6 +87,7 @@ import org.w3c.dom.Element;
     TypeRegistrar registrar = null;
 
     Service service = null;
+
     QName portType;
 
     BeehiveWsTypeMetadata mWSTM;
@@ -120,121 +121,7 @@ import org.w3c.dom.Element;
         if (null != alternateOperationName)
             operationName = alternateOperationName;
 
-        Call call = service.createCall();
-
-        if (getWsdlPort() != null) {
-            call.setPortTypeName(getWsdlPort());
-        }
-        if (getUsername() != null) {
-            call.setProperty(Call.USERNAME_PROPERTY, getUsername());
-        }
-
-        if (getPassword() != null) {
-            call.setProperty(Call.PASSWORD_PROPERTY, getPassword());
-        }
-
-        call.setOperationName(new javax.xml.namespace.QName(mWSTM
-                .getWsTargetNamespace(), operationName));
-
-        // The target endpoint
-        logger.debug("endpoint: " + getEndPoint().toExternalForm());
-        call.setTargetEndpointAddress(getEndPoint().toExternalForm());
-        //       
-        // NO TImeout property in the JaxRPC
-        // int timeout = serviceControl.getTimeout();
-        // if (timeout != 0) {
-        // call.setTimeout(new Integer(timeout));
-        // }
-
-        BeehiveWsMethodMetadata wmm = findMethodInOM(method, operationName);
-
-        // set style
-        SOAPBinding.Style omStyle = mWSTM.getSoapBinding().getStyle();
-        String style;
-        if (omStyle == SOAPBinding.Style.DOCUMENT) {
-            if (mWSTM.getSoapBinding().getParameterStyle() == SOAPBinding.ParameterStyle.WRAPPED)
-                // wrapped implies document also!
-                style = "wrapped";
-            else
-                style = "document";
-        } else if (omStyle == SOAPBinding.Style.RPC)
-            style = "rpc";
-        else
-            throw new RuntimeException("Ivalid Binding style: " + omStyle);
-
-        logger.debug("Call style: " + style);
-        call.setProperty(Call.OPERATION_STYLE_PROPERTY, style);
-
-        // // set use --- USE IS NOT USED IN JAXRPC, it is implied in Style
-        // DOC and WRAPPED are literal, and RPC is always encoded.
-        // SOAPBinding.Use omUse = mWSTM.getSoapBinding().getUse();
-        // String use;
-        // if (omUse == SOAPBinding.Use.LITERAL)
-        // use = "";
-        // else if (omUse == SOAPBinding.Use.ENCODED)
-        // use = "";
-        // else
-        // throw new RuntimeException("Invalid Binding Use: " + omUse);
-
-        // walk the argument meta data list, register type of parameters, add
-        // parameters to the
-        // call object
-        // TODO: Make sure there is nothing special that needs to be done about
-        // holder objects.
-        List< ? extends BeehiveWsParameterMetadata> omArgMetaDataList = wmm
-                .getParams();
-
-        Class[] methodParameterTypes = method.getParameterTypes();
-
-        if (omArgMetaDataList.size() != methodParameterTypes.length)
-            throw new RuntimeException(
-                    "Object model and method definition don't match!");
-        List argsToSend = new ArrayList<Object>();
-        for (int i = 0; i < methodParameterTypes.length; i++) {
-
-            BeehiveWsParameterMetadata nxtArgMetaData = omArgMetaDataList
-                    .get(i);
-            QName xmlTypeFromWSDL = nxtArgMetaData.getXmlType();
-            Class javaTypeFromClass = methodParameterTypes[i];
-
-            registrar.registerType(javaTypeFromClass, xmlTypeFromWSDL); // Make
-            // sure
-            // the
-            // type
-            // is
-            // registered
-            ParameterMode mode;
-            WebParam.Mode omMode = nxtArgMetaData.getWpMode();
-            if (omMode == WebParam.Mode.IN)
-                mode = ParameterMode.IN;
-            else if (omMode == WebParam.Mode.OUT)
-                mode = ParameterMode.OUT;
-            else if (omMode == WebParam.Mode.INOUT) {
-                mode = ParameterMode.INOUT;
-
-                // DO WE NEED TO GET THE VALUE FOR HOLDERS? THIS MAY NOT BE
-                // CORRECT!
-                Field value = javaTypeFromClass.getField("value");
-                args[i] = value.get(args[i]);
-            } else
-                throw new RuntimeException("Invalid parameter mode: " + omMode);
-
-            call.addParameter(nxtArgMetaData.getWpName(), xmlTypeFromWSDL,
-                    javaTypeFromClass, mode);
-        }
-
-        // register the return type
-        if (!wmm.isOneWay()) {
-            QName xmlTypeFromWSDL = wmm.getXmlReturnType();
-            Class javaTypeFromClass = method.getReturnType();
-            registrar.registerType(javaTypeFromClass, xmlTypeFromWSDL);
-            call.setReturnType(xmlTypeFromWSDL);
-        } else
-            call.setReturnType(registrar.getVoidType());
-        
-        // AXIS dependecy... this is needed for the Handlers
-        call.setProperty(org.apache.axis.client.Call.JAXRPC_PORTTYPE_NAME,  
-               portType );
+        Call call = buildCallObject(method, operationName);
 
         // // Invoke the operation
         Object res = call.invoke(args);
@@ -257,6 +144,122 @@ import org.w3c.dom.Element;
 
         return res;
 
+    }
+
+    /**
+     * @param method
+     * @param operationName
+     * @return
+     * @throws ServiceException
+     * @throws NoSuchMethodException
+     * @throws Exception
+     */
+    private Call buildCallObject(Method method, String operationName) throws ServiceException, NoSuchMethodException, Exception {
+        
+        // TODO:  Later cache the call objects for each method.
+        
+        Call call = service.createCall();
+        if (getWsdlPort() != null) {
+            call.setPortTypeName(getWsdlPort());
+        }
+        if (getUsername() != null) {
+            call.setProperty(Call.USERNAME_PROPERTY, getUsername());
+        }
+        if (getPassword() != null) {
+            call.setProperty(Call.PASSWORD_PROPERTY, getPassword());
+        }
+        call.setOperationName(new javax.xml.namespace.QName(mWSTM
+                .getWsTargetNamespace(), operationName));
+        // The target endpoint
+        logger.debug("endpoint: " + getEndPoint().toExternalForm());
+        call.setTargetEndpointAddress(getEndPoint().toExternalForm());
+        //       
+        // NO TImeout property in the JaxRPC
+        // int timeout = serviceControl.getTimeout();
+        // if (timeout != 0) {
+        // call.setTimeout(new Integer(timeout));
+        // }
+        BeehiveWsMethodMetadata wmm = findMethodInOM(method, operationName);
+        // set style
+        SOAPBinding.Style omStyle = mWSTM.getSoapBinding().getStyle();
+        String style;
+        if (omStyle == SOAPBinding.Style.DOCUMENT) {
+            if (mWSTM.getSoapBinding().getParameterStyle() == SOAPBinding.ParameterStyle.WRAPPED)
+                // wrapped implies document also!
+                style = "wrapped";
+            else
+                style = "document";
+        } else if (omStyle == SOAPBinding.Style.RPC)
+            style = "rpc";
+        else
+            throw new RuntimeException("Ivalid Binding style: " + omStyle);
+        logger.debug("Call style: " + style);
+        call.setProperty(Call.OPERATION_STYLE_PROPERTY, style);
+        // walk the argument meta data list, register type of parameters, add
+        // parameters to the
+        // call object
+        // TODO: Make sure there is nothing special that needs to be done about
+        // holder objects.
+        List<BeehiveWsParameterMetadata> omArgMetaDataList = new ArrayList<BeehiveWsParameterMetadata>();
+        omArgMetaDataList.addAll(wmm.getParams());
+        Class[] methodParameterTypes = method.getParameterTypes();
+        if (omArgMetaDataList.size() != methodParameterTypes.length)
+            throw new RuntimeException(
+                    "Object model and method definition don't match!");
+        List argsToSend = new ArrayList<Object>();
+        for (int i = 0; i < methodParameterTypes.length; i++) {
+
+            BeehiveWsParameterMetadata nxtArgMetaData = omArgMetaDataList
+                    .get(i);
+            Class javaTypeFromClass = methodParameterTypes[i];
+
+            QName RegisteredTypeQName = registrar.registerType(javaTypeFromClass, nxtArgMetaData.getXmlType()); // Make
+            // sure
+            // the
+            // type
+            // is
+            // registered
+            ParameterMode mode;
+            WebParam.Mode omMode = nxtArgMetaData.getWpMode();
+            if (omMode == WebParam.Mode.IN)
+                mode = ParameterMode.IN;
+            else if (omMode == WebParam.Mode.OUT)
+                mode = ParameterMode.OUT;
+            else if (omMode == WebParam.Mode.INOUT) {
+                mode = ParameterMode.INOUT;
+
+//                // DO WE NEED TO GET THE VALUE FOR HOLDERS? THIS MAY NOT BE
+//                // CORRECT!
+//                Field value = javaTypeFromClass.getField("value");
+//                args[i] = value.get(args[i]);
+            } else
+                throw new RuntimeException("Invalid parameter mode: " + omMode);
+            if (nxtArgMetaData.isWpHeader()) {
+                // TODO: addParameterAsHeader is Axis specific, later abstract
+                // out Axis from this implementation
+                logger.debug("Argument: "  + nxtArgMetaData.getWpName() + " in method: " + method.getName() + " is send as soap header");
+                ((org.apache.axis.client.Call) call).addParameterAsHeader(
+                        new QName(nxtArgMetaData.getWpTargetNamespace(),
+                                nxtArgMetaData.getWpName()), RegisteredTypeQName,
+                        javaTypeFromClass, mode, mode);
+            } else {
+                logger.debug("Argument: "  + nxtArgMetaData.getWpName() + " in method: " + method.getName() + " is send in the soap body");
+               call.addParameter(nxtArgMetaData.getWpName(), RegisteredTypeQName,
+                        javaTypeFromClass, mode);
+            }
+        }
+        // register the return type
+        if (!wmm.isOneWay()) {
+            //QName xmlTypeFromWSDL =   new QName(wmm.getWrTargetNamespace(), wmm.getWrName()); //wmm.getXmlReturnType();
+            Class javaTypeFromClass = method.getReturnType();
+            QName resultsRegisteredTypeQName = registrar.registerType(javaTypeFromClass, wmm.getXmlReturnType());
+            call.setReturnType(resultsRegisteredTypeQName);
+        } else
+            call.setReturnType(registrar.getVoidType());
+        // AXIS dependecy... this is needed for the Handlers
+        call.setProperty(org.apache.axis.client.Call.JAXRPC_PORTTYPE_NAME,
+                portType);
+        return call;
     }
 
     /**
@@ -316,10 +319,10 @@ import org.w3c.dom.Element;
 
         HandlerInfo hInfo = new HandlerInfo();
         hInfo.setHandlerClass(HeaderHandler.class);
-        portType = new QName(mWSTM.getWsTargetNamespace(), 
-                mWSTM.getWsName());   // porttype name  
+        portType = new QName(mWSTM.getWsTargetNamespace(), mWSTM.getWsName()); // porttype
+                                                                                // name
         service.getHandlerRegistry().getHandlerChain(portType).add(hInfo);
-        
+
         TypeMapping tm = service.getTypeMappingRegistry()
                 .getDefaultTypeMapping();
         lookupService = new SystemTypeLookupService(
@@ -580,4 +583,3 @@ import org.w3c.dom.Element;
         HeaderHandler.setOutHeaders(headers);
     }
 }
-
