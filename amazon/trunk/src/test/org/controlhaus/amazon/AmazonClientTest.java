@@ -54,8 +54,6 @@ public class AmazonClientTest
         assertEquals("0486411214", itemsArr[0].getItemArray()[0].getASIN());
     }
     
-    /*
-     * Won't work until BEEHIVE-97 is fixed.
     public void testAsyncControl() 
 	    throws Exception
 	{
@@ -89,16 +87,20 @@ public class AmazonClientTest
         assertEquals("0486411214", itemsArr[0].getItemArray()[0].getASIN());
 	}
     
-    @EventHandler(field="client",eventSet=XFireClientControl.EndInvokeCallback.class,eventName="endInvoke")
+    @EventHandler(field="amazon",
+                  eventSet=XFireClientControl.EndInvokeCallback.class,
+                  eventName="endInvoke")
     public void endInvoke( XmlObject[] response, XmlObject[] responseHeaders )
     {
         receivedResponse = true;
         this.response = (ItemLookupResponseDocument) response[0];
     }
     
-    @EventHandler(field="client",eventSet=XFireClientControl.EndInvokeCallback.class,eventName="handleFault")
+    @EventHandler(field="amazon",
+                  eventSet=XFireClientControl.EndInvokeCallback.class,
+                  eventName="handleFault")
     public void handleFault( XFireFault fault )
     {
         receivedResponse = true;
-    }*/
+    }
 }

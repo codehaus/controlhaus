@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.beehive.controls.api.bean.ControlInterface;
 import org.apache.beehive.controls.api.bean.ControlExtension;
+import org.apache.beehive.controls.api.events.EventSet;
 
 import org.controlhaus.xfire.client.XFireClientControl;
 import org.controlhaus.xfire.client.XFireClientControl.Asynchronous;
@@ -59,7 +60,6 @@ import com.amazon.webservices.awseCommerceService.x20041019.MultiOperationDocume
 public interface AmazonClientControl
 	     extends XFireClientControl
 {
-
     HelpResponseDocument Help( HelpDocument body )
         throws IOException, XFireFault;
 
