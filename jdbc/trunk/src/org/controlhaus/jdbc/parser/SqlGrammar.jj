@@ -88,7 +88,7 @@ TOKEN_MGR_DECLS : { }
      | <SQL_SUBST      : "sql:subst ">
      | <SQL_FN         : "sql:fn "> : IN_SQLFN
      | <JDBC_CALL      : "call "> : IN_JDBC
-     | <JDBC_RET       : "?= "> : IN_JDBC
+     | <JDBC_RET       : "?= "|"?="|"? ="> : IN_JDBC
      | <JDBC_DATE      : "d "> : IN_JDBC
      | <JDBC_TIME      : "t "> : IN_JDBC
      | <JDBC_TIMESTAMP : "ts "> : IN_JDBC

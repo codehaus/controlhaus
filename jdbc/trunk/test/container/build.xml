@@ -67,7 +67,6 @@ limitations under the License.
     <property name="target.gensrc.dir" location="${jdbcc.home}/build/container/gensrc"/>
     <property name="target.classes.dir" location="${target.dir}/classes"/>
     <property name="target.classes.cactus.dir" location="${target.classes.dir}/cactus"/>
-    <property name="target.testreports.dir" location="${target.dir}/test-reports"/>
 
     <!-- class path for running these tests -->
     <path id="test.classpath">
@@ -125,7 +124,6 @@ limitations under the License.
     -->
     <target name="test.prepare" depends="test.war">
         <!-- Prepare the directories for the JUnit reports -->
-        <mkdir dir="${target.testreports.dir}"/>
     </target>
 
 

@@ -89,7 +89,6 @@ public interface ResultsTestCtrl extends JdbcControl {
         public byte[] getLvarbin() { return _lvarbytes; }
     }
 
-
     //
     // simple query
     //

@@ -224,6 +224,7 @@ public abstract class RowMapper {
             case TypeMappingsFactory.TYPE_READER:
             case TypeMappingsFactory.TYPE_STREAM:
                 throw new ControlException("streaming return types are not supported by the JdbcControl; use ResultSet instead");
+            case TypeMappingsFactory.TYPE_STRUCT:
             case TypeMappingsFactory.TYPE_UNKNOWN:
                 // JAVA_TYPE (could be any), or REF
                 return _resultSet.getObject(index);
