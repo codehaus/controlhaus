@@ -90,16 +90,7 @@
       name="control-jar" 
       classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
       classpath="${controls.jar}"
-      onerror="report" />             
-
-	 <!-- XMLBean build -->
-	  <taskdef name="xmlbeanbuild" 
-	    classname="org.apache.xmlbeans.impl.tool.XMLBean">
-	    <classpath>
-	      <path refid="client.classpath"/>
-	    </classpath>
-	  </taskdef>
-	  	
+      onerror="report" />             	  	
   
   <!-- ========================================= -->
   <!-- run.drt -                                 -->
@@ -213,7 +204,15 @@
 
 	  </target>
 	
-	  <target name="gen_xmlbeans" depends="checkxbean" unless="noxbeanrebuild">
+    <target name="gen_xmlbeans" depends="checkxbean" unless="noxbeanrebuild">
+	 <!-- XMLBean build -->
+	  <taskdef name="xmlbeanbuild" 
+	    classname="org.apache.xmlbeans.impl.tool.XMLBean">
+	    <classpath>
+	      <path refid="client.classpath"/>
+	    </classpath>
+	  </taskdef>
+
 	    <xmlbeanbuild
 	      schema="${schemas.dir}" 
 	      srcgendir="${client.xmlbeangen}"
@@ -223,7 +222,7 @@
 	        <path refid="client.classpath"/>
 	      </classpath>
 	    </xmlbeanbuild>
-	  </target>
+    </target>
 	
 	  <target name="checkxbean">
 	    <uptodate property="noxbeanrebuild" targetfile="${xbeangen.dir}">
