@@ -34,7 +34,7 @@
         <render:writeAttribute name="class" value="<%= header.getPresentationClass() %>" defaultValue="page-book-header"/>
         <render:writeAttribute name="style" value="<%= header.getPresentationStyle() %>"/>
     >
-    <netui:image src="/SForcePortalDemo/framework/skins/classic/images/sforce-header.gif">
+    <netui:image src="/SForcePortalSample/framework/skins/classic/images/sforce-header.gif">
     </netui:image>
     </div>
     </td>
