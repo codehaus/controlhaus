@@ -27,7 +27,7 @@ import javax.xml.rpc.holders.StringHolder;
 import javax.xml.rpc.holders.IntHolder;
 
 @ControlExtension
-@Location(urls = {"http://localhost:8080/sctestServer/web/Service.jws"})
+@Location(urls = {"http://localhost:8080/ServiceControlDRT/web/Service.jws"})
 @WSDL(path = "ServiceControlTest.wsdl",  //http://localhost:8080/sctestServer/web/Service.jws?wsdl",
       service = "ServiceControlTest")
 

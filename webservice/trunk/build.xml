@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
 <!--
    Copyright 2004 The Apache Software Foundation 
  
@@ -16,24 +18,38 @@
    $Header:$
  -->
 
-<project name="ServiceControl" default="jar" basedir="." >
+<project name="Service Control" default="jar" basedir="." >
 
-
+  <target name="jar">
+    <ant
+        antfile="build.xml"
+        dir="servicecontrol"
+        target="jar"
+        inheritAll="false" />
+  </target>
+ 
+  <target name="build">
+    <ant
+        antfile="build.xml"
+        dir="servicecontrol"
+        target="build"
+        inheritAll="false" />
+  </target>
+ 
   <target name="clean">
- 	<ant antfile="build.xml" dir="servicecontrol" target="clean" inheritAll="false"/>  
+    <ant
+        antfile="build.xml"
+        dir="servicecontrol"
+        target="clean"
+        inheritAll="false" />  
   </target>
 
-   <target name="drt">
-    	<ant antfile="build.xml" dir="servicecontrol"  target="drt" inheritAll="false"/>
+  <target name="drt">
+    <ant
+        antfile="build.xml"
+        dir="servicecontrol"
+        target="drt"
+        inheritAll="false" />
    </target>
  
-   <target name="build">
-    	<ant antfile="build.xml" dir="servicecontrol" target="build" inheritAll="false"/>
-   </target>
- 
-   <target name="jar">
-	   <ant antfile="build.xml" dir="servicecontrol" target="jar" inheritAll="false"/>
-   </target>
- 
-
 </project>

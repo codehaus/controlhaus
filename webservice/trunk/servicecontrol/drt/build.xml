@@ -1,162 +1,334 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
-<project name="webservice_drt" default="run.drt">
+<!--
+   Copyright 2004 The Apache Software Foundation 
+ 
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+  
+      http://www.apache.org/licenses/LICENSE-2.0
+  
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ 
+   $Header:$
+ -->
 
-    <property environment="env"/>
+<project name="Service Control DRT" default="run.drt" basedir=".">
+
+  <property environment="env"/>
  	
-	  <property name="build.dir" value="../build"/>
-    <property name="source.dir" value="./tests"/>
-    <property name="servers.dir" value="./servers/local"/>  <!-- test servers -->
-	<property name="schemas.dir" value="./schemas" />
-	<property name="xmlbenangen.dir" value="${build.dir}/xmlbeans"/>
- 	 <!-- <property name="build.dir" value="./build"/>    for release change the build to be in drt area-->
-	<property name="drt.logs" value="./logs"/>
-	<property name="build.classes" value="${build.dir}/classes"/>
-    <property name="build.beansrc" value="${build.dir}/beansrc"/>
-	<property name="core.classes" value="../build/classes"/>
-	<property name="webapp.dir" value="./servers/webapp" />
-	<property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
-	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
+  <property name="beehive.home" value="${env.BEEHIVE_HOME}" />
+
+  <import file="${beehive.home}/beehive-imports.xml" />
+
+  <property name="webservice.runtime.antfile" value="tomcat-imports.xml" />
+
+  <!-- general dirs -->
+  <property name="lib.dir" value="../lib" />
+  <property name="log.dir" value="logs" />
+  <property name="schemas.dir" value="schemas" />
+  <property name="source.dir" value="tests" />
+  
+  <!-- client directories -->
+  <property name="client.build" value="client-build" />
+  <property name="client.beansrc" value="${client.build}/beansrc" />
+  <property name="client.classes" value="${client.build}/classes" />
+  <property name="client.xmlbeangen" value="${client.build}/xmlbeans" />
+
+  <!-- server directories -->
+  <property name="servers.dir" value="servers/local" />
+  <property name="webapp.dir" value="servers/webapp" />
+  <property name="server.beansrc" value="${webapp.dir}/WEB-INF/beansrc" />
+  <property name="server.classes" value="${webapp.dir}/WEB-INF/classes" />
+  <property name="server.src" value="${webapp.dir}/WEB-INF/src" />
+
+  <!-- misc properties -->
+  <property name="context.path" value="ServiceControlDRT" />
+  <property name="waitfor.url" value="http://localhost:8080/index.jsp" />
+  <property name="waitfor.timeout" value="100" />
+  <property name="controls.jar" value="${beehive.home}/lib/controls/controls.jar" />
+  
+  <!-- paths -->
+  <path id="beehive.classpath">
+    <pathelement location="${lib.dir}/junit-3.8.1.jar" />
+    <pathelement location="${lib.dir}/servlet-api-2.4-20040521.jar" />
+    <pathelement location="${lib.dir}/jsp-api-2.0-20040521.jar" />
+    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar" />
+    <pathelement location="${controls.jar}" />
+    <pathelement location="${beehive.home}/lib/common/apache-xbean.jar" />
+    <pathelement location="${beehive.home}/lib/common/log4j-1.2.8.jar" />
+    <pathelement location="${beehive.home}/lib/common/velocity-dep-1.4.jar" />
+    <pathelement location="${beehive.home}/lib/common/jsr173_1.0_api.jar" />
+  </path>
+  
+  <path id="client.classpath">
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <path refid="beehive.classpath"  />
+    <pathelement path="${client.classes}" /> 
+    <fileset file="../build/jars/*.jar" />
+  </path>
+
+  <!-- tasks -->
+  <taskdef
+      name="apt"
+      classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+      classpath="${controls.jar}"
+      onerror="report" />
+      
+  <taskdef
+      name="control-jar" 
+      classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
+      classpath="${controls.jar}"
+      onerror="report" />             
+
+  
+  <!-- ========================================= -->
+  <!-- run.drt -                                 -->
+  <!-- ========================================= -->
+
+  <target name="run.drt" depends="build.sc, build.server">
+    <parallel>
+  
+      <!-- start server -->
+      <start-server shmem="false" javaOptions="" />
+      
+      <!-- deploy webapp, run tests, clean up -->
+      <sequential>
+        
+        <!-- wait for server to start -->
+        <echo message="Wait for server to start at URL: ${waitfor.url}" />
+        <waitfor
+            maxwait="${waitfor.timeout}"
+            maxwaitunit="second"
+            timeoutproperty="server.timeout">
+          <http url="${waitfor.url}" />
+        </waitfor>
+        <fail
+            if="server.timeout"
+            message="Server failed to start up properly at URL: ${waitfor.url}" />
+
+        <!-- deploy webapp -->
+        <echo message="** deploying ${webapp.dir} to ${context.path} **"/>
+        <deploy-webapp webappDir="${webapp.dir}" contextPath="${context.path}" />
+
+        <!-- run test cases -->
+        <antcall target="run.tests" />
+                    
+        <!-- undeploy webapp -->
+        <undeploy-webapp contextPath="${context.path}" />
+        
+        <!-- clean webapp -->
+        <antcall target="clean" />
+        
+        <!-- undeploy web service runtime -->
+        <!-- ant target="undeploy.beehive.webservice.runtime" dir="${ant.dir}" antfile="${app.build.file}" / -->
+
+        <!-- stop server -->
+        <stop-server />
+        
+      </sequential>
+    </parallel>
+  </target>
+
+
+  <!-- ========================================= -->
+  <!-- run.tests - run the tests                 -->
+  <!-- ========================================= -->
+  
+  <target name="run.tests">
+    <echo message="** junit logfiles written to ${log.dir} **"/>
+    <junit
+        failureproperty="drtfailed"
+        printsummary="on"
+        tempdir="${client.build}"
+        fork="yes">
+      <classpath>
+        <path refid="client.classpath"/>
+        <pathelement location="${client.classes}"/>
+      </classpath>
+      <formatter type="plain" />
+      <batchtest filtertrace="off" todir="${log.dir}"> 
+        <fileset dir="${source.dir}">
+          <include name="**/*Test.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+    <fail if="drtfailed" message="One or more tests in the ServiceControl DRT failed." />
+  </target>
+
+  
+  <!-- ========================================= -->
+  <!-- build.sc - build service control binaries -->
+  <!-- ========================================= -->
+  
+  <target name="build.sc" depends="dirs">
+    <apt
+        srcdir="${source.dir}"
+        destdir="${client.classes}"
+        gendir="${client.beansrc}"
+        classpathref="client.classpath"
+        compileByExtension="true" 
+        srcExtensions="*.jcx,*.java"
+        debug="on">
+    </apt>
+    <copy todir="${client.classes}">
+      <fileset dir="${source.dir}" >
+        <include name="**/*.wsdl"/>       
+        <include name="**/*.properties"/>       
+      </fileset>
+    </copy>
+  </target>
+
+    
+  <!-- ========================================= -->
+  <!-- build.server -                            -->
+  <!-- ========================================= -->
 	
-	<import file="${beehive.home}/beehive-imports.xml"/>
-	<property name="controls.jar" value="${beehive.home}/lib/controls/controls.jar" />
+  <target name="build.server" depends="dirs, deploy.beehive" >
+    <apt
+        srcdir="${server.src}"
+        destdir="${server.classes}"
+        gendir="${server.beansrc}"
+        compileByExtension="true" 
+        srcExtensions="*.jcx,*.java,*.jws"
+        debug="true">  
+      <classpath>
+        <path refid="beehive.classpath"/>
+      </classpath>
+    </apt>
+  </target>
+  
+  
+  <!-- ========================================= -->
+  <!-- deploy.beehive - copy all dependencies    -->
+  <!-- ========================================= -->
 	
-   
-	
-	  <path id="beehive.class.path">
-	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
-	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/apache-xbean.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/velocity-dep-1.4.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/jsr173_1.0_api.jar"/>
-	    <pathelement location="${lib.dir}/junit-3.8.1.jar"/>
-	    <pathelement location="${basedir}/lib/servlet-api-2.4-20040521.jar"/>
-	    <pathelement location="${basedir}/lib/jsp-api-2.0-20040521.jar"/>
-	  </path>
-	  	
-    <path id="build.classpath">
-	    <fileset dir="../lib">
-	        <include name="**/*.jar"/>
-	    </fileset>
-	    
-    	<path refid="beehive.class.path"  />
-    	<pathelement path="${core.classes}" /> 
+  <target name="deploy.beehive" depends="dirs">
+    <copy todir="${webapp.dir}/WEB-INF/lib">
+      <fileset file="${beehive.home}/lib/common/*.jar" />
+      <fileset file="${beehive.home}/lib/controls/controls.jar" />
+      <fileset file="${beehive.home}/lib/wsm/*.jar" />
+    </copy>
+  </target>
+  
+  
+  <!-- ========================================= -->
+  <!-- clean - delete binaries and all artifacts -->
+  <!-- ========================================= -->
+  
+  <target name="clean" description="Deletes all generated files">
+    <delete dir="${client.build}"/>
+    <delete dir="${server.classes}"/>
+    <delete dir="${server.beansrc}"/>
+    <delete file="velocity.log"/>
+  </target>
 
-    </path>
+  
+  <!-- ========================================= -->
+  <!-- dirs - create all required directories    -->
+  <!-- ========================================= -->
+  
+  <target name="dirs">
+    <mkdir dir="${client.classes}" />
+    <mkdir dir="${client.beansrc}" />
+    <mkdir dir="${log.dir}" />
+  </target>
 
-    <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask" 
-             classpath="${controls.jar}" onerror="report" />
-    <taskdef name="control-jar" 
-             classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
-             classpath="${controls.jar}" onerror="report" />             
+  
+  <!-- ========================================= -->
+  <!-- generate-xmlbean-datatypes -              -->
+  <!-- ========================================= -->
+  
+  <target name="generate-xmlbean-datatypes">
+    <taskdef
+        name="xmlbeanbuild"
+        classname="org.apache.xmlbeans.impl.tool.XMLBean">
+      <classpath>
+        <path refid="client.classpath" /> 
+      </classpath>
+    </taskdef>
+    <xmlbeanbuild
+        schema="${schemas.dir}"
+        srcgendir="${client.xmlbeangen}"
+        classgendir="${client.classes}"
+        failonerror="true">
+      <classpath>
+        <path refid="client.classpath" /> 
+      </classpath>
+    </xmlbeanbuild>
+  </target>
+  
+  <macrodef name="deploy-webapp">
+    <attribute name="webappDir" /> 
+    <attribute name="contextPath" /> 
+    <sequential>
+      <ant
+          antfile="${webservice.runtime.antfile}"
+          target="deploy"
+          inheritAll="false">
+        <property name="webapp.dir" location="@{webappDir}" /> 
+        <property name="context.path" value="@{contextPath}" /> 
+      </ant>
+    </sequential>
+  </macrodef>
 
+  <macrodef name="undeploy-webapp">
+    <attribute name="contextPath" /> 
+    <sequential>
+      <ant
+          antfile="${webservice.runtime.antfile}"
+          target="undeploy"
+          inheritAll="false">
+        <property name="context.path" value="@{contextPath}" /> 
+      </ant>
+    </sequential>
+  </macrodef>
 
+  <macrodef name="redeploy-webapp">
+    <attribute name="contextPath" /> 
+    <sequential>
+      <ant
+          antfile="${webservice.runtime.antfile}"
+          target="redeploy"
+          inheritAll="false">
+        <property name="context.path" value="@{contextPath}" /> 
+      </ant>
+    </sequential>
+  </macrodef>
 
-    <target name="clean" description="Deletes all generated files">
-        <delete dir="${build.dir}"/>
-        <delete dir="${drt.logs}"/>
-        <delete file="velocity.log"/>
-    </target>
+  <macrodef name="start-server">
+    <attribute name="shmem" /> 
+    <attribute name="javaOptions" /> 
+    <sequential>
+      <condition property="start.target" value="start.with.shmem">
+        <istrue value="@{shmem}" /> 
+      </condition>
+      <condition property="start.target" value="start">
+        <isfalse value="@{shmem}" /> 
+      </condition>
+      <ant
+          antfile="${webservice.runtime.antfile}"
+          target="${start.target}"
+          inheritAll="false">
+        <property name="java.options" value="@{javaOptions}" /> 
+      </ant>
+    </sequential>
+  </macrodef>
 
-    <target name="dirs">
-        <mkdir dir="${build.classes}" />
-        <mkdir dir="${build.beansrc}" />
-        <mkdir dir="${drt.logs}" />
-   </target>
-
-    <target name="build" depends="dirs, build_testservers" description="Builds service control tests">
-   	
-    	<apt srcdir="${source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
-              debug="on"
-             compileByExtension="true" 
-             srcExtensions="*.jcx,*.java">  
-            <classpath>
-                 <pathelement location="${build.classes}"/>
-                 <path refid="build.classpath"/>
-             </classpath>
-       </apt>
-	    <copy todir="${build.classes}">
-	       <fileset dir="${source.dir}" >
-	        <include name="**/*.wsdl"/>       
-	        <include name="**/*.properties"/>       
-	       </fileset>
-	     </copy>
-    	
-     </target>
-
-	<target name="generate-xmlbean-datatypes">
-		<taskdef name="xmlbeanbuild" classname="org.apache.xmlbeans.impl.tool.XMLBean">
-			 	<classpath>
-		  			<path refid="build.classpath" /> 
-		  		</classpath>
-		</taskdef>
-		<xmlbeanbuild schema="${schemas.dir}" srcgendir="${xmlbenangen.dir}" classgendir="${build.classes}" failonerror="true">
-			<classpath>
-		  		<path refid="build.classpath" /> 
-		  	</classpath>
-		</xmlbeanbuild>
-	  </target>
-	
-	   <target name="build_testservers" depends="dirs" >
-	    	<!-- build the servers -->
-	        <apt srcdir="${servers.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
-	               debug="on"
-	              compileByExtension="true" 
-	              srcExtensions="*.jcx,*.java,*.jws">  
-	             <classpath>
-	                  <pathelement location="${build.classes}"/>
-	                  <path refid="build.classpath"/>
-	              </classpath>
-	        </apt>
-	</target>
-	
-
-	<target name="start-server" depends="build_testservers">
-		    <!-- start server -->
-		    <parallel>
-		      <start-server shmem="false" javaOptions="" />
-		
-		      <!-- deploy webapp and run tests -->
-		      <sequential>
-		
-		        <echo message="Wait for server to start at URL: ${waitfor.url}" />
-		        <waitfor maxwait="${waitfor.timeout}" maxwaitunit="second" timeoutproperty="server.timeout">
-		          <http url="${waitfor.url}" />
-		        </waitfor>
-		        <fail if="server.timeout" message="Server failed to start up properly at URL: ${waitfor.url}" />
-		
-		
-		      	<antcall target="run.drt"/>
-		        <!-- undeploy webapp -->
-		        <undeploy-webapp contextPath="sctestServer" />
-		
-		        <!-- clean webapp -->
-		        <clean-webapp webappDir="${webapp.dir}" />
-		        
-		        <!-- undeploy web service runtime -->
-		        <!-- ant target="undeploy.beehive.webservice.runtime" dir="${ant.dir}" antfile="${app.build.file}" / -->
-		
-		        <!-- stop server -->
-		        <stop-server />
-		      </sequential>
-		    </parallel>
-		</target>
-
-	   <target name="run.drt" depends="build">
-	        <echo message="** junit logfiles written to ${drt.logs} **"/>
-	        <junit failureproperty="drtfailed" printsummary="on" tempdir="${build.dir}" fork="yes">
-	            <classpath>
-	                 <pathelement location="${build.classes}"/>
-	                 <path refid="build.classpath"/>
-	             </classpath>
-	            <formatter type="plain"/>
-	            <batchtest filtertrace="off" todir="${drt.logs}"> 
-	                <fileset dir="${source.dir}">
-	                    <include name="**/*Test.java"/>
-	                </fileset>
-	            </batchtest>
-	        </junit>
-	        <fail if="drtfailed" message="One or more tests in the ServiceControl DRT failed." />
-	    </target>
+  <macrodef name="stop-server">
+    <sequential>
+      <ant
+          antfile="${webservice.runtime.antfile}"
+          target="stop"
+          inheritAll="false" /> 
+    </sequential>
+  </macrodef>
+  
 </project>
