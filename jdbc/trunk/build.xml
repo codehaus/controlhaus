@@ -6,7 +6,7 @@
 <project name="Jdbc Control Build" default="build" basedir=".">
 
     <property environment="os"/>
-    <property file="${os.BEELINE_HOME}/beeline.properties"/>
+    <property file="${os.JDBCCONTROL_HOME}/beeline.properties"/>
 
     <!-- libraries -->
     <property name="controls.jar" location="${beeline.external.dir}/beehive-controls/controls.jar"/>
@@ -31,7 +31,7 @@
 
     <!-- build locations -->
     <property name="project.name" value="Jdbc Control"/>
-    <property name="src.dir" location="${os.BEELINE_HOME}/src"/>
+    <property name="src.dir" location="${os.JDBCCONTROL_HOME}/src"/>
     <property name="build.classes.dir" location="${beeline.build.dir}/classes"/>
     <property name="build.generated.dir" location="${beeline.build.dir}/gensrc"/>
     <property name="sqlgrammar.file" value="${src.dir}/org/controlhaus/jdbc/parser/SqlGrammar.jj"/>

@@ -232,12 +232,16 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
         final Class resultSetMapperClass = methodSQL.resultSetMapper();
 
         //
-        // if generated keys requested make sure db impl supports it.
+        // if a JDBC 3.0 feature is requested, make sure db impl supports it
         //
-        if (getGeneratedKeys) {
+        if (getGeneratedKeys || isBatchUpdate) {
             DatabaseMetaData dmd = _connection.getMetaData();
-            if (!dmd.supportsGetGeneratedKeys()) {
+
+            if (getGeneratedKeys && !dmd.supportsGetGeneratedKeys()) {
                 throw new ControlException("The database does not support getGeneratedKeys.");
+            }
+            if (isBatchUpdate && !dmd.supportsBatchUpdates()) {
+                throw new ControlException("The database does not support batchUpdates.");
             }
         }
 
@@ -247,7 +251,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
             SqlStatement parsedSql = _sqlParser.parse(sqlStatement);
             ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method,  args,
-                                                   isBatchUpdate, getGeneratedKeys, 
+                                                   isBatchUpdate, getGeneratedKeys,
                                                    genKeyColumnNames, genKeyColumnIndexes);
 
             //

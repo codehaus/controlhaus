@@ -53,6 +53,9 @@ public interface JdbcControl {
         public InitialContext getInitialContext() throws NamingException;
     }
 
+    /**
+     * ConnectionDataSource Annotation Declaration
+     */
     @PropertySet
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
@@ -61,10 +64,12 @@ public interface JdbcControl {
     public @interface ConnectionDataSource {
         @AnnotationMemberTypes.JndiName(resourceType = AnnotationMemberTypes.JndiName.ResourceType.DATASOURCE)
         Class<? extends IJndiContextFactory> jndiContextFactory() default DefaultJndiContextFactory.class;
-
         String jndiName();   // no default ... value is required
     }
 
+    /**
+     * ConnectionDriver Annotation Declaration
+     */
     @PropertySet
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
