@@ -83,6 +83,7 @@
             </j:forEach>
             
             <!-- copy the binaries from the control application to all the extensions -->
+	<!--
             <j:forEach var="extensionApplicationWorkFile" items="${extensionApplicationWorkFiles.iterator()}">
                 <j:set var="extensionApplicationRoot" value="${extensionApplicationWorkFile.parent}"/>
                 <j:set var="controlApplicationRoot" value="${controlApplicationWorkFile.parent}"/>
@@ -92,6 +93,7 @@
                     </fileset>
                 </ant:copy>
             </j:forEach>
+	-->
         </j:forEach>
 
     </goal>
