@@ -32,6 +32,9 @@ public class AmazonClientTest
         
         ItemLookupDocument doc = ItemLookupDocument.Factory.newInstance();
         ItemLookup lookup = doc.addNewItemLookup();
+        lookup.setAssociateTag("dandiephosblo-20");
+        lookup.setSubscriptionId("1E5AY4ZG53H4AMC8QH82");
+        
         ItemLookupRequest request = lookup.addNewRequest();
         request.addItemId("0486411214");
         request.setIdType(ItemLookupRequest.IdType.ASIN);
@@ -41,6 +44,6 @@ public class AmazonClientTest
         Items[] itemsArr = response.getItemLookupResponse().getItemsArray();
         assertEquals(1, itemsArr.length);
         System.out.println(response.xmlText());
-        //assertEquals("0486411214", itemsArr[0].getItemArray()[0].getASIN());
+        assertEquals("0486411214", itemsArr[0].getItemArray()[0].getASIN());
     }
 }
