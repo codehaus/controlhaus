@@ -27,8 +27,8 @@ import java.sql.SQLException;
  * This control is used for checking error reporting / recovery from the db control.
  */
 @org.apache.beehive.controls.api.bean.ControlExtension
-        @JdbcControl.ConnectionDriver(databaseDriverClass = "org.apache.derby.jdbc.EmbeddedDriver", databaseURL = "jdbc:derby:MyDB")
-        public interface ErrorsTestCtrl extends JdbcControl {
+@JdbcControl.ConnectionDriver(databaseDriverClass = "org.apache.derby.jdbc.EmbeddedDriver", databaseURL = "jdbc:derby:MyDB")
+public interface ErrorsTestCtrl extends JdbcControl {
 
     public static class BadCustomer {
         private String fnam;
@@ -70,5 +70,11 @@ import java.sql.SQLException;
     //
     @SQL(statement = "SELECT * FROM USERS WHERE fname={someUser}")
     public XCustomerRowBadDocument.XCustomerRowBad getAUserBad4(String someUser) throws SQLException;
+
+    //
+    // null sql param substitution
+    //
+    @SQL(statement = "SELECT * FROM USERS {sql: where}")
+    public ResultSet getAUserBad5(String where) throws SQLException;
 }
 

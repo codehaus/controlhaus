@@ -40,8 +40,6 @@ import java.lang.reflect.Method;
  */
 public class SqlSubstitutionFragment extends SqlFragmentContainer {
 
-    private static final String NULL_VALUE = "NULL";
-
     /**
      * Constructor for subst or function with no param substitution
      *
@@ -122,7 +120,7 @@ public class SqlSubstitutionFragment extends SqlFragmentContainer {
         }
 
         if (value == null || (arr != null && arr.length == 0)) {
-            return NULL_VALUE;
+            return "";
         } else if (arr != null) {
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < arr.length; i++) {
