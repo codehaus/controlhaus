@@ -9,47 +9,7 @@
       <ant:path refid="maven.dependency.classpath"/>
       <ant:pathelement path="${maven.build.dest}"/>
     </ant:path>
-    
-  <ant:taskdef name="apt" 
-               classname="org.apache.beehive.controls.runtime.generator.AptTask" 
-               classpathref="task.path" 
-               onerror="report" />
-                
-  <goal name="beehive:compile">
 
-    <ant:mkdir dir="target/beehive-generated-test"/>
-
-    <apt destdir="${basedir}/target/classes" 
-         gendir="${basedir}/target/beehive-generated-main"
-         classpathref="task.path"
-         debug="on"
-         compileByExtension="true"
-         srcExtensions="*.java,*.jcx,*.jcs"
-       	 nocompile="true"
-         target="1.5">
-      <src path="${basedir}/src/main"/>
-    </apt>
-         
-  </goal>
-  
-  <goal name="beehive:test-compile">
-
-    <ant:mkdir dir="target/beehive-generated-test"/>
-
-    <apt destdir="${basedir}/target/test-classes" 
-         gendir="${basedir}/target/beehive-generated-test"
-         classpathref="task.path"
-         debug="on"
-         compileByExtension="true"
-         srcExtensions="*.java,*.jcx,*.jcs"
-       	 nocompile="true"
-         target="1.5">
-      <src path="${basedir}/src/test"/>
-      <src path="${maven.build.dir}/xfire-xmlbeans-test"/>
-    </apt>
-         
-  </goal>
-    
   <goal name="xfire:test-generate">
     
     <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-test"/>
@@ -100,14 +60,9 @@
       <arg value="${basedir}/src/test-schemas"/>
     </java>
   </goal>
-    
-  <preGoal name="java:compile">
-    <attainGoal name="beehive:compile"/>
-  </preGoal>
-    
+
   <preGoal name="test:compile">
     <attainGoal name="xfire:test-generate"/>
-    <attainGoal name="beehive:test-compile"/>
   </preGoal>
 
 </project>

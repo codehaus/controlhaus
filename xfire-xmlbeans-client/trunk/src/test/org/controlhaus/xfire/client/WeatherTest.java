@@ -9,6 +9,7 @@ import net.webservicex.GetWeatherByZipCodeResponseDocument;
 import org.apache.beehive.controls.api.bean.Control;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.apache.beehive.controls.runtime.bean.ControlContainerContext;
+import org.apache.xmlbeans.XmlObject;
 import org.controlhaus.xfire.weather.WeatherForecastClientControl;
 
 import junit.framework.TestCase;
