@@ -1,0 +1,68 @@
+<project
+  default="java:jar"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant"
+  xmlns:i="jelly:interaction"
+  xmlns:maven="jelly:maven">
+    
+    <ant:path id="task.path">
+      <ant:path refid="maven.dependency.classpath"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+    </ant:path>
+
+  <goal name="xfire:test-generate">
+    
+    <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-test"/>
+  
+    <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          classpathref="task.path"
+          fork="true">
+      <arg value="-d"/>
+      <arg value="${maven.test.dest}"/>
+      <arg value="${basedir}/src/test-schemas"/>
+    </java>
+    
+    <ant:path id="generate.path">
+      <ant:pathelement path="${maven.build.dest}"/>
+      <ant:path refid="maven.dependency.classpath"/>
+      <ant:pathelement path="${maven.test.dest}"/>
+    </ant:path>   
+
+    <ant:taskdef name="generate" 
+                 classname="org.codehaus.xfire.xmlbeans.generator.GeneratorTask"
+                 classpathref="generate.path"/>
+    <!-- 
+         Generate the Weather Service stub and add the directory to 
+         the src set to be compiled. 
+     -->
+    <echo>Creating Weather Service</echo>
+    <generate overwrite="true"
+              package="org.controlhaus.xfire.weather"
+              outputDir="${maven.build.dir}/xfire-xmlbeans-test"
+              wsdl="${basedir}/src/test-schemas/WeatherForecast.wsdl"
+              classpathref="generate.path"
+              strategy="org.controlhaus.xfire.client.BeehiveClientStrategy" />   
+
+    <ant:path id="xfire.xmlbeans.generated.test" 
+              location="${maven.build.dir}/xfire-xmlbeans-test"/>
+
+    <maven:addPath id="maven.test.compile.src.set"  
+                   refid="xfire.xmlbeans.generated.test"/>
+  </goal>
+  
+  <!-- its useful to generate a weather jar when working in an ide -->
+  <goal name="weather-jar">
+    <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          classpathref="task.path"
+          fork="true">
+      <arg value="-out"/>
+      <arg value="${basedir}/target/weather.jar"/>
+      <arg value="${basedir}/src/test-schemas"/>
+    </java>
+  </goal>
+
+  <preGoal name="test:compile">
+    <attainGoal name="xfire:test-generate"/>
+  </preGoal>
+
+</project>
