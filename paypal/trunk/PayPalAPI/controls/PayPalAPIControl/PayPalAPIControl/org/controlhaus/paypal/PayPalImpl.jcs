@@ -1,0 +1,122 @@
+package org.controlhaus.paypal; 
+
+import com.bea.control.*;
+import ebayApiPayPalAPI.BillUserRequestDocument;
+import ebayApiPayPalAPI.BillUserRequestType;
+import ebayApiPayPalAPI.RequesterCredentialsDocument;
+import ebayApisEBLBaseComponents.UserIdPasswordType;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+/**
+ * @editor-info:code-gen control-interface="true"
+ * @jcs:control-tags file::
+ * PayPalTags.xml
+ * ::
+ */
+public class PayPalImpl implements PayPal, ControlSource
+{ 
+    /**
+     * @common:control
+     */
+    private org.controlhaus.paypal.PayPalWS payPalWS;
+    
+    /** @common:context */
+    ControlContext context;
+    
+    private String username;
+    private String password;
+    
+    private static URL SSL_BYPASS_URL;
+    
+    static
+    {
+        try
+        {
+            SSL_BYPASS_URL = new URL("http://localhost:8080/2.0/");
+        }
+        catch (MalformedURLException mue)
+        {
+            //FATAL
+        }
+    }
+
+    static final long serialVersionUID = 1L;
+    
+    public String getUsername()
+    {
+        if (username == null)
+        {
+            username = context.getControlAttribute("jc:PayPalProperties","username");
+        }
+        return username;
+    }
+    
+    public void setUsername(String username)
+    {
+        this.username = username;
+    }
+    
+    public String getPassword()
+    {
+        if (password == null)
+        {
+            password = context.getControlAttribute("jc:PayPalProperties","password");
+        }
+        return password;
+    }
+    
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    /**
+     * @common:operation
+     */
+    public void billUser()
+    {        
+        payPalWS.setEndPoint(SSL_BYPASS_URL);
+        configureAuthentication();
+
+        BillUserRequestDocument requestDoc = BillUserRequestDocument.Factory.newInstance();
+        BillUserRequestType request = requestDoc.addNewBillUserRequest();
+        
+        request.setVersion("1.0");
+        
+        payPalWS.BillUser(requestDoc);
+    }
+
+    /**
+     * @common:operation
+     */
+    public void getTransactionDetails()
+    {
+    }
+
+    /**
+     * @common:operation
+     */
+    public void refundTransaction()
+    {
+    }
+
+    /**
+     * @common:operation
+     */
+    public void transactionSearch()
+    {
+    }
+    
+    private void configureAuthentication()
+    {
+        RequesterCredentialsDocument credDoc = RequesterCredentialsDocument.Factory.newInstance();
+        UserIdPasswordType idType = credDoc.addNewRequesterCredentials().addNewCredentials();
+        idType.setUsername(getUsername());
+        idType.setPassword(getPassword());
+        Element[] headers = new Element[1];
+        headers[0] = (Element)((Document)credDoc.newDomNode()).getFirstChild();
+        payPalWS.setOutputHeaders(headers);
+    }
+} 

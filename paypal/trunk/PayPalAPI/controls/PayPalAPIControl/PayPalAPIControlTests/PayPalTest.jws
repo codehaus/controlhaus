@@ -1,0 +1,31 @@
+/**
+ */
+public class PayPalTest implements com.bea.jws.WebService
+{
+    static final long serialVersionUID = 1L;
+
+    /** @common:control
+*/
+    public org.controlhaus.paypal.PayPal payPal;
+
+    /** @common:operation
+     */
+    public void billUser()
+    { payPal.billUser(); }
+
+    /** @common:operation
+     */
+    public void refundTransaction()
+    { payPal.refundTransaction(); }
+
+    /** @common:operation
+     */
+    public void transactionSearch()
+    { payPal.transactionSearch(); }
+
+    /** @common:operation
+     */
+    public void getTransactionDetails()
+    { payPal.getTransactionDetails(); }
+
+}
