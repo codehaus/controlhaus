@@ -50,7 +50,6 @@ public class JdbcTypesTest extends TestCase {
 
     @Control
     @JdbcControl.ConnectionDataSource(jndiName="java:/comp/env/jdbc/TestDB")
-//        ControlContainerContext context = new TestContainerContext();
     private ResultsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {
@@ -280,13 +279,6 @@ public class JdbcTypesTest extends TestCase {
         Date d = testCtrl.getTimestampValue();
         assertEquals("Wed Feb 23 09:46:17 MST 2005", d.toString());
     }
-
-
-
-
-
-
-
 
     public void testBlob() throws Exception {
 

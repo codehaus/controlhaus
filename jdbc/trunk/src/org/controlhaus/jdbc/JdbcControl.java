@@ -489,6 +489,8 @@ public interface JdbcControl {
      * SQLParameter, the JdbcControl treats the SQL as a CallableStatement and inserts values into the statement from
      * the SQLParameter array.  After the CallableStatement executes, results are mapped into OUT type parameters found
      * int the SQLParameter array.
+     * NOTE: To invoke a callable statement which does not take any arguments, an SQLParameter array of size zero must
+     * be passed to the JDBCControl method.
      */
     public static class SQLParameter {
         /**
@@ -505,13 +507,15 @@ public interface JdbcControl {
         public static final int INOUT = IN | OUT;
 
         /**
-         * Parameter value.
+         * Parameter value. For parameters of type OUT this value should be set to null.
          */
         public Object value = null;
+
         /**
          * Parameter SQL data type. See java.sql.Types.
          */
         public int type = Types.NULL;
+
         /**
          * Parameter direction.
          */
