@@ -1,0 +1,234 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import org.controlhaus.misc.creditcard.CardType;
+import org.controlhaus.misc.creditcard.CreditCard;
+import org.controlhaus.misc.creditcard.CreditCardValidator;
+
+/**
+ * PageFlow class generated from control CreditCard
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/CreditCardSampleController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="240" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:validate.do#CreditCardSampleController.ValidateForm">
+ *   <property value="560" name="x"/>
+ *   <property value="180" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:validate.jsp@#@action:validate.do#CreditCardSampleController.ValidateForm@">
+ *   <property value="560,560,560,560" name="elbowsX"/>
+ *   <property value="256,240,240,224" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="South_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:validate.jsp">
+ *   <property value="560" name="x"/>
+ *   <property value="300" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:results.jsp">
+ *   <property value="700" name="x"/>
+ *   <property value="60" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#validate.jsp#@action:begin.do@">
+ *   <property value="276,400,400,524" name="elbowsX"/>
+ *   <property value="103,103,281,281" name="elbowsY"/>
+ *   <property value="East_2" name="fromPort"/>
+ *   <property value="West_0" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#results.jsp#@action:validate.do#CreditCardSampleController.ValidateForm@">
+ *   <property value="596,630,630,664" name="elbowsX"/>
+ *   <property value="172,172,52,52" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:org.controlhaus.misc.creditcard.CreditCard#myControl">
+ *   <property value="28" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:CreditCardSampleController.ValidateForm#number#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:CreditCardSampleController.ValidateForm#expiryDate#java.util.Date"/>
+ * <pageflow-object id="formbeanprop:CreditCardSampleController.ValidateForm#type#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:CreditCardSampleController.ValidateForm#day#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:CreditCardSampleController.ValidateForm#month#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:CreditCardSampleController.ValidateForm#year#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:CreditCardSampleController.ValidateForm#cardTypes#java.util.Map"/>
+ * <pageflow-object id="formbean:CreditCardSampleController.ValidateForm"/>
+ * </view-properties>
+ * ::
+ */
+public class CreditCardSampleController extends PageFlowController
+{
+
+    /**
+     * This is the control used to generate this pageflow
+     *  @common:control
+     */
+    private CreditCard myControl;
+
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="validate.jsp"
+     */
+    protected Forward begin()
+    {
+        return new Forward("success");
+    }
+
+    /**
+     * Action encapsulating the control method :validate
+     * @jpf:action
+     * @jpf:forward name="success" path="results.jsp"
+     * @jpf:catch method="exceptionHandler" type="Exception"
+     */
+    public Forward validate(ValidateForm aForm)
+        throws Exception
+    {
+        CardType cardType = CardType.forId(aForm.getType());
+        java.util.Collection var = myControl.validate(aForm.number, aForm.getExpiryDate(), cardType);
+        getRequest().setAttribute("results", var);
+
+        return new Forward("success");
+    }
+
+    /**
+     * @jpf:exception-handler
+     * @jpf:forward name="errorPage" path="/error.jsp"
+     */
+    protected Forward exceptionHandler(Exception ex,String actionName,String message,FormData form)
+    {
+        String displayMessage = "An exception occurred in the action " + actionName;
+        getRequest().setAttribute("errorMessage", displayMessage);
+        return new Forward("errorPage");
+    }
+
+
+
+    /**
+     * FormData class ValidateForm
+     * FormData get and set methods may be overwritten by the Form Bean editor.
+     */
+    public static class ValidateForm extends FormData
+    {
+        private java.lang.String number;        
+        private java.lang.String type;
+        
+        private java.lang.String day ;
+        private java.lang.String month ;
+        private java.lang.String year ;
+
+        public void reset(org.apache.struts.action.ActionMapping mapping,javax.servlet.http.HttpServletRequest request)
+        {
+            // Todo - allocate the object <beanName> here.
+            // <beanName> = new <BeanName>();
+        }
+
+        public void setNumber(java.lang.String number)
+        {
+            this.number = number;
+        }
+
+        public java.lang.String getNumber()
+        {
+            return number;
+        }
+        
+        public java.util.Date getExpiryDate()
+        {
+            int intDay ;
+            int intMonth ;
+            int intYear ;
+            
+            try{
+            intDay = Integer.parseInt(day);
+            intMonth = Integer.parseInt(month);
+            intYear = Integer.parseInt(year);
+            }catch(NumberFormatException e){
+                return new Date();
+            }
+            
+            Calendar calender = new GregorianCalendar(intYear, intMonth - 1, intDay);
+            return calender.getTime();
+        }
+
+        public void setType(java.lang.String type)
+        {
+            this.type = type;
+        }
+
+        public java.lang.String getType()
+        {
+            return type;
+        }
+                    
+        public void setDay(java.lang.String day){
+            this.day = day;
+        }
+        
+        public java.lang.String getDay(){
+            return this.day;
+        }
+        
+        public void setMonth(String month){
+            this.month = month;
+        }
+        
+        public java.lang.String getMonth(){
+            return this.month;
+        }
+        
+        public void setYear(String year){
+            this.year = year;
+        }
+        
+        public java.lang.String getYear(){
+            return this.year;
+        }
+        
+        public Map getCardTypes(){
+            Map cardTypes = new HashMap();
+            Collection allTypes = CardType.getAll();
+            CardType cardType ;
+            for (Iterator i = allTypes.iterator() ; i.hasNext() ; ){
+                cardType = (CardType) i.next();
+                cardTypes.put(cardType.getId() , cardType.getValue());                                
+            }
+            
+            return cardTypes;
+        }
+    }
+}
