@@ -1,0 +1,268 @@
+// Decompiled by DJ v3.2.2.67 Copyright 2002 Atanas Neshkov  Date: 5/13/2004 8:49:13 PM
+// Home Page : http://members.fortunecity.com/neshkov/dj.html  - Check often for new version!
+// Decompiler options: packimports(3) 
+// Source File Name:   CactusTask.java
+
+package org.apache.cactus.integration.ant;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import org.apache.cactus.integration.ant.container.Container;
+import org.apache.cactus.integration.ant.container.ContainerRunner;
+import org.apache.cactus.integration.ant.container.DeployableFile;
+import org.apache.cactus.integration.ant.container.EarParser;
+import org.apache.cactus.integration.ant.container.WarParser;
+import org.apache.cactus.integration.ant.util.AntLog;
+import org.apache.cactus.integration.ant.util.AntTaskFactory;
+import org.apache.cactus.integration.ant.util.PropertySet;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.taskdefs.optional.junit.JUnitTask;
+import org.apache.tools.ant.taskdefs.optional.junit.JUnitTest;
+import org.apache.tools.ant.types.Environment;
+import org.apache.tools.ant.types.Path;
+
+// Referenced classes of package org.apache.cactus.integration.ant:
+//            ContainerSet
+
+public class CactusTask extends JUnitTask
+{
+
+    public CactusTask()
+        throws Exception
+    {
+        systemProperties = new ArrayList();
+        antTaskFactory = new  Object()     /* anonymous class not found */
+    class _anm1 {}
+
+;
+    }
+
+    public void init()
+    {
+        super.init();
+        addClasspathEntry("/org/aspectj/lang/JoinPoint.class");
+        addClasspathEntry("/org/apache/cactus/ServletTestCase.class");
+        addClasspathEntry("/org/apache/cactus/integration/ant/CactusTask.class");
+        addClasspathEntry("/org/apache/commons/logging/Log.class");
+        addClasspathEntry("/org/apache/commons/httpclient/HttpClient.class");
+    }
+
+    public void execute()
+        throws BuildException
+    {
+        if(warFile == null && earFile == null)
+            throw new BuildException("You must specify either the [warfile] or the [earfile] attribute");
+        if(warFile != null && earFile != null)
+            throw new BuildException("You must specify either the [warfile] or the [earfile] attribute but not both");
+        DeployableFile deployableFile;
+        if(warFile != null)
+            deployableFile = WarParser.parse(warFile);
+        else
+            deployableFile = EarParser.parse(earFile);
+        addRedirectorNameProperties(deployableFile);
+        if(containerSet == null)
+        {
+            log("No containers specified, tests will run locally", 3);
+            super.execute();
+        } else
+        {
+            Container containers[] = containerSet.getContainers();
+            org.apache.tools.ant.types.Environment.Variable contextUrl = new org.apache.tools.ant.types.Environment.Variable();
+            contextUrl.setKey("cactus.contextURL");
+            addSysproperty(contextUrl);
+            for(int i = 0; i < containers.length; i++)
+            {
+                containers[i].setAntTaskFactory(antTaskFactory);
+                containers[i].setLog(new AntLog(this));
+                DeployableFile thisDeployable = null;
+                try
+                {
+                    thisDeployable = (DeployableFile)deployableFile.clone();
+                }
+                catch(CloneNotSupportedException e)
+                {
+                    throw new BuildException(e);
+                }
+                containers[i].setDeployableFile(thisDeployable);
+                if(containers[i].getTestContext() != null)
+                    thisDeployable.setTestContext(containers[i].getTestContext());
+                containers[i].setSystemProperties((org.apache.tools.ant.types.Environment.Variable[])systemProperties.toArray(new org.apache.tools.ant.types.Environment.Variable[0]));
+                containers[i].setContainerClasspath(containerClasspath);
+                if(containers[i].isEnabled())
+                {
+                    containers[i].init();
+                    log("-----------------------------------------------------------------", 2);
+                    log("Running tests against " + containers[i].getName(), 2);
+                    log("-----------------------------------------------------------------", 2);
+                    contextUrl.setValue("http://localhost:" + containers[i].getPort() + "/" + thisDeployable.getTestContext());
+                    executeInContainer(containers[i], thisDeployable);
+                }
+            }
+
+        }
+    }
+
+    public final void addContainerSet(ContainerSet theContainerSet)
+    {
+        if(containerSet != null)
+        {
+            throw new BuildException("Only one nested containerset element supported");
+        } else
+        {
+            containerSet = theContainerSet;
+            return;
+        }
+    }
+
+    public final void setEarFile(File theEarFile)
+    {
+        if(warFile != null)
+        {
+            throw new BuildException("You may only specify one of [earfile] and [warfile]");
+        } else
+        {
+            earFile = theEarFile;
+            return;
+        }
+    }
+
+    public final void setWarFile(File theWarFile)
+    {
+        if(earFile != null)
+        {
+            throw new BuildException("You may only specify one of [earfile] and [warfile]");
+        } else
+        {
+            warFile = theWarFile;
+            return;
+        }
+    }
+
+    public void addSysproperty(org.apache.tools.ant.types.Environment.Variable theProperty)
+    {
+        addCactusServerProperty(theProperty);
+        super.addSysproperty(theProperty);
+    }
+
+    public void addConfiguredSysproperty(org.apache.tools.ant.types.Environment.Variable theProperty)
+    {
+        addSysproperty(theProperty);
+    }
+
+    public void addConfiguredCactusproperty(PropertySet thePropertySet)
+    {
+        ResourceBundle bundle = thePropertySet.readProperties();
+        for(Enumeration keys = bundle.getKeys(); keys.hasMoreElements();)
+        {
+            String key = (String)keys.nextElement();
+            org.apache.tools.ant.types.Environment.Variable var = new org.apache.tools.ant.types.Environment.Variable();
+            var.setKey(key);
+            var.setValue(bundle.getString(key));
+            if(thePropertySet.isServer())
+                addCactusServerProperty(var);
+            else
+                super.addSysproperty(var);
+        }
+
+    }
+
+    public Path createContainerClasspath()
+    {
+        if(containerClasspath == null)
+            containerClasspath = new Path(project);
+        return containerClasspath.createPath();
+    }
+
+    private void addCactusClientProperty(String theKey, String theValue)
+    {
+        log("Adding Cactus client system property [" + theKey + "] with value [" + theValue + "]", 3);
+        org.apache.tools.ant.types.Environment.Variable sysProperty = new org.apache.tools.ant.types.Environment.Variable();
+        sysProperty.setKey(theKey);
+        sysProperty.setValue(theValue);
+        super.addSysproperty(sysProperty);
+    }
+
+    private void addCactusServerProperty(org.apache.tools.ant.types.Environment.Variable theProperty)
+    {
+        log("Adding Cactus server system property [" + theProperty.getKey() + "] with value [" + theProperty.getValue() + "]", 3);
+        systemProperties.add(theProperty);
+    }
+
+    private void addCactusServerProperty(String theKey, String theValue)
+    {
+        org.apache.tools.ant.types.Environment.Variable property = new org.apache.tools.ant.types.Environment.Variable();
+        property.setKey(theKey);
+        property.setValue(theValue);
+        addCactusServerProperty(property);
+    }
+
+    private void addRedirectorNameProperties(DeployableFile theFile)
+    {
+        String filterRedirectorMapping = theFile.getFilterRedirectorMapping();
+        if(filterRedirectorMapping != null)
+            addCactusClientProperty("cactus.filterRedirectorName", filterRedirectorMapping.substring(1));
+        else
+            log("No mapping of the filter redirector found", 3);
+        String jspRedirectorMapping = theFile.getJspRedirectorMapping();
+        if(jspRedirectorMapping != null)
+            addCactusClientProperty("cactus.jspRedirectorName", jspRedirectorMapping.substring(1));
+        else
+            log("No mapping of the JSP redirector found", 3);
+        String servletRedirectorMapping = theFile.getServletRedirectorMapping();
+        if(servletRedirectorMapping != null)
+            addCactusClientProperty("cactus.servletRedirectorName", servletRedirectorMapping.substring(1));
+        else
+            throw new BuildException("The WAR has not been cactified");
+    }
+
+    private void executeInContainer(Container theContainer, DeployableFile theFile)
+    {
+        log("Starting up container", 3);
+        ContainerRunner runner = new ContainerRunner(theContainer);
+        runner.setLog(new AntLog(this));
+        try
+        {
+            URL url = new URL("http", "localhost", theContainer.getPort(), "/" + theFile.getTestContext() + theFile.getServletRedirectorMapping() + "?Cactus_Service=RUN_TEST");
+            runner.setUrl(url);
+            if(containerSet.getTimeout() > 0L)
+                runner.setTimeout(containerSet.getTimeout());
+            runner.startUpContainer();
+            log("Container responding to HTTP requests as " + runner.getServerName(), 3);
+            try
+            {
+                Enumeration tests = getIndividualTests();
+                do
+                {
+                    if(!tests.hasMoreElements())
+                        break;
+                    JUnitTest test = (JUnitTest)tests.nextElement();
+                    if(test.shouldRun(getProject()) && !theContainer.isExcluded(test.getName()))
+                    {
+                        if(theContainer.getToDir() != null)
+                            test.setTodir(theContainer.getToDir());
+                        execute(test);
+                    }
+                } while(true);
+            }
+            finally
+            {
+                log("Shutting down container", 3);
+                runner.shutDownContainer();
+                log("Container shut down", 3);
+            }
+        }
+        catch(MalformedURLException mue)
+        {
+            throw new BuildException("Malformed test URL", mue);
+        }
+    }
+
+    private ContainerSet containerSet;
+    private File earFile;
+    private File warFile;
+    private List systemProperties;
+    private Path containerClasspath;
+    private AntTaskFactory antTaskFactory;
+}

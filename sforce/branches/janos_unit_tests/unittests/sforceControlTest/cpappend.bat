@@ -1,0 +1,1 @@
+set _LIBS=%_LIBS%;%1

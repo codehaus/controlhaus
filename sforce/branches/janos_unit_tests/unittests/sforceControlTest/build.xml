@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+
+<!--
+-->
+
+<project name="Cactus Servlet Sample" default="test" basedir=".">
+
+  <!-- Global project properties -->
+  <property name="project.name.text" value="BEA SForce COntrol Test"/>
+  <property name="project.name.file" value="sforce-servlet"/>
+  <property name="project.version" value="1.0"/>
+
+
+  <!-- Generic properties -->
+  <property name="year" value="2004"/>
+  <property name="debug" value="on"/>
+  <property name="optimize" value="off"/>
+  <property name="deprecation" value="off"/>
+
+  <!-- Properties for the Cactus tests -->
+  <property name="cactus.port" value="7001"/>
+  <property name="webapp.name" value="sforceControlTestWeb"/>
+
+  <!-- Location where the logging properties files are located -->
+  <property name="base.dir" location="."/>
+  <property name="web.dir" location="./sforceControlTestWeb"/>
+
+
+<property name="target.dir" location="target"/>
+  <property name="target.classes.dir" location="${target.dir}/classes"/>
+  <property name="target.classes.java.dir"
+      location="${target.classes.dir}/java"/>
+  <property name="target.classes.cactus.dir"
+      location="${target.classes.dir}/cactus"/>
+  <property name="target.testreports.dir"
+      location="${target.dir}/test-reports"/>
+
+
+<path id="project.classpath">            
+            <fileset dir="lib">
+	<include name="*.jar"/>		
+            </fileset>
+        </path>
+
+
+<path id="cactus.classpath">
+    <pathelement location="${web.dir}/WEB-INF/lib/junit.jar"/>
+    <pathelement location="${web.dir}/WEB-INF/lib/cactus.jar"/>
+    <pathelement location="${web.dir}/WEB-INF/lib/cactus-ant.jar"/>
+    <pathelement location="${web.dir}/WEB-INF/lib/commons-httpclient.jar"/>
+    <pathelement location="${web.dir}/WEB-INF/lib/commons-logging.jar"/>
+    <pathelement location="${web.dir}/WEB-INF/lib/aspectjrt.jar"/>
+</path>
+
+<target name="init">
+
+ <taskdef resource="cactus.tasks" classpathref="cactus.classpath"/>
+
+
+  </target>
+
+ <target name="war" depends="init"
+      description="Generate the runtime war">
+
+    <war warfile="${web.dir}/target/unittest.war"
+         webxml="${web.dir}/WEB-INF/web.xml">
+      <fileset dir="${web.dir}/">
+        <exclude name="${web.dir}/WEB-INF/web.xml"/>
+      </fileset>
+      <classes dir="${web.dir}"/>
+    </war>
+
+  </target>
+
+<target name="start_weblogic">
+</target>
+
+<target name="stop_weblogic">
+</target>
+
+
+
+
+ <target name="test" depends="init"
+      description="Run the tests on the defined containers">
+
+
+<runservertests
+    testurl="http://localhost:${cactus.port}/${webapp.name}/ServletRedirector?Cactus_Service=RUN_TEST"
+    starttarget="start_weblogic"
+    stoptarget="stop_weblogic"
+    testtarget="runtest"/>
+
+
+</target>
+
+  <!-- runs all unit test -->
+  <target name="runtest" >
+
+    <mkdir dir="${target.testreports.dir}" />
+   
+
+    <junit printsummary="yes" haltonfailure="no">
+	<sysproperty key="cactus.contextURL"
+          value="http://localhost:${cactus.port}/${webapp.name}"/>
+
+      <classpath refid="cactus.classpath"/>
+      <classpath>        
+	<pathelement location="${web.dir}/WEB-INF/classes" />
+	<pathelement location="${web.dir}/WEB-INF/lib/xbean.jar" />
+	<pathelement location="${web.dir}/WEB-INF/lib/sforceSchemas.jar" />
+      </classpath> 
+
+      <batchtest fork="yes" todir="${target.testreports.dir}">
+        <formatter type="xml" />
+        <fileset dir="${web.dir}/WEB-INF/src">
+          <include name="**/Test*.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+
+    <junitreport todir="${target.testreports.dir}">
+       <fileset dir="${target.testreports.dir}">
+         <include name="TEST-*.xml"/>
+       </fileset>
+       <report format="frames" todir="${target.testreports.dir}"/>
+     </junitreport>
+
+  </target>
+
+
+
+</project>
