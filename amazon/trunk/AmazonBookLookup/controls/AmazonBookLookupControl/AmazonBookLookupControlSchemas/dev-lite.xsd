@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by Mike Hogan (Independent) -->
+<xs:schema targetNamespace="http://www.amazon.com/xml/types" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.amazon.com/xml/types" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="Actor" type="xs:string"/>
+	<xs:element name="Artist" type="xs:string"/>
+	<xs:element name="Artists">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Artist" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Asin" type="xs:string"/>
+	<xs:element name="Author" type="xs:string"/>
+	<xs:element name="Authors">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Author" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Catalog" type="xs:string"/>
+	<xs:element name="ErrorMsg" type="xs:string"/>
+	<xs:element name="Status" type="xs:string"/>
+	<xs:element name="Manufacturer" type="xs:string"/>
+	<xs:element name="Details">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Asin"/>
+				<xs:element ref="ProductName"/>
+				<xs:element ref="Catalog"/>
+				<xs:element ref="Artists" minOccurs="0"/>
+				<xs:element ref="Authors" minOccurs="0"/>
+				<xs:element ref="ReleaseDate" minOccurs="0"/>
+				<xs:element ref="Manufacturer" minOccurs="0"/>
+				<xs:element ref="ImageUrlSmall" minOccurs="0"/>
+				<xs:element ref="ImageUrlMedium" minOccurs="0"/>
+				<xs:element ref="ImageUrlLarge" minOccurs="0"/>
+				<xs:element ref="ListPrice" minOccurs="0"/>
+				<xs:element ref="OurPrice" minOccurs="0"/>
+				<xs:element ref="UsedPrice" minOccurs="0"/>
+				<xs:element ref="Status" minOccurs="0"/>
+			</xs:sequence>
+			<xs:attribute name="url" type="xs:string" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ShoppingCart">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="CartId"/>
+				<xs:element ref="Items"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Items">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Item"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Item">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="ItemId"/>
+				<xs:element ref="ProductName"/>
+				<xs:element ref="Description"/>
+				<xs:element ref="Asin"/>
+				<xs:element ref="Quantity"/>
+				<xs:element ref="OurPrice"/>
+				<xs:element ref="ListPrice"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ItemId" type="xs:string"/>
+	<xs:element name="Description" type="xs:string"/>
+	<xs:element name="Quantity" type="xs:string"/>
+	<xs:element name="CartId" type="xs:string"/>
+	<xs:element name="ImageUrlSmall" type="xs:string"/>
+	<xs:element name="ImageUrlMedium" type="xs:string"/>
+	<xs:element name="ImageUrlLarge" type="xs:string"/>
+	<xs:element name="ListPrice" type="xs:string"/>
+	<xs:element name="OurPrice" type="xs:string"/>
+	<xs:element name="ProductInfo">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="Details" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="ShoppingCart" minOccurs="0"/>
+				<xs:element name="ErrorMsg" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="ReleaseDate" type="xs:string"/>
+	<xs:element name="ProductName" type="xs:string"/>
+	<xs:element name="UsedPrice" type="xs:string"/>
+</xs:schema>

@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>How to use the Amazon Book Lookup Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the Amazon Book Lookup Control</h2>
+The Amazon Control API is as follows:<br>
+<pre>public ProductInfo lookupBook(String isbn)</pre>
+This returns an XML Bean containing information about the book
+identified by the supplied <a href="http://www.isbn.org/">ISBN</a>.&nbsp;
+If the control is unable to perform the operation it will throw a <a
+ href="http://edocs.bea.com/workshop/docs81/doc/en/workshop/java-class/weblogic/jws/control/ControlException.html">ControlException</a>.&nbsp;
+The next section describes how to navigate the ProductInfo XML Bean.<br>
+<br>
+<img style="width: 516px; height: 546px;" alt=""
+ src="images/productinfo.GIF"><br>
+<br>
+ProductInfo may contain an ErrorMsg.&nbsp; If this element is present,
+the book lookup did not succeed, and the error message should be logged
+to the client.<br>
+<br>
+If the book lookup succeeded, there will be a Details object that
+contains data about the book.&nbsp; The meaning of the fields in the
+Details object should be clear from their names, however, some require
+comment.&nbsp; "Asin" is the ISBN for the book.&nbsp; ProductName is
+the title of the book.&nbsp; The image URLs are absolute URLs to images
+on the Amazon servers of the cover of the book.<br>
+<br>
+<h3>Amazon Terms and Conditions</h3>
+Amazon has clearly defined terms and conditions governing the use of
+their web service apis.&nbsp; The Amazon Book Lookup control does not enforce these terms, so it is
+up to you, the user of the control, to ensure that the terms are met.<br>
+</body>
+</html>

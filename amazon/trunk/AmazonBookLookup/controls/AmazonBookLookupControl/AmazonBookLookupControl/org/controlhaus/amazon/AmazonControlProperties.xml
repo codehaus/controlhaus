@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<control-tags xmlns="http://www.bea.com/2003/03/controls/">
+    <control-tag name="amazonProperties">
+        <description>Properties relating to the Amazon Control.</description>
+        
+        <attribute name="associatesId" required="false">
+            <description>
+                Your Amazon Associates Program ID.  If you do not have one, it will default to a generic Associates ID.
+            </description>
+            <type>
+                <text/>
+            </type>
+            <default-value>webservices-20</default-value>            
+        </attribute>
+        
+        <attribute name="developerId" required="true">
+            <description>
+                The developer token that was assigned to you by Amazon when you signed up for their Web Services Program.
+            </description>
+            <type>
+                <text/>
+            </type>
+        </attribute>
+        
+                
+    </control-tag>
+</control-tags>

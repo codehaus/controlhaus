@@ -1,0 +1,140 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+import com.amazon.xml.types.DetailsDocument.Details;
+import com.amazon.xml.types.ProductInfoDocument.ProductInfo;
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+
+import org.controlhaus.amazon.AmazonControl;
+
+/**
+ * PageFlow class generated from control AmazonControl
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/AmazonControlSampleController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="240" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:lookupBook.do#AmazonControlSampleController.LookupBookForm">
+ *   <property value="120" name="x"/>
+ *   <property value="260" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:lookupBook.jsp@#@action:lookupBook.do#AmazonControlSampleController.LookupBookForm@">
+ *   <property value="204,180,180,156" name="elbowsX"/>
+ *   <property value="252,252,252,252" name="elbowsY"/>
+ *   <property value="West_1" name="fromPort"/>
+ *   <property value="East_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:lookupBook.jsp">
+ *   <property value="240" name="x"/>
+ *   <property value="260" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:displayBook.jsp">
+ *   <property value="540" name="x"/>
+ *   <property value="260" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:error.jsp">
+ *   <property value="60" name="x"/>
+ *   <property value="40" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#lookupBook.jsp#@action:begin.do@">
+ *   <property value="240,240,240,240" name="elbowsX"/>
+ *   <property value="144,180,180,216" name="elbowsY"/>
+ *   <property value="South_1" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#displayBook.jsp#@action:lookupBook.do#AmazonControlSampleController.LookupBookForm@">
+ *   <property value="156,330,330,504" name="elbowsX"/>
+ *   <property value="241,241,252,252" name="elbowsY"/>
+ *   <property value="East_0" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:&lt;error>#myControl">
+ *   <property value="28" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:AmazonControlSampleController.LookupBookForm#isbn#java.lang.String"/>
+ * <pageflow-object id="formbean:AmazonControlSampleController.LookupBookForm"/>
+ * </view-properties>
+ * ::
+ */
+public class AmazonControlSampleController extends PageFlowController
+{
+    /**
+     * This is the control used to generate this pageflow
+     *  @common:control
+     */
+    private AmazonControl myControl;
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="lookupBook.jsp"
+     */
+    protected Forward begin()
+    {
+        return new Forward("success");
+    }
+
+    /**
+     * Action encapsulating the control method :lookupBook
+     * @jpf:action
+     * @jpf:catch method="exceptionHandler" type="Exception"
+     * @jpf:forward name="success" path="displayBook.jsp"
+     */
+    public Forward lookupBook(LookupBookForm aForm)
+        throws Exception
+    {
+        ProductInfo var = myControl.lookupBook(aForm.isbn);
+        ProductViewBean viewBean = new ProductViewBean(var);
+        getRequest().setAttribute("results", viewBean);
+
+        return new Forward("success");
+    }
+
+    /**
+     * @jpf:exception-handler
+     * @jpf:forward name="errorPage" path="/error.jsp"
+     */
+    protected Forward exceptionHandler(Exception ex,String actionName,String message,FormData form)
+    {
+        String displayMessage = "An exception occurred in the action " + actionName;
+        getRequest().setAttribute("errorMessage", displayMessage);
+        return new Forward("errorPage");
+    }
+    
+    public static class LookupBookForm extends FormData
+    {
+        private java.lang.String isbn;
+
+        public void setIsbn(java.lang.String isbn)
+        {
+            this.isbn = isbn;
+        }
+
+        public java.lang.String getIsbn()
+        {
+            return isbn;
+        }
+    }
+
+}
