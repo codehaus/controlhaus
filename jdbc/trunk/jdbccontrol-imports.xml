@@ -91,7 +91,6 @@
 
     <path id="apt.dependency.path">
         <path refid="controls.dependency.path"/>
-        <pathelement location="${jdbcc.jar}"/>
     </path>
 
     <path id="tools.dependency.path">
