@@ -84,7 +84,7 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
                 // Should be caught by the compiler
                 //
                 throw new ControlException(
-                          "Either the jndiHome() or ejbLink() member of @EJBHome must be defined.");
+                          "Either the jndiName() or ejbLink() member of @EJBHome must be defined.");
             }
 
             //
