@@ -1,0 +1,74 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+
+package org.controlhaus.ups; 
+
+import com.bea.control.*;
+import com.bea.xml.XmlException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.controlhaus.ups.AccessRequest;
+import org.controlhaus.ups.TrackRequest;
+import org.controlhaus.ups.TrackResponse;
+import org.controlhaus.ups.UpsTracker;
+import org.controlhaus.ups.UpsTrackingException;
+
+/**
+ * @jcs:jc-jar icon-32="icon-32.gif" icon-16="icon-16.gif" version="1.0" description="Tracking UPS shipments" label="UPS Tracking"
+ * @editor-info:code-gen control-interface="true"
+ * @jcs:control-tags file="UpsTrackingProperties.xml"
+ */
+public class UpsControlImpl implements UpsControl, ControlSource
+{ 
+    static final long serialVersionUID = 1L;
+    
+    /**
+     * @common:context
+     */
+    ControlContext context;
+
+    /**
+     * @common:operation
+     */
+    public TrackResponseDocument trackShipment(String trackingCode, String transactionContext)
+    {
+        final String accessCode = context.getControlAttribute("jc:upsProperties", "accessCode");
+        final String username = context.getControlAttribute("jc:upsProperties", "username");
+        final String password = context.getControlAttribute("jc:upsProperties", "password");
+        final String serverUrl = context.getControlAttribute("jc:upsProperties", "serverUrl");
+        
+        TrackResponseDocument result = null;
+        try {
+            AccessRequest accessRequest = new AccessRequest(accessCode, username, password);
+            TrackRequest request = new TrackRequest(transactionContext, trackingCode);
+            UpsTracker tracker = new UpsTracker(new URL(serverUrl));
+            String response = tracker.executeRequest(accessRequest, request);
+            response = response.replaceAll("<TrackResponse>", "<TrackResponse xmlns=\"http://controlhaus.org/ups\">");            
+            result = TrackResponseDocument.Factory.parse(response);            
+        } catch ( MalformedURLException ex ) {
+            throw new ControlException("The URL you provided in your control properties is malformed", ex);
+        } catch ( IOException ex ) {
+            throw new ControlException("IO exception trying to communicate to UPS Server", ex);
+        } catch ( UpsTrackingException ex ) {
+            throw new ControlException("Application exception trying to communicate to UPS Server", ex);
+        } catch ( XmlException ex ) {
+            throw new ControlException("Problem trying to parse the XML returned by the UPS Server", ex);
+        }
+        return result;
+        
+    }
+} 

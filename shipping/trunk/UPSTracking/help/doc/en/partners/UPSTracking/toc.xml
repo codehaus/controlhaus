@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- CDK TOC -->
+  <toc-root component="other" xmlns="http://www.bea.com/help/toc.xsd">
+  <toc-reference anchor="extensions">
+     <toc-node label="UPS Tracking Control" url="UpsControl.html">
+        <toc-node label="Configuring the UPS Control" url="HowToConfigure.html"/>
+        <toc-node label="Using the UPS Control" url="HowToUse.html" />
+    </toc-node>
+  </toc-reference>
+</toc-root>

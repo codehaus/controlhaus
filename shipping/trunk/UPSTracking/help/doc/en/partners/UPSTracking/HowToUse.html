@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Using the UPS Shipment Tracking Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the UPS Shipment Tracking Control</h2>
+Before you can use the UPS control, you need to register with UPS and
+obtain UPS login credentials. You need to configure the UPS
+Control with these credentials, as described in the section on <a
+ href="HowToConfigure.html">configuring the UPS Control</a>.<br>
+<br>
+The UPS Control provides a single method to track a shipment. The only
+essential parameter to this method is the tracking code, as shown below.<br>
+<br>
+<h3>Invoking the control<br>
+</h3>
+The shipment tracking method is invoked as follows:<br>
+<pre>String trackingCode = "1Z12345E1512345676";<br>String transactionContext = "This will be explained later";<br>TrackResponseDocument result = control.trackShipment( trackingCode, transactionContext);<br>TrackResponse trackResponse = result.getTrackResponse();<br></pre>
+<h3>Using the results</h3>
+The TrackResponse is an XMLBean build directly from the UPS DTDs (the
+DTDs were converted to XML Schema files first), so all the UPS
+developer documentation concerning their DTDs is relevant to these
+XMLBeans.&nbsp; Nevertheless, the most significant information will be
+related here to get you started.<br>
+<br>
+The TrackResponse XMLBean contains two significant elements.&nbsp; The
+first is the ResponseType and it contains data on the status of the
+response from the UPS server.&nbsp; The second significant element is
+an array of ShipmentTypes, which contains the information related to
+the shipment, including tracking data.<br>
+<h4>Checking the status of the response</h4>
+The ResponseType is obtained as follows:<br>
+<pre>ResponseType responseType = trackResponse.getResponse();<br></pre>
+The ResponseType represents the following XML Schema fragment:<br>
+<br>
+<img style="width: 785px; height: 577px;"
+ alt="ResponseType as Schema Fragment" src="images/ResponseType.GIF"><br>
+<pre><br></pre>
+The ResponseStatusCode will be 1 if the request was successful,
+otherwise it will be 0.&nbsp; The CustomerContext will be the value you
+provided for the parameter transactionContext when making the tracking
+request.&nbsp; In the code snippet at the start of this page the
+transactionContext was passed as "This will be explained later".&nbsp;
+This is the explanation that was being referred to.&nbsp; The idea
+behind returning in the response a string that was provided by the
+request is to enable matching of responses with requests.&nbsp;
+<br>
+<br>
+For details on the remaining items in the ResponseType, please refer to
+the UPS Online
+Tools Developers guide, which comes with the UPS software.<br>
+<h4>Getting the Shipment data</h4>
+The second significant element in the TrackResponse is
+ShipmentType.&nbsp; It is obtained as follows:<br>
+<pre>ShipmentType []shipmentTypes = trackResponse.getShipmentArray();<br></pre>
+The ShipmentType represents the following XML Schema fragment:<br>
+<img style="width: 655px; height: 827px;"
+ alt="ShipmentType as an XML Schema Fragment"
+ src="images/ShipmentType.GIF"><br>
+<br>
+Each ShipmentType can contain zero or more PackageType instances.&nbsp;
+A PackageType instance contains data about a package, but also an array
+of ActivityType instances.&nbsp; The ActivityType instances are where
+the history of the package shipment are made available.&nbsp; The
+PackageType and ActivityType are shown in more detail in this diagram.<br>
+<img style="width: 811px; height: 825px;"
+ alt="PackageType and ActivityType as XML Schema fragments"
+ src="images/PackageTypeAndActivity.GIF"><br>
+<br>
+The Java Page Flow sample that accompanies the UPS Control demonstrates
+how navigate these XMLBeans in a JSP.<br>
+</body>
+</html>
