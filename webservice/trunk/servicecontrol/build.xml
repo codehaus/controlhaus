@@ -93,14 +93,14 @@
 	  </target>
 
   <target name="drt" depends="jar">
-     <ant antfile="drt/build.xml" inheritall="false"/>
-  </target>
+  	<ant antfile="build.xml" dir="drt" inheritall="false"/>
+   </target>
 
  
   <target name="clean">
     <delete dir="${build.dir}"/>
     <delete file="velocity.log"/>
-    <!-- <ant antfile="drt/build.xml" target="clean"/>  -->
+    <ant antfile="drt/build.xml" target="clean"/>  
   </target>
 
 
