@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://beehive.apache.org/addressbook" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://beehive.apache.org/addressbook" xmlns:intf="http://beehive.apache.org/addressbook" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by Apache Axis version: 1.2RC2
+Built on Nov 16, 2004 (12:19:44 EST)-->
+ <wsdl:types>
+  <schema elementFormDefault="qualified" targetNamespace="http://beehive.apache.org/addressbook" xmlns="http://www.w3.org/2001/XMLSchema">
+   <element name="getAddressFromName">
+    <complexType>
+     <sequence>
+      <element name="name" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getAddressFromNameResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="impl:Address"/>
+     </sequence>
+    </complexType>
+   </element>
+   <complexType name="Phone">
+    <sequence>
+     <element name="areaCode" type="xsd:int"/>
+     <element name="exchange" nillable="true" type="xsd:string"/>
+     <element name="number" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="StateType">
+    <sequence>
+     <element name="state" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Address">
+    <sequence>
+     <element name="city" nillable="true" type="xsd:string"/>
+     <element name="phoneNumber" nillable="true" type="impl:Phone"/>
+     <element name="state" nillable="true" type="impl:StateType"/>
+     <element name="streetName" nillable="true" type="xsd:string"/>
+     <element name="streetNum" type="xsd:int"/>
+     <element name="zip" type="xsd:int"/>
+    </sequence>
+   </complexType>
+   <element name="addEntry">
+    <complexType>
+     <sequence>
+      <element name="name" type="xsd:string"/>
+      <element name="address" type="impl:Address"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="addEntryResponse">
+    <complexType/>
+   </element>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="addEntryRequest">
+
+      <wsdl:part element="impl:addEntry" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAddressFromNameResponse">
+
+      <wsdl:part element="impl:getAddressFromNameResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addEntryResponse">
+
+      <wsdl:part element="impl:addEntryResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAddressFromNameRequest">
+
+      <wsdl:part element="impl:getAddressFromName" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:portType name="Service">
+
+      <wsdl:operation name="getAddressFromName">
+
+         <wsdl:input message="impl:getAddressFromNameRequest" name="getAddressFromNameRequest"/>
+
+         <wsdl:output message="impl:getAddressFromNameResponse" name="getAddressFromNameResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addEntry">
+
+         <wsdl:input message="impl:addEntryRequest" name="addEntryRequest"/>
+
+         <wsdl:output message="impl:addEntryResponse" name="addEntryResponse"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="ServiceSoapBinding" type="impl:Service">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="getAddressFromName">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getAddressFromNameRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getAddressFromNameResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addEntry">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addEntryRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addEntryResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="SimpleAddressBook">
+
+      <wsdl:port binding="impl:ServiceSoapBinding" name="Service">
+
+         <wsdlsoap:address location="http://localhost:8080/AddressBookWS/web/Service.jws"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>
