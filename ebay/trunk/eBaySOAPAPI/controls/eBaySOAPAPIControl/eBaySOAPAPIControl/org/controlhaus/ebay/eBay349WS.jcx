@@ -1,0 +1,1305 @@
+package org.controlhaus.ebay;
+
+/**
+ * @jc:location http-url="http://localhost:8080/axis/services/eBayAPI"
+ * @jc:wsdl file="#eBayAPIInterfaceServiceWsdl"
+ * @editor-info:link autogen-style="xmlbean" source="eBaySvc.wsdl" autogen="true"
+ */
+public interface eBay349WS extends com.bea.control.ControlExtension, com.bea.control.ServiceControl
+{
+    
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.RelistItemResponseDocument RelistItem (ebayApiEBayAPI.RelistItemRequestDocument RelistItemRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.VerifyAddItemResponseDocument VerifyAddItem (ebayApiEBayAPI.VerifyAddItemRequestDocument VerifyAddItemRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.AddItemResponseDocument AddItem (ebayApiEBayAPI.AddItemRequestDocument AddItemRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.GetItemResponseDocument GetItem (ebayApiEBayAPI.GetItemRequestDocument GetItemRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.GetUserResponseDocument GetUser (ebayApiEBayAPI.GetUserRequestDocument GetUserRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.GetSellerEventsResponseDocument GetSellerEvents (ebayApiEBayAPI.GetSellerEventsRequestDocument GetSellerEventsRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.GetSellerListResponseDocument GetSellerList (ebayApiEBayAPI.GetSellerListRequestDocument GetSellerListRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.GetItemTransactionsResponseDocument GetItemTransactions (ebayApiEBayAPI.GetItemTransactionsRequestDocument GetItemTransactionsRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.GetSellerTransactionsResponseDocument GetSellerTransactions (ebayApiEBayAPI.GetSellerTransactionsRequestDocument GetSellerTransactionsRequest);
+
+    /**
+     * @jc:protocol form-post="false" form-get="false" 
+     */
+    public ebayApiEBayAPI.GetCategoriesResponseDocument GetCategories (ebayApiEBayAPI.GetCategoriesRequestDocument GetCategoriesRequest);
+
+    static final long serialVersionUID = 1L;
+}
+
+/** @common:define name="eBayAPIInterfaceServiceWsdl" value::
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!--  Copyright (C) eBay, Inc. (2004). All Rights Reserved. -->
+    <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:ns="urn:ebay:api:eBayAPI" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ebl="urn:ebay:apis:eBLBaseComponents" targetNamespace="urn:ebay:api:eBayAPI">
+        <wsdl:import namespace="urn:ebay:apis:eBLBaseComponents" location="ebayTypes.wsdl"/>
+    	<wsdl:types>
+    		<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:ebay:api:eBayAPI" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    			<!-- Custom Security header element-->
+    			<xs:element name="RequesterCredentials" type="ebl:CustomSecurityHeaderType"/>
+    
+    			<!-- API Request/Responses -->
+    			<xs:element name="RelistItemRequest" type="ns:RelistItemRequestType"/>
+    			<xs:element name="RelistItemResponse" type="ns:RelistItemResponseType"/>
+    			<xs:complexType name="RelistItemRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                RelistItem lets you take a single item (or a single multi-item listing) that ended 
+                without bidders or buyers and re-list it on a specified eBay site. 
+                The listing may be re-listed with the same item properties as the original or the 
+                seller may change a number of the item's defining properties at re-listing time. 
+                The new listing will have a different item ID than the original one.
+                RelistItem re-lists a single item (or a single multi-item listing) that has already ended. 
+                To re-list multiple items (multiple listings) that have ended, execute RelistItem once for  
+                each ended listing.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:Item">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Child elements hold the values that define the new item.
+                            Item is a required input. At a minimum, the Item.ItemID property must be set
+                            to the ID of a listing that ended in the past 90 days.
+                            By default, the new listing's Item object properties are the same as those 
+                            of the original (ended) listing. Optionally, set (override) any Item object 
+                            properties that should be changed (in this case, also list these changed fields in the 
+                            ModifiedFields property).
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ModifiedFields" type="ebl:ModifiedFieldType" minOccurs="0" maxOccurs="unbounded">
+    							<xs:annotation>
+    									<xs:documentation>
+                            Array of item property changes. Each element in the array indicates the field that changed
+                            (the actual change values are set in the Item object passed in the Item property).
+                            ModifiedFields is an optional input. If not specified, property value changes 
+                            that are set in the Item object are ignored.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="RelistItemResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+    			            Returns the item ID and the estimated fees for the re-listed listing.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:ItemID" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Unique item ID for the new listing.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Fees" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Child elements contain the estimated listing fees for the new item listing. 
+                            The fees do not include the Final Value Fee (FVF), which cannot be determined 
+                            until an item is sold.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="StartTime" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Starting date and time for the new listing.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="EndTime" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Date and time when the new listing ends. This is the starting time 
+                            plus the listing duration.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:element name="VerifyAddItemRequest" type="ns:VerifyAddItemRequestType"/>
+    			<xs:element name="VerifyAddItemResponse" type="ns:VerifyAddItemResponseType"/>
+    			<xs:complexType name="VerifyAddItemRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Defines a single new item and tests the definition for validity. Behaves exactly
+                the same as AddItem (same inputs, same outputs, and same behavior and usage rules), 
+                but without actually listing the item to an eBay site. Applications can use this call 
+                to test the definition of an item before actually listing it to eBay with AddItem, 
+                reducing item listing-related errors.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:Item">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Child elements hold the values that define the new item.
+                            Item is a required input. 
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="VerifyAddItemResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Returns the estimated fees that would be applicable for a new listing 
+                (were the item actually listed to eBay with AddItem).
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:ItemID" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Represents the item ID for the new listing. As VerifyAddItem does not 
+                            actually list an item, returns 0 instead of a normal item ID.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Fees" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Child elements contain the estimated listing fees for the new item listing. 
+                            The fees do not include the Final Value Fee (FVF), which cannot be determined 
+                            until an item is sold.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:element name="AddItemRequest" type="ns:AddItemRequestType"/>
+    			<xs:element name="AddItemResponse" type="ns:AddItemResponseType"/>
+    			<xs:complexType name="AddItemRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Defines a single new item and lists it on a specified eBay site. 
+                To list multiple new items, execute AddItem once for each item, 
+                with a new item definition each time. 
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:Item">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Child elements hold the values that define the new item.
+                            Item is a required input. 
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="AddItemResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Returns the item ID and the estimated fees for the new listing, as well as
+                the start and end times of the listing.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:ItemID" minOccurs="0"/>
+    							<xs:element name="StartTime" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Starting date and time for the new listing.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="EndTime" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Date and time when the new listing ends. This is the starting time 
+                            plus the listing duration.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Fees" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Child elements contain the estimated listing fees for the new item listing. 
+                            The fees do not include the Final Value Fee (FVF), which cannot be determined 
+                            until an item is sold.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    <xs:element name="GetItemRequest" type="ns:GetItemRequestType"/>
+    			<xs:element name="GetItemResponse" type="ns:GetItemResponseType"/>
+    			<xs:complexType name="GetItemRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the inputs that control what item data is retrieved. This includes the
+                item ID that uniquely identifies the listing for which to retrieve data.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:ItemID">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the item ID that uniquely identifies the item listing for which to
+                            retrieve the data. ItemID is a required input.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="GetItemResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the item data returned by the call. The data for the specified item
+                listing is returned in an ItemType object.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:Item" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains the data for the specified item.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:element name="GetUserRequest" type="ns:GetUserRequestType"/>
+    			<xs:element name="GetUserResponse" type="ns:GetUserResponseType"/>
+    			<xs:complexType name="GetUserRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the inputs that control what user data is returned. This includes the
+                eBay user ID for the user whose data is to be returned and the item ID for a
+                listing to indicate a transactional relationship between the requestor and the
+                target user.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:ItemID" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the item ID for a successfully concluded listing in which
+                            the requestor and target user were participants (one as seller and
+                            the other as buyer). Necessary to return certain data (like an email
+                            address). Not necessary of the requestor is retrieving own data.
+                            ItemID is an optional input.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="UserID" type="xs:string">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the user whose data will returned by the call. UserID is an
+                            optional input. If not specified, the user data returned is that for
+                            the requesting user.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="GetUserResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the data retrieved by the call. User data is returned in a User object.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:User" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains the returned user data for the specified eBay user.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:element name="GetSellerEventsRequest" type="ns:GetSellerEventsRequestType"/>
+    			<xs:element name="GetSellerEventsResponse" type="ns:GetSellerEventsResponseType"/>
+    			<xs:complexType name="GetSellerEventsRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the inputs that control the items that are returned for seller events.
+                This includes time-based filtering on the start time, end time, and/or modification
+                time of the item listings.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:UserID"/>
+    							<xs:element name="StartTimeFrom" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the earliest (oldest) date to use in a date range filter based on item
+                            start time. Must be specified if StartTimeTo is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="StartTimeTo" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the latest (most recent) date to use in a date range filter based on item
+                            start time. Must be specified if StartTimeFrom is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="EndTimeFrom" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the earliest (oldest) date to use in a date range filter based on item end
+                            time. Must be specified if EndTimeTo is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="EndTimeTo" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the latest (most recent) date to use in a date range filter based on item
+                            end time. Must be specified if EndTimeFrom is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ModTimeFrom" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the earliest (oldest) date to use in a date range filter based on the time
+                            an item's record was modified. Must be specified if ModTimeTo is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ModTimeTo" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the latest (most recent) date to use in a date range filter based on the
+                            time an item's record was modified. Must be specified if ModTimeFrom is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="NewItemFilter" type="xs:boolean" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the only new items are to be returned. NewItemFilter is an optional input.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="GetSellerEventsResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the items returned by the call. Items for which a seller event has
+                occurred (and that meet any filters specified as input) are returned in an
+                ItemArrayType object, within which are zero, one, or multiple ItemType objects.
+                Each ItemType object contains the detail data for one item listing.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element name="TotalAvailable" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains a count of the total number of seller event items that are available to be
+                            returned.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="TimeTo" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates the latest (most recent) date for any date-based filtering specified as
+                            input.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:ItemArray" maxOccurs="1" minOccurs="1">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates the earliest (oldest) date for any date-based filtering specified as input.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:element name="GetSellerListRequest" type="ns:GetSellerListRequestType"/>
+    			<xs:element name="GetSellerListResponse" type="ns:GetSellerListResponseType"/>
+    			<xs:complexType name="GetSellerListRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the inputs that govern which seller for whom a list of items is returned.
+                Other inputs filter the items returned based on the start date or end date of
+                listings, control the pagination of returned data, and control the sort order of
+                the returned items.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:UserID">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the seller whose items will be returned. UserID is an optional input.
+                            If not specified, the requesting user is the seller whose items are returned.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="EndTimeFrom" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the earliest (oldest) date to use in a date range filter based on item end
+                            time. Must be specified if EndTimeTo is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="EndTimeTo" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the latest (most recent) date to use in a date range filter based on item
+                            end time. Must be specified if EndTimeFrom is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="Sort" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the order in which returned items are sorted (based on the end dates of the
+                            item listings). Valid values:
+                                0 = No sorting
+                                1 = Sort in descending order
+                                2 = Sort in ascending order
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="StartTimeFrom" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the earliest (oldest) date to use in a date range filter based on item
+                            start time. Must be specified if StartTimeTo is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="StartTimeTo" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the latest (most recent) date to use in a date range filter based on item
+                            start time. Must be specified if StartTimeFrom is specified.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Pagination" maxOccurs="1" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains the data controlling the pagination of the returned values: how many items
+                            are returned per page of data (per call) and the number of the page to return with
+                            the current call.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="GetSellerListResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains a list of the items listed by the seller specified as input. The list of
+                items is returned in an ItemArrayType object, in which are returned zero, one, or
+                multiple ItemType objects. Each ItemType object contains the detail data for one
+                item listing.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:PaginationResult" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains information regarding the pagination of data (if pagination is used),
+                            including total number of pages and total number of entries.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="HasMoreItems" type="xs:boolean" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates whether there are more items yet to be retrieved (if a value of true is
+                            returned). Additional calls must be made to retrieve these items.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:ItemArray" maxOccurs="1" minOccurs="1">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains the list of the seller's items, one ItemType object per item.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ItemsPerPage" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates the number of items that are being returned per page of data (i.e., per
+                            call). Will be the same as the value specified in the Pagination.EntriesPerPage
+                            input.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="PageNumber" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates which page of data was just returned. Will be the same as the value
+                            specified in the Pagination.PageNumber input. (If the input is higher than the
+                            total number of pages, the call fails with an error.)
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ReturnedItemCountActual" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates the total number of items returned (i.e., the number of ItemType objects
+                            in ItemArray).
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Seller" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates the seller whose items are returned. Will be the same as the value specifed
+                            in the UserID input (if a value is specified), otherwise the seller is the requesting
+                            user making the call.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:element name="GetItemTransactionsRequest" type="ns:GetItemTransactionsRequestType"/>
+    			<xs:element name="GetItemTransactionsResponse" type="ns:GetItemTransactionsResponseType"/>
+    			<xs:complexType name="GetItemTransactionsRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                A transaction contains the information about the sale of one or more items 
+                by one buyer from a single listing. GetItemTransactions retrieves a 
+                report containing information you can use to process one listing's transactions.
+                (Often, it is more efficient to use GetSellerTransactions instead. 
+                See the reference guide for more information.)
+                As some listings can return large numbers of transactions, use the supplied 
+                time filters to retrieve only those transactions whose status has been modified
+                between two dates. Optionally, also configure the request to retrieve one page 
+                of data at a time (where each page contains a more manageable number of transactions).
+                All the listing's transactions that were modified within the specified date range can be retrieved,
+                or a single transaction can be retrieved. However, retrieving transactions
+                one at a time is inefficent and requires more API calls. 
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:ItemID" maxOccurs="1" minOccurs="1">
+    								<xs:annotation>
+    										<xs:documentation>
+                            Unique item ID for the item for which to retrieve transactions.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ModTimeFrom" type="xs:dateTime" maxOccurs="1" minOccurs="1">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the earliest (oldest) date to use in a date range filter based on the 
+                            time the transaction status was modified. Filters out transactions whose status was 
+                            last modified before this date. The date range between ModTimeFrom to ModTimeTo 
+                            cannot be greater than 30 days.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ModTimeTo" type="xs:dateTime" maxOccurs="1" minOccurs="1">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the latest (most recent) date to use in a date range filter based on the 
+                            time a transaction's status was modified. Filters out transactions whose status 
+                            was last modified after this date. The date range between ModTimeFrom to ModTimeTo 
+                            cannot be greater than 30 days. It is considered a best practice to always pass 
+                            the current date-time, to ensure that no data is missed.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:TransactionID" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Identifies one transaction for a listing. To determine the valid transaction IDs 
+                            for a listing, you typically need to have previously executed GetItemTransactionsCall 
+                            or GetSellerTransactionsCall and stored all the listing's transactions.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Pagination" maxOccurs="1" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Child elements control pagination of the output. Use its EntriesPerPage 
+                            property to control the number of transactions to return per call and its 
+                            PageNumber property to specify the page of data to return.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="GetItemTransactionsResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Returns an array of transaction data for the item specified in the request
+                The results can be used to create a report of data that is commonly
+                necessary for end-of-auction processing. 
+                Zero, one, or many Transaction objects can be returned in the array.
+                The set of transactions returned is limited to those that were modified between
+                the times specified in the request's ModTimeFrom and ModTime filters. 
+                Also returns the item object that spawned the transactions. 
+                If pagination filters were specified in the request, returns meta-data describing
+                the effects of those filters on the current response and the estimated effects if
+                the same filters are used in subsequent calls.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:PaginationResult" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains the total number of pages (TotalNumberOfPages) and the total number 
+                            of entries (TotalNumberOfEntries) that could be returned given repeated calls 
+                            that use the same selection criteria as the call that returned this response.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="HasMoreTransactions" type="xs:boolean" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates whether there are additional transactions to retrieve.
+                            That is, indicates whether more pages of data are available to be
+                            returned, given the filters that were specified in the request. 
+                            Returns false for the last page of data.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="TransactionsPerPage" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Number of transactions returned per page (per call). May be a higher value 
+                            than ReturnedTransactionCountActual if the page returned is the last page
+                            and more than one page of data exists.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="PageNumber" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Page number for the page of transactions the response returned. 
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ReturnedTransactionCountActual" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Number of transactions retrieved in the current page of results just returned. 
+                            May be a lower value than TransactionsPerPage if the page returned is the last 
+                            page and more than one page of data exists.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Item" maxOccurs="1" minOccurs="0">
+    							<xs:annotation>
+    									<xs:documentation>
+                            Item object that spawned the transaction. It is a purchase from this item's listing 
+                            that the transaction represents. Only certain fields of the item are returned, 
+                            and the list of returned fields can be further reduced 
+                            depending on the detail level (DetailLevelCodeType) passed in the request. 
+                            See the reference guide for information about the fields that are returned.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:TransactionArray" maxOccurs="1" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            List of Transaction objects representing the transactions resulting 
+                            from the listing. Each Transaction object contains the data for one purchase 
+                            (of one or more items in the same listing). The Transaction.Item field is not
+                            returned because the Item object is returned at the root level of the response.
+                            See the reference guide for more information about the fields that are returned.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="PayPalPreferred" type="xs:boolean" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates whether the item's seller has the preference enabled that shows that the seller 
+                            prefers PayPal as the method of payment for an item. This preference is indicated on 
+                            an item's View Item page and is intended to influence a buyer to use PayPal 
+                            to pay for the item. 
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:element name="GetSellerTransactionsRequest" type="ns:GetSellerTransactionsRequestType"/>
+    			<xs:element name="GetSellerTransactionsResponse" type="ns:GetSellerTransactionsResponseType"/>
+    			<xs:complexType name="GetSellerTransactionsRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                A transaction contains the information about the sale of one or more items 
+                by one buyer from a single listing. GetSellerTransactions retrieves a 
+                report containing information you can use to process the requesting seller's transactions.
+                As some listings can return large numbers of transactions, use the supplied 
+                time filters to retrieve only those transactions whose status has been modified
+                between two dates. Optionally, also configure the request to retrieve one page 
+                of data at a time (where each page contains a more manageable number of transactions).
+                The user making the request can only retrieve their own transactions.
+                That is, a user cannot retrieve all the transactions for another seller.
+                If the user needs to retrieve transactions for another seller's listing, 
+                use GetItemTransactions instead.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element name="ModTimeFrom" type="xs:dateTime" maxOccurs="1" minOccurs="1">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the earliest (oldest) date to use in a date range filter based on the 
+                            time a transaction's status was modified. Filters out transactions whose status was 
+                            last modified before this date. The date range between ModTimeFrom to ModTimeTo 
+                            cannot be greater than 30 days.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ModTimeTo" type="xs:dateTime" maxOccurs="1" minOccurs="1">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Describes the latest (most recent) date to use in a date range filter based on the 
+                            time a transaction's status was modified. Filters out transactions whose status 
+                            was last modified after this date. The date range between ModTimeFrom to ModTimeTo 
+                            cannot be greater than 30 days. It is considered a best practice to always pass 
+                            the current date-time, to ensure that no data is missed.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Pagination" maxOccurs="1" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Child elements control pagination of the output. Use its EntriesPerPage 
+                            property to control the number of transactions to return per call and its 
+                            PageNumber property to specify the page of data to return.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="GetSellerTransactionsResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Returns an array of transaction data for the seller specified in the request
+                The results can be used to create a report of data that is commonly
+                necessary for end-of-auction processing. 
+                Zero, one, or many Transaction objects can be returned in the array.
+                The set of transactions returned is limited to those that were modified between
+                the times specified in the request's ModTimeFrom and ModTime filters. 
+                Also returns information about the seller whose transactions were requested.
+                If pagination filters were specified in the request, returns meta-data describing
+                the effects of those filters on the current response and the estimated effects if
+                the same filters are used in subsequent calls.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:PaginationResult" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains the total number of pages (TotalNumberOfPages) and the total number 
+                            of entries (TotalNumberOfEntries) that could be returned given repeated calls 
+                            that use the same selection criteria as the call that returned this response.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="HasMoreTransactions" type="xs:boolean" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates whether there are additional transactions to retrieve.
+                            That is, indicates whether more pages of data are available to be
+                            returned, given the filters that were specified in the request. 
+                            Returns false for the last page of data.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="TransactionsPerPage" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Number of transactions returned per page (per call). May be a higher value 
+                            than ReturnedTransactionCountActual if the page returned is the last page
+                            and more than one page of data exists.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="PageNumber" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Page number for the page of transactions the response returned. 
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ReturnedTransactionCountActual" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Number of transactions retrieved in the current page of results just returned. 
+                            May be a lower value than TransactionsPerPage if the page returned is the last 
+                            page and more than one page of data exists.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:Seller" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Contains information about the seller whose transactions are being returned.
+                            See the reference guide for information about the fields of the Seller object
+                            that are returned.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element ref="ebl:TransactionArray" maxOccurs="1" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            List of Transaction objects representing the seller's recent sales. 
+                            Each Transaction object contains the data for one purchase 
+                            (of one or more items in the same listing). 
+                            See the reference guide for more information about the fields that are returned
+                            for each transaction.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="PayPalPreferred" type="xs:boolean" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates whether the seller has the preference enabled that shows that the seller 
+                            prefers PayPal as the method of payment for an item. This preference is indicated on 
+                            an item's View Item page and is intended to influence a buyer to use PayPal 
+                            to pay for the item. 
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:element name="GetCategoriesRequest" type="ns:GetCategoriesRequestType"/>
+    			<xs:element name="GetCategoriesResponse" type="ns:GetCategoriesResponseType"/>
+    			<xs:complexType name="GetCategoriesRequestType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the inputs that determine which categories to return and from
+                which eBay site to get them.
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractRequestType">
+    						<xs:sequence>
+    							<xs:element name="CategorySiteID" type="xs:string" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the eBay site for which to retrieve the category hierarchy. CategorySiteID
+                            is an optional input.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="CategoryParent" type="xs:string" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies the top most category to return, along with subordinate subcategories. If
+                            no parent category is specified, the category hierarchy returned begins at the root
+                            category on the specified site. CategoryParent is an optional input. If not specified
+                            then the category hierarchy returned begins at the root category on the specified
+                            eBay site.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="LevelLimit" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies which subcategories to return, based on how deep into the category
+                            hierarchy a give category is. Categories returned are those no more levels deep in
+                            the category hierarchy than the number specified. LevelLimit is an optional input. If
+                            not specified, then categories at all levels are returned.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="ViewAllNodes" type="xs:boolean" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Specifies whether to return only leaf categories(those categories in which items can
+                            be listed), if a value of true is passed. If a value of false is passed, both leaf
+                            and container categories are returned. ViewAllNodes is an optional input.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    			<xs:complexType name="GetCategoriesResponseType">
+    				<xs:annotation>
+    					<xs:documentation>
+                Contains the category data for the eBay site specified as input. The category
+                data is contained in a CategoryArrayType object, within which are zero, one, or
+                multiple CategoryType objects. Each CategoryType object contains the detail data
+                for one category. Other fields tell how many categories are returned in a call,
+                when the category hierarchy was last updated, and the version of the category
+                hierarchy (all three of which can differ from one eBay site to the next).
+    					</xs:documentation>
+    				</xs:annotation>
+    				<xs:complexContent>
+    					<xs:extension base="ebl:AbstractResponseType">
+    						<xs:sequence>
+    							<xs:element ref="ebl:CategoryArray" maxOccurs="1" minOccurs="1">
+    								<xs:annotation>
+    									<xs:documentation>
+                            List of the returned categories. The category array contains one CategoryType
+                            object for each returned category.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="CategoryCount" type="xs:int" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates the number of categories returned (i.e., the number of CategoryType
+                            objects in CategoryArray).
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="UpdateTime" type="xs:dateTime" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates the last date and time that eBay modified the category hierarchy for the
+                            specified eBay site.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    							<xs:element name="CategoryVersion" type="xs:string" minOccurs="0">
+    								<xs:annotation>
+    									<xs:documentation>
+                            Indicates the version of the category hierarchy on the specified eBay site.
+    									</xs:documentation>
+    								</xs:annotation>
+    							</xs:element>
+    						</xs:sequence>
+    					</xs:extension>
+    				</xs:complexContent>
+    			</xs:complexType>
+    		</schema>
+    	</wsdl:types>
+    	<wsdl:message name="RequesterCredentials">
+    		<wsdl:part name="RequesterCredentials" element="ns:RequesterCredentials"/>
+    	</wsdl:message>
+    	<wsdl:message name="RelistItemResponse">
+    		<wsdl:part name="RelistItemResponse" element="ns:RelistItemResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="RelistItemRequest">
+    		<wsdl:part name="RelistItemRequest" element="ns:RelistItemRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="VerifyAddItemResponse">
+    		<wsdl:part name="VerifyAddItemResponse" element="ns:VerifyAddItemResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="VerifyAddItemRequest">
+    		<wsdl:part name="VerifyAddItemRequest" element="ns:VerifyAddItemRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="AddItemResponse">
+    		<wsdl:part name="AddItemResponse" element="ns:AddItemResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="AddItemRequest">
+    		<wsdl:part name="AddItemRequest" element="ns:AddItemRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetItemRequest">
+    		<wsdl:part name="GetItemRequest" element="ns:GetItemRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetItemResponse">
+    		<wsdl:part name="GetItemResponse" element="ns:GetItemResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetUserRequest">
+    		<wsdl:part name="GetUserRequest" element="ns:GetUserRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetUserResponse">
+    		<wsdl:part name="GetUserResponse" element="ns:GetUserResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetSellerEventsRequest">
+    		<wsdl:part name="GetSellerEventsRequest" element="ns:GetSellerEventsRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetSellerEventsResponse">
+    		<wsdl:part name="GetSellerEventsResponse" element="ns:GetSellerEventsResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetSellerListRequest">
+    		<wsdl:part name="GetSellerListRequest" element="ns:GetSellerListRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetSellerListResponse">
+    		<wsdl:part name="GetSellerListResponse" element="ns:GetSellerListResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetItemTransactionsRequest">
+    		<wsdl:part name="GetItemTransactionsRequest" element="ns:GetItemTransactionsRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetItemTransactionsResponse">
+    		<wsdl:part name="GetItemTransactionsResponse" element="ns:GetItemTransactionsResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetSellerTransactionsRequest">
+    		<wsdl:part name="GetSellerTransactionsRequest" element="ns:GetSellerTransactionsRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetSellerTransactionsResponse">
+    		<wsdl:part name="GetSellerTransactionsResponse" element="ns:GetSellerTransactionsResponse"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetCategoriesRequest">
+    		<wsdl:part name="GetCategoriesRequest" element="ns:GetCategoriesRequest"/>
+    	</wsdl:message>
+    	<wsdl:message name="GetCategoriesResponse">
+    		<wsdl:part name="GetCategoriesResponse" element="ns:GetCategoriesResponse"/>
+    	</wsdl:message>
+    	<wsdl:portType name="eBayAPIInterface">
+    		<wsdl:operation name="RelistItem">
+    			<wsdl:input message="ns:RelistItemRequest"/>
+    			<wsdl:output message="ns:RelistItemResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="VerifyAddItem">
+    			<wsdl:input message="ns:VerifyAddItemRequest"/>
+    			<wsdl:output message="ns:VerifyAddItemResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="AddItem">
+    			<wsdl:input message="ns:AddItemRequest"/>
+    			<wsdl:output message="ns:AddItemResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetItem">
+    			<wsdl:input message="ns:GetItemRequest"/>
+    			<wsdl:output message="ns:GetItemResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetUser">
+    			<wsdl:input message="ns:GetUserRequest"/>
+    			<wsdl:output message="ns:GetUserResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetSellerEvents">
+    			<wsdl:input message="ns:GetSellerEventsRequest"/>
+    			<wsdl:output message="ns:GetSellerEventsResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetSellerList">
+    			<wsdl:input message="ns:GetSellerListRequest"/>
+    			<wsdl:output message="ns:GetSellerListResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetItemTransactions">
+    			<wsdl:input message="ns:GetItemTransactionsRequest"/>
+    			<wsdl:output message="ns:GetItemTransactionsResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetSellerTransactions">
+    			<wsdl:input message="ns:GetSellerTransactionsRequest"/>
+    			<wsdl:output message="ns:GetSellerTransactionsResponse"/>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetCategories">
+    			<wsdl:input message="ns:GetCategoriesRequest"/>
+    			<wsdl:output message="ns:GetCategoriesResponse"/>
+    		</wsdl:operation>
+    	</wsdl:portType>
+    	<wsdl:binding name="eBayAPISoapBinding" type="ns:eBayAPIInterface">
+    		<wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    		<wsdl:operation name="RelistItem">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="VerifyAddItem">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="AddItem">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetItem">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<!-- added -->
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetUser">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetSellerEvents">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetSellerList">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetItemTransactions">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetSellerTransactions">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    		<wsdl:operation name="GetCategories">
+    			<wsdlsoap:operation soapAction=""/>
+    			<wsdl:input>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:input>
+    			<wsdl:output>
+    				<wsdlsoap:header use="literal" message="ns:RequesterCredentials" part="RequesterCredentials"/>
+    				<wsdlsoap:body use="literal"/>
+    			</wsdl:output>
+    		</wsdl:operation>
+    	</wsdl:binding>
+    	<wsdl:service name="eBayAPIInterfaceService">
+    		<wsdl:port binding="ns:eBayAPISoapBinding" name="eBayAPI">
+    			<wsdlsoap:address location="http://localhost:8080/axis/services/eBayAPI"/>
+    		</wsdl:port>
+    	</wsdl:service>
+    </wsdl:definitions>
+ * ::
+ */

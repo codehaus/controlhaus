@@ -1,0 +1,61 @@
+/**
+ */
+public class eBayTest implements com.bea.jws.WebService
+{
+    static final long serialVersionUID = 1L;
+
+    /** @common:control
+     */
+    public org.controlhaus.ebay.eBay eBay;
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.GetUserResponseDocument getUser(java.lang.String userID, java.lang.String itemID)
+    { return eBay.getUser(userID, itemID); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.AddItemResponseDocument addItem(ebayApisEBLBaseComponents.ItemDocument item)
+    { return eBay.addItem(item); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.GetCategoriesResponseDocument getCategories(java.lang.String categorySiteID)
+    { return eBay.getCategories(categorySiteID); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.GetItemResponseDocument getItem(java.lang.String itemID)
+    { return eBay.getItem(itemID); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.GetItemTransactionsResponseDocument getItemTransactions(java.lang.String itemID, java.util.Calendar modFrom, java.util.Calendar modTo)
+    { return eBay.getItemTransactions(itemID, modFrom, modTo); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.GetSellerEventsResponseDocument getSellerEvents(java.lang.String userID)
+    { return eBay.getSellerEvents(userID); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.GetSellerListResponseDocument getSellerList(java.lang.String userID)
+    { return eBay.getSellerList(userID); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.GetSellerTransactionsResponseDocument getSellerTransactions(java.util.Calendar modFrom, java.util.Calendar modTo)
+    { return eBay.getSellerTransactions(modFrom, modTo); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.RelistItemResponseDocument relistItem(ebayApisEBLBaseComponents.ItemType item, ebayApisEBLBaseComponents.ModifiedFieldType[] modifiedFields)
+    { return eBay.relistItem(item, modifiedFields); }
+
+    /** @common:operation
+     */
+    public ebayApiEBayAPI.VerifyAddItemResponseDocument verifyAddItem(ebayApisEBLBaseComponents.ItemType item)
+    { return eBay.verifyAddItem(item); }
+
+}
