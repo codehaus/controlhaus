@@ -1,0 +1,337 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+import SchedulerSample.SchedulerJobSample;
+import SchedulerSample.SchedulerSampleConstants;
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+
+import org.controlhaus.misc.scheduler.Scheduler;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ * PageFlow class generated from control Scheduler
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/SchedulerSampleController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="240" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:schedule.do#SchedulerSampleController.ScheduleForm">
+ *   <property value="230" name="x"/>
+ *   <property value="90" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:schedule.jsp@#@action:schedule.do#SchedulerSampleController.ScheduleForm@">
+ *   <property value="524,395,395,266" name="elbowsX"/>
+ *   <property value="292,292,82,82" name="elbowsY"/>
+ *   <property value="West_1" name="fromPort"/>
+ *   <property value="East_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:schedule.jsp">
+ *   <property value="560" name="x"/>
+ *   <property value="300" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:forwarding.jsp">
+ *   <property value="720" name="x"/>
+ *   <property value="180" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:error.jsp">
+ *   <property value="140" name="x"/>
+ *   <property value="120" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:results.jsp">
+ *   <property value="80" name="x"/>
+ *   <property value="60" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#schedule.jsp#@action:begin.do@">
+ *   <property value="276,400,400,524" name="elbowsX"/>
+ *   <property value="103,103,292,292" name="elbowsY"/>
+ *   <property value="East_2" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#forwarding.jsp#@action:schedule.do#SchedulerSampleController.ScheduleForm@">
+ *   <property value="266,475,475,684" name="elbowsX"/>
+ *   <property value="93,93,172,172" name="elbowsY"/>
+ *   <property value="East_2" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:org.controlhaus.misc.scheduler.Scheduler#myControl">
+ *   <property value="28" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#startYear#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#startMonth#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#startDay#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#startHour#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#startMin#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#endYear#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#endMonth#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#endDay#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#endHour#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#endMin#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#startTime#java.util.Date"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#endTime#java.util.Date"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#repeatCount#int"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#repeatInterval#long"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#jobClass#java.lang.Class"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#contextMap#java.util.Map"/>
+ * <pageflow-object id="formbeanprop:SchedulerSampleController.ScheduleForm#contextMessage#java.lang.String"/>
+ * <pageflow-object id="formbean:SchedulerSampleController.ScheduleForm"/>
+ * </view-properties>
+ * ::
+ */
+public class SchedulerSampleController extends PageFlowController
+{
+    /**
+     * This is the control used to generate this pageflow
+     *  @common:control
+     */
+    private Scheduler myControl;
+
+
+    // Uncomment this declaration to access Global.app.
+    // 
+    //     protected global.Global globalApp;
+    // 
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="schedule.jsp"
+     */
+    protected Forward begin()
+    {        
+        return new Forward("success");
+    }
+
+    /**
+     * Action encapsulating the control method :schedule
+     * @jpf:action
+     * @jpf:forward name="success" path="forwarding.jsp"
+     * @jpf:catch method="exceptionHandler" type="Exception"
+     */
+    public Forward schedule(ScheduleForm aForm)
+        throws Exception
+    {
+        SchedulerJobSample.initializeJob();
+        Collection sessionData = (Collection) getRequest().getSession().getAttribute(SchedulerSampleConstants.SESSION_DATA);
+        if(sessionData != null){
+            System.out.println("Clearing session.......");
+            sessionData.clear();
+        }
+        
+        myControl.schedule(aForm.getStartTime(), aForm.getEndTime(), aForm.getRepeatCount(), aForm.getRepeatInterval(), aForm.getJobClass(), aForm.getContextMap());
+        return new Forward("success");
+    }
+
+    /**
+     * @jpf:exception-handler
+     * @jpf:forward name="errorPage" path="/error.jsp"
+     */
+    protected Forward exceptionHandler(Exception ex,String actionName,String message,FormData form)
+    {
+        String displayMessage = "An exception occurred in the action " + actionName;
+        getRequest().setAttribute("errorMessage", displayMessage);
+        return new Forward("errorPage");
+    }
+
+
+
+    /**
+     * FormData class ScheduleForm
+     * FormData get and set methods may be overwritten by the Form Bean editor.
+     */
+    public static class ScheduleForm extends FormData
+    {            
+        private int repeatCount = 5;
+        private long repeatInterval = 2000;        
+        private java.lang.Class jobClass = SchedulerJobSample.class;
+        private java.util.Map contextMap = new HashMap();
+        
+        private String contextMessage = "Hello..! How are you.?";
+        
+        private Calendar calender = new GregorianCalendar();
+        
+        private int startYear = calender.get(Calendar.YEAR);
+        private int startMonth = calender.get(Calendar.MONTH) + 1;
+        private int startDay = calender.get(Calendar.DAY_OF_MONTH);
+        private int startHour = calender.get(Calendar.HOUR_OF_DAY);
+        private int startMin = calender.get(Calendar.MINUTE);
+
+        private int endYear = 0;
+        private int endMonth = 0;
+        private int endDay = 0;
+        private int endHour = 0;
+        private int endMin = 0;
+        
+        private HttpServletRequest request ;
+
+        public void reset(org.apache.struts.action.ActionMapping mapping,javax.servlet.http.HttpServletRequest request)
+        {
+            // Todo - allocate the object <beanName> here.
+            // <beanName> = new <BeanName>();
+            this.request = request;
+        }
+        
+        public int getStartYear() {
+            return startYear;
+        }
+
+        public void setStartYear(int startYear) {
+            this.startYear = startYear;
+        }
+    
+        public int getStartMonth() {
+            return startMonth;
+        }
+    
+        public void setStartMonth(int startMonth) {
+            this.startMonth = startMonth;
+        }
+    
+        public int getStartDay() {
+            return startDay;
+        }
+    
+        public void setStartDay(int startDay) {
+            this.startDay = startDay;
+        }
+    
+        public int getStartHour() {
+            return startHour;
+        }
+    
+        public void setStartHour(int startHour) {
+            this.startHour = startHour;
+        }
+    
+        public int getStartMin() {
+            return startMin;
+        }
+    
+        public void setStartMin(int startMin) {
+            this.startMin = startMin;
+        }
+    
+        public int getEndYear() {
+            return endYear;
+        }
+    
+        public void setEndYear(int endYear) {
+            this.endYear = endYear;
+        }
+    
+        public int getEndMonth() {
+            return endMonth;
+        }
+    
+        public void setEndMonth(int endMonth) {
+            this.endMonth = endMonth;
+        }
+    
+        public int getEndDay() {
+            return endDay;
+        }
+    
+        public void setEndDay(int endDay) {
+            this.endDay = endDay;
+        }
+    
+        public int getEndHour() {
+            return endHour;
+        }
+    
+        public void setEndHour(int endHour) {
+            this.endHour = endHour;
+        }
+    
+        public int getEndMin() {
+            return endMin;
+        }
+    
+        public void setEndMin(int endMin) {
+            this.endMin = endMin;
+        }        
+
+        public java.util.Date getStartTime()
+        {
+            Calendar startCalendar = new GregorianCalendar(this.startYear , this.startMonth - 1 , this.startDay , this.startHour , this.startMin);
+            return startCalendar.getTime();
+        }
+
+        public java.util.Date getEndTime()
+        {
+            if(this.endYear == 0 && this.endMonth == 0 && this.endDay == 0 && this.endHour == 0 && this.endMin == 0) return null;
+            Calendar endCalendar = new GregorianCalendar(this.endYear , this.endMonth - 1 , this.endDay , this.endHour , this.endMin);
+            return endCalendar.getTime();
+        }
+
+        public void setRepeatCount(int repeatCount)
+        {
+            this.repeatCount = repeatCount;
+        }
+
+        public int getRepeatCount()
+        {
+            return repeatCount;
+        }
+
+        public void setRepeatInterval(long repeatInterval)
+        {
+            this.repeatInterval = repeatInterval;
+        }
+
+        public long getRepeatInterval()
+        {
+            return repeatInterval;
+        }        
+
+        public java.lang.Class getJobClass()
+        {
+            return this.jobClass;
+        }
+        
+        public java.util.Map getContextMap()
+        {
+            contextMap.put(SchedulerSampleConstants.SESSION , this.request.getSession());
+            contextMap.put(SchedulerSampleConstants.CONTEXT_MESSAGE, getContextMessage());
+            return contextMap;
+        }
+        
+        public void setContextMessage(String contextMessage){
+            this.contextMessage = contextMessage;
+        }
+        
+        public String getContextMessage(){
+            return this.contextMessage;
+        }        
+        
+    }
+
+}
