@@ -115,7 +115,7 @@
 			debug="on"  
 			classpathref="build.classpath"
 			includes="**/Test*.java">
-			<src path="${sample.source.dir}" />
+			<src path="${samples.source.dir}" />
 		</javac>
     </target>
 
@@ -132,9 +132,9 @@
     <target name="dist" depends="clean,build,docs">
         <mkdir dir="${dist.dir}" />
     	<zip basedir="${basedir}" destfile="${dist.dir}/${dist.src}.zip"
-    		includes="build.xml,src/**,docs/**,samples/**"/> 
+    		includes="build.xml,src/**,samples/**"/> 
     	<tar basedir="${basedir}" destfile="${dist.dir}/${dist.src}.tar"
-    		includes="build.xml,src/**,docs/**,samples/**"/> 
+    		includes="build.xml,src/**,samples/**"/> 
     	<gzip src="${dist.dir}/${dist.src}.tar" destfile="${dist.dir}/${dist.src}.tar.gz"/>
     	<zip basedir="${basedir}" destfile="${dist.dir}/${dist.name}.zip"
     		includes="**/${build.jar},docs/**"/> 
