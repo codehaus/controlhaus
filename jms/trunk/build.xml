@@ -11,11 +11,14 @@
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
     <property name="build.jar" value="jms-control.jar"/>
     <property environment="env"/>
-    <property name="controls.jar" location="${env.BEEHIVE_HOME}/controls/build/jars/controls.jar"/>
-    <property name="velocity.jar" location="${env.BEEHIVE_HOME}/external/velocity/velocity-1.4.jar"/>
-    <property name="velocity-dep.jar" location="${env.BEEHIVE_HOME}/external/velocity/velocity-dep-1.4.jar"/>
-    <property name="log4j.jar" location="${env.BEEHIVE_HOME}/external/log4j/log4j-1.2.8.jar"/>
-    <property name="xmlbeans.jar" location="${env.BEEHIVE_HOME}/external/xmlbeans/apache-xbean.jar"/>
+    <property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
+    <property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
+    <property name="controls.jar" location="${beehive.home}/lib/controls/controls.jar"/>
+    <property name="commons-collections.jar" location="${beehive.home}/lib/netui/commons-collections.jar"/>
+    <property name="velocity.jar" location="${beehive.common.lib.dir}/velocity-1.4.jar"/>
+    <property name="velocity-dep.jar" location="${beehive.common.lib.dir}/velocity/velocity-dep-1.4.jar"/>
+    <property name="log4j.jar" location="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
+    <property name="xmlbeans.jar" location="${beehive.common.lib.dir}/apache-xbean.jar"/>
 
 
     <target name="usage">
@@ -46,15 +49,16 @@
             		<include name="**/*.jar" />
         	</fileset>
         	<pathelement path="${build.classes}" />
-        	<pathelement path="../play/classes" />
         	<pathelement path="${controls.jar}" />
+        	<pathelement path="${commons-collections.jar}" />
         	<pathelement path="${velocity.jar}" />
         	<pathelement path="${velocity-dep.jar}" />
         	<pathelement path="${log4j.jar}" />
         	<pathelement path="${xmlbeans.jar}" />
     	</path>
-
-  	<taskdef name="apt" 
+<pathconvert targetos="unix" property="wl.path.unix" refid="build.classpath"/>
+<echo message="${wl.path.unix}"/>
+  		<taskdef name="apt" 
                  classname="org.apache.beehive.controls.runtime.generator.AptTask" 
                  onerror="report"
                  classpathref="build.classpath"/>
