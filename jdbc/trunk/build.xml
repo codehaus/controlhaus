@@ -77,6 +77,7 @@ limitations under the License.
         <pathelement location="${jdbcc.jar}"/>
         <path refid="derby.dependency.path"/>
         <path refid="junit.dependency.path"/>
+        <path refid="commons.dependency.path"/>
         <pathelement path="${test.units.classes.dir}"/>
     </path>
 
@@ -326,6 +327,14 @@ limitations under the License.
         <get src="${javacc.maven.url}"
             dest="${javacc.jar.dest}"
             usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${commons.discovery.maven.url}"
+            dest="${commons.discovery.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${commons.codec.maven.url}"
+            dest="${commons.codec.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
     </target>
 
     <!-- =================================================================== -->
@@ -358,6 +367,8 @@ libraries are required to build the Jdbc Control:
    ${jsr173.jar.dest}
    ${junit.jar.dest}
    ${javacc.jar.dest}
+   ${commons.discovery.jar.dest}
+   ${commons.codec.jar.dest}
 
 ********************************************************************************
 ********************************************************************************
@@ -370,6 +381,8 @@ libraries are required to build the Jdbc Control:
         <available file="${jsr173.jar.dest}" type="file" property="jsr173.jar.present"/>
         <available file="${junit.jar.dest}" type="file" property="junit.jar.present"/>
         <available file="${javacc.jar.dest}" type="file" property="javacc.jar.present"/>
+        <available file="${commons.discovery.jar.dest}" type="file" property="commons.discovery.jar.present"/>
+        <available file="${commons.codec.jar.dest}" type="file" property="commons.codec.jar.present"/>
 
         <fail unless="velocity.jar.present">
 ********************************************************************************
@@ -448,6 +461,30 @@ repostiory or download manually.
 ********************************************************************************
 
 Missing ${javacc.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="commons.discovery.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${commons.discovery.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="commons.codec.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${commons.codec.jar.dest}.
 
 Run ant target 'download-dependencies' to automatically download from Maven
 repostiory or download manually.
