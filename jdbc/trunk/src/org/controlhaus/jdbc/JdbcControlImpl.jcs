@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.Map;
 
 /**
  * The implementation class for the database controller.
@@ -178,13 +179,16 @@ import java.util.Vector;
                 _connection.setReadOnly(connectionOptions.readOnly());
 
                 DatabaseMetaData dbMetadata = _connection.getMetaData();
-                final int holdability = connectionOptions.holdability().getHoldability();
+
+                final int holdability = connectionOptions.resultSetHoldability().getHoldability();
                 if (dbMetadata.supportsResultSetHoldability(holdability)) {
                     _connection.setHoldability(holdability);
                 } else {
-                    throw new ControlException("Database does not support holdability type: "
-                                               + connectionOptions.holdability().toString());
+                    throw new ControlException("Database does not support ResultSet holdability type: "
+                                               + connectionOptions.resultSetHoldability().toString());
                 }
+
+                setTypeMappers(connectionOptions.typeMappers());
             }
         }
 
@@ -244,6 +248,8 @@ import java.util.Vector;
         if (methodSQL == null) {
             throw new ControlException("Method " + method.getName() + " is missing @SQL annotation");
         }
+
+        setTypeMappers(methodSQL.typeMappersOverride());
 
         //
         // build the statement and execute it
@@ -453,5 +459,22 @@ import java.util.Vector;
             }
         }
         return properties;
+    }
+
+    /**
+     * Set any custom type mappers specifed in the annotation for the connection.  Used for mapping SQL UDTs to
+     * java classes.
+     *
+     * @param typeMappers An array of TypeMapper.
+     */
+    private void setTypeMappers(TypeMapper[] typeMappers) throws SQLException {
+
+        if (typeMappers.length > 0) {
+            Map<String, Class<?>> mappers = _connection.getTypeMap();
+            for (TypeMapper t : typeMappers) {
+                mappers.put(t.UDTName(), t.mapperClass());
+            }
+            _connection.setTypeMap(mappers);
+        }
     }
 }
