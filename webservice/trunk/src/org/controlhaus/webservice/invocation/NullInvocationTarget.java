@@ -32,6 +32,8 @@ import org.controlhaus.webservice.PluggableServiceControl;
  *
  * @author Jonathan Colwell
  */
+
+//NOTE:  This should be moved to the drt area, may be useful in testing.
 public class NullInvocationTarget implements WebServiceInvocationTarget {
 
     

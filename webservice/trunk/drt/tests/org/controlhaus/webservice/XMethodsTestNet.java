@@ -40,9 +40,6 @@ public class XMethodsTestNet extends ServiceControlTestCase {
 
     @Control public XMethodsQuery mXMethods;
 
-    //private List<String> mPublishers = new ArrayList<String>();
-    private List<String> mIDList = new ArrayList<String>();
-
     public void testServiceNames() throws Exception {
         IDNamePair[] serviceNames = mXMethods.getAllServiceNames();
         assertTrue(serviceNames.length > 0);
@@ -69,47 +66,33 @@ public class XMethodsTestNet extends ServiceControlTestCase {
             assertNotNull(name);
             String id = serviceSummary.getId();
             assertNotNull(id);
-            mIDList.add(id);
+        
             String desc = serviceSummary.getShortDescription();
             String wsdl = serviceSummary.getWsdlURL();
             assertNotNull(wsdl);
             String pub = serviceSummary.getPublisherID();
             assertNotNull(pub);
-            //mPublishers.add(pub);
+         
             System.out.println("Name: " + name);
             System.out.println("ID: " + id);
             System.out.println("Publisher ID: " + pub);
             System.out.println("WSDL URL: " + wsdl);
-            System.out.println("Description: " + desc);
-        }
-    }
-
-    public void testServiceDetails() throws Exception {
-        for (String detailID : mIDList) {
-            ServiceDetail detail = mXMethods.getServiceDetail(detailID);
+       
+            ServiceDetail detail = mXMethods.getServiceDetail(id);
 
             assertNotNull(detail);
-
-            String name = detail.getName();
-            assertNotNull(name);
-            String id = detail.getId();
-            assertNotNull(id);
-            String desc = detail.getDescription();
-            String wsdl = detail.getWsdlURL();
-            assertNotNull(wsdl);
-            String pub = detail.getPublisherID();
-            assertNotNull(pub);
-            System.out.println("Name: " + name);
-            System.out.println("ID: " + id);
-            System.out.println("Publisher ID: " + pub);
-            System.out.println("WSDL URL: " + wsdl);
-            System.out.println("Description: " + desc);
+            assertEquals(name, detail.getName());
+            assertEquals(wsdl, detail.getWsdlURL());
+            assertEquals(pub, detail.getPublisherID());
+            System.out.println("Description: " + detail.getDescription());
             System.out.println("Email: " + detail.getEmail());
             System.out.println("Info URL: " + detail.getInfoURL());
             System.out.println("Discussion URL: " + detail.getDiscussionURL());
             System.out.println("Notes: " + detail.getNotes());
             System.out.println("TmodelID: " + detail.getTmodelID());
             System.out.println("UUID: " + detail.getUuid());
+            System.out.println("SOAPStack: " + detail.getImplementationID());
+        
         }
     }
 }

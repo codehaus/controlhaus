@@ -60,7 +60,9 @@ public class AxisInvocationTest extends TestCase {
         SOAPService ss = handler.getSOAPService(cls);
         AxisInvocationTarget ait = new AxisInvocationTarget();
         AxisServer server = new DebugAxisServer(ss);
-        ss.setEngine(server);
+        ss.setEngine(server);  // Explicitly setting the engine to be the local
+        					// axis server as oppose to opening connection as the normal
+        				    
         ait.service.setEngine(server);
    
         Object obj = ait.invokeWebService(meth,
@@ -75,6 +77,7 @@ public class AxisInvocationTest extends TestCase {
         assertEquals(obj, meth.invoke(cls.newInstance(), new Object[0]));
     }
 
+    // a server that doesn't go to all chains
     private class DebugAxisServer extends AxisServer {
         
         private SOAPService mInjectedSOAPService;
@@ -93,6 +96,7 @@ public class AxisInvocationTest extends TestCase {
     private class TestWebServiceHandler
         extends AnnotatedWebServiceDeploymentHandler {
         
+    	// This method is only here to make the call public.
         public SOAPService getSOAPService(Class cls)
             throws Exception{
 
@@ -145,5 +149,21 @@ public class AxisInvocationTest extends TestCase {
         public int getTimeout() { return 0; }
 
         public void reset() {}
+
+		/* (non-Javadoc)
+		 * @see org.controlhaus.webservice.PluggableServiceControl#getInvocationTarget()
+		 */
+		public WebServiceInvocationTarget getInvocationTarget() throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.controlhaus.webservice.PluggableServiceControl#setInvocationTarget(org.controlhaus.webservice.invocation.WebServiceInvocationTarget)
+		 */
+		public void setInvocationTarget(WebServiceInvocationTarget wsit) {
+			// TODO Auto-generated method stub
+			
+		}
     }
 }

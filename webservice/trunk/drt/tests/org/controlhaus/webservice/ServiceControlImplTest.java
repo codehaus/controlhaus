@@ -21,18 +21,20 @@
 package org.controlhaus.webservice;
 
 import junit.framework.TestCase;
+import org.apache.beehive.controls.api.bean.Control;
 
 /*******************************************************************************
  * 
  *
  * @author Jonathan Colwell
  */
-public class ServiceControlImplTest extends TestCase {
+public class ServiceControlImplTest extends ServiceControlTestCase {
 
+	@Control Test t;
 
     public void testSimpleJCXInvocation() throws Exception {
 
-        Test t = new TestBean();
+        
         
         Object o = t.viewChar();
         assertNotNull(o);
