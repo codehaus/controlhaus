@@ -1,11 +1,5 @@
 package org.controlhaus.hibernate;
 
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.sf.hibernate.HibernateException;
 import net.sf.hibernate.Session;
 import net.sf.hibernate.SessionFactory;
@@ -22,7 +16,7 @@ import org.apache.log4j.Logger;
 import org.controlhaus.hibernate.HibernateControl.ManagedTransactions;
 
 /**
- * Hibernate service.
+ * The HibernateControl Implementation.
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since May 10, 2003

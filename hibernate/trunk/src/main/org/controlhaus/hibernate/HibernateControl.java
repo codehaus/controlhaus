@@ -14,6 +14,13 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
 /**
+ * The HibernateControl allows easy session and transaction management
+ * between Beehive Controls and Hibernate.
+ * 
+ * Use the <code>ManagedTransactions</code> property on the HibernateControl 
+ * and transactions will be managed for you autmatically.  The transaction 
+ * will start at the first access to the session.
+ * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Oct 29, 2004
  */
@@ -27,21 +34,27 @@ public interface HibernateControl
     SessionFactory getSessionFactory();
     
     /**
-     * Return the session that is currently associated with this Thread.
-     * 
-     * @return
+     * @return The session that is currently associated with this Thread.
+     * If there is no session yet, one will be created.
      * @throws HibernateException
      */
     Session getSession() throws HibernateException;
     
+    /**
+     * @return The transaction for the current session. If there is no 
+     * session or the control is not managing the transactions, it will
+     * return <code>null</code>.
+     */
     Transaction getTransaction();
     
     /**
-     * Close the session for the current Thread.
+     * Close the session for the current Thread. If there is no session
+     * it will fail gracefully and no exception is thrown.
+     * 
      * @throws HibernateException
      */
     void closeSession() throws HibernateException;
-    
+
     @PropertySet(prefix="ManagedTransactions")
     @Target( {ElementType.TYPE, ElementType.FIELD, ElementType.METHOD} )
     @Retention(RetentionPolicy.RUNTIME)

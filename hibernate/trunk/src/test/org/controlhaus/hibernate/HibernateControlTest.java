@@ -53,9 +53,10 @@ public class HibernateControlTest
         session.flush();
         hib.closeSession();
         
-        session = hib.getSession();
+        Session session2 = hib.getSession();
+        assertNotSame(session, session2);
         
-        List results = session.find("select from " + Parent.class.getName());
+        List results = session2.find("select from " + Parent.class.getName());
         assertEquals(1, results.size());
     }
 
