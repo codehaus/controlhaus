@@ -37,14 +37,14 @@ import org.w3c.dom.Element;
  * sforce3_0-tags.xml
  * ::
  * @jcs:jc-jar version="1.0" 
- * insert-wizard-class="org.controlhaus.workshop.ide.sforceCheckWizard" 
+ * insert-wizard-class="org.controlhaus.sforce.workshop.ide.sforceCheckWizard" 
  
  * icon-32="/images/sforce_32.gif" 
  * icon-16="/images/sforce_16.gif" 
  
  
  * description="Workshop Control to sforce.com services" 
- * label="sforce 3.0"
+ * label="sforce  3.0"
  * 
  */
 public class sforce3_0EnterpriseImpl implements sforce3_0Enterprise, ControlSource

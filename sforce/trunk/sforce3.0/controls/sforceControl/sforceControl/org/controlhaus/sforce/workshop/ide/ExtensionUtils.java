@@ -82,7 +82,7 @@ public class ExtensionUtils
         
         // load schema project dir path       
         //   search for 'Schemas' project
-        IProject proj = Application.getWorkspace().findProject("Schemas");        
+        IProject proj = Application.getWorkspace().findProject("sforceSchemas");        
         if (null!=proj && proj.getProjectInfo().getTypeId().equals(SCHEMA_PROJECT_TYPE))
         {
             m_SchemasDir = proj.getDirectory().toString() + FILE_SEPARATOR;
@@ -117,7 +117,7 @@ public class ExtensionUtils
         if(schemaProjInfo!=null){
             IProjectTemplate template = schemaProjInfo.getTemplate("default");
             if(template!=null){
-                IProject projNew = workspace.newProject("Schemas", template);            
+                IProject projNew = workspace.newProject("sforceSchemas", template);            
                 m_SchemasDir = projNew.getDirectory().toString() + FILE_SEPARATOR;
             }
         }
@@ -134,7 +134,7 @@ public class ExtensionUtils
         if (null==m_ExtensionsDir)
             sBuf.append("\nCan't find extensions directory.");
         if (null==m_SchemasDir)
-            sBuf.append("\nCan't find Schemas project.");
+            sBuf.append("\nCan't find sforceSchemas project.");
         
         if (sBuf.length()>0)    
             return sBuf.toString();
@@ -250,7 +250,7 @@ public class ExtensionUtils
         
         String extensionJar = m_ExtensionsDir + sExtensionJar;            
             
-        ZipEntry entry = new ZipEntry("extensions/"+sExtensionJar);
+        ZipEntry entry = new ZipEntry("controls/"+sExtensionJar);
         // check if(entry == null)
         if(entry == null){
             throw new InstallExtensionException("Error "+sExtensionJar+" not found in zipfile!");
