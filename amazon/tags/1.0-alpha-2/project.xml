@@ -1,0 +1,159 @@
+<project>
+  <pomVersion>1</pomVersion>
+  <name>Controlhaus Amazon Control</name>
+  <groupId>controlhaus</groupId>
+  <artifactId>controlhaus-amazon</artifactId>
+  <currentVersion>1.0-alpha-2</currentVersion>
+  <organization>
+    <name>Controlhaus</name>
+    <url>http://www.controlhaus.org/</url>
+    <logo>http://www.controlhaus.org/controlhaus-small.png</logo>
+  </organization>
+  <inceptionYear>2004</inceptionYear>
+  <package>org.controlhaus.amazon</package>
+  
+  <description>An Amazon Beehive Control.</description>
+  <shortDescription>An Amazon Beehive Control.</shortDescription>
+  
+  <url>http://www.controlhaus.org</url>
+  <siteAddress>www.controlhaus.org</siteAddress>
+  <siteDirectory>/home/projects/controlhaus/public_html/maven/amazon</siteDirectory>
+  <distributionSite>dist.codehaus.org</distributionSite>
+  <distributionDirectory>/dist</distributionDirectory>
+  
+  <versions/>
+  
+  <branches/>
+  
+  <dependencies>
+
+    <!-- Beehive Dependencies -->
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.6.2</version>
+    </dependency>
+            
+    <dependency>
+      <groupId>beehive</groupId>
+      <artifactId>controls</artifactId>
+      <version>svn-snapshot</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>2.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>controlhaus</groupId>
+      <artifactId>controlhaus-xfire-client</artifactId>
+      <version>1.0-alpha-2</version>
+    </dependency>
+        
+    <dependency>
+      <id>log4j</id>
+      <version>1.2.8</version>
+      <url>http://www.log4j.org/</url>
+    </dependency>
+            
+    <dependency>
+      <groupId>velocity</groupId>
+      <artifactId>velocity</artifactId>
+      <version>1.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>xfire</groupId>
+      <artifactId>xfire</artifactId>
+      <version>20050103.051604</version>
+    </dependency>
+
+    <dependency>
+      <groupId>xfire</groupId>
+      <artifactId>xfire-xmlbeans</artifactId>
+      <version>20050103.051748</version>
+    </dependency>
+
+    <dependency>
+      <groupId>xfire</groupId>
+      <artifactId>xmlbeans</artifactId>
+      <version>2.0-20041214</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>xfire</groupId>
+      <artifactId>xmlbeans-xmlpublic</artifactId>
+      <version>2.0-20041214</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax-api</artifactId>
+      <version>1.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>stax</groupId>
+      <artifactId>stax</artifactId>
+      <version>1.1.1-dev</version>
+    </dependency>
+        
+    <dependency>
+      <id>junit</id>
+      <version>3.8.1</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <sourceDirectory>${basedir}/src/main</sourceDirectory>
+    <unitTestSourceDirectory>${basedir}/src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+        <include>**/*Test.java</include>
+        <include>**/*TestCase.java</include>
+      </includes>
+      <excludes>
+        <exclude>**/*Abstract*.java</exclude>
+      </excludes>
+      <resources>
+        <resource>
+          <directory>${basedir}/src/test</directory>
+          <includes>
+            <include>**/*.xml</include>
+            <include>**/*.vm</include>
+          </includes>
+          <filtering>false</filtering>
+        </resource>
+      </resources>
+    </unitTest>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.vm</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+  </build>
+  <reports>
+    <report>maven-jdepend-plugin</report>
+    <report>maven-checkstyle-plugin</report>
+    <report>maven-changes-plugin</report>
+    <report>maven-changelog-plugin</report>
+    <report>maven-file-activity-plugin</report>
+    <report>maven-developer-activity-plugin</report>
+    <report>maven-javadoc-plugin</report>
+    <report>maven-jxr-plugin</report>
+    <report>maven-junit-report-plugin</report>
+    <report>maven-tasklist-plugin</report>
+    <report>maven-jellydoc-plugin</report>
+    <report>maven-pmd-plugin</report>
+    <report>maven-simian-plugin</report>
+    <report>maven-faq-plugin</report>
+  </reports>
+  <properties/>
+</project>
