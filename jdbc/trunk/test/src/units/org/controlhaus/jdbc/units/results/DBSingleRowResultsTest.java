@@ -150,6 +150,15 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
 
         assertEquals(customerXmlObj.getUSERID(), 22);
         assertEquals(customerXmlObj.getFNAME(), "tester2");
+
+        //
+        // add some new users to the table using batch update
+        //
+        int[] results = testCtrl.doABatchUpdate(
+                new String[] {"tester44", "tester55", "tester66"}, new int[] {44, 55, 66});
+        assertEquals(1, results[0]);
+        assertEquals(1, results[1]);
+        assertEquals(1, results[2]);
     }
 
 

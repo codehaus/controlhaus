@@ -169,7 +169,11 @@ public interface ResultsTestCtrl extends JdbcControl {
     @SQL(statement="{call getProductSP({inColor},{inSKU})}")
     public void getProduct(String inColor, int inSKU) throws SQLException;
 
-
+    //
+    // batch updates
+    //
+    @SQL(statement="INSERT INTO users VALUES ({fname}, {userid})")
+    public int[] doABatchUpdate(String[] fname, int[] userid);
 
 }
 
