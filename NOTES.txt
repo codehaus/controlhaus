@@ -1,7 +1,0 @@
-@HibernateTX(TYPE)
-
-@Persister(save=User)
-
-@Control Persister persister;
-persister.getSession()
-
