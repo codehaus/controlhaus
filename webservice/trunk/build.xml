@@ -104,7 +104,7 @@
 
 	<target name="jar" depends="clean,build">
 	    <mkdir dir="${jars.dir}"/>
-	    <jar destfile="${jars.dir}/servicecontrol.jar">
+	    <jar destfile="${jars.dir}/webservice-control.jar">
 	      <fileset dir="${classes.dir}" >
 	      
 	      </fileset>
