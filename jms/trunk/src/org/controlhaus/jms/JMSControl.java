@@ -235,6 +235,7 @@ public interface JMSControl
      * The message type used by the method. The default is
      * to use the type of the body parameter.
      */
+    @PropertySet(prefix="Message")
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Message
@@ -260,7 +261,8 @@ public interface JMSControl
     /**
      * The method parameter representing a message property with the given name and value.
      * see javax.jms.Message.getProperty()/setProperty().
-     */    
+     */  
+    @PropertySet(prefix="Property")
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface PropertyValue
@@ -286,6 +288,7 @@ public interface JMSControl
      * The method/parameter annotation representing a message priority. If not given
      * then the default for the JMS provider is used.
      */ 
+    @PropertySet(prefix="Priority")
     @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @AnnotationConstraints.AllowExternalOverride
@@ -297,6 +300,7 @@ public interface JMSControl
     /**
      * The method/parameter representing the message JMS type. 
      */ 
+    @PropertySet(prefix="Type")
     @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Type
@@ -306,6 +310,7 @@ public interface JMSControl
     /**
      * The method/parameter representing the message JMS CorrelationID. 
      */ 
+    @PropertySet(prefix="CorrelationId")
     @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface CorrelationId
@@ -316,6 +321,7 @@ public interface JMSControl
      * The method parameter representing a message expiration in milliseconds. 
      * If not given then the default for the JMS provider is used.
      */ 
+    @PropertySet(prefix="Expiration")
     @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @AnnotationConstraints.AllowExternalOverride
@@ -328,6 +334,7 @@ public interface JMSControl
      * The method parameter representing a message delivery mode. 
      * If not given then the default for the JMS provider is used.
      */ 
+    @PropertySet(prefix="Delivery")
     @Target({ElementType.PARAMETER,ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Delivery
@@ -337,6 +344,7 @@ public interface JMSControl
     /**
      * The method parameter representing one or more properties. 
      */ 
+    @PropertySet(prefix="Properties")
     @Target({ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Properties
