@@ -102,25 +102,6 @@ public class HibernateControlImpl
     
     @EventHandler (field="resourceContext", 
                    eventSet=ResourceContext.ResourceEvents.class, 
-                   eventName="onAcquire")
-    public void onAcquire()
-    {
-        try
-        {
-            if ( manageTXs )
-            {
-                Session s = getSession();
-                transactions.set( s.beginTransaction() );
-            }
-        }
-        catch (HibernateException e)
-        {
-            logger.error("Couldn't close session!", e);
-        }
-    }
-    
-    @EventHandler (field="resourceContext", 
-                   eventSet=ResourceContext.ResourceEvents.class, 
                    eventName="onRelease")
     public void onRelease()
     {
@@ -165,6 +146,11 @@ public class HibernateControlImpl
         {
             s = sessionFactory.openSession();
             session.set(s);
+            
+            if ( manageTXs )
+            {
+                transactions.set( s.beginTransaction() );
+            }
         }
         return s;
     }
