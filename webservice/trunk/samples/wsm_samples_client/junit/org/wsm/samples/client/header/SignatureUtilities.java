@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import javax.xml.rpc.handler.soap.SOAPMessageContext;
 import javax.xml.soap.Name;
+import javax.xml.soap.Node;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
@@ -32,6 +33,8 @@ import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.soap.Text;
+
+
 
 
 /**
@@ -94,52 +97,109 @@ public class SignatureUtilities {
         return sig;
     }
 
-  
-    static public boolean isValidSignature(SOAPElement root) throws SOAPException {
-        /* format of the header should match
-        <sign:sign xxxxx>
-           <ssig:signature >xxxx </signature>
-           <ssig:seal>xxxx</seal>
-        </sign:sing>
-        */
+    /* (non-Javadoc)
+     * @see org.example.webservices.signature.SignatureTool#isSignatureValid(javax.xml.soap.SOAPElement, javax.xml.soap.SOAPElement)
+     */
+    static public boolean isValidSignature(SOAPElement signature) //, SOAPElement content)
+        throws SOAPException
+    {
         
-        //TODO: add validation to make sure the root is sign:sign
-        SOAPElement signature = (SOAPElement) root.getChildElements().next();
+        signature = (SOAPElement) signature.getChildElements().next();
+        
         System.out.println("Testing signature");
         if (!signature.getElementName().equals(SIGNATURE_NAME)) {
-            System.out
-                    .println("Failed signature test... SIGNATURE_NAME doesn't exist.");
-            throw new SignException("Unexpected element.  got \""
-                    + signature.getElementName() + "\", expected \""
-                    + SIGNATURE_NAME + "\"");
+            System.out.println("Failed signature test... SIGNATURE_NAME doesn't exist.");
+           throw new SignException("Unexpected element.  got \"" +
+                                    signature.getElementName() +
+                                    "\", expected \"" +
+                                    SIGNATURE_NAME + "\"");
         }
-
+        
         Iterator signerIter = signature.getChildElements(SIGNER_NAME);
-
         if (!signerIter.hasNext()) {
-            System.out
-                    .println("Failed signature test... SIGNATURE_NAME doesn't have any child");
-            throw new SignException("Expected element missing.  expected \""
-                    + SIGNER_NAME + "\"");
+            System.out.println("Failed signature test... SIGNATURE_NAME doesn't have any child");
+           throw new SignException("Expected element missing.  expected \"" +
+                                    SIGNER_NAME + "\"");
         }
-        SOAPElement signer = (SOAPElement) signerIter.next();
-        String signerName = signer.getValue();
-
+        SOAPElement signer = (SOAPElement)signerIter.next();
+        
         Iterator sealIter = signature.getChildElements(SEAL_NAME);
         if (!sealIter.hasNext()) {
-            System.out
-                    .println("Failed signature test... SIGNATURE_NAME doesn't have SEAL_NAME");
-            throw new SignException("Expected element missing.  expected \""
-                    + SEAL_NAME + "\"");
+            System.out.println("Failed signature test... SIGNATURE_NAME doesn't have SEAL_NAME");
+             throw new SignException("Expected element missing.  expected \"" +
+                                    SEAL_NAME + "\"");
         }
-        SOAPElement seal = (SOAPElement) sealIter.next();
-        String sealValue = seal.getValue();
+        SOAPElement seal = (SOAPElement)sealIter.next();
 
-        return sealValue.equals(signerName);
+        String signersName = ((Node)(signer.getChildElements().next())).getValue();
+ //       String strContent = getContent(content);
+        String signedContent = signersName;  //, strContent);
+        
+        String sealedContent = ((Node)(seal.getChildElements().next())).getValue();
 
+        System.out.println("isSignatureValid: expected= " + signedContent);
+        System.out.println("isSignatureValid: received= " + sealedContent);
+
+        if (!signedContent.equals(sealedContent)) {
+            System.out.println("Signatures don't match!");
+             throw new SignException("Signed document does not match signature");
+        }
+
+        System.out.println("signatures match!");
+        return true;
     }
-
     
+//    static public boolean isValidSignature(SOAPElement root) throws SOAPException {
+//        /* format of the header should match
+//        <sign:sign xxxxx>
+//           <ssig:signature >xxxx </signature>
+//           <ssig:seal>xxxx</seal>
+//        </sign:sing>
+//        */
+//        
+//        //TODO: add validation to make sure the root is sign:sign
+//        SOAPElement signature = (SOAPElement) root.getChildElements().next();
+//        System.out.println("Testing signature");
+//        if (!signature.getElementName().equals(SIGNATURE_NAME)) {
+//            System.out
+//                    .println("Failed signature test... SIGNATURE_NAME doesn't exist.");
+//            throw new SignException("Unexpected element.  got \""
+//                    + signature.getElementName() + "\", expected \""
+//                    + SIGNATURE_NAME + "\"");
+//        }
+//
+//        Iterator signerIter = signature.getChildElements(SIGNER_NAME);
+//
+//        if (!signerIter.hasNext()) {
+//            System.out
+//                    .println("Failed signature test... SIGNATURE_NAME doesn't have any child");
+//            throw new SignException("Expected element missing.  expected \""
+//                    + SIGNER_NAME + "\"");
+//        }
+//        SOAPElement signer = (SOAPElement) signerIter.next();
+//        System.out.println("++++++++++signaer node name: " + signer.getNodeName() + " type: " + signer.getNodeType());
+//        String signerName = signer.getValue();
+//
+//        Iterator sealIter = signature.getChildElements(SEAL_NAME);
+//        if (!sealIter.hasNext()) {
+//            System.out
+//                    .println("Failed signature test... SIGNATURE_NAME doesn't have SEAL_NAME");
+//            throw new SignException("Expected element missing.  expected \""
+//                    + SEAL_NAME + "\"");
+//        }
+//        SOAPElement seal = (SOAPElement) sealIter.next();
+//        System.out.println("++++++++++seal node name: " + seal.getNodeName() + " type: " + seal.getNodeType());
+//       String sealValue = seal.getValue();
+//
+//        if(sealValue == null || signerName == null ) {
+//            System.out.println(" Null is not a valid seal, or singer name.  seal: " + sealValue + " signerName: " + signerName);
+//            return false;
+//        }
+//        return sealValue.equals(signerName);
+//
+//    }
+//
+//    
 
     private String elementName(SOAPElement e) {
         return elementName(e.getElementName());

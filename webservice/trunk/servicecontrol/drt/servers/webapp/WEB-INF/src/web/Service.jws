@@ -18,6 +18,8 @@ package web;
  * $Header:$
  */
 
+import java.rmi.RemoteException;
+
 import javax.jws.Oneway;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -34,7 +36,7 @@ import org.apache.beehive.sample.AddressBookImpl;
 
 @WebService(targetNamespace="http://controlhaus.org/ServiceControlTestServer", serviceName="ServiceControlTest")
 //@SOAPBinding( style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.ENCODED)
-public class Service implements AddressBook {
+public class Service  {
 
     AddressBook addressBook;
 
@@ -51,8 +53,12 @@ public class Service implements AddressBook {
      * @param address
      */
     @WebMethod
-    public void addEntry(String name, Address address) throws InvalidNameException {
-        addressBook.addEntry(name, address);
+    public void addEntry(String name, Address address) throws RemoteException {
+        try {
+            addressBook.addEntry(name, address);
+        } catch (InvalidNameException e) {
+            throw new RemoteException("Invalid name: " +name ,  e);
+        }
     }
 
     /**
@@ -61,27 +67,35 @@ public class Service implements AddressBook {
      * @return
      */
     @WebMethod
-    public Address getAddressFromName(String name) throws InvalidNameException {
-    	System.out.println("Get Address for: " + name);
-    	if(name == null) return null;
-    	if( 0 == "Jack".compareTo(name)) {
-    		Address result = new Address();
-    		result.setCity("Seattle");
-    		result.setZip(98119);
-    		return result;
-    	}
-        if(0 == "bob".compareTo(name)) throw new InvalidNameException("Bob is invalid name!");
-        return addressBook.getAddressFromName(name);
+    public Address getAddressFromName(String name) throws RemoteException {
+    	try {
+            System.out.println("Get Address for: " + name);
+            if(name == null) return null;
+            if( 0 == "Jack".compareTo(name)) {
+            	Address result = new Address();
+            	result.setCity("Seattle");
+            	result.setZip(98119);
+            	return result;
+            }
+            if(0 == "bob".compareTo(name)) throw new RemoteException( "Invalid name", new InvalidNameException("Bob is invalid name!"));
+            return addressBook.getAddressFromName(name);
+        } catch (InvalidNameException e) {
+            throw new RemoteException("Invalid name: " +name ,  e);
+        }
     }
     
     @WebMethod
-    public Address[] getAddressFromNames(String[] name) throws InvalidNameException  {
-    	if(null == name) return null;
-    	Address[] result = new Address[name.length];
-    	for(int i=0; i< name.length; i++) {
-    	 result[i] = addressBook.getAddressFromName(name[i]);
-    	}
-    	return result;
+    public Address[] getAddressFromNames(String[] name) throws RemoteException {
+    	try {
+            if(null == name) return null;
+            Address[] result = new Address[name.length];
+            for(int i=0; i< name.length; i++) {
+             result[i] = addressBook.getAddressFromName(name[i]);
+            }
+            return result;
+        } catch (InvalidNameException e) {
+            throw new RemoteException("Invalid name: " +name ,  e);
+        }
     }    
     
     @WebMethod

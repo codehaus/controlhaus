@@ -22,6 +22,8 @@ package org.controlhaus.webservice.generator;
 
 import java.io.*;
 import java.util.List;
+
+import javax.jws.WebParam;
 import javax.xml.namespace.QName;
 import org.apache.axis.wsdl.toJava.Namespaces;
 import org.apache.axis.wsdl.toJava.Utils;
@@ -158,7 +160,7 @@ public class ExtensionMaker {
     // NOTE: For OUT and IN/OUT parameters this method can use the GenericHolder
     // class...TBD
     private void printParameters(
-            List< ? extends BeehiveWsParameterMetadata> params, PrintWriter pw) {
+           List< ? extends BeehiveWsParameterMetadata> params, PrintWriter pw) {
         int paramPos = 0;
         for (BeehiveWsParameterMetadata param : params) {
             if (paramPos > 0) {
@@ -178,7 +180,11 @@ public class ExtensionMaker {
             // }
             //
             // pw.print(paramType);
-            pw.print(param.getJavaTypeFullName());
+            if( param.getWpMode() == WebParam.Mode.INOUT || param.getWpMode() == WebParam.Mode.OUT)  {
+                pw.print(getHolderForType(param.getJavaType()));
+            } else {
+                pw.print(param.getJavaTypeFullName());
+            }
             pw.write(' ');
             String paramName = param.getWpName();
             if (paramName == null) {
@@ -189,6 +195,18 @@ public class ExtensionMaker {
         }
     }
 
+    private String getHolderForType(Class clazz) {
+       if( clazz == int.class) return "javax.xml.rpc.holders.IntHolder";
+       else if( clazz == boolean.class) return "javax.xml.rpc.holders.BooleanHolder";
+       else if (clazz == new byte[0].getClass()) return "javax.xml.rpc.holders.ByteArrayHolder";
+       else if (clazz == byte.class) return "javax.xml.rpc.holders.ByteHolder";
+       else if (clazz == double.class) return "javax.xml.rpc.holders.DoubleHolder";
+       else if (clazz == float.class) return "javax.xml.rpc.holders.FloatHolder";
+       else if (clazz == long.class) return "javax.xml.rpc.holders.FloatHolder";
+       else if (clazz == short.class) return "javax.xml.rpc.holders.ShortHolder";
+       else     
+       return  "org.apache.beehive.wsm.databinding.GenericHolder<" + clazz.getCanonicalName() + ">";
+    }
     private static Options buildOptions() {
         Options options = new Options();
         OptionBuilder.hasArg();
