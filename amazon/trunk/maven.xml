@@ -1,0 +1,122 @@
+<project
+  default="java:jar"
+  xmlns:j="jelly:core"
+  xmlns:ant="jelly:ant"
+  xmlns:i="jelly:interaction"
+  xmlns:maven="jelly:maven">
+    
+    <ant:path id="task.path">
+      <ant:path refid="maven.dependency.classpath"/>
+      <ant:pathelement path="${maven.build.dest}"/>
+    </ant:path>
+    
+    <ant:taskdef name="apt" 
+                classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+                classpathref="task.path" 
+                onerror="report" />
+                
+    <ant:taskdef name="control-jar" 
+                 classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
+                 classpathref="task.path" 
+                 onerror="report" /> 
+                 
+  <!-- Compile annotation generated classes from the generated client -->
+  <goal name="beehive:compile">
+
+    <ant:mkdir dir="target/generated-main"/>
+
+    <apt srcdir="${maven.build.dir}/xfire-xmlbeans-main"
+         destdir="${basedir}/target/classes" 
+         gendir="${basedir}/target/generated-main"
+         classpathref="task.path"
+         debug="on"
+         compileByExtension="true"
+         srcExtensions="*.java,*.jcx,*.jcs"
+       	 nocompile="true"
+         target="1.5"/>
+ 
+  </goal>
+  
+  <goal name="xfire:generate">
+    
+    <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-main"/>
+  
+    <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          classpathref="task.path"
+          fork="true">
+      <arg value="-d"/>
+      <arg value="${maven.build.dest}"/>
+      <arg value="${basedir}/src/schemas"/>
+    </java>
+    
+    <ant:copy todir="${maven.build.dest}">
+      <ant:fileset dir="${maven.build.dir}/xfire-xmlbeans-main">
+        <ant:include name="**/*.xsb"/>
+      </ant:fileset>
+    </ant:copy>
+    
+    <ant:path id="generate.path">
+      <ant:pathelement path="${maven.build.dest}"/>
+      <ant:path refid="maven.dependency.classpath"/>
+      <ant:pathelement path="${maven.test.dest}"/>
+    </ant:path>   
+
+    <ant:taskdef name="generate" 
+                 classname="org.codehaus.xfire.xmlbeans.generator.GeneratorTask"
+                 classpathref="generate.path"/>
+    
+    <echo>Creating Amazon Client</echo>
+    <generate overwrite="true"
+              package="org.controlhaus.amazon"
+              outputDir="${maven.build.dir}/xfire-xmlbeans-main"
+              wsdl="${basedir}/src/schemas/Amazon.wsdl"
+              classpathref="generate.path"
+              strategy="org.controlhaus.xfire.client.BeehiveClientStrategy" />   
+
+    <ant:path id="xfire.client.generated.dir" 
+              location="${maven.build.dir}/xfire-xmlbeans-main"/>
+
+    <maven:addPath id="maven.compile.src.set"  
+                   refid="xfire.client.generated.dir"/>
+  </goal>
+    
+  <!-- Compile annotation generated classes from the test cases -->
+  <goal name="beehive:test-compile">
+
+    <ant:mkdir dir="target/generated-test"/>
+
+    <apt srcdir="${basedir}/src/test"
+         destdir="${maven.build.dir}/test-classes" 
+         gendir="${maven.build.dir}/generated-test"
+         classpathref="task.path"
+         debug="on"
+         compileByExtension="true"
+         srcExtensions="*.java,*.jcx,*.jcs"
+       	 nocompile="true"
+         target="1.5"/>
+         
+  </goal>
+ 
+  <!-- its useful to generate an amazon jar when working in an ide -->
+  <goal name="amazon-jar">
+    
+    <ant:mkdir dir="${maven.build.dir}/xfire-xmlbeans-main"/>
+  
+    <java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+          classpathref="task.path"
+          fork="true">
+      <arg value="-out"/>
+      <arg value="${basedir}/target/amazon.jar"/>
+      <arg value="${basedir}/src/schemas"/>
+    </java>
+  </goal>
+
+  <preGoal name="java:compile">
+    <attainGoal name="xfire:generate"/>
+    <attainGoal name="beehive:compile"/>
+  </preGoal>
+  
+  <preGoal name="test:compile">
+    <attainGoal name="beehive:test-compile"/>
+  </preGoal>  
+</project>
