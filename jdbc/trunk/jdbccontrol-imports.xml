@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+
+<!--
+    Copyright 2005 BEA Systems, Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project name="jdbccontrol-imports" default="" basedir=".">
+
+    <property environment="os"/>
+    <dirname property="jdbcc.home" file="${ant.file.jdbccontrol-imports}"/>
+
+    <property name="jdbcc.jar.name" value="jdbccontrol.jar"/>
+    <property name="compiler.debug" value="true"/>
+
+    <property name="ant.home" location="${os.ANT_HOME}"/>
+    <property name="beehive.home" location="${os.BEEHIVE_HOME}"/>
+    <property name="beehive.external.dir" location="${beehive.home}/external"/>
+    <property name="jdbcc.test.dir" location="${jdbcc.home}/test"/>
+    <property name="jdbcc.build.dir" location="${jdbcc.home}/build"/>
+    <property name="jdbcc.external.dir" location="${jdbcc.home}/external"/>
+    <property name="dist.base.dir" location="${jdbcc.home}/build/dist"/>
+    <property name="jdbcc.jar" location="${dist.base.dir}/${jdbcc.jar.name}"/>
+
+    
+    <!-- ======================================================================== -->
+    <!-- Common JdbcControl paths                                                 -->
+    <!-- ======================================================================== -->
+
+    <fileset id="controls.fileset" file="${beehive.home}/controls/build/jars/controls.jar"/>
+    <fileset id="jdbccontrol.fileset" file="${jdbcc.jar}"/>
+    <fileset id="log4j.fileset" file="${beehive.home}/external/log4j/log4j-1.2.8.jar"/>
+    <fileset id="xbean.fileset" file="${jdbcc.home}/external/xmlbeans/apache-xbean-1.0.3.jar"/>
+    <fileset id="jsr173.fileset" file="${jdbcc.home}/external/xmlbeans/jsr173_1.0_api.jar"/>
+    <fileset id="velocity.fileset" dir="${beehive.home}/external/velocity">
+        <include name="velocity-1.4.jar"/>
+        <include name="velocity-dep-1.4.jar"/>
+    </fileset>
+
+    <path id="controls.dependency.path">
+        <pathelement location="${beehive.home}/controls/build/jars/controls.jar"/>
+    </path>
+
+    <path id="apt.dependency.path">
+        <path refid="controls.dependency.path"/>
+        <pathelement location="${jdbcc.jar}"/>
+    </path>
+
+    <path id="tools.dependency.path">
+        <pathelement location="${os.JAVA_HOME}/lib/tools.jar"/>
+    </path>
+
+    <path id="log4j.dependency.path">
+        <fileset refid="log4j.fileset"/>
+    </path>
+
+    <path id="velocity.dependency.path">
+        <fileset refid="velocity.fileset"/>
+    </path>
+
+    <path id="xbean.dependency.path">
+        <fileset refid="xbean.fileset"/>
+        <fileset refid="jsr173.fileset"/>
+    </path>
+
+    <path id="ant-all.dependency.path">
+        <fileset dir="${ant.home}/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="ant-jar.dependency.path">
+        <fileset file="${ant.home}/lib/ant.jar"/>
+    </path>
+
+    <!-- test  classpaths-->
+    <path id="junit.dependency.path">
+        <pathelement location="${jdbcc.home}/external/junit/junit.jar"/>
+    </path>
+
+</project>
