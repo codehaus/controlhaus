@@ -15,7 +15,6 @@
  
    $Header:$
  -->
-<?xml version="1.0" ?>
 
 <project name="xmlbea _service_control_sample" default="run.test">
 

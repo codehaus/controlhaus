@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://webservices.amazon.com/AWSECommerceService/2004-11-10" targetNamespace="http://webservices.amazon.com/AWSECommerceService/2004-11-10">
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://webservices.amazon.com/AWSECommerceService/2005-01-19" targetNamespace="http://webservices.amazon.com/AWSECommerceService/2005-01-19">
     <types>
-	<xs:schema targetNamespace="http://webservices.amazon.com/AWSECommerceService/2004-11-10" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://webservices.amazon.com/AWSECommerceService/2004-11-10" elementFormDefault="qualified">
+	<xs:schema targetNamespace="http://webservices.amazon.com/AWSECommerceService/2005-01-19" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://webservices.amazon.com/AWSECommerceService/2005-01-19" elementFormDefault="qualified">
 		<xs:element name="Help">
 			<xs:complexType>
 				<xs:sequence>
@@ -64,7 +64,8 @@
 				<xs:element name="Cuisine" type="xs:string" minOccurs="0"/>
 				<xs:element ref="tns:DeliveryMethod" minOccurs="0"/>
 				<xs:element name="Director" type="xs:string" minOccurs="0"/>
-				<xs:element name="ISPUPostalCode" type="xs:string" minOccurs="0"/>
+	                        <xs:element name="FutureLaunchDate" type="xs:string" minOccurs="0"/>
+	                        <xs:element name="ISPUPostalCode" type="xs:string" minOccurs="0"/>
 				<xs:element name="ItemPage" type="xs:positiveInteger" minOccurs="0"/>
 				<xs:element name="Keywords" type="xs:string" minOccurs="0"/>
 				<xs:element name="Manufacturer" type="xs:string" minOccurs="0"/>
@@ -101,7 +102,8 @@
 			<xs:sequence>
 				<xs:element ref="tns:Condition" minOccurs="0"/>
 				<xs:element ref="tns:DeliveryMethod" minOccurs="0"/>
-				<xs:element name="IdType" minOccurs="0">
+	                        <xs:element name="FutureLaunchDate" type="xs:string" minOccurs="0"/>
+	                        <xs:element name="IdType" minOccurs="0">
 					<xs:simpleType>
 						<xs:restriction base="xs:string">
 							<xs:enumeration value="ASIN"/>
@@ -538,6 +540,7 @@
 		<xs:complexType name="BrowseNodeLookupRequest">
 			<xs:sequence>
 				<xs:element name="BrowseNodeId" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="ResponseGroup" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 			</xs:sequence>
 		</xs:complexType>
 		<xs:element name="Condition">
@@ -781,6 +784,7 @@
 				<xs:sequence>
 					<xs:element name="IsValid" type="xs:string" minOccurs="0"/>
 					<xs:element name="HelpRequest" type="tns:HelpRequest" minOccurs="0"/>
+					<xs:element name="BrowseNodeLookupRequest" type="tns:BrowseNodeLookupRequest" minOccurs="0"/>
 					<xs:element name="ItemSearchRequest" type="tns:ItemSearchRequest" minOccurs="0"/>
 					<xs:element name="ItemLookupRequest" type="tns:ItemLookupRequest" minOccurs="0"/>
 					<xs:element name="ListSearchRequest" type="tns:ListSearchRequest" minOccurs="0"/>
@@ -1041,15 +1045,7 @@
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
-					<xs:element name="Reviews" minOccurs="0">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="TotalReviews" type="xs:nonNegativeInteger" minOccurs="0"/>
-								<xs:element name="TotalReviewPages" type="xs:nonNegativeInteger" minOccurs="0"/>
-								<xs:element ref="tns:Review" maxOccurs="unbounded"/>
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
+					<xs:element ref="tns:CustomerReviews" maxOccurs="unbounded"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -1500,9 +1496,9 @@
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
-					<xs:element name="AverageFeedbackRating" type="xs:decimal" minOccurs="0"/>
-					<xs:element name="TotalFeedback" type="xs:nonNegativeInteger" minOccurs="0"/>
-					<xs:element name="TotalFeedbackPages" type="xs:nonNegativeInteger" minOccurs="0"/>
+	                                <xs:element name="AverageFeedbackRating" type="xs:decimal" minOccurs="0"/>
+	                                <xs:element name="TotalFeedback" type="xs:nonNegativeInteger" minOccurs="0"/>
+	                                <xs:element name="TotalFeedbackPages" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element ref="tns:SellerFeedback" minOccurs="0"/>
 				</xs:sequence>
 			</xs:complexType>
@@ -1567,8 +1563,8 @@
 		<xs:complexType name="Image">
 			<xs:sequence>
 				<xs:element name="URL" type="xs:string"/>
-				<xs:element name="Height" type="tns:FloatWithUnits"/>
-				<xs:element name="Width" type="tns:FloatWithUnits"/>
+				<xs:element name="Height" type="tns:DecimalWithUnits"/>
+				<xs:element name="Width" type="tns:DecimalWithUnits"/>
 				<xs:element name="IsVerified" type="xs:string" minOccurs="0"/>
 			</xs:sequence>
 		</xs:complexType>
@@ -1641,7 +1637,7 @@
 					<xs:element name="FabricType" type="xs:string" minOccurs="0"/>
 					<xs:element name="FaxNumber" type="xs:string" minOccurs="0"/>
 					<xs:element name="Feature" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="FirstIssueLeadTime" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="FirstIssueLeadTime" type="tns:StringWithUnits" minOccurs="0"/>
 					<xs:element name="FloppyDiskDriveDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="Format" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="GemType" type="xs:string" minOccurs="0"/>
@@ -1658,22 +1654,8 @@
 					<xs:element name="HasTripodMount" type="xs:boolean" minOccurs="0"/>
 					<xs:element name="HasVideoOut" type="xs:boolean" minOccurs="0"/>
 					<xs:element name="HasViewfinder" type="xs:boolean" minOccurs="0"/>
-					<xs:element name="Height" type="tns:FloatWithUnits" minOccurs="0"/>
-					<xs:element name="HoursOfOperation" minOccurs="0">
-						<xs:complexType>
-							<xs:sequence>
-								<xs:element name="Hours" maxOccurs="7">
-									<xs:complexType>
-										<xs:simpleContent>
-											<xs:extension base="xs:string">
-												<xs:attribute name="Day" type="xs:string" use="optional"/>
-											</xs:extension>
-										</xs:simpleContent>
-									</xs:complexType>
-								</xs:element>
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
+					<xs:element name="Height" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="HoursOfOperation" type="xs:string" minOccurs="0"/>
 					<xs:element name="IncludedSoftware" type="xs:string" minOccurs="0"/>
 					<xs:element name="IncludesMp3Player" type="xs:boolean" minOccurs="0"/>
 					<xs:element name="Ingredients" type="xs:string" minOccurs="0"/>
@@ -1702,7 +1684,7 @@
 						</xs:complexType>
 					</xs:element>
 					<xs:element name="LegalDisclaimer" type="xs:string" minOccurs="0"/>
-					<xs:element name="Length" type="tns:FloatWithUnits" minOccurs="0"/>
+					<xs:element name="Length" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="LineVoltage" type="xs:string" minOccurs="0"/>
 					<xs:element name="ListPrice" type="tns:Price" minOccurs="0"/>
 					<xs:element name="MacroFocusRange" type="xs:string" minOccurs="0"/>
@@ -1793,10 +1775,10 @@
 					<xs:element name="SystemMemoryType" type="xs:string" minOccurs="0"/>
 					<xs:element name="TheatricalReleaseDate" type="xs:string" minOccurs="0"/>
 					<xs:element name="Title" type="xs:string" minOccurs="0"/>
-					<xs:element name="TotalDiamondWeight" type="tns:FloatWithUnits" minOccurs="0"/>
+					<xs:element name="TotalDiamondWeight" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="TotalExternalBaysFree" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="TotalFirewirePorts" type="xs:nonNegativeInteger" minOccurs="0"/>
-					<xs:element name="TotalGemWeight" type="tns:FloatWithUnits" minOccurs="0"/>
+					<xs:element name="TotalGemWeight" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="TotalInternalBaysFree" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="TotalMetalWeight" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="TotalNTSCPALPorts" type="xs:nonNegativeInteger" minOccurs="0"/>
@@ -1814,8 +1796,8 @@
 					<xs:element name="Warranty" type="xs:string" minOccurs="0"/>
 					<xs:element name="WatchMovementType" type="xs:string" minOccurs="0"/>
 					<xs:element name="WaterResistanceDepth" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
-					<xs:element name="Weight" type="tns:FloatWithUnits" minOccurs="0"/>
-					<xs:element name="Width" type="tns:FloatWithUnits" minOccurs="0"/>
+					<xs:element name="Weight" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="Width" type="tns:DecimalWithUnits" minOccurs="0"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -1826,9 +1808,16 @@
 				</xs:extension>
 			</xs:simpleContent>
 		</xs:complexType>
-		<xs:complexType name="FloatWithUnits">
+		<xs:complexType name="DecimalWithUnits">
 			<xs:simpleContent>
-				<xs:extension base="xs:float">
+				<xs:extension base="xs:decimal">
+					<xs:attribute name="Units" type="xs:string" use="required"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+		<xs:complexType name="StringWithUnits">
+			<xs:simpleContent>
+				<xs:extension base="xs:string">
 					<xs:attribute name="Units" type="xs:string" use="required"/>
 				</xs:extension>
 			</xs:simpleContent>
