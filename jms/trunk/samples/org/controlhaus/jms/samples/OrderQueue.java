@@ -5,12 +5,16 @@ import org.apache.beehive.controls.api.bean.ControlExtension;
 
 
 @ControlExtension
-@JMSControl.Destination(sendJndiName="queue.orders",jndiConnectionFactory="weblogic.jws.jms.QueueConnectionFactory")
+@JMSControl.Destination(sendJndiName="jms.SimpleJmsQ",jndiConnectionFactory="weblogic.jws.jms.QueueConnectionFactory")
 public interface OrderQueue extends JMSControl
 {
 	public class Order implements java.io.Serializable
 	{
-	    public Order()
+	    /**
+         * Comment for <code>serialVersionUID</code>
+         */
+        private static final long serialVersionUID = 8951994251593378324L;
+        public Order()
 	    {
 	        
 	    }
@@ -23,5 +27,5 @@ public interface OrderQueue extends JMSControl
 	    private int buyerId;
 	    private String[] itemList;
 	}
-    public void submitOrder(@Body Order order,@Property(name="DeliverBy") String deliverBy);
+    public javax.jms.Message submitOrder(@Body Order order,@Property(name="DeliverBy") String deliverBy);
 }
