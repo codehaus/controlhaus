@@ -141,7 +141,8 @@ public class ServiceControlImpl
 
         if (xObj != null) {
             XmlCursor xCur = xObj.newCursor();
-            if (xCur.toFirstContentToken() == XmlCursor.TokenType.START) {
+            if (xCur.toFirstContentToken() == XmlCursor.TokenType.START
+                && xCur.toFirstChild()) {
                 List<Element> elementList = new ArrayList<Element>();
                 do {
                     Node n = xCur.getDomNode();
