@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.List;
 /**
  * @editor-info:code-gen control-interface="true"
- * @jcs:jc-jar icon-32="icon32.gif" icon-16="icon16.gif" version="1.0" description="Spell Checker" label="Spell Checker Control"
+ * @jcs:jc-jar icon-32="icon32.gif" icon-16="icon16.gif" version="1.0" description="Spell Checker" label="Spell Checker"
  */
 public class SpellCheckerImpl implements SpellChecker, ControlSource
 { 
