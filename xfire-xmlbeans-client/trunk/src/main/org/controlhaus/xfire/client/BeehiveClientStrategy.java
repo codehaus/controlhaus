@@ -36,31 +36,22 @@ public class BeehiveClientStrategy
         if ( service.isRest() )
             type = "Rest";
                 
-        String intfName = service.getName() + type + "ClientControl";
-        String implName = service.getName() + type + "ClientControlImpl";
-        
+        String intfName = service.getName() + type + "ClientControl";        
         File intfFile = new File(dir, intfName + ".java" );
-        File implFile = new File(dir, implName + ".java" );
-        
-        if ( !intfFile.exists() || !implFile.exists() || task.isOverwrite() )
+
+        if ( !intfFile.exists() || task.isOverwrite() )
         {
             FileWriter writer = new FileWriter(intfFile);
-            FileWriter implWriter = new FileWriter(implFile);
 
             VelocityContext context = new VelocityContext();
             context.put("package", task.getPackage());
             context.put("service", service);
             context.put("interfaceType", intfName);
-            context.put("implType", implName);
-            
+
             generateStub(context, 
                          writer, 
                          new InputStreamReader(getClass().getResourceAsStream("ControlInterface.vm")));
-            
-            generateStub(context, 
-                    implWriter, 
-                         new InputStreamReader(getClass().getResourceAsStream("ControlImpl.vm")));
-            
+
             writer.close();
         }
     }

@@ -10,7 +10,6 @@ import org.apache.beehive.controls.api.bean.Control;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.apache.beehive.controls.runtime.bean.ControlContainerContext;
 import org.controlhaus.xfire.weather.WeatherForecastClientControl;
-import org.controlhaus.xfire.weather.WeatherForecastClientControlBean;
 
 import junit.framework.TestCase;
 
@@ -21,7 +20,7 @@ import junit.framework.TestCase;
 public class WeatherTest 
     extends AbstractControlTest
 {
-    @Control WeatherForecastClientControlBean weather;
+    @Control WeatherForecastClientControl weather;
 
     public void testControl() 
         throws Exception

@@ -19,6 +19,7 @@ import org.codehaus.xfire.client.ClientHandler;
 import org.codehaus.xfire.client.http.SoapHttpClient;
 import org.codehaus.xfire.fault.XFireFault;
 import org.codehaus.xfire.xmlbeans.client.XMLBeansClientHandler;
+import org.controlhaus.xfire.client.XFireClientControl.ServiceUrl;
 
 /**
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
@@ -94,8 +95,21 @@ public class XFireClientControlImpl
     
     public Object invoke(Method m, Object [] args) throws Throwable
     {
-        System.out.println(m.getName() + " " + m.getDeclaringClass().getName());
-        System.out.println(this.getClass());
-        return m.invoke(this, args);
+        if ( getServiceUrl() == null )
+        {
+            ServiceUrl a = m.getDeclaringClass().getAnnotation(ServiceUrl.class);
+            serviceUrl = a.value();            
+        }
+
+        XmlObject[] arr = new XmlObject[args.length];
+        for ( int i = 0; i < args.length; i++ )
+        {
+            arr[i] = (XmlObject) args[i];
+        }
+        
+        if ( m.getReturnType().isArray() )
+            return invoke( (XmlObject[]) arr );
+        else
+            return invoke( (XmlObject[]) arr )[0];
     }
 }
