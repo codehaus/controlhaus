@@ -85,7 +85,7 @@
    	
 
 
-	  <target name="gen_jcx" depends="gen_xmlbeans">
+	  <target name="gen_jcx" depends="gen_xmlbeans" unless="noxbeanrebuild">
 
 	    <java classname="org.controlhaus.webservice.generator.ExtensionMaker">
 	    	<classpath> 
@@ -142,7 +142,7 @@
 	      schema="${schema.dir}" 
 	      srcgendir="${xbeangen.dir}"
 	      classgendir="${build.classes}"
-	      failonerror="true" ignoreduplicatesinnamespaces="http://webparam.web">
+	      failonerror="true" ignoreduplicatesinnamespaces="http://webparam.web,http://webservice.web,http://complex.web,http://webmethod.web">
 	      <classpath>
 	        <path refid="build.classpath"/>
 	      </classpath>
