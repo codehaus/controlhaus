@@ -1,0 +1,286 @@
+/*   Copyright 2004 Salesforce.com
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package pages.cases.caseList;
+import com.bea.netuix.servlets.controls.AbstractEvent;
+import com.bea.netuix.servlets.controls.content.JspContentContext;
+import com.bea.netuix.servlets.controls.page.BookBackingContext;
+import com.bea.netuix.servlets.controls.page.PageBackingContext;
+import com.bea.netuix.servlets.controls.portlet.backing.PortletBackingContext;
+import com.bea.netuix.servlets.controls.portlet.events.PortletEvent;
+import com.bea.netuix.servlets.controls.portlet.events.PortletEventListener;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+import com.sforce.soap.enterprise.DescribeSObjectResult;
+import com.sforce.soap.enterprise.QueryResult;
+import com.sforce.soap.enterprise.sobject.Case;
+import com.sforce.soap.enterprise.sobject.SObject;
+import java.util.Calendar;
+
+/**
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/pages/cases/caseList/CaseListController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="60" name="x"/>
+ *   <property value="160" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:listCases.do">
+ *   <property value="80" name="x"/>
+ *   <property value="260" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:viewCase.do">
+ *   <property value="160" name="x"/>
+ *   <property value="160" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:caseList.jsp@#@action:viewCase.do@">
+ *   <property value="144,144,149,149" name="elbowsX"/>
+ *   <property value="63,106,106,116" name="elbowsY"/>
+ *   <property value="West_2" name="fromPort"/>
+ *   <property value="North_0" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:caseList.jsp">
+ *   <property value="180" name="x"/>
+ *   <property value="60" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#listCases.do#@action:begin.do@">
+ *   <property value="60,60,80,80" name="elbowsX"/>
+ *   <property value="204,210,210,216" name="elbowsY"/>
+ *   <property value="South_1" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#caseList.jsp#@action:listCases.do@">
+ *   <property value="116,130,130,144" name="elbowsX"/>
+ *   <property value="241,241,52,52" name="elbowsY"/>
+ *   <property value="East_0" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#caseList.jsp#@action:viewCase.do@">
+ *   <property value="160,160,144,144" name="elbowsX"/>
+ *   <property value="116,106,106,63" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="West_2" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#case#com.sforce.soap.enterprise.sobject.Case"/>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#id#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#caseNumber#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#suppliedCompany#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#subject#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#status#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#priority#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#ownerAlias#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:pages.cases.caseList.CaseListController.CaseForm#type#java.lang.String"/>
+ * <pageflow-object id="formbean:pages.cases.caseList.CaseListController.CaseForm"/>
+ * </view-properties>
+ * ::
+ */
+public class CaseListController extends PageFlowController implements PortletEventListener
+{
+    private org.controlhaus.sforce.sforce3_0Enterprise sForce;
+    
+    public CaseForm[] cases;
+
+	public	String caseSelect = "Select Id, SuppliedCompany, Priority, Status, OwnerId, Type, Subject From Case";
+
+    // Uncomment this declaration to access Global.app.
+    // 
+    //     protected global.Global globalApp;
+    // 
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="listCases.do"
+     */
+    protected Forward begin()
+    {
+        if(null==sForce){
+            sForce = (org.controlhaus.sforce.sforce3_0Enterprise)this.getRequest().getSession().getAttribute("sForce");
+        }
+
+        // Register for Portlet Events
+        PortletBackingContext portletBackingContext = PortletBackingContext.getPortletBackingContext(this.getRequest());
+        PortletEvent.addGlobalListener(portletBackingContext, this);
+        return new Forward("success");
+    }
+        
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="caseList.jsp"
+     */
+    //Retrieve a set of all cases that this user can see.  This is an unbounded query.
+    protected Forward listCases()
+    {
+        try
+        {
+            loadList();
+        }
+        catch( Exception ex)
+        {
+            this.getRequest().setAttribute("msg", ex.getMessage());
+            ex.printStackTrace();         
+        }        
+        return new Forward("success");        
+    }
+    
+    private void loadList(){
+        System.out.println("loadlist1");
+        int batchSize = 8;
+        //if (this.getRequest().getParameter("refresh") != null || cases == null) {
+                
+        // Query Case
+        QueryResult queryResult=sForce.query(caseSelect);
+
+        //queryResult.getSize() returns the total number of records that matched the query
+        //criteria.  This number can be larger than the length of the getRecordsArray() 
+        //due to the ability to specify the number of records returned for a batch.  
+        if ( queryResult.getSize() != 0 ) {
+            // store cases
+            //create a loop control variable
+            boolean done = false;
+            int loopCount = 0;  //use this as an offset into the cases
+            //use the getSize() method to set the size of the array
+            cases = new CaseForm[queryResult.getSize()];
+            while (!done) {
+                for (int i=0; i< queryResult.getRecordsArray().length; i++) {
+                    cases[loopCount] = new CaseForm();
+                    SObject sObj = queryResult.getRecordsArray(i);
+                    cases[loopCount].setCase((Case) sObj);
+                    loopCount++;
+                }
+                //check to see if this is the last batch from the query
+                if (queryResult.getDone()) {
+                    //set the loop control to true to exit the loop
+                    done = true;
+                } else {
+                    // this means there is another batch of records to be retrieved
+                    // reset the queryResult using the queryMore function passing the 
+                    // "cursor" to the function.                            
+                    queryResult = sForce.queryMore(queryResult.getQueryLocator());
+                }
+            }
+        }
+        //}
+        System.out.println("loadlist2");
+    }
+    
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="caseList.jsp"
+     */
+    protected Forward viewCase(){
+        return new Forward("success");
+    }
+    
+    public void handleEvent(Object source, AbstractEvent event)
+    {
+        System.out.println("Got an event: " + event);
+        System.out.println("From: " + source.getClass().getName());
+        loadList();
+    }
+
+    public static class CaseForm extends com.bea.wlw.netui.pageflow.FormData
+    {
+
+        private Case _case = Case.Factory.newInstance();
+                
+        
+        public Case getCase(){
+            return _case;
+        }
+        
+        public void setCase( Case _case)
+        {
+            this._case=_case;
+		}
+
+        public java.lang.String getId()
+        {
+            return _case.getId();
+        }
+
+        public java.lang.String getCaseNumber()
+        {
+            return _case.getCaseNumber();
+        }
+        public java.lang.String getSuppliedCompany()
+        {
+            return _case.getSuppliedCompany();
+        }
+        public java.lang.String getSubject()
+        {
+            return _case.getSubject();
+        }
+        public java.lang.String getStatus()
+        {
+            return _case.getStatus();
+        }
+        public java.lang.String getPriority()
+        {
+            return _case.getPriority();
+        }
+        public java.lang.String getOwnerAlias()
+        {
+            return _case.getOwnerId();
+        }
+        public java.lang.String getType()
+        {
+            return _case.getType();
+        }
+        
+
+        public void setId(String id)
+        {
+            _case.setId(id);
+        }
+        public void setCaseNumber(String caseNumber)
+        {
+            _case.setCaseNumber(caseNumber);
+        }
+        public void setSuppliedCompany(String suppliedCompany)
+        {
+            _case.setSuppliedCompany(suppliedCompany);
+        }
+        public void setAssignementRuleId(String subject)
+        {   
+            _case.setSubject(subject);
+        }
+        public void setStatus(String status)
+        {
+            _case.setStatus(status);
+        }
+        public void setPriority(String priority)
+        {
+            _case.setPriority(priority);
+        }
+        public void setOwnerAlias(String owner)
+        {
+            _case.setOwnerId(owner);
+        }
+        public void setType(String type)
+        {
+            _case.setType(type);
+        }
+    }
+
+}

@@ -1,0 +1,148 @@
+/*   Copyright 2004 Salesforce.com
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package pageflow; 
+
+import com.bea.jpd.JpdContext;
+import com.bea.data.RawData;
+import com.bea.xml.XmlObject;
+
+/**
+ * @jpd:process process::
+ * <process name="Send email to a Contact">
+ *   <clientRequest name="Client Request with Return" method="clientRequest" returnMethod="clientReturn">
+ *     <onException name="OnException">
+ *       <perform name="Log Error" method="perform"/>
+ *     </onException>
+ *     <controlSend name="sendEmail" method="eMailSendEmail"/>
+ *   </clientRequest>
+ * </process>::
+ */
+public class emailContact implements com.bea.jpd.ProcessDefinition
+{
+    public com.bea.wli.control.dynamicProperties.EmailControlPropertiesDocument emailProps;
+
+    public java.lang.String attachments;
+
+    public java.lang.String bccAddress;
+
+    public java.lang.String ccAddress;
+
+    public java.lang.String body;
+
+    public java.lang.String subject;
+
+    public java.lang.String toAddress;
+
+    static final long serialVersionUID = 1L;
+    
+    public Callback callback;
+    
+    /*
+     * The area above this comment contains Variable Declarations created from the Design View.
+     * The area below this comment contains Control Declarations created from the Design View.
+     * 
+     * Code in these areas is generated automatically.
+     * 
+     * 2-Way editing is fully supported in these areas of code.
+     * Warning: changing Process Variables and Control Declarations already in use by your application
+     * may generate errors in your application if you do not update these declarations
+     * in all locations where they are used.
+     */
+    
+    /**
+     * @common:control
+     */
+    private pageflow.Email eMail;
+
+    /**
+     * @common:context
+     */
+    JpdContext context; //(..control insertion marker - do not modify this line)
+    
+    /*
+     * The area below this comment contains java methods referenced by communication nodes in the Process Language.
+     *
+     * Code in this area is generated automatically.
+     *
+     * 2-Way editing is partially supported in this area of code.
+     * Warning: you can safely add code inside a method body but it must be outside of any PROTECTED SECTION
+     * block comments. Modifications to code within these comments will prevent you from viewing information
+     * in the Design View builder that generated this code.
+     */
+    
+    public void clientRequest(java.lang.String toAddress, java.lang.String ccAddress, java.lang.String bccAddress, java.lang.String subject, java.lang.String body, java.lang.String attachments)
+    {
+        //#START: CODE GENERATED - PROTECTED SECTION - you can safely add code above this comment in this method. #//
+        // input transform
+        // parameter assignment
+        this.toAddress = toAddress;
+        this.ccAddress = ccAddress;
+        this.bccAddress = bccAddress;
+        this.subject = subject;
+        this.body = body;
+        this.attachments = attachments;
+        //#END  : CODE GENERATED - PROTECTED SECTION - you can safely add code below this comment in this method. #//
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public void clientReturn()
+    {
+        //#START: CODE GENERATED - PROTECTED SECTION - you can safely add code above this comment in this method. #//
+        // return
+        //#END  : CODE GENERATED - PROTECTED SECTION - you can safely add code below this comment in this method. #//
+    }
+
+
+    public void eMailSendEmail() throws Exception
+    {
+        //#START: CODE GENERATED - PROTECTED SECTION - you can safely add code above this comment in this method. #//
+        // input transform
+        // method call
+        eMail.sendEmail(this.toAddress, this.ccAddress, this.bccAddress, this.subject, this.body, this.attachments);
+        // output transform
+        // output assignments
+        //#END  : CODE GENERATED - PROTECTED SECTION - you can safely add code below this comment in this method. #//
+    }
+
+    public interface Callback //(..region end marker - do not modify this line)
+    {
+    }
+    
+    /*
+     * Code inserted below this comment is for methods corresponding to Perform or Condition nodes
+     * created in the Design View.
+     *
+     * Feel free to make modifications or add new code here.
+     */
+    
+
+    public void perform() throws Exception
+    {
+System.out.println("exception="+this.context.getExceptionInfo().getException().getStackTrace());
+    }
+} 

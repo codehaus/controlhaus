@@ -1,0 +1,438 @@
+/*   Copyright 2004 Salesforce.com
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package pages.accounts.accountDetail;
+import com.bea.netuix.servlets.controls.page.PageBackingContext;
+import com.bea.netuix.servlets.controls.portlet.backing.PortletBackingContext;
+import com.bea.netuix.servlets.controls.portlet.events.PortletEvent;
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+import com.bea.xml.XmlObject;
+import com.sforce.soap.enterprise.DeleteResult;
+import com.sforce.soap.enterprise.DescribeSObjectResult;
+import com.sforce.soap.enterprise.Field;
+import com.sforce.soap.enterprise.PicklistEntry;
+import com.sforce.soap.enterprise.QueryResult;
+import com.sforce.soap.enterprise.SaveResult;
+import com.sforce.soap.enterprise.sobject.Account;
+import com.sforce.soap.enterprise.sobject.SObject;
+
+import pages.accounts.accountList.AccountListController.AccountForm;
+
+/**
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/pages/accounts/accountDetail/AccountDetailController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="80" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:listAccounts.do">
+ *   <property value="100" name="x"/>
+ *   <property value="80" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:viewAccount.do">
+ *   <property value="60" name="x"/>
+ *   <property value="40" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:createAccount.do">
+ *   <property value="140" name="x"/>
+ *   <property value="120" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:deleteAccount.do">
+ *   <property value="340" name="x"/>
+ *   <property value="200" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:editAccount.do">
+ *   <property value="180" name="x"/>
+ *   <property value="160" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:saveAccount.do">
+ *   <property value="200" name="x"/>
+ *   <property value="180" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:viewAccount.jsp@#@action:createAccount.do@">
+ *   <property value="184,140,140,140" name="elbowsX"/>
+ *   <property value="192,192,178,164" name="elbowsY"/>
+ *   <property value="West_1" name="fromPort"/>
+ *   <property value="South_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:viewAccount.jsp@#@action:editAccount.do@">
+ *   <property value="184,176,176,169" name="elbowsX"/>
+ *   <property value="181,181,116,116" name="elbowsY"/>
+ *   <property value="West_0" name="fromPort"/>
+ *   <property value="North_0" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:viewAccount.jsp@#@action:deleteAccount.do@">
+ *   <property value="256,280,280,304" name="elbowsX"/>
+ *   <property value="192,192,192,192" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:viewAccount.jsp">
+ *   <property value="220" name="x"/>
+ *   <property value="200" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:editAccount.jsp@#@action:deleteAccount.do@">
+ *   <property value="276,290,290,304" name="elbowsX"/>
+ *   <property value="212,212,181,181" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_0" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:editAccount.jsp@#@action:saveAccount.do@">
+ *   <property value="204,202,202,200" name="elbowsX"/>
+ *   <property value="201,201,136,136" name="elbowsY"/>
+ *   <property value="West_0" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:editAccount.jsp">
+ *   <property value="240" name="x"/>
+ *   <property value="220" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#createAccount.do#@action:begin.do@">
+ *   <property value="80,52,52,104" name="elbowsX"/>
+ *   <property value="56,56,112,112" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#createAccount.do#@action:listAccounts.do@">
+ *   <property value="100,65,65,104" name="elbowsX"/>
+ *   <property value="36,36,101,101" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="West_0" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#viewAccount.jsp#@action:viewAccount.do@">
+ *   <property value="96,140,140,184" name="elbowsX"/>
+ *   <property value="32,32,181,181" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_0" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#editAccount.jsp#@action:createAccount.do@">
+ *   <property value="176,190,190,204" name="elbowsX"/>
+ *   <property value="123,123,201,201" name="elbowsY"/>
+ *   <property value="East_2" name="fromPort"/>
+ *   <property value="West_0" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#createAccount.do#@action:deleteAccount.do@">
+ *   <property value="304,240,240,176" name="elbowsX"/>
+ *   <property value="181,181,112,112" name="elbowsY"/>
+ *   <property value="West_0" name="fromPort"/>
+ *   <property value="East_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="return-to:@forward:return-to#error#currentPage#@action:deleteAccount.do@@">
+ *   <property value="460" name="x"/>
+ *   <property value="200" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:return-to#error#currentPage#@action:deleteAccount.do@">
+ *   <property value="376,400,400,424" name="elbowsX"/>
+ *   <property value="192,192,192,192" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="error" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#editAccount.jsp#@action:editAccount.do@">
+ *   <property value="180,147,147,204" name="elbowsX"/>
+ *   <property value="116,116,201,201" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="West_0" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="return-to:@forward:return-to#error#currentPage#@action:saveAccount.do@@">
+ *   <property value="301" name="x"/>
+ *   <property value="304" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:return-to#error#currentPage#@action:saveAccount.do@">
+ *   <property value="236,250,250,265" name="elbowsX"/>
+ *   <property value="172,172,296,296" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="error" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#viewAccount.do#@action:saveAccount.do@">
+ *   <property value="164,130,130,96" name="elbowsX"/>
+ *   <property value="172,172,43,43" name="elbowsY"/>
+ *   <property value="West_1" name="fromPort"/>
+ *   <property value="East_2" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:viewAccount.jsp@#@action:viewAccount.do@">
+ *   <property value="184,140,140,96" name="elbowsX"/>
+ *   <property value="181,181,43,43" name="elbowsY"/>
+ *   <property value="West_0" name="fromPort"/>
+ *   <property value="East_2" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:editAccount.jsp@#@action:viewAccount.do@">
+ *   <property value="204,150,150,96" name="elbowsX"/>
+ *   <property value="201,201,43,43" name="elbowsY"/>
+ *   <property value="West_0" name="fromPort"/>
+ *   <property value="East_2" name="toPort"/>
+ * </pageflow-object>
+ * </view-properties>
+ * ::
+ */
+public class AccountDetailController extends PageFlowController
+{
+
+    private org.controlhaus.sforce.sforce3_0Enterprise sForce;
+    
+    public static int VIEW_MODE = 0;
+    public static int EDIT_MODE = 1;
+    public static int CREATE_MODE = 2;
+    
+    public int screenMode = VIEW_MODE; 
+    
+    public String[] rateOptions;
+    public String[] industryOptions;
+    public String[] typeOptions;
+    public String[] ownerShipOptions;
+    
+    PortletBackingContext portletBackingContext;
+    PortletEvent.Manager portletEventManager; 
+    
+    // Uncomment this declaration to access Global.app.
+    // 
+    //     protected global.Global globalApp;
+    // 
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    public AccountForm selectedAccount;
+    
+    public boolean isCreateMode()
+    {
+        return screenMode == this.CREATE_MODE;
+    }
+    public boolean isEditMode()
+    {
+        return screenMode == this.EDIT_MODE;
+    }
+    public boolean isViewMode()
+    {
+        return screenMode == this.VIEW_MODE;
+    }
+    
+    private String[] getOptions(PicklistEntry[] picklist){
+        String[] ret = new String[picklist.length];
+        for(int i=0;i<ret.length;i++){
+            ret[i] = picklist[i].getValue();
+        }
+        return ret;
+    }
+    
+    private void setPortletTitle(String title){
+        PortletBackingContext pbContext = PortletBackingContext.getPortletBackingContext(this.getRequest());
+        System.out.println("a:"+pbContext);
+        pbContext.setTitle(title);
+    }
+    
+    
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="createAccount.do"
+     */
+    protected Forward begin()
+    {
+        if(null==sForce){
+            sForce = (org.controlhaus.sforce.sforce3_0Enterprise)this.getRequest().getSession().getAttribute("sForce");                        
+        }
+        
+        PortletBackingContext portletBackingContext = PortletBackingContext.getPortletBackingContext(getRequest());        
+        portletEventManager = PortletEvent.getEventManager(this, portletBackingContext);
+
+        if(null==rateOptions){
+            DescribeSObjectResult dr = sForce.describeSObject("Account");
+            Field[] fields = dr.getFieldsArray();
+            for(int i=0;i<fields.length;i++){
+            
+                if(fields[i].getName().equals("Rating")){
+                    rateOptions = getOptions(fields[i].getPicklistValuesArray());                
+                }else
+                if(fields[i].getName().equals("Ownership")){
+                    ownerShipOptions = getOptions(fields[i].getPicklistValuesArray());                
+                }else
+                if(fields[i].getName().equals("Industry")){
+                    industryOptions = getOptions(fields[i].getPicklistValuesArray());                
+                }else
+                if(fields[i].getName().equals("Type")){
+                    typeOptions = getOptions(fields[i].getPicklistValuesArray());                
+                }
+                
+            }// for
+       
+        }                                
+        return new Forward("success");
+    }
+    
+    /**
+     * Listen to accountList
+     * @jpf:action
+     * @jpf:forward name="success" path="createAccount.do"
+     */    
+    protected Forward listAccounts(){
+        return new Forward("success");
+    }        
+    
+    private void loadAccount(String id){
+        selectedAccount = new AccountForm();
+        SObject so = sForce.retrieve("Id, Name, Type, ParentId, BillingStreet, BillingCity, BillingState, BillingPostalCode, BillingCountry, ShippingStreet, ShippingCity, ShippingState, ShippingPostalCode, ShippingCountry, Phone, Fax, AccountNumber, Website, Sic, Industry, AnnualRevenue, NumberOfEmployees, Ownership, TickerSymbol, Description, Rating, Site, OwnerId","Account",id);
+        selectedAccount.setAccount( (Account)so );                
+    }
+    
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="viewAccount.jsp"     
+     */
+    protected Forward viewAccount()
+    {
+        this.setPortletTitle("View Account Details");
+        
+        if(null==sForce){
+            sForce = (org.controlhaus.sforce.sforce3_0Enterprise)this.getRequest().getSession().getAttribute("sForce");
+        }
+
+        try
+        {                            
+            //check to see if an accountid was passed to the function from a jsp
+            if (null != getRequest().getParameter("accountid")) {
+                String accountId = this.getRequest().getParameter("accountid");            
+                loadAccount(accountId);
+            }           
+            System.out.println("view id:"+selectedAccount.getAccount().getId());
+        }
+        catch(Exception ex)
+        {
+            this.getRequest().setAttribute("msg", ex.getMessage());
+            ex.printStackTrace();
+            return new Forward("success");
+        }
+
+        return new Forward("success");
+    }
+    
+    private void refreshList(){
+        System.out.println("send event");
+        
+        // Create a new portlet event with the results in the paylod
+        PortletEvent portletEvent = new PortletEvent(new Integer(0));
+        // fire the event.        
+        portletEventManager.fireEvent(portletEvent);
+
+    }
+
+
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="editAccount.jsp" 
+     */
+    protected Forward createAccount()
+    {
+        this.setPortletTitle("Create New Account");
+        screenMode = CREATE_MODE;
+        if(null==sForce){
+            sForce = (org.controlhaus.sforce.sforce3_0Enterprise)this.getRequest().getSession().getAttribute("sForce");
+        }                
+        selectedAccount = new AccountForm();
+        System.out.println("create id:"+selectedAccount.getAccount().getId());                
+        return new Forward("success");
+    }
+
+    private Forward returnErrorMessage(com.sforce.soap.enterprise.Error[] errors){
+        StringBuffer errorMsg = new StringBuffer();
+        for(int i=0;i<errors.length;i++) {
+            errorMsg.append( errors[i].getMessage() );                    
+        }
+        getRequest().setAttribute("errorMsg",errorMsg.toString());
+        return new Forward("error");                                
+    }
+    
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="createAccount.do"       
+     * @jpf:forward return-to="currentPage" name="error"
+     */
+    protected Forward deleteAccount()
+    {
+        if(null==sForce){
+            sForce = (org.controlhaus.sforce.sforce3_0Enterprise)this.getRequest().getSession().getAttribute("sForce");
+        }
+        DeleteResult dr = sForce.deleteOne(selectedAccount.getId());             
+        System.out.println("delete id:"+selectedAccount.getAccount().getId());
+        if(!dr.getSuccess()){
+            return returnErrorMessage(dr.getErrorsArray());
+        }                        
+        this.refreshList();
+        return new Forward("success");
+    }
+
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="editAccount.jsp" 
+     */
+    protected Forward editAccount()
+    {
+        this.setPortletTitle("Edit");
+        screenMode = EDIT_MODE;
+        if(null==sForce){
+            sForce = (org.controlhaus.sforce.sforce3_0Enterprise)this.getRequest().getSession().getAttribute("sForce");
+        }        
+        System.out.println("edit id:"+selectedAccount.getAccount().getId());
+        return new Forward("success");
+    }
+    
+    /**
+     * @jpf:action
+     * @jpf:forward return-to="currentPage" name="error"     
+     * @jpf:forward name="success" path="viewAccount.do"
+     */
+    protected Forward saveAccount()
+    {
+        if(null==sForce){
+            sForce = (org.controlhaus.sforce.sforce3_0Enterprise)this.getRequest().getSession().getAttribute("sForce");
+        }        
+        System.out.println("save id:"+selectedAccount.getAccount().getId());
+        if(isCreateMode()){
+            SaveResult cr = sForce.createOne(selectedAccount.getAccount());
+            if(cr.getSuccess()) {
+                loadAccount(cr.getId());
+                System.out.println("create save id:"+selectedAccount.getAccount().getId());              
+            }else{
+                return returnErrorMessage(cr.getErrorsArray());            
+            }                        
+           
+        }else
+        if(isEditMode()){
+            SaveResult cr = sForce.updateOne(selectedAccount.getAccount());
+            if(cr.getSuccess()) {
+                loadAccount(cr.getId());
+                System.out.println("save save id:"+selectedAccount.getAccount().getId());              
+            }else{
+                return returnErrorMessage(cr.getErrorsArray());                                            
+            }                        
+        }
+        this.refreshList();        
+        return new Forward("success");
+    }
+ 
+}

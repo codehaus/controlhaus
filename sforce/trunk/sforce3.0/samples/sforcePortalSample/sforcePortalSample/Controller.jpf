@@ -1,0 +1,161 @@
+/*   Copyright 2004 Salesforce.com
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+import com.bea.wlw.netui.pageflow.PageFlowController;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.sforce.soap.enterprise.LoginResult;
+
+/**
+ * This is the default controller for a blank web application.
+ *
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/Controller.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property name="x" value="180"/>
+ *   <property name="y" value="60"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:login.do#Controller.LoginForm">
+ *   <property value="180" name="x"/>
+ *   <property value="260" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:login.jsp">
+ *   <property value="60" name="x"/>
+ *   <property value="40" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:sForce.portal">
+ *   <property value="160" name="x"/>
+ *   <property value="360" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:error.jsp">
+ *   <property name="x" value="260"/>
+ *   <property name="y" value="360"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#login#login.jsp#@action:begin.do@">
+ *   <property name="elbowsY" value="52,52,32,32"/>
+ *   <property name="elbowsX" value="144,120,120,96"/>
+ *   <property name="toPort" value="East_1"/>
+ *   <property name="fromPort" value="West_1"/>
+ *   <property name="label" value="login"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#/sForce.portal#@action:login.do#Controller.LoginForm@">
+ *   <property value="180,180,160,160" name="elbowsX"/>
+ *   <property value="304,310,310,316" name="elbowsY"/>
+ *   <property value="South_1" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#error#error.jsp#@action:login.do#Controller.LoginForm@">
+ *   <property value="216,220,220,224" name="elbowsX"/>
+ *   <property value="252,252,352,352" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="error" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:Controller.LoginForm#username#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:Controller.LoginForm#password#java.lang.String"/>
+ * <pageflow-object id="formbean:Controller.LoginForm"/>
+ * <pageflow-object id="action-call:@page:login.jsp@#@action:login.do#Controller.LoginForm@">
+ *   <property value="96,120,120,144" name="elbowsX"/>
+ *   <property value="43,43,252,252" name="elbowsY"/>
+ *   <property value="East_2" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:org.controlhaus.sforce.sforce3_0Enterprise#sForce">
+ *   <property value="26" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * </view-properties>
+ * ::
+ */
+public class Controller extends PageFlowController
+{
+    /**
+     * @common:control
+     */
+    private org.controlhaus.sforce.sforce3_0Enterprise sForce;   
+
+    /**
+     * @jpf:action
+     * @jpf:forward name="login" path="login.jsp"
+     */
+    protected Forward begin()
+    {
+        return new Forward("login");        
+    }
+    
+    /**
+     * @jpf:action
+     * @jpf:forward name="success" path="/sForce.portal"
+     * @jpf:forward name="error" path="error.jsp"
+     */
+    protected Forward login(LoginForm form)
+    {
+        boolean result = false;
+        LoginResult loginResult = null;
+        try
+        {
+            //attemp to login using the user provided username and password
+			loginResult = sForce.login( form.getUsername(), form.getPassword() );
+            this.getRequest().getSession().setAttribute("sForce",sForce);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
+        //if ( null==loginResult.getSessionId() )
+        if ( null==loginResult )
+        {
+            this.getRequest().setAttribute("msg", "Error occurred in login");
+            return new Forward ("error");
+        }
+
+        Forward f = new Forward("success");
+        return f;
+    }
+    
+       public static class LoginForm extends com.bea.wlw.netui.pageflow.FormData
+    {
+        private java.lang.String password = "";
+
+        private java.lang.String username = "";
+
+
+        public void setUsername(java.lang.String username)
+        {
+            this.username = username;
+        }
+
+        public java.lang.String getUsername()
+        {
+            return this.username;
+        }
+
+        public void setPassword(java.lang.String password)
+        {
+            this.password = password;
+        }
+
+        public java.lang.String getPassword()
+        {
+            return this.password;
+        }
+    }
+
+
+}
