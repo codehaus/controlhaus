@@ -7,7 +7,7 @@ The JdbcControl sample requires that the Apache Beehive distribution be installe
 
 * Add the derby jar file which can be found in this project's source tree to your tomcat installations shared/lib dir.
 
-* Edit the context.xml file's <Context> docbase attribute to set it to the location of this directory.
+* Edit the context.xml file's <Context> docbase attribute to set it to the location of the sample app directory.
 
 * Run 'ant deploy' to build and deploy the sample app.
 
