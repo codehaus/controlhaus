@@ -35,11 +35,11 @@ import javax.sql.RowSet;
 import java.lang.reflect.Method;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.DatabaseMetaData;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,13 +50,15 @@ import java.util.Vector;
  * The implementation class for the database controller.
  */
 @ControlImplementation
-public class JdbcControlImpl implements JdbcControl, Extensible {
+        public class JdbcControlImpl implements JdbcControl, Extensible {
 
     //
     // contexts provided by the beehive controls runtime
     //
-    @org.apache.beehive.controls.api.context.Context protected ControlBeanContext _context;
-    @org.apache.beehive.controls.api.context.Context protected ResourceContext _resourceContext;
+    @org.apache.beehive.controls.api.context.Context
+            protected ControlBeanContext _context;
+    @org.apache.beehive.controls.api.context.Context
+            protected ResourceContext _resourceContext;
 
     protected transient Connection _connection;
     protected transient ConnectionDataSource _connectionDataSource;
@@ -97,7 +99,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * Invoked by the controls runtime when a new instance of this class is aquired by the runtime
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceEvents.class, eventName = "onAcquire")
-    public void onAquire() {
+            public void onAquire() {
         logger.info("onAcquire() invoked.");
         try {
             getConnection();
@@ -209,6 +211,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
     /**
      * Create and exec the query
+     *
      * @param method
      * @param args
      * @return
@@ -247,7 +250,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             }
 
             if (!dmd.supportsResultSetConcurrency(scrollType.getType(), scrollType.getConcurrencyType())) {
-                throw new ControlException("The database does not support the ResultSet concurrecy type: "+scrollType.toString());
+                throw new ControlException("The database does not support the ResultSet concurrecy type: " + scrollType.toString());
             }
         }
 
@@ -256,7 +259,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             Class returnType = method.getReturnType();
 
             SqlStatement parsedSql = _sqlParser.parse(sqlStatement);
-            ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method,  args,
+            ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method, args,
                                                    isBatchUpdate, getGeneratedKeys,
                                                    genKeyColumnNames, genKeyColumnIndexes,
                                                    scrollType);
@@ -347,7 +350,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
                 final ResultSetMapper rsm;
                 if (!UndefinedResultSetMapper.class.isAssignableFrom(resultSetMapperClass)) {
                     if (ResultSetMapper.class.isAssignableFrom(resultSetMapperClass)) {
-                        rsm = (ResultSetMapper)resultSetMapperClass.newInstance();
+                        rsm = (ResultSetMapper) resultSetMapperClass.newInstance();
                     } else {
                         throw new ControlException("Result set mappers must be subclasses of ResultSetMapper.class!");
                     }
@@ -398,8 +401,11 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * @param jndiName    Specifed in the subclasse's ConnectionDataSource annotation
      * @param jndiFactory Specified in the subclasse's ConnectionDataSource Annotation.
      * @return null if a connection cannot be established
+     * @throws ControlException
+     * @throws SQLException
      */
-    private Connection getConnectionFromDataSource(String jndiName, Class<? extends IJndiContextFactory> jndiFactory) {
+    private Connection getConnectionFromDataSource(String jndiName, Class<? extends IJndiContextFactory> jndiFactory)
+            throws SQLException, ControlException {
 
         try {
             IJndiContextFactory jf = (IJndiContextFactory) jndiFactory.newInstance();
@@ -407,13 +413,11 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             _dataSource = (DataSource) jndiContext.lookup(jndiName);
             _connection = _dataSource.getConnection();
         } catch (IllegalAccessException iae) {
-            logger.error("Jndi illegal access exception!", iae);
+            throw new ControlException("IllegalAccessException:", iae);
         } catch (InstantiationException ie) {
-            logger.error("Jndi instantiation exception!", ie);
+            throw new ControlException("InstantiationException:", ie);
         } catch (NamingException ne) {
-            logger.error("Jndi nameing exception!", ne);
-        } catch (SQLException sqe) {
-            logger.error("SQL exception!", sqe);
+            throw new ControlException("NamingException:", ne);
         }
         return _connection;
     }
@@ -426,9 +430,12 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
      * @param userName          Specified in the subclasse's ConnectionDriver annotation.
      * @param password          Specified in the subclasse's ConnectionDriver annotation.
      * @return null if a connection cannot be established.
+     * @throws ControlException
+     * @throws SQLException
      */
     private Connection getConnectionFromDriverManager(String dbDriverClassName, String dbUrlStr,
-                                                      String userName, String password, String propertiesString) {
+                                                      String userName, String password, String propertiesString)
+            throws SQLException, ControlException {
 
         try {
             Class.forName(dbDriverClassName);
@@ -437,17 +444,14 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             } else if (!EMPTY_STRING.equals(propertiesString)) {
                 Properties props = parseProperties(propertiesString);
                 if (props == null) {
-                    logger.error("Invalide properties annotation value: " + propertiesString);
-                    return null;
+                    throw new ControlException("Invalide properties annotation value: " + propertiesString);
                 }
                 _connection = DriverManager.getConnection(dbUrlStr, props);
             } else {
                 _connection = DriverManager.getConnection(dbUrlStr);
             }
         } catch (ClassNotFoundException e) {
-            logger.error("Database driver class not found!", e);
-        } catch (SQLException e) {
-            logger.error("SQL exception while connection to database!", e);
+            throw new ControlException("Database driver class not found!", e);
         }
         return _connection;
     }
