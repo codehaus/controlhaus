@@ -19,6 +19,8 @@ package org.controlhaus.jdbc.test.results;
 
 import java.sql.SQLException;
 import java.sql.ResultSet;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +46,15 @@ public interface ResultsTestCtrl extends JdbcControl {
         public void setFname(String fname) { this.fname = fname; }
         public String getFname() { return fname; }
     }
+
+    public static class BlobInfo {
+        private Blob blb;
+
+        public void setBlb(Blob blb) { this.blb = blb; }
+        public Blob getBlb() { return blb; }
+
+    }
+
 
     //
     // simple query
@@ -175,5 +186,22 @@ public interface ResultsTestCtrl extends JdbcControl {
     @SQL(statement="INSERT INTO users VALUES ({fname}, {userid})")
     public int[] doABatchUpdate(String[] fname, int[] userid);
 
+    //
+    // insert a blob
+    //
+    @SQL(statement="INSERT INTO blob_table VALUES ({id}, {blob})")
+    public int insertABlob(int id, Blob blob);
+
+    //
+    // select a blob
+    //
+    @SQL(statement="SELECT blb FROM blob_table WHERE id={id}")
+    public BlobInfo getABlob(int id);
+
+    //
+    // select a clob
+    //
+    @SQL(statement="SELECT clb FROM clob_table WHERE id={id}")
+    public Clob getAClob(int id);
 }
 

@@ -163,6 +163,7 @@
             <test name="org.controlhaus.jdbc.units.results.DBSingleRowResultsTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.results.DBMultiRowResultsTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.results.StoredProcsDBResultsTest" todir="${testout.dir}"/>
+            <test name="org.controlhaus.jdbc.units.results.JdbcTypesTest" todir="${testout.dir}"/>
             <test name="org.controlhaus.jdbc.units.errors.ErrorPathsTest" todir="${testout.dir}"/>
             <!--
                 <batchtest fork="yes" todir="${testout.dir}">

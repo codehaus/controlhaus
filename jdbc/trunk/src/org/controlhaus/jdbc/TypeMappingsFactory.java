@@ -21,6 +21,8 @@ import org.apache.beehive.controls.api.ControlException;
 
 import java.lang.reflect.Method;
 import java.sql.Types;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -129,7 +131,6 @@ public final class TypeMappingsFactory {
         _typeMap.put(java.util.Date.class, new Integer(TYPE_DATE));
         _typeMap.put(java.util.Calendar.class, new Integer(TYPE_CALENDAR));
         _typeMap.put(java.util.GregorianCalendar.class, new Integer(TYPE_CALENDAR));
-        //       _typeMap.put(com.bea.xml.StringEnumAbstractBase.class, new Integer(TYPE_STRING));
 
         // Class to java.sql.Types
         _typeSqlMap = new HashMap<Class, Integer>(TYPE_MAX * 2);
@@ -160,9 +161,6 @@ public final class TypeMappingsFactory {
         _typeSqlMap.put(java.util.Date.class, new Integer(Types.TIMESTAMP));
         _typeSqlMap.put(java.util.Calendar.class, new Integer(Types.TIMESTAMP));
         _typeSqlMap.put(java.util.GregorianCalendar.class, new Integer(Types.TIMESTAMP));
-//        _typeSqlMap.put(com.bea.xml.StringEnumAbstractBase.class, new Integer(Types.VARCHAR));
-        //_typeSqlMap.put(java.io.Reader.class, new Integer(Types.READER));
-        //_typeSqlMap.put(java.io.InputStream.class, new Integer(Types.STREAM));
 
         // String to java.sql.Types
         _typeSqlNameMap = new ResultSetHashMap(TYPE_MAX * 2);
@@ -229,6 +227,8 @@ public final class TypeMappingsFactory {
      * @return
      */
     public int getSqlType(Class classType) {
+
+        final Class origType = classType;
         while (classType != null) {
             Integer type = _typeSqlMap.get(classType);
             if (type != null) {
@@ -236,6 +236,16 @@ public final class TypeMappingsFactory {
             }
             classType = classType.getSuperclass();
         }
+
+        //
+        // special check for blobs/clobs they are interfaces not derived from
+        //
+        if (Blob.class.isAssignableFrom(origType)) {
+            return _typeSqlMap.get(Blob.class).intValue();
+        } else if (Clob.class.isAssignableFrom(origType)) {
+            return _typeSqlMap.get(Clob.class).intValue();
+        }
+
         return Types.OTHER;
     }
 
@@ -268,6 +278,8 @@ public final class TypeMappingsFactory {
      * @return
      */
     public int getTypeId(Class classType) {
+
+        final Class origType = classType;
         while (null != classType) {
             Integer typeObj = (Integer) _typeMap.get(classType);
             if (null != typeObj) {
@@ -275,6 +287,16 @@ public final class TypeMappingsFactory {
             }
             classType = classType.getSuperclass();
         }
+
+        //
+        // special check for blobs/clobs they are interfaces not derived from
+        //
+        if (Blob.class.isAssignableFrom(origType)) {
+            return _typeMap.get(Blob.class).intValue();
+        } else if (Clob.class.isAssignableFrom(origType)) {
+            return _typeMap.get(Clob.class).intValue();
+        }
+
         return TYPE_UNKNOWN;
     }
 

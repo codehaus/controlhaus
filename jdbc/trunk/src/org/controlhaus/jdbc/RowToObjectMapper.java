@@ -41,6 +41,7 @@ public class RowToObjectMapper extends RowMapper {
     private int[] _fieldTypes;
 
     private final Object[] _args = new Object[1];
+    private final Object _singleRowReturnValue;
 
     /**
      * Constructor
@@ -54,7 +55,15 @@ public class RowToObjectMapper extends RowMapper {
         super(resultSet, returnTypeClass, cal);
 
         _columnCount = resultSet.getMetaData().getColumnCount();
-        getFieldMappings();
+        
+        // if the ResultSet only contains a single column we may be able to map directly
+        // to the return type -- if so we don't need to build any structures to support
+        // mapping
+        _singleRowReturnValue = (_columnCount == 1) ?  mapSingleColumnResultSet(_returnTypeClass) : null;
+
+        if (_singleRowReturnValue == null) {
+            getFieldMappings();
+        }
     }
 
 
@@ -68,9 +77,9 @@ public class RowToObjectMapper extends RowMapper {
     public Object mapRowToReturnType() throws ControlException, SQLException {
 
         Object resultObject = null;
-        if (_columnCount == 1) {
-            resultObject = mapSingleColumnResultSet(_returnTypeClass);
-            if (resultObject != null) return resultObject;
+
+        if (_singleRowReturnValue != null) {
+            return _singleRowReturnValue;
         }
 
         try {
