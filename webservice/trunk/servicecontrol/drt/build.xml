@@ -43,8 +43,10 @@
   <!-- server directories -->
   <property name="servers.dir" value="servers/local" />
   <property name="webapp.dir" value="servers/webapp" />
+  <property name="server.attachments" value="${webapp.dir}/WEB-INF/attachments" />
   <property name="server.beansrc" value="${webapp.dir}/WEB-INF/beansrc" />
   <property name="server.classes" value="${webapp.dir}/WEB-INF/classes" />
+  <property name="server.lib" value="${webapp.dir}/WEB-INF/lib" />
   <property name="server.src" value="${webapp.dir}/WEB-INF/src" />
 
   <!-- misc properties -->
@@ -211,7 +213,7 @@
   <!-- ========================================= -->
 	
   <target name="deploy.beehive" depends="dirs">
-    <copy todir="${webapp.dir}/WEB-INF/lib">
+    <copy todir="${server.lib}">
       <fileset file="${beehive.home}/lib/common/*.jar" />
       <fileset file="${beehive.home}/lib/controls/controls.jar" />
       <fileset file="${beehive.home}/lib/wsm/*.jar" />
@@ -223,11 +225,14 @@
   <!-- clean - delete binaries and all artifacts -->
   <!-- ========================================= -->
   
-  <target name="clean" description="Deletes all generated files">
-    <delete dir="${client.build}"/>
-    <delete dir="${server.classes}"/>
-    <delete dir="${server.beansrc}"/>
-    <delete file="velocity.log"/>
+  <target name="clean">
+    <delete dir="${client.beansrc}" />
+    <delete dir="${client.build}" />
+    <delete dir="${server.attachments}" />
+    <delete dir="${server.lib}" />
+    <delete dir="${server.beansrc}" />
+    <delete dir="${server.classes}" />
+    <delete file="velocity.log" />
   </target>
 
   
@@ -238,6 +243,7 @@
   <target name="dirs">
     <mkdir dir="${client.classes}" />
     <mkdir dir="${client.beansrc}" />
+    <mkdir dir="${server.classes}" />
     <mkdir dir="${log.dir}" />
   </target>
 
