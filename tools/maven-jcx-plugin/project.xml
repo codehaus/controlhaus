@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project>
+    <pomVersion>3</pomVersion>
+    <id>maven-jcx-plugin</id>
+    <name>BEA JCX Plugin</name>
+    <currentVersion>1.0</currentVersion>
+    <inceptionYear>2004</inceptionYear>
+    <shortDescription>BEA JCX Plugin</shortDescription>
+    <developers>
+        <developer>
+            <name>Mike Hogan</name>
+        </developer>
+    </developers>
+
+    <dependencies/>
+
+    <build>
+        <!-- Useful if your plugin uses some beans -->
+        <sourceDirectory>src/java</sourceDirectory>
+        <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+
+        <unitTest>
+            <includes>
+                <include>**/*Test.java</include>
+            </includes>
+        </unitTest>
+
+        <resources>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>plugin.jelly</include>
+                    <include>plugin.properties</include>
+                    <include>project.properties</include>
+                    <include>project.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
+</project>
