@@ -335,6 +335,10 @@ limitations under the License.
         <get src="${commons.codec.maven.url}"
             dest="${commons.codec.jar.dest}"
             usetimestamp="true" ignoreerrors="true"/>
+
+        <get src="${commons.logging.maven.url}"
+            dest="${commons.logging.jar.dest}"
+            usetimestamp="true" ignoreerrors="true"/>
     </target>
 
     <!-- =================================================================== -->
@@ -369,6 +373,7 @@ libraries are required to build the Jdbc Control:
    ${javacc.jar.dest}
    ${commons.discovery.jar.dest}
    ${commons.codec.jar.dest}
+   ${commons.logging.jar.dest}
 
 ********************************************************************************
 ********************************************************************************
@@ -383,6 +388,7 @@ libraries are required to build the Jdbc Control:
         <available file="${javacc.jar.dest}" type="file" property="javacc.jar.present"/>
         <available file="${commons.discovery.jar.dest}" type="file" property="commons.discovery.jar.present"/>
         <available file="${commons.codec.jar.dest}" type="file" property="commons.codec.jar.present"/>
+        <available file="${commons.logging.jar.dest}" type="file" property="commons.logging.jar.present"/>
 
         <fail unless="velocity.jar.present">
 ********************************************************************************
@@ -485,6 +491,18 @@ repostiory or download manually.
 ********************************************************************************
 
 Missing ${commons.codec.jar.dest}.
+
+Run ant target 'download-dependencies' to automatically download from Maven
+repostiory or download manually.
+
+********************************************************************************
+********************************************************************************
+        </fail>
+        <fail unless="commons.logging.jar.present">
+********************************************************************************
+********************************************************************************
+
+Missing ${commons.logging.jar.dest}.
 
 Run ant target 'download-dependencies' to automatically download from Maven
 repostiory or download manually.

@@ -67,6 +67,8 @@
     <property name="commons.discovery.jar.dest" location="${lib.dir}/commons-discovery-0.2.jar"/>
     <property name="commons.codec.maven.url" value="http://www.ibiblio.org/maven/commons-codec/jars/commons-codec-1.3.jar"/>
     <property name="commons.codec.jar.dest" location="${lib.dir}/commons-codec-1.3.jar"/>
+    <property name="commons.logging.maven.url" value="http://www.ibiblio.org/maven/commons-logging/jars/commons-logging-1.0.4.jar"/>
+    <property name="commons.logging.jar.dest" location="${lib.dir}/commons-logging-1.0.4.jar"/>
 
     <!-- beehive controls jar -->
     <!-- Not currently available from maven respository -->
@@ -89,6 +91,7 @@
     <fileset id="commons.fileset" dir="${lib.dir}">
         <include name="commons-discovery-0.2.jar"/>
         <include name="commons-codec-1.3.jar"/>
+        <include name="commons-logging-1.0.4.jar"/>
     </fileset>
 
 
