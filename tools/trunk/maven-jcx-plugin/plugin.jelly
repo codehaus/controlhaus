@@ -56,8 +56,14 @@
                 <include name="**/*.work"/>
             </fileset>
         </fileScanner>
+        
+        <fileScanner var="extensionApplicationWorkFiles">
+            <fileset dir="extensions">
+                <include name="**/*.work"/>
+            </fileset>
+        </fileScanner>
 
-        <!-- for each control application, build it and copy jars to all sample applications -->
+        <!-- for each control application, build it and copy jars to all extension and sample applications -->
         <j:forEach var="controlApplicationWorkFile" items="${controlApplicationWorkFiles.iterator()}">
 
             <!-- build the control application -->
@@ -70,6 +76,17 @@
                 <j:set var="sampleApplicationRoot" value="${sampleApplicationWorkFile.parent}"/>
                 <j:set var="controlApplicationRoot" value="${controlApplicationWorkFile.parent}"/>
                 <ant:copy todir="${sampleApplicationRoot}/APP-INF/lib">
+                    <fileset dir="${controlApplicationRoot}/APP-INF/lib">
+                        <include name="*.jar"/>
+                    </fileset>
+                </ant:copy>
+            </j:forEach>
+            
+            <!-- copy the binaries from the control application to all the extensions -->
+            <j:forEach var="extensionApplicationWorkFile" items="${extensionApplicationWorkFiles.iterator()}">
+                <j:set var="extensionApplicationRoot" value="${extensionApplicationWorkFile.parent}"/>
+                <j:set var="controlApplicationRoot" value="${controlApplicationWorkFile.parent}"/>
+                <ant:copy todir="${extensionApplicationRoot}/APP-INF/lib">
                     <fileset dir="${controlApplicationRoot}/APP-INF/lib">
                         <include name="*.jar"/>
                     </fileset>
