@@ -25,15 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.beehive.controls.api.bean.Control;
+import org.apache.xmlbeans.XmlCursor;
 import org.controlhaus.controlunit.ControlTestCase;
 import amazonWS.AWSECommerceService;
-import com.amazon.webservices.awseCommerceService.x20041110.ErrorsDocument.Errors;
-import com.amazon.webservices.awseCommerceService.x20041110.ItemsDocument.Items;
-import com.amazon.webservices.awseCommerceService.x20041110.OperationRequestDocument.OperationRequest;
-import com.amazon.webservices.awseCommerceService.x20041110.ItemSearchDocument;
-import com.amazon.webservices.awseCommerceService.x20041110.ItemSearchDocument.ItemSearch;
-import com.amazon.webservices.awseCommerceService.x20041110.ItemSearchResponseDocument.ItemSearchResponse;
-import com.amazon.webservices.awseCommerceService.x20041110.ItemSearchRequest;
+import com.amazon.webservices.awseCommerceService.x20050119.ErrorsDocument.Errors;
+import com.amazon.webservices.awseCommerceService.x20050119.ItemsDocument.Items;
+import com.amazon.webservices.awseCommerceService.x20050119.OperationRequestDocument.OperationRequest;
+import com.amazon.webservices.awseCommerceService.x20050119.ItemSearchDocument;
+import com.amazon.webservices.awseCommerceService.x20050119.ItemSearchDocument.ItemSearch;
+import com.amazon.webservices.awseCommerceService.x20050119.ItemSearchResponseDocument.ItemSearchResponse;
+import com.amazon.webservices.awseCommerceService.x20050119.ItemSearchRequest;
 
 /*******************************************************************************
  * 
@@ -60,16 +61,12 @@ public class AmazonCommerceTest extends ControlTestCase {
         
         ItemSearchResponse searchResults = mAmazonECS
             .ItemSearch(is);
-
-
-        System.out.println(searchResults + " serachresult Type: " + searchResults.getClass().getCanonicalName());
-
-        Items[] items = searchResults.getItemsArray();
-        System.out.println("Size of the array....:  " + items.length);
+   
+        Items[]  items = searchResults.getItemsArray();
         //OperationRequest opReq = searchResults.getOperationRequest();
         assertNotNull(items);
         //assertNotNull(opReq);
-        assertTrue(items.length > 0);
+        assertTrue("Invalid Item length... Make sure your WSDL is up to date!", items.length > 0);
         if (items[0].getRequest().isSetErrors()) {
             Errors errs = items[0].getRequest().getErrors();
             Errors.Error[] errArray = errs.getErrorArray();
