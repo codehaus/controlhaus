@@ -1,8 +1,8 @@
 <project>
   <pomVersion>1</pomVersion>
   <name>Controlhaus XFire XMLBeans Control</name>
-  <groupId>beehive</groupId>
-  <artifactId>beehive-xfire-xmlbeans</artifactId>
+  <groupId>controlhaus</groupId>
+  <artifactId>controlhaus-xfire-client</artifactId>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>Controlhaus</name>
