@@ -107,8 +107,6 @@ public class HibernateControlImpl
     {
         try
         {
-            System.out.println("managed: " + manageTXs);
-            
             if ( manageTXs )
             {
                 Session s = getSession();
@@ -132,17 +130,20 @@ public class HibernateControlImpl
             if ( manageTXs )
             {
                 Transaction t = getTransaction();
-                try
+                if ( t != null )
                 {
-                    t.commit();
-                }
-                catch(HibernateException e)
-                {
-                    t.rollback();
-                }
-                finally
-                {
-                    closeSession();
+                    try
+                    {
+                        t.commit();
+                    }
+                    catch(HibernateException e)
+                    {
+                        t.rollback();
+                    }
+                    finally
+                    {
+                        closeSession();
+                    }
                 }
             }
             else
