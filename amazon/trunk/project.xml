@@ -3,17 +3,23 @@
   <name>Controlhaus Amazon Control</name>
   <groupId>controlhaus</groupId>
   <artifactId>controlhaus-amazon</artifactId>
-  <currentVersion>0.1</currentVersion>
+  <currentVersion>1.0-alpha-1</currentVersion>
   <organization>
     <name>Controlhaus</name>
     <url>http://www.controlhaus.org/</url>
     <logo>http://www.controlhaus.org/controlhaus-small.png</logo>
   </organization>
   <inceptionYear>2004</inceptionYear>
-  <package></package>
+
   <description>An Amazon Beehive Control.</description>
   <shortDescription>An Amazon Beehive Control.</shortDescription>
-
+  
+  <url>http://www.controlhaus.org</url>
+  <siteAddress>www.controlhaus.org</siteAddress>
+  <siteDirectory>/home/projects/controlhaus/public_html/maven/hibernate</siteDirectory>
+  <distributionSite>dist.codehaus.org</distributionSite>
+  <distributionDirectory>/dist</distributionDirectory>
+  
   <versions/>
   
   <branches/>
