@@ -133,6 +133,13 @@ public final class ErrorPathsTest extends TestCase {
         }
     }
 
+    //
+    // test a null value in an sql: substitution cmd
+    //
+    public void testNullSqlSubValue() throws Exception {
+        testCtrl.getAUserBad5(null);
+    }
+
     public ErrorPathsTest(String name) throws Exception { super(name); }
 
     public static Test suite() { return new TestSuite(ErrorPathsTest.class); }
