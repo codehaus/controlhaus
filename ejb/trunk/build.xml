@@ -168,22 +168,22 @@
         <mkdir dir="${dist.dir}" />
         <tar destfile="${dist.dir}/${dist.name}.tar">
             <tarfileset dir="${build.dir}">
-            	<include name="${build.jar}"/>
-            	<include name="docs/**"/>
+                <include name="${build.jar}"/>
+                <include name="docs/**"/>
             </tarfileset>
             <tarfileset dir="${lib.dir}">
-            	<include name="${ejbXMLbeans.jar}"/>
+                <include name="${ejbXMLbeans.jar}"/>
             </tarfileset>
         </tar>
-	    <zip destfile="${dist.dir}/${dist.name}.zip">
-	    	<zipfileset dir="${build.dir}">
-	    		<include name="${build.jar}"/>
-	    		<include name="docs/**"/>
-	    	</zipfileset>
-	    	<zipfileset dir="${lib.dir}">
-	    		<include name="${ejbXMLbeans.jar}"/>
-	    	</zipfileset>
-	    </zip>
+        <zip destfile="${dist.dir}/${dist.name}.zip">
+            <zipfileset dir="${build.dir}">
+                <include name="${build.jar}"/>
+                <include name="docs/**"/>
+            </zipfileset>
+            <zipfileset dir="${lib.dir}">
+                <include name="${ejbXMLbeans.jar}"/>
+            </zipfileset>
+        </zip>
         <gzip src="${dist.dir}/${dist.name}.tar" destfile="${dist.dir}/${dist.name}.tar.gz"/>
         <zip basedir="${basedir}" destfile="${dist.dir}/${dist.src}.zip"
             includes="build.xml,src/**,samples/**,schema/**"/> 
@@ -198,7 +198,7 @@
     <!-- ==================================================================== -->
     <target name="generate_xbean">
         <fileset id="xbean.sources"
-            dir="${schema.dir}" includes="*.xsd*"/>
+            dir="${schema.dir}" includes="*.xsd*,*.xsdconfig"/>
         <uptodate property="xbean.uptodate"
             targetfile="${xbean.marker}">
             <srcfiles refid="xbean.sources"/>
@@ -213,6 +213,7 @@
     <!-- Use generate_xbean to get proper dependency checking optimization!!! -->
     <!-- ==================================================================== -->
     <target name="xbean_schema_compiler" unless="xbean.uptodate">
+    <echo message="xbean.args:${xbean.args}"/>
     <java
           classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
           dir="${build.xbeansrc}"

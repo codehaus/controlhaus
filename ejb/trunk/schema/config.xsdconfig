@@ -1,0 +1,5 @@
+<xb:config xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config">
+  <xb:namespace uri="http://java.sun.com/xml/ns/j2ee">
+    <xb:package>org.controlhaus.schemas.j2ee</xb:package>
+  </xb:namespace>
+</xb:config>
