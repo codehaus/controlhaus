@@ -406,6 +406,7 @@ public interface JMSControl
          */
         @FeatureInfo(shortDescription="JNDI provider URL")      
         @AnnotationMemberTypes.Optional
+        @AnnotationMemberTypes.URI
     	public String jndiProviderURL() default "";
         
         /**
