@@ -184,9 +184,6 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
         logger.info("Enter: invoke()");
         assert _connection.isClosed() == false : "invoke(): JDBC Connection has been closed!!!!";
-
-        // @todo: need to worry about DatabaseFilter ??
-
         return execPreparedStatement(method, args);
     }
 
@@ -229,7 +226,8 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
         final boolean getGeneratedKeys = methodSQL.getGeneratedKeys();
         final int maxRows = methodSQL.maxRows();
         final int maxArray = methodSQL.arrayMaxLength();
-        final String[] genKeyColumns = methodSQL.generatedKeyColumns();
+        final String[] genKeyColumnNames = methodSQL.generatedKeyColumnNames();
+        final int[] genKeyColumnIndexes = methodSQL.generatedKeyColumnIndexes();
         final String sqlStatement = methodSQL.statement();
         final Class resultSetMapperClass = methodSQL.resultSetMapper();
 
@@ -249,7 +247,8 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
 
             SqlStatement parsedSql = _sqlParser.parse(sqlStatement);
             ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method,  args,
-                                                   isBatchUpdate, getGeneratedKeys, genKeyColumns);
+                                                   isBatchUpdate, getGeneratedKeys, 
+                                                   genKeyColumnNames, genKeyColumnIndexes);
 
             //
             // process row limits

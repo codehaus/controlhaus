@@ -187,7 +187,7 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     public void testGenKeysWithColumnNames() throws Exception {
         try {
         ResultSet rs = testCtrl.getGenKeys2("genmeanotherkey2");
-        fail("This feature has not been impelented in Derby yet, need to add test case once it has.");
+        fail("This feature has not been impelented in Derby yet (1/1/2005), need to add test case once it has.");
         } catch (Exception e) {
            assertTrue(true);
         }
@@ -215,6 +215,18 @@ public class DBSingleRowResultsTest extends AbstractControlTest {
     public void testGenKeysReturnTypeMapping3() throws Exception {
         int[] result = testCtrl.getGenKeys5("genmeanotherkey5");
         assertEquals(result[0], 5);
+    }
+
+    //
+    // get the generated keys from the SQL statement -- with specified column indexes
+    //
+    public void testGenKeysReturnTypeMapping4() throws Exception {
+        try {
+        ResultSet rs = testCtrl.getGenKeys6("genmeanotherkey6");
+            fail("This feature has not been impelented in Derby yet (1/1/2005), need to add test case once it has.");
+        } catch (Exception e) {
+            assertTrue(true);
+        }
     }
 
 

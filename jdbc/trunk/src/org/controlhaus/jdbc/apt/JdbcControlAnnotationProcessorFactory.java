@@ -32,6 +32,8 @@ import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitors;
 import com.sun.mirror.util.SimpleDeclarationVisitor;
 import org.controlhaus.jdbc.JdbcControl;
+import org.controlhaus.jdbc.parser.SqlParser;
+import org.apache.beehive.controls.api.ControlException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -157,14 +159,36 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
                 }
 
                 //
+                //
+                // parse the SQL
+                //
+                //
+                SqlParser _p = new SqlParser();
+                try {
+                    _p.parse(methodSQL.statement());
+                } catch (ControlException ce) {
+                    _env.getMessager().printError(m.getPosition(), "Error parsing SQL statment on method: " + m.getSimpleName() + ": " + ce.toString());
+                    return;
+                }
+
+                //
                 // check for case of generatedKeyColumns being set, when getGeneratedKeys is not set to true
                 //
                 final boolean getGeneratedKeys = methodSQL.getGeneratedKeys();
-                final String[] generatedKeyColumns = methodSQL.generatedKeyColumns();
-                if (getGeneratedKeys == false && generatedKeyColumns.length != 0) {
-                    _env.getMessager().printNotice("genkeycolums len= " + generatedKeyColumns.length);
+                final String[] generatedKeyColumnNames = methodSQL.generatedKeyColumnNames();
+                final int[] generatedKeyIndexes = methodSQL.generatedKeyColumnIndexes();
+                if (getGeneratedKeys == false && (generatedKeyColumnNames.length != 0 || generatedKeyIndexes.length != 0)) {
                     _env.getMessager().printError(m.getPosition(), "@SQL annotation on method: " + m.getSimpleName()
-                                                                   + " getGeneratedKeys must be set to true in order to specify generatedKeyColumns.");
+                                                                   + " getGeneratedKeys must be set to true in order to specify generatedKeyColumnNames or generatedKeyColumnIndexes.");
+                    return;
+                }
+
+                //
+                // check that both generatedKeyColumnNames and generatedKeyColumnIndexes are not set
+                if (generatedKeyColumnNames.length > 0 && generatedKeyIndexes.length > 0) {
+                    _env.getMessager().printError(m.getPosition(), "@SQL annotation on method: " + m.getSimpleName()
+                                                                   + " only one of generatedKeyColumnNames or generatedKeyColumnIndexes may be set in the method annotation.");
+
                     return;
                 }
 
