@@ -1,0 +1,222 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+
+
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import jbarcodebean.Codabar;
+import jbarcodebean.Code128;
+import jbarcodebean.Code39;
+import jbarcodebean.ExtendedCode39;
+import jbarcodebean.Interleaved25;
+import jbarcodebean.MSI;
+import org.controlhaus.misc.barcode.BarCode;
+import org.controlhaus.misc.barcode.BarcodeStrategy;
+
+
+/**
+ * PageFlow class generated from control BarCode
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/BarCodeSampleController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="240" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:generateBarcode.do#BarCodeSampleController.BarcodeImageRequest">
+ *   <property value="440" name="x"/>
+ *   <property value="300" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:displayBarcode.do#BarCodeSampleController.BarcodeImageRequest">
+ *   <property value="90" name="x"/>
+ *   <property value="70" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:renderBarcode.do">
+ *   <property value="200" name="x"/>
+ *   <property value="360" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:generateBarcode.jsp@#@action:generateBarcode.do#BarCodeSampleController.BarcodeImageRequest@">
+ *   <property value="524,500,500,476" name="elbowsX"/>
+ *   <property value="292,292,292,292" name="elbowsY"/>
+ *   <property value="West_1" name="fromPort"/>
+ *   <property value="East_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:generateBarcode.jsp">
+ *   <property value="560" name="x"/>
+ *   <property value="300" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action-call:@page:result.jsp@#@action:generateBarcode.do#BarCodeSampleController.BarcodeImageRequest@">
+ *   <property value="440,440,440,440" name="elbowsX"/>
+ *   <property value="376,360,360,344" name="elbowsY"/>
+ *   <property value="North_1" name="fromPort"/>
+ *   <property value="South_1" name="toPort"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:result.jsp">
+ *   <property value="440" name="x"/>
+ *   <property value="420" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#generateBarcode.jsp#@action:begin.do@">
+ *   <property value="276,560,560,560" name="elbowsX"/>
+ *   <property value="92,92,174,256" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#result.jsp#@action:generateBarcode.do#BarCodeSampleController.BarcodeImageRequest@">
+ *   <property value="451,451,440,440" name="elbowsX"/>
+ *   <property value="344,360,360,376" name="elbowsY"/>
+ *   <property value="South_2" name="fromPort"/>
+ *   <property value="North_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:org.controlhaus.misc.barcode.BarCode#myControl">
+ *   <property value="28" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:BarCodeSampleController.BarcodeImageRequest#barcodeNumber#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:BarCodeSampleController.BarcodeImageRequest#showNumber#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:BarCodeSampleController.BarcodeImageRequest#strategy#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:BarCodeSampleController.BarcodeImageRequest#strategyOptions#java.util.Map"/>
+ * <pageflow-object id="formbean:BarCodeSampleController.BarcodeImageRequest"/>
+ * <pageflow-object id="formbeanprop:BarCodeSampleController.BarcodeImageRequest#strategyAsObject#org.controlhaus.misc.barcode.BarcodeStrategy"/>
+ * </view-properties>
+ * ::
+ */
+public class BarCodeSampleController extends PageFlowController
+{
+    /**
+     * This is the control used to generate this pageflow
+     *  @common:control
+     */
+    private BarCode myControl;
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="generateBarcode.jsp"
+     */
+    protected Forward begin()
+    {
+        return new Forward( "success" );
+    }
+
+    /**
+     * Action encapsulating the control method :generateBarcode
+     * @jpf:action
+     * @jpf:catch method="exceptionHandler" type="Exception"
+     * @jpf:forward name="success" path="result.jsp"
+     */
+    public Forward generateBarcode( BarcodeImageRequest aForm)
+        throws Exception
+    {
+        return new Forward( "success");
+    }
+
+    /**
+     * @jpf:action
+     */
+    public Forward displayBarcode(BarcodeImageRequest imageRequest)
+        throws Exception
+    {        
+        myControl.generateBarcode(
+            imageRequest.getBarcodeNumber(),
+            imageRequest.showNumberAsBoolean(),
+            getResponse().getOutputStream(),
+            imageRequest.getStrategyAsObject());
+        return null;
+    }
+
+
+    /**
+     * @jpf:exception-handler
+     * @jpf:forward name="errorPage" path="/error.jsp"
+     */
+    protected Forward exceptionHandler( Exception ex, String actionName, String message, FormData form )
+    {
+        String displayMessage = "An exception occurred in the action " + actionName;
+        getRequest().setAttribute( "errorMessage", displayMessage );
+        return new Forward( "errorPage" );
+    }
+
+
+
+    /**
+     * @jpf:action
+     */
+    protected Forward renderBarcode()
+    {
+        return new Forward("success");
+    }
+    
+    public static class BarcodeImageRequest extends FormData {
+        private String barcodeNumber;
+        private String showNumber;
+        private String strategy;
+        
+        public void setBarcodeNumber(String s) {
+            this.barcodeNumber = s;
+        }
+        
+        public void setShowNumber(String s) {
+            this.showNumber = s;
+        }
+        
+        public void setStrategy(String s) {
+            this.strategy = s;
+        }
+        
+        public String getBarcodeNumber() {
+            return barcodeNumber;
+        }
+        
+        public String getShowNumber() {
+            return showNumber;
+        }
+        
+        public String getStrategy() {
+            return strategy;
+        }
+        
+        public boolean showNumberAsBoolean() {
+            Boolean result = Boolean.valueOf(showNumber);
+            return result.booleanValue();
+        }
+        
+        public BarcodeStrategy getStrategyAsObject() {
+            return BarcodeStrategy.forCode(strategy);
+        }
+        
+        public Map getStrategyOptions() {
+            Map result = new HashMap();
+            for(Iterator i=BarcodeStrategy.getStrategyIds().iterator();i.hasNext();) {
+                String id = (String) i.next();
+                result.put(id, id);
+            }
+            return result;
+        }
+    }        
+}

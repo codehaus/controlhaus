@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE"
+ content="text/html; charset=windows-1252">
+  <title>BarCode Control - generate barcode images</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>BarCode Control - generate barcode images<br>
+</h2>
+The BarCode Control provides a simple API to generate barcode
+images.&nbsp; The control is invoked as follows:<br>
+<pre>ByteArrayOutputStream out = new ByteArrayOutputStream():<br>String barcode = "457989792";<br>boolean showName = false;<br>BarcodeStrategy strategy = BarcodeStrategy.CODE_39;<br><br>control.generateBarcode(barcode, showName, out, strategy);</pre>
+The control streams the image to the supplied OutputStream.&nbsp; This
+output stream can be to a byte array, as shown in the code
+snippet.&nbsp; It could equally well be the output stream associated
+with a HttpServletResponse - thereby enabling you stream the image to a
+web browser.&nbsp; This is the approach taken by the Java Page Flow
+sample that accompanies the control - it uses a Java Page Flow action
+to stream a GIF image back to a browser.<br>
+<br>
+The barcode string is the encoding of the barcode as issued by barcode
+providers.&nbsp; The strategy is the type of encoding used by the
+barcode.&nbsp; Supported encodings include Code 39, Extended Code 39,
+Codabar, Code 128, Interleaved 25 and MSI.<br>
+<br>
+The showName boolean states whether to display the barcode string under
+the barcode image.<br>
+<br>
+The control implementation uses the JBarcodeBean written by Dafydd
+Walters and which is hosted <a
+ href="http://jbarcodebean.sourceforge.net/">here on SourceForge</a>.
+</body>
+</html>
