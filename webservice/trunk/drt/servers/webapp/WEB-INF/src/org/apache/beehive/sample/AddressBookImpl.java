@@ -22,17 +22,19 @@ package org.apache.beehive.sample;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.naming.InvalidNameException;
+
 public class AddressBookImpl implements AddressBook
 {
     private Map<String, Address> addresses = new Hashtable<String, Address>();
 
-    public void addEntry(String name, Address address)
+    public void addEntry(String name, Address address) throws InvalidNameException
     {
         System.out.println("addEntry is called." );
         this.addresses.put(name, address);
     }
     
-    public Address getAddressFromName(String name) 
+    public Address getAddressFromName(String name) throws InvalidNameException
     {
         System.out.println("getAddressFromName is called.");
         return (Address) this.addresses.get(name);

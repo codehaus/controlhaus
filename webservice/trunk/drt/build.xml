@@ -76,6 +76,13 @@
                  <path refid="build.classpath"/>
              </classpath>
        </apt>
+	    <copy todir="${build.classes}">
+	       <fileset dir="${source.dir}" >
+	        <include name="**/*.wsdl"/>       
+	        <include name="**/*.properties"/>       
+	       </fileset>
+	     </copy>
+    	
      </target>
 
 	<target name="generate-xmlbean-datatypes">

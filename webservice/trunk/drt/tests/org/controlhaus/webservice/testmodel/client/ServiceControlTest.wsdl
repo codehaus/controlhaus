@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://controlhaus.org/ServiceControlTestServer" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://controlhaus.org/ServiceControlTestServer" xmlns:intf="http://controlhaus.org/ServiceControlTestServer" xmlns:tns1="http://lang.java" xmlns:tns2="http://naming.javax" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by Apache Axis version: 1.2RC2
+Built on Nov 16, 2004 (12:19:44 EST)-->
+ <wsdl:types>
+  <schema elementFormDefault="qualified" targetNamespace="http://controlhaus.org/ServiceControlTestServer" xmlns="http://www.w3.org/2001/XMLSchema">
+   <import namespace="http://lang.java"/>
+   <import namespace="http://naming.javax"/>
+   <element name="addEntry">
+    <complexType>
+     <sequence>
+      <element name="name" type="xsd:string"/>
+      <element name="address" type="impl:Address"/>
+     </sequence>
+    </complexType>
+   </element>
+   <complexType name="Phone">
+    <sequence>
+     <element name="areaCode" type="xsd:int"/>
+     <element name="exchange" nillable="true" type="xsd:string"/>
+     <element name="number" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="StateType">
+    <sequence>
+     <element name="state" nillable="true" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Address">
+    <sequence>
+     <element name="city" nillable="true" type="xsd:string"/>
+     <element name="phoneNumber" nillable="true" type="impl:Phone"/>
+     <element name="state" nillable="true" type="impl:StateType"/>
+     <element name="streetName" nillable="true" type="xsd:string"/>
+     <element name="streetNum" type="xsd:int"/>
+     <element name="zip" type="xsd:int"/>
+    </sequence>
+   </complexType>
+   <element name="addEntryResponse">
+    <complexType/>
+   </element>
+   <complexType name="NamingException">
+    <sequence>
+     <element name="cause" nillable="true" type="xsd:anyType"/>
+     <element name="explanation" nillable="true" type="xsd:string"/>
+     <element name="remainingName" nillable="true" type="xsd:anyType"/>
+     <element name="resolvedName" nillable="true" type="tns2:Name"/>
+     <element name="resolvedObj" nillable="true" type="xsd:anyType"/>
+     <element name="rootCause" nillable="true" type="tns1:Throwable"/>
+    </sequence>
+   </complexType>
+   <complexType name="InvalidNameException">
+    <complexContent>
+     <extension base="impl:NamingException">
+      <sequence/>
+     </extension>
+    </complexContent>
+   </complexType>
+   <element name="InvalidNameException" type="impl:InvalidNameException"/>
+   <element name="simpleNoParamMethod">
+    <complexType/>
+   </element>
+   <element name="simpleNoParamMethodResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getAddressFromName">
+    <complexType>
+     <sequence>
+      <element name="name" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getAddressFromNameResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="impl:Address"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="FindClosestName">
+    <complexType>
+     <sequence>
+      <element name="name" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="FindClosestNameResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="xsd:int"/>
+      <element name="name" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="oneWayWithNoParam">
+    <complexType/>
+   </element>
+   <element name="getAddressFromNames">
+    <complexType>
+     <sequence>
+      <element maxOccurs="unbounded" name="name" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getAddressFromNamesResponse">
+    <complexType>
+     <sequence>
+      <element maxOccurs="unbounded" name="result" type="impl:Address"/>
+     </sequence>
+    </complexType>
+   </element>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="getAddressFromNamesResponse">
+
+      <wsdl:part element="impl:getAddressFromNamesResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addEntryResponse">
+
+      <wsdl:part element="impl:addEntryResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="InvalidNameException">
+
+      <wsdl:part element="impl:InvalidNameException" name="InvalidNameException"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="oneWayWithNoParamRequest">
+
+      <wsdl:part element="impl:oneWayWithNoParam" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="FindClosestNameRequest">
+
+      <wsdl:part element="impl:FindClosestName" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="FindClosestNameResponse">
+
+      <wsdl:part element="impl:FindClosestNameResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAddressFromNameResponse">
+
+      <wsdl:part element="impl:getAddressFromNameResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addEntryRequest">
+
+      <wsdl:part element="impl:addEntry" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAddressFromNamesRequest">
+
+      <wsdl:part element="impl:getAddressFromNames" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAddressFromNameRequest">
+
+      <wsdl:part element="impl:getAddressFromName" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="simpleNoParamMethodResponse">
+
+      <wsdl:part element="impl:simpleNoParamMethodResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="simpleNoParamMethodRequest">
+
+      <wsdl:part element="impl:simpleNoParamMethod" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:portType name="Service">
+
+      <wsdl:operation name="addEntry">
+
+         <wsdl:input message="impl:addEntryRequest" name="addEntryRequest"/>
+
+         <wsdl:output message="impl:addEntryResponse" name="addEntryResponse"/>
+
+         <wsdl:fault message="impl:InvalidNameException" name="InvalidNameException"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="simpleNoParamMethod">
+
+         <wsdl:input message="impl:simpleNoParamMethodRequest" name="simpleNoParamMethodRequest"/>
+
+         <wsdl:output message="impl:simpleNoParamMethodResponse" name="simpleNoParamMethodResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getAddressFromName">
+
+         <wsdl:input message="impl:getAddressFromNameRequest" name="getAddressFromNameRequest"/>
+
+         <wsdl:output message="impl:getAddressFromNameResponse" name="getAddressFromNameResponse"/>
+
+         <wsdl:fault message="impl:InvalidNameException" name="InvalidNameException"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="FindClosestName">
+
+         <wsdl:input message="impl:FindClosestNameRequest" name="FindClosestNameRequest"/>
+
+         <wsdl:output message="impl:FindClosestNameResponse" name="FindClosestNameResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="oneWayWithNoParam">
+
+         <wsdl:input message="impl:oneWayWithNoParamRequest" name="oneWayWithNoParamRequest"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getAddressFromNames">
+
+         <wsdl:input message="impl:getAddressFromNamesRequest" name="getAddressFromNamesRequest"/>
+
+         <wsdl:output message="impl:getAddressFromNamesResponse" name="getAddressFromNamesResponse"/>
+
+         <wsdl:fault message="impl:InvalidNameException" name="InvalidNameException"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="ServiceSoapBinding" type="impl:Service">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="addEntry">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addEntryRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addEntryResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="InvalidNameException">
+
+            <wsdlsoap:fault name="InvalidNameException" use="literal"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="simpleNoParamMethod">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="simpleNoParamMethodRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="simpleNoParamMethodResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getAddressFromName">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getAddressFromNameRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getAddressFromNameResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="InvalidNameException">
+
+            <wsdlsoap:fault name="InvalidNameException" use="literal"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="FindClosestName">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="FindClosestNameRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="FindClosestNameResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="oneWayWithNoParam">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="oneWayWithNoParamRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getAddressFromNames">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getAddressFromNamesRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getAddressFromNamesResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+         <wsdl:fault name="InvalidNameException">
+
+            <wsdlsoap:fault name="InvalidNameException" use="literal"/>
+
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="ServiceControlTest">
+
+      <wsdl:port binding="impl:ServiceSoapBinding" name="Service">
+
+         <wsdlsoap:address location="http://localhost:8080/sctestServer/web/Service.jws"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>
