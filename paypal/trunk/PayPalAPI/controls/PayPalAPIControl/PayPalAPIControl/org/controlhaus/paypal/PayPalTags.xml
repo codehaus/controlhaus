@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<control-tags xmlns="http://www.bea.com/2003/03/controls/">
+    <control-tag name="PayPalProperties">
+        <description>Properties relating to the PayPal Control</description>
+        <attribute name="username" required="true">
+            <description>User name associated with the eBay Developers Program.</description>
+            <type><text/></type>
+        </attribute>
+        <attribute name="password" required="true">
+            <description>Password associate with the user name.</description>
+            <type><text/></type>
+        </attribute>
+    </control-tag>
+</control-tags>

@@ -1,0 +1,31 @@
+/**
+ * @editor-info:link autogen-style="stateless" source="PayPalWS.jcx" autogen="true"
+ */
+public class PayPalWSTest implements com.bea.jws.WebService
+{
+    static final long serialVersionUID = 1L;
+
+    /** @common:control */
+    public org.controlhaus.paypal.PayPalWS payPalWS;
+
+    /** @common:operation
+     */
+    public ebayApiPayPalAPI.RefundTransactionResponseDocument RefundTransaction(ebayApiPayPalAPI.RefundTransactionRequestDocument RefundTransactionRequest)
+    { return payPalWS.RefundTransaction(RefundTransactionRequest); }
+
+    /** @common:operation
+     */
+    public ebayApiPayPalAPI.GetTransactionDetailsResponseDocument GetTransactionDetails(ebayApiPayPalAPI.GetTransactionDetailsRequestDocument GetTransactionDetailsRequest)
+    { return payPalWS.GetTransactionDetails(GetTransactionDetailsRequest); }
+
+    /** @common:operation
+     */
+    public ebayApiPayPalAPI.BillUserResponseDocument BillUser(ebayApiPayPalAPI.BillUserRequestDocument BillUserRequest)
+    { return payPalWS.BillUser(BillUserRequest); }
+
+    /** @common:operation
+     */
+    public ebayApiPayPalAPI.TransactionSearchResponseDocument TransactionSearch(ebayApiPayPalAPI.TransactionSearchRequestDocument TransactionSearchRequest)
+    { return payPalWS.TransactionSearch(TransactionSearchRequest); }
+
+}
