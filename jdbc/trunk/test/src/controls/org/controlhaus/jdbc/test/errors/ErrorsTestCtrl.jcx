@@ -57,12 +57,6 @@ import java.sql.SQLException;
     //
     //  Missing statement in @SQL annotation
     //
-    @SQL()
-            public ResultSet getAllUsersBad2() throws SQLException;
-
-    //
-    //  Missing statement in @SQL annotation
-    //
     @SQL(statement = "SELECT * FROM USERS WHERE FNAME = {name}")
             public ResultSet getAllUsersBad3() throws SQLException;
 
