@@ -100,12 +100,11 @@ import java.util.Vector;
      * Invoked by the controls runtime when a new instance of this class is aquired by the runtime
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceEvents.class, eventName = "onAcquire")
-            public void onAquire() {
-        logger.info("onAcquire() invoked.");
+    public void onAquire() throws ControlException {
         try {
             getConnection();
         } catch (SQLException se) {
-            logger.error("SQL Exception while attempting to connect to database.", se);
+            throw new ControlException("SQL Exception while attempting to connect to database.", se);
         }
     }
 
@@ -113,7 +112,7 @@ import java.util.Vector;
      * Invoked by the controls runtime when an instance of this class is released by the runtime
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onRelease")
-            public void onRelease() {
+    public void onRelease() throws ControlException {
         logger.info("onRelease() invoked.");
 
         for (int i = 0; i < _resources.size(); i++) {
@@ -134,7 +133,7 @@ import java.util.Vector;
             try {
                 _connection.close();
             } catch (SQLException e) {
-                logger.error("SQL Exception while attempting to close database connection.", e);
+                throw new ControlException("SQL Exception while attempting to close database connection.", e);
             }
         }
 
