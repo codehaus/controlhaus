@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- CDK TOC -->
+<toc-root component="other" xmlns="http://www.bea.com/help/toc.xsd">
+  <toc-reference anchor="extensions">
+    <toc-node label="SalesForce.com Toolkit for Workshop" url="./help.html" >
+        <toc-node label="SalesForce.com Web Service Control" url="http://www.sforce.com/us/docs/sforce20/wwhelp/wwhimpl/js/html/wwhelp.htm">
+          <toc-node label="sForceWrapper Class" url="./java-class/com/sforce/workshop/sForceWrapper.html"/>
+      <toc-node label="@jc:sforce-location Annotation" url="./javadoc-tag/jc/sforce-location.html"/>
+      <toc-node label="@jc:sforce-query-options Annotation" url="./javadoc-tag/jc/sforce-query-options.html"/>
+    </toc-node>
+    </toc-node>
+  </toc-reference>
+</toc-root>
