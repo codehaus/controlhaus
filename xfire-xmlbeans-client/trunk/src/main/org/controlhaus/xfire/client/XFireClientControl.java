@@ -20,9 +20,9 @@ import java.lang.annotation.ElementType;
  * <p>
  * A typical usage would look like so:
  * <pre>
- * @Encoding("UTF-8")
- * @ServiceUrl("http://some.service.com")
- * @Control XFireClientControl client;
+ *  {@literal @}Encoding("UTF-8")
+ *  {@literal @}ServiceUrl("http://some.service.com")
+ *  {@literal @}Control XFireClientControl client;
  * </pre>
  * 
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
