@@ -40,6 +40,8 @@
   <property name="client.classes" value="${client.build}/classes" />
   <property name="client.xmlbeangen" value="${client.build}/xmlbeans" />
 
+  <property name="testmodel.client.jcxgen.dir" value="${client.build}/jcxsrc" />
+  <property name="testmodel.client.jcxgen.packageName" value="test" />
   <!-- server directories -->
   <property name="servers.dir" value="servers/local" />
   <property name="webapp.dir" value="servers/webapp" />
@@ -90,6 +92,14 @@
       classpath="${controls.jar}"
       onerror="report" />             
 
+	 <!-- XMLBean build -->
+	  <taskdef name="xmlbeanbuild" 
+	    classname="org.apache.xmlbeans.impl.tool.XMLBean">
+	    <classpath>
+	      <path refid="client.classpath"/>
+	    </classpath>
+	  </taskdef>
+	  	
   
   <!-- ========================================= -->
   <!-- run.drt -                                 -->
@@ -112,7 +122,7 @@
 	</target>
 
 	
-  <target name="run.drt" depends="build.sc, build.server">
+  <target name="run.drt" depends="build.gen-sc, build.sc, build.server">
     <parallel>
   
       <!-- start server -->
@@ -181,9 +191,73 @@
 
   
   <!-- ========================================= -->
-  <!-- build.sc - build service control binaries -->
+  <!--generate and compile the test control client interfaces from WSDLs -->
   <!-- ========================================= -->
-  
+	  <target name="gen_jcx" depends="gen_xmlbeans">
+	    <java classname="org.controlhaus.webservice.generator.ExtensionMaker"  dir="${basedir}"  fork="true">
+	    	<classpath> 
+	    		<path refid="client.classpath"/>
+	    	</classpath>
+	      <arg line="-gen_root ${testmodel.client.jcxgen.dir}
+				-wsdl ${schemas.dir} 
+	      	-pkg ${testmodel.client.jcxgen.packageName}
+	      	-wsdl_path_annotation .
+	      	"/>
+	    </java>
+	  	
+	    <copy todir="${testmodel.client.jcxgen.dir}/${testmodel.client.jcxgen.packageName}">
+	       <fileset dir="${schemas.dir}" >
+	         <include name="**/*.wsdl"/>       
+	       </fileset>
+	     </copy>	  	
+
+	  </target>
+	
+	  <target name="gen_xmlbeans" depends="checkxbean" unless="noxbeanrebuild">
+	    <xmlbeanbuild
+	      schema="${schemas.dir}" 
+	      srcgendir="${client.xmlbeangen}"
+	      classgendir="${client.classes}"
+	      failonerror="true">
+	      <classpath>
+	        <path refid="client.classpath"/>
+	      </classpath>
+	    </xmlbeanbuild>
+	  </target>
+	
+	  <target name="checkxbean">
+	    <uptodate property="noxbeanrebuild" targetfile="${xbeangen.dir}">
+	      <srcfiles dir="${schemas.dir}" includes="*.wsdl,*.xsd"/> 
+	    </uptodate>
+	  </target>
+	<!-- ========================================= -->
+	  <!-- build.gen-sc - build generated service control binaries -->
+	  <!-- ========================================= -->
+	
+  <target name="build.gen-sc" depends="dirs, gen_jcx">
+    <apt
+        srcdir="${testmodel.client.jcxgen.dir}"
+        destdir="${client.classes}"
+        gendir="${client.beansrc}"
+        classpathref="client.classpath"
+        compileByExtension="true" 
+        srcExtensions="*.jcx,*.java"
+        debug="on">
+    </apt>
+    <copy todir="${client.classes}">
+      <fileset dir="${source.dir}" >
+        <include name="**/*.wsdl"/>       
+        <include name="**/*.properties"/>       
+      </fileset>
+    </copy>
+  </target>
+
+	
+	
+	<!-- ========================================= -->
+	  <!-- build.sc - build service control binaries -->
+	  <!-- ========================================= -->
+	
   <target name="build.sc" depends="dirs">
     <apt
         srcdir="${source.dir}"
@@ -247,7 +321,8 @@
     <delete dir="${server.beansrc}" />
     <delete dir="${server.classes}" />
     <delete file="velocity.log" />
-  </target>
+  	<delete dir="${testmodel.client.jcxgen.dir}" />
+ </target>
 
   
   <!-- ========================================= -->
@@ -258,6 +333,7 @@
     <mkdir dir="${client.classes}" />
     <mkdir dir="${client.beansrc}" />
     <mkdir dir="${server.classes}" />
+  	<mkdir dir="${testmodel.client.jcxgen.dir}" />
     <mkdir dir="${log.dir}" />
   </target>
 

@@ -1,27 +1,34 @@
 <?xml version="1.0" ?>
 
-<project name="google_webservice_sample" default="run.test" basedir=".">
+<project name="xmlbea _service_control_sample" default="run.test">
 
 	  <property environment="env"/>
+	
+	   <property name="service.url" value="http://localhost:8080/AddressBookWS/web/Service.jws" />
  
 	  <property name="build.dir" value="./build"/>
+	  <property name="xbeangen.dir" value="${build.dir}/xbeangen"/>
+	  <property name="extgen.dir" value="${build.dir}/extgen"/>
+	  <property name="jcxgen.dir" value="${build.dir}/controlgen"/>
+	
+
     <property name="source.dir" value="./src"/>
+
 	  <property name="junit.source.dir" value="./junit"/>
 	<property name="test.logs" value="./logs"/>
 	<property name="servers.dir" value="./servers/local"/>  <!-- test servers -->
 	<property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
 	<property name="axisbeangen.dir" value="${build.dir}/axisbeangen"/>
-	<property name="wsdl.dir" value="${source.dir}/model"/>
     <property name="servicecontrol.jar" value="../../servicecontrol/build/jars/webservice-control.jar" />
  
 	<property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
 	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
 	
 	<property name="controls.jar" value="${beehive.home}/lib/controls/controls.jar" />
-	
+	<property name="schema.dir" value="schemas" />
  
-	
+    <property name="testmodel.client.jcxgen.packageName" value="test" />	
 	  <path id="beehive.class.path">
 	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
 	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
@@ -41,7 +48,6 @@
 	    
     	<path refid="beehive.class.path"  />
     	<pathelement path="${servicecontrol.jar}" /> 
-
     </path>
 
     <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask" 
@@ -50,68 +56,104 @@
              classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
              classpath="${controls.jar}" onerror="report" />             
 
-
+	 <!-- XMLBean build -->
+	  <taskdef name="xmlbeanbuild" 
+	    classname="org.apache.xmlbeans.impl.tool.XMLBean">
+	    <classpath>
+	      <path refid="build.classpath"/>
+	    </classpath>
+	  </taskdef>
+	
     <target name="clean" description="Deletes all generated files">
         <delete dir="${build.dir}"/>
         <delete file="velocity.log"/>
-        <delete dir="${test.logs}" />
+        <delete dir="${xbeangen.dir}" />
+           <delete dir="${test.logs}" />
+	    <delete dir="${extgen.dir}"/>
+	    <delete dir="${jcxgen.dir}"/>
    </target>
 
     <target name="dirs">
         <mkdir dir="${build.classes}" />
+        <mkdir dir="${xbeangen.dir}" />
          <mkdir dir="${test.logs}" />
-   </target>
+	    <mkdir dir="${extgen.dir}"/>
+	    <mkdir dir="${jcxgen.dir}"/>
+     </target>
 
-    <target name="build" depends="build_junit, build_servlet" description="Builds source, and servlets" />
+    <target name="build" depends="build_jcx, build_junit" description="Builds source, and servlets" />
    	
- 
-	<target name="build_servlet" depends="build_src" >
-    </target>
 
 
-	 <target name="axisbean" depends="checkaxisbean" unless="noaxisrebuild">
-	    <!-- AXIS Bean build -->
-	    <taskdef name="axisbeanbuild" 
-	      classname="org.apache.beehive.wsm.axis.ant.AxisTypeGeneratorTask">
-	      <classpath>
-	        <path refid="build.classpath"/>
-	      </classpath>    
-	    </taskdef>
-	    <mkdir dir="${axisbeangen.dir}"/>
-	    <axisbeanbuild
-	      wsdldir="./wsdl"
-	      outputdir="${axisbeangen.dir}"/>
-	    <javac srcdir="${axisbeangen.dir}" 
+	
+	  <target name="gen_jcx" depends="gen_xmlbeans">
+	    <java classname="org.controlhaus.webservice.generator.ExtensionMaker">
+	    	<classpath> 
+	    		<path refid="build.classpath"/>
+	    		<pathelement location="${build.classes}"/>
+	    	</classpath>
+	      <arg line="-gen_root ${jcxgen.dir} 
+	      	-wsdl ${schema.dir}
+	      	-pkg ${testmodel.client.jcxgen.packageName}
+	      	-wsdl_path_annotation ."/>
+
+	    </java>
+	  	
+	  	<!-- have the wsdls, next to the jcx files -->
+	    <copy todir="${jcxgen.dir}/${testmodel.client.jcxgen.packageName}">
+	       <fileset dir="${schema.dir}" >
+	         <include name="**/*.wsdl"/>       
+	       </fileset>
+	     </copy>	
+
+	  </target>
+
+	  <target name="build_jcx" depends="gen_jcx">
+	    <apt srcdir="${jcxgen.dir}" 
 	      destdir="${build.classes}" 
+	      gendir="${extgen.dir}" 
 	      classpathref="build.classpath" 
+	      compileByExtension="true" 
+	      srcExtensions="*.jcx,*.java" 
 	      debug="true"/>
-	  </target>	
+	  	
+	  	<!-- copy wsdls to the classes --> 
+	    <copy todir="${build.classes}">
+	       <fileset dir="${jcxgen.dir}" >
+	         <include name="**/*.wsdl"/>       
+	         <include name="**/*.properties"/>       
+	       </fileset>
+	     </copy>
+	  </target>
 
-	 <target name="checkaxisbean" >
-	    <uptodate property="noaxisrebuild" targetfile="${axisbeangen.dir}">
-	      <srcfiles dir="${wsdl.dir}" includes="*.wsdl"/> 
+
+	
+	
+	  <target name="checkxbean">
+	    <uptodate property="noxbeanrebuild" targetfile="${xbeangen.dir}">
+	      <srcfiles dir="${schema.dir}" includes="*.wsdl,*.xsd"/> 
 	    </uptodate>
 	  </target>
 
-	   <target name="build_src" depends="dirs, axisbean" >
-	   	<apt srcdir="${source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
-	              debug="on"
-	             compileByExtension="true" 
-	             srcExtensions="*.jcx,*.java">  
-	            <classpath>
-	                 <pathelement location="${build.classes}"/>
-	                 <path refid="build.classpath"/>
-	             </classpath>
-	       </apt>
-	    <copy todir="${build.classes}">
-	       <fileset dir="${source.dir}" >
-	        <include name="**/*.wsdl"/>       
-	        <include name="**/*.properties"/>       
-	       </fileset>
-	     </copy>	   	
-	</target>
+	  <target name="gen_xmlbeans" depends="checkxbean, dirs" unless="noxbeanrebuild">
+	    <xmlbeanbuild
+	      schema="${schema.dir}" 
+	      srcgendir="${xbeangen.dir}"
+	      classgendir="${build.classes}"
+	      failonerror="true">
+	      <classpath>
+	        <path refid="build.classpath"/>
+	      </classpath>
+	    </xmlbeanbuild>
+	  </target>
+
+
+
+
+
+
 	
-	   <target name="build_junit" depends="build_src" >
+	   <target name="build_junit" depends="build_jcx" >
 	   	<apt srcdir="${junit.source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
 	              debug="on"
 	             compileByExtension="true" 
