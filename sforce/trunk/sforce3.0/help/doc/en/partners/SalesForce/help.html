@@ -155,8 +155,14 @@ The sforce 3.0 Workshop Custom Control uses service-oriented components, introdu
 
 For additional information on the release of the sforce 3.0 Workshop Custom Control, please contact either <a href="mailto:dcarroll@salesforce.com">Dave Carroll</a> or <a href="mailto:mkreaden@salesforce.com">Mike Kreaden</a> or visit the <a href="http://www.sforce.com">sforce website</a>.
 <br><br>
-<br> 
-	
+<p><br>
+<b>Preparing your development server to connect to sforce</b>
+<p>You will need to install new a Verisign root certificate into the default
+WebLogic Server version 8.1.2 configuration to communicate with
+sforce.com.&nbsp; See <a href="http://dev2dev.bea.com/resourcelibrary/advisoriesnotifications/BEA03_44.00.jsp">http://dev2dev.bea.com/resourcelibrary/advisoriesnotifications/BEA03_44.00.jsp</a>
+for more details.&nbsp;A useful script for installing new root
+certificates called <i>updatecerts.cmd </i>is included in the help files for the sforce control in the BEAHOME/weblogic81/workshop/help/doc/en/partners/SalesForce directory.</p>
+<p><br/>	
 <B>Installing the sforce 3.0 Workshop Control</b>
 <ol>
 <li>Download the file sforceControl.zip into your &lt;BEAHOME&gt;/ext_components directory.</li>
@@ -164,6 +170,7 @@ For additional information on the release of the sforce 3.0 Workshop Custom Cont
 <li>Select the Insert/Controls menu and&nbsp; choose the &quot;sforce 3.0&quot; control.</li>
 </ol>
 <p><br>
+
 <b>Installing sforce Explorer</b><br>
 <br>
 SForce Explorer is installed automatically the first time you create an instance of the sforce control. In case of an error, follow the following instructions.</p>
@@ -173,9 +180,9 @@ SForce Explorer is installed automatically the first time you create an instance
 <li>Extract the file sforceExplorer.jar file to &lt;BEAHOME&gt;\weblogic81\workshop with the &quot;use Folder Names&quot; option so that it lands in &lt;BEAHOME&gt;\weblogic81\workshop\extensions</li>
 <li>Restart Weblogic Workshop</li>
 </ol>
-<p><br>
 
-<BR>Using sforce Explorer
+<BR>
+<b>Using sforce Explorer</b>
 <OL>
 <LI>From the View/Windows menu, select sforce Explorer</LI>
 <LI>A new tab will be added to the IDE next to the Application tab.</LI>
