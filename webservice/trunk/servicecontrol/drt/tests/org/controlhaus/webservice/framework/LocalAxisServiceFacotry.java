@@ -35,7 +35,7 @@ import org.apache.axis.configuration.SimpleProvider;
 import org.apache.axis.handlers.soap.SOAPService;
 import org.apache.axis.providers.java.RPCProvider;
 import org.apache.axis.server.AxisServer;
-import org.apache.beehive.wsm.axis.AnnotatedWebServiceDeploymentHandler;
+import org.apache.beehive.wsm.axis.handlers.AnnotatedWebServiceDeploymentHandler;
 import org.apache.log4j.Logger;
 
 
