@@ -32,7 +32,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.sql.ResultSet;
 import java.util.Calendar;
 
 /**
@@ -124,7 +123,7 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
             throws SQLException {
 
         PreparedStatement preparedStatement = null;
-        loadSQLAnnotationStatmentOptions(context, method, connection);
+        loadSQLAnnotationStatmentOptions(context, method);
         checkJdbcSupport(connection.getMetaData());
 
         _callableStatement = setCallableStatement(arguments);
@@ -150,9 +149,16 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
                 }
 
             } else {
-                preparedStatement = (_callableStatement)
-                        ? connection.prepareCall(sql, _scrollType.getType(), _scrollType.getConcurrencyType(), _holdability.getHoldability())
-                        : connection.prepareStatement(sql, _scrollType.getType(), _scrollType.getConcurrencyType(), _holdability.getHoldability());
+                
+                if (_holdability == JdbcControl.HoldabilityType.DRIVER_DEFAULT) {
+                    preparedStatement = (_callableStatement)
+                            ? connection.prepareCall(sql, _scrollType.getType(), _scrollType.getConcurrencyType())
+                            : connection.prepareStatement(sql, _scrollType.getType(), _scrollType.getConcurrencyType());
+                } else {
+                    preparedStatement = (_callableStatement)
+                            ? connection.prepareCall(sql, _scrollType.getType(), _scrollType.getConcurrencyType(), _holdability.getHoldability())
+                            : connection.prepareStatement(sql, _scrollType.getType(), _scrollType.getConcurrencyType(), _holdability.getHoldability());
+                }
             }
 
             //
@@ -392,10 +398,8 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
      *
      * @param context ControlBeanContext instance.
      * @param method  Annotated method.
-     * @param conn The JDBC connection.
      */
-    private void loadSQLAnnotationStatmentOptions(ControlBeanContext context, Method method, Connection conn)
-            throws SQLException {
+    private void loadSQLAnnotationStatmentOptions(ControlBeanContext context, Method method) {
 
         final JdbcControl.SQL methodSQL = (JdbcControl.SQL) context.getMethodPropertySet(method, JdbcControl.SQL.class);
 
@@ -410,14 +414,6 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
         _maxArray = methodSQL.arrayMaxLength();
 
         _holdability = methodSQL.resultSetHoldabilityOverride();
-        if (_holdability == JdbcControl.HoldabilityType.DRIVER_DEFAULT) {
-            final int chold = conn.getHoldability();
-            if (chold == ResultSet.CLOSE_CURSORS_AT_COMMIT) {
-                _holdability = JdbcControl.HoldabilityType.CLOSE_CURSORS;
-            } else {
-                _holdability = JdbcControl.HoldabilityType.HOLD_CURSORS;
-            }
-        }
     }
 
     /**
@@ -440,7 +436,8 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
             throw new ControlException("The database does not support the ResultSet concurrecy type: " + _scrollType.toString());
         }
 
-        if (!metaData.supportsResultSetHoldability(_holdability.getHoldability())) {
+        if (_holdability != JdbcControl.HoldabilityType.DRIVER_DEFAULT
+                && !metaData.supportsResultSetHoldability(_holdability.getHoldability())) {
             throw new ControlException("The database does not support the ResultSet holdability type: " + _holdability.toString());
         }
     }
