@@ -1,0 +1,65 @@
+<?xml version="1.0" ?>
+
+<project name="amazon-demo" default="usage">
+
+    <property name="source.dir" value="${basedir}/src/main"/>
+	<property name="build.dir" value="${basedir}/build"/>
+	<property name="build.jar" value="demo.jar"/>
+	<property name="build.classes" value="${build.dir}/classes"/>
+	<property name="build.tests" value="${build.dir}/test-classes"/>
+	<property name="build.beansrc" value="${build.dir}/beansrc"/>
+	<property name="build.beantest" value="${build.dir}/beantest"/>
+	<property name="report.tests" value="${build.dir}/reports"/>	
+
+	<path id="build.classpath">
+		<fileset dir="lib">
+		  <include name="**/*.jar"/>
+		</fileset>
+        <pathelement path="${build.classes}"/>
+    </path>
+	
+    <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+             classpathref="build.classpath" onerror="report" />
+	
+    <taskdef name="control-jar" 
+             classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask" 
+    	     classpathref="build.classpath" onerror="report" />             
+
+    <target name="usage">
+        <echo message=""/>
+        <echo message=""/>
+        <echo message="================================================================"/>
+        <echo message="|                          Usage                               |"/>
+        <echo message="================================================================"/>
+        <echo message="----------------------------------------------------------------"/>
+        <echo message="|                      Standard Targets                        |"/>
+        <echo message="----------------------------------------------------------------"/>
+        <echo message="clean               - Delete all generated files"/>
+        <echo message="build               - build demo"/>
+    	<echo message="----------------------------------------------------------------"/>
+    </target>
+
+    <target name="clean" description="Deletes all generated files">
+        <delete dir="${build.dir}"/>
+        <delete file="velocity.log"/>
+    </target>
+
+    <target name="dirs">
+        <mkdir dir="${build.classes}" />
+    	<mkdir dir="${build.tests}" />
+    	<mkdir dir="${report.tests}" />
+    	<mkdir dir="${build.beansrc}" />
+    </target>
+
+    <target name="build" depends="dirs" description="Builds controls sources">
+        <apt srcdir="${source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
+             classpathref="build.classpath"
+             debug="on"
+             compileByExtension="true"
+             srcExtensions="*.java,*.jcx,*.jcs"
+        	 target="1.5">
+        </apt>
+        <control-jar destfile="${build.jar}"  basedir="${build.classes}" />
+    </target>
+	
+</project>
