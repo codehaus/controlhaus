@@ -7,6 +7,7 @@ import org.apache.beehive.controls.api.bean.ControlInterface;
 import org.apache.beehive.controls.api.bean.ControlExtension;
 
 import org.controlhaus.xfire.client.XFireClientControl;
+import org.controlhaus.xfire.client.XFireClientControl.Asynchronous;
 import org.controlhaus.xfire.client.XFireClientControl.ServiceUrl;
 import org.codehaus.xfire.fault.XFireFault;
 import org.codehaus.xfire.client.ClientHandler;
@@ -34,6 +35,9 @@ public interface ${interfaceType}
 #set( $first = true )
     $returnType ${method.Name}(#foreach($p in $method.RequestParameters)#if($first) #set($first=false) #else,#end$p.Type.ShortJavaName $p.Name#end )
         throws IOException, XFireFault;
-#end
 
+#set( $first = true )
+    @Asynchronous
+    void begin${method.Name}(#foreach($p in $method.RequestParameters)#if($first) #set($first=false) #else,#end$p.Type.ShortJavaName $p.Name#end );
+#end
 }
