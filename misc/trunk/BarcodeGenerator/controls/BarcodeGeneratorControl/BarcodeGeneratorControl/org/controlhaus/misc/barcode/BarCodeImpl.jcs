@@ -1,0 +1,53 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+
+package org.controlhaus.misc.barcode; 
+
+import com.bea.control.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import jbarcodebean.JBarcodeBean;
+/**
+ * @jcs:jc-jar icon-32="icon-32.gif" icon-16="icon-16.gif" version="1.0" description="Generates images of barcodes" label="Barcode Generator"
+ * @editor-info:code-gen control-interface="true"
+ */
+public class BarCodeImpl implements BarCode, ControlSource
+{ 
+    static final long serialVersionUID = 1L;  
+          
+
+    /**
+     * @common:operation
+     */
+    public void generateBarcode(String barCode, boolean showName, OutputStream output, BarcodeStrategy strategy )
+    {
+        Contract.enforce(barCode != null && barCode.length() > 0, "barCode");
+        Contract.enforce(output != null, "output");
+        Contract.enforce(strategy != null, "strategy");
+
+        JBarcodeBean jBarcodeBean = new JBarcodeBean();
+        jBarcodeBean.setCode(barCode);
+        jBarcodeBean.setShowText(showName);
+        jBarcodeBean.setCodeType(StrategyAdapter.adapt(strategy));
+        
+        try {
+            jBarcodeBean.gifEncode(output);        
+        } catch ( IOException ex ) {
+            throw new ControlException("IO Exception while rendering barcode image", ex);
+        }
+        
+    }    
+} 
