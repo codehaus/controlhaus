@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project
+    xmlns:j="jelly:core"
+    xmlns:ant="jelly:ant"
+    xmlns:util="jelly:util"
+    xmlns:define="jelly:define">
+
+    <ant:property environment="env"/>
+    <ant:property name="envjavahome" value="${env.JAVA_HOME}"/>
+
+    <j:if test="${context.getVariable('maven.jcx.beahome') == null}">
+        <fail>Property 'maven.jcx.beahome' must be set, and must point to the root directory of your bea installation (above the directory 'weblogic81')</fail>
+    </j:if>
+
+    <j:if test="${context.getVariable('maven.jcx.control.name') == null}">
+        <fail>Property 'maven.jcx.control.name' must be set, and specify the name of the control.  You will get 'controlname'.zip as your distribution</fail>
+    </j:if>
+
+    <j:if test="${context.getVariable('maven.jcx.partner.name') == null}">
+        <fail>Property 'maven.jcx.partner.name' must be set, and specify the name you want to use to identify your controls in the context of a Weblogic Workshop installation.  Usually this will be your company or brand name, of the name of your project.  Any samples you bundle with your control will be installed into partners/[PARTNER_NAME]</fail>
+    </j:if>
+
+    <!-- warn if we're not using the jdk supplied with weblogic, because compilation can sometimes go wrong if we're not -->
+    <j:if test="${envjavahome.toLowerCase().startsWith(context.getVariable('maven.jcx.beahome').toLowerCase())  == false}">
+        <echo level="warning">
+        You must use the JDK supplied with Weblogic to ensure
+        compilation succeeds in all cases i.e. set JAVA_HOME to
+        point to the JDK in ${context.getVariable('maven.jcx.beahome')}.
+        Your JAVA_HOME is set to ${envjavahome}.  Proceeding anyway.
+        If compilation fails, please retry with JAVA_HOME set
+        correctly.  You can do that by executing
+        ${context.getVariable('maven.jcx.beahome')}/weblogic81/server/bin/setWLSEnv.[cmd|sh]
+        </echo>
+    </j:if>
+
+
+    <ant:property name="weblogic.home" value="${context.getVariable('maven.jcx.beahome')}/weblogic81"/>
+
+    <ant:property name="server.classpath" value="${weblogic.home}/../jdk141_05/jre/lib/rt.jar;${weblogic.home}/../jdk141_05/lib/tools.jar;${weblogic.home}/server/lib/knex.jar;${weblogic.home}/common/lib/log4j.jar;${weblogic.home}/server/lib/debugging.jar;${weblogic.home}/javelin/lib/javelin.jar;${weblogic.home}/server/lib/wlw-lang.jar;${weblogic.home}/server/lib/weblogic.jar;${weblogic.home}/common/eval/pointbase/lib/pbserver44.jar;${weblogic.home}/common/eval/pointbase/lib/pbclient44.jar;${weblogic.home}/server/lib/webservices.jar;${weblogic.home}/server/lib/webserviceclient.jar;${weblogic.home}/server/lib/webserviceclient+ssl.jar;${weblogic.home}/server/lib/wli.jar;${weblogic.home}/server/lib/xbean.jar;${weblogic.home}/server/lib/wlxbean.jar;${weblogic.home}/server/lib/xqrl.jar;${weblogic.home}/server/lib/netui/netui-compiler.jar"/>
+
+    <ant:taskdef name="wlwBuild" classname="workshop.core.WlwBuildTask" classpath="${weblogic.home}/workshop/wlw-ide.jar"/>
+
+    <goal name="control:build"
+        description="Compile all control applications and copy all the binaries to the samples">
+
+        <fileScanner var="controlApplicationWorkFiles">
+            <fileset dir="controls">
+                <include name="**/*.work"/>
+            </fileset>
+        </fileScanner>
+
+        <fileScanner var="sampleApplicationWorkFiles">
+            <fileset dir="samples">
+                <include name="**/*.work"/>
+            </fileset>
+        </fileScanner>
+
+        <!-- for each control application, build it and copy jars to all sample applications -->
+        <j:forEach var="controlApplicationWorkFile" items="${controlApplicationWorkFiles.iterator()}">
+
+            <!-- build the control application -->
+            <wlwBuild work="${controlApplicationWorkFile}" serverclasspath="${server.classpath}">
+                <build noear="true"/>
+            </wlwBuild>
+
+            <!-- copy the binaries from the control application to all the samples -->
+            <j:forEach var="sampleApplicationWorkFile" items="${sampleApplicationWorkFiles.iterator()}">
+                <j:set var="sampleApplicationRoot" value="${sampleApplicationWorkFile.parent}"/>
+                <j:set var="controlApplicationRoot" value="${controlApplicationWorkFile.parent}"/>
+                <ant:copy todir="${sampleApplicationRoot}/APP-INF/lib">
+                    <fileset dir="${controlApplicationRoot}/APP-INF/lib">
+                        <include name="*.jar"/>
+                    </fileset>
+                </ant:copy>
+            </j:forEach>
+        </j:forEach>
+
+    </goal>
+
+    <goal name="control:dist" description="Build all controls and samples and bundle the result into a zip file for distribution" prereqs="control:build">
+        <ant:zip destfile="${context.getVariable('maven.jcx.control.name')}.zip">
+            <j:forEach var="controlApplicationWorkFile" items="${controlApplicationWorkFiles.iterator()}">
+                <j:set var="controlApplicationRoot" value="${controlApplicationWorkFile.parent}"/>
+                <zipfileset dir="${controlApplicationRoot}/APP-INF/lib" prefix="controls"/>
+            </j:forEach>
+            <zipfileset dir="samples" prefix="samples/partners/controlhaus_${context.getVariable('maven.jcx.partner.name')}"/>
+            <fileset dir="${basedir}">
+                <include name="help/**"/>
+            </fileset>
+        </ant:zip>
+    </goal>    
+
+</project>

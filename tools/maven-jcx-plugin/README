@@ -1,0 +1,6 @@
+maven plugin:deploy
+
+to compile and install the plugin
+
+maven control:build to compile the control project
+maven control:dist to compile the control and build a distribution
