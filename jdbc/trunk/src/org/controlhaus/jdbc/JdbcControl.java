@@ -87,7 +87,7 @@ public interface JdbcControl {
 
 // ********************************************************************************************************************
 // ********************************************************************************************************************
-//                          Database Class-level Connection Annotations and Supporting Constructs
+//                          Class-level Database Connection Annotations and Supporting Constructs
 // ********************************************************************************************************************
 // ********************************************************************************************************************
 
@@ -116,7 +116,7 @@ public interface JdbcControl {
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
+    @Target({ElementType.TYPE, ElementType.FIELD})
     public @interface ConnectionDataSource {
 
         /**
@@ -142,7 +142,7 @@ public interface JdbcControl {
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
+    @Target({ElementType.TYPE, ElementType.FIELD})
     public @interface ConnectionDriver {
 
         /**
@@ -182,7 +182,7 @@ public interface JdbcControl {
     @Inherited
     @AnnotationConstraints.AllowExternalOverride
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
+    @Target({ElementType.TYPE, ElementType.FIELD})
     public @interface ConnectionOptions {
 
         /**
@@ -475,7 +475,7 @@ public interface JdbcControl {
 
 // ********************************************************************************************************************
 // ********************************************************************************************************************
-//                                               Innerclasses
+//                                               Inner Classes
 // ********************************************************************************************************************
 // ********************************************************************************************************************
 
