@@ -1,0 +1,287 @@
+<?xml version="1.0"?>
+
+<!-- =================================================================== -->
+<!-- Build file for the Beeline Database Control project                 -->
+<!-- =================================================================== -->
+<project name="Beeline Database Control Build" default="build" basedir=".">
+
+    <property environment="os"/>
+    <property file="${os.BEELINE_HOME}/beeline.properties"/>
+
+    <!-- libraries -->
+    <property name="controls.jar" location="${beeline.external.dir}/beehive-controls/controls.jar"/>
+    <property name="derby.jar" location="${beeline.external.dir}/derby/derby-10.0.2.1.jar"/>
+    <property name="jsr173.jar" location="${beeline.external.dir}/xmlbeans/jsr173_1.0_api.jar"/>
+    <property name="junit.jar" location="${beeline.external.dir}/junit/junit.jar"/>
+    <property name="log4j.jar" location="${beeline.external.dir}/log4j/log4j-1.2.8.jar"/>
+    <property name="velocity14.jar" location="${beeline.external.dir}/velocity/velocity-1.4.jar"/>
+    <property name="velocitydep14.jar" location="${beeline.external.dir}/velocity/velocity-dep-1.4.jar"/>
+    <property name="xmlbeans.jar" location="${beeline.external.dir}/xmlbeans/apache-xbean-1.0.3.jar"/>
+    <property name="javacc.home" location="${beeline.external.dir}/javacc"/>
+
+    <!-- taskdefs -->
+    <taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask"
+        classpath="${controls.jar}" onerror="report"/>
+    <taskdef name="assemble" classname="org.apache.beehive.controls.runtime.assembly.AssembleTask"
+        classpath="${controls.jar}" onerror="report"/>
+    <taskdef name="control-jar" classname="org.apache.beehive.controls.runtime.packaging.ControlJarTask"
+        classpath="${controls.jar}" onerror="report"/>
+    <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean"
+        classpath="${xmlbeans.jar};${jsr173.jar}" onerror="report"/>
+
+    <!-- build locations -->
+    <property name="project.name" value="Beeline Database Control"/>
+    <property name="src.dir" location="${os.BEELINE_HOME}/src"/>
+    <property name="build.classes.dir" location="${beeline.build.dir}/classes"/>
+    <property name="build.generated.dir" location="${beeline.build.dir}/gensrc"/>
+    <property name="sqlgrammar.file" value="${src.dir}/org/controlhaus/jdbc/parser/SqlGrammar.jj"/>
+    <property name="sqlgrammar.gen.dir" value="${src.dir}/org/controlhaus/jdbc/parser"/>
+
+    <!-- test locations -->
+    <property name="test.src.dir" location="${beeline.test.dir}/src"/>
+    <property name="test.build.dir" location="${beeline.build.dir}/test"/>
+    <property name="test.build.classes.dir" location="${test.build.dir}/classes"/>
+    <property name="test.build.jars.dir" location="${test.build.dir}/jars"/>
+    <property name="test.logs.dir" location="${test.build.dir}/logs"/>
+    <property name="test.generated.source.dir" location="${test.build.dir}/gensrc"/>
+    <property name="test.derby.dir" location="${test.build.dir}/derbyData"/>
+
+    <!-- test controls -->
+    <property name="test.controls.src.dir" location="${test.src.dir}/controls"/>
+    <property name="test.controls.classes.dir" location="${test.build.classes.dir}/controls"/>
+    <property name="test.controls.generated.source.dir" location="${test.generated.source.dir}/controls"/>
+    <property name="testcontrols.jar" location="${test.build.dir}/jars/ctrls.jar"/>
+
+    <!-- test unit tests -->
+    <property name="test.units.src.dir" location="${test.src.dir}/units"/>
+    <property name="test.units.classes.dir" location="${test.build.classes.dir}/units"/>
+    <property name="test.units.generated.source.dir" location="${test.generated.source.dir}/units"/>
+
+    <!-- classpaths -->
+    <path id="build.classpath">
+        <pathelement location="${tools.jar}"/>
+        <pathelement location="${log4j.jar}"/>
+        <pathelement location="${velocity14.jar}"/>
+        <pathelement location="${velocitydep14.jar}"/>
+        <pathelement location="${xmlbeans.jar}"/>
+        <pathelement location="${jsr173.jar}"/>
+        <pathelement location="${controls.jar}"/>
+        <pathelement location="${build.classes.dir}"/>
+    </path>
+
+    <path id="test.classpath">
+        <path refid="build.classpath"/>
+        <pathelement location="${junit.jar}"/>
+        <pathelement location="${derby.jar}"/>
+        <pathelement location="${beeline.jar}"/>
+        <pathelement location="${testcontrols.jar}"/>
+        <pathelement path="${test.units.classes.dir}"/>
+    </path>
+
+    <!-- =================================================================== -->
+    <!-- build - build the Beeline Database Control                          -->
+    <!-- =================================================================== -->
+    <target name="build" depends="sqlgrammar_javacc" description="Compiles and builds the database control.">
+
+        <echo message="--------------------------------------------------"/>
+        <echo message="       ${project.name} build starting             "/>
+        <echo message="--------------------------------------------------"/>
+
+        <mkdir dir="${build.classes.dir}"/>
+        <mkdir dir="${build.generated.dir}"/>
+
+        <apt srcdir="${src.dir}"
+            destdir="${build.classes.dir}"
+            gendir="${build.generated.dir}"
+            classpathref="build.classpath"
+            compileByExtension="true"
+            debug="${compiler.debug}"
+            srcExtensions="*.java,*.jcx,*.jcs">
+        </apt>
+
+        <mkdir dir="${dist.base.dir}"/>
+        <jar jarfile="${beeline.jar}" basedir="${build.classes.dir}"/>
+
+        <echo message="--------------------------------------------------"/>
+        <echo message="         ${project.name} build complete           "/>
+        <echo message="--------------------------------------------------"/>
+    </target>
+
+
+    <!-- =================================================================== -->
+    <!-- sqlgrammer - builds the parser using javacc                         -->
+    <!-- =================================================================== -->
+    <target name="sqlgrammar_javacc">
+        <javacc
+            target="${sqlgrammar.file}"
+            outputdirectory="${sqlgrammar.gen.dir}"
+            javacchome="${javacc.home}"
+            />
+    </target>
+
+
+    <!-- =================================================================== -->
+    <!-- clean - cleans the Beeline Database Control                         -->
+    <!-- =================================================================== -->
+    <target name="clean" description="Cleans the Beeline database control build.">
+        <!-- TODO: There is a 'velocity.log' file which is created in BEELINE.HOME
+             when the apt task is run. -->
+        <delete dir="./build/"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- test - run the JUnit tests for the Beeline Database Control         -->
+    <!-- =================================================================== -->
+    <target name="test" depends="build,build-tests" description="Runs the Beeline unit tests">
+
+        <echo message="--------------------------------------------------"/>
+        <echo message="      ${project.name} tests starting"/>
+        <echo message="--------------------------------------------------"/>
+
+        <property name="show.output" value="false"/>
+        <property name="testout.dir" value="${test.logs.dir}"/>
+        <property name="fail" value="true"/>
+        <property name="formatter.type" value="xml"/>
+        <copy file="${junit.jar}" todir="${os.ANT_HOME}/lib"/>
+
+        <echo>testout.dir: ${testout.dir}</echo>
+
+        <mkdir dir="${testout.dir}"/>
+
+        <!-- clean out any old derby databases -->
+        <delete includeemptydirs="true">
+            <fileset dir="${test.derby.dir}" includes="**/*"/>
+        </delete>
+
+        <junit printsummary="${fail}" fork="${fail}" haltonfailure="${fail}" haltonerror="${fail}" showOutput="${show.output}">
+            <jvmarg value="-ea"/>
+            <classpath refid="test.classpath"/>
+            <formatter type="${formatter.type}"/>
+            <sysproperty key="derby.system.home" value="${test.derby.dir}"/>
+            <test name="org.controlhaus.jdbc.units.dbconnection.DBConnectionTest" todir="${testout.dir}"/>
+            <test name="org.controlhaus.jdbc.units.sqlparser.SqlParserTest" todir="${testout.dir}"/>
+            <test name="org.controlhaus.jdbc.units.results.DBSingleRowResultsTest" todir="${testout.dir}"/>
+            <test name="org.controlhaus.jdbc.units.results.DBMultiRowResultsTest" todir="${testout.dir}"/>
+            <test name="org.controlhaus.jdbc.units.results.StoredProcsDBResultsTest" todir="${testout.dir}"/>
+            <test name="org.controlhaus.jdbc.units.errors.ErrorPathsTest" todir="${testout.dir}"/>
+            <!--
+                <batchtest fork="yes" todir="${testout.dir}">
+                    <fileset dir="${test.src.dir}/junitTests">
+                        <include name="org/apache/beehive/netui/test/script/el/**/*Test.java"/>
+                        <exclude name="org/apache/beehive/netui/test/script/el/NetUIELCustomBindingContextTest.java"/>
+                    </fileset>
+                </batchtest>
+            -->
+        </junit>
+
+        <antcall target="make.report">
+            <param name="test.report.dir" location="${testout.dir}"/>
+        </antcall>
+
+        <echo message="--------------------------------------------------"/>
+        <echo message="      ${project.name} tests complete"/>
+        <echo message="--------------------------------------------------"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- dirs - target to create necessary test directories                  -->
+    <!-- =================================================================== -->
+    <target name="test-dirs">
+        <mkdir dir="${test.build.jars.dir}"/>
+        <mkdir dir="${test.controls.classes.dir}"/>
+        <mkdir dir="${test.units.classes.dir}"/>
+        <mkdir dir="${test.controls.generated.source.dir}"/>
+        <mkdir dir="${test.units.generated.source.dir}"/>
+        <mkdir dir="${test.logs.dir}"/>
+        <mkdir dir="${test.derby.dir}"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- build-tests - builds controls for the unit tests                    -->
+    <!-- =================================================================== -->
+    <target name="build-tests" depends="test-dirs">
+
+        <echo message="** Generating test Xml Beans **"/>
+
+        <xmlbean classgendir="${test.controls.classes.dir}"
+                 classpathref="test.classpath"
+                 schema="${test.controls.src.dir}/schemas"
+                 includeJavaRuntime="yes">
+        </xmlbean>
+
+
+        <echo message="** Phase One **"/>
+
+        <apt srcdir="${test.controls.src.dir}"
+            gendir="${test.controls.generated.source.dir}"
+            destdir="${test.controls.classes.dir}"
+            classpathref="test.classpath"
+            compileByExtension="true"
+            debug="${compiler.debug}"
+            srcExtensions="*.jcx,*.jcs,*.java">
+        </apt>
+
+        <!-- TODO: Currently not used - should remove?
+                <echo message="** Phase Two **"/>
+                <apt srcdir="${controls.test.controls}" destdir="${build.beans}" gendir="${build.beansrc}"
+                    compileByExtension="true"
+                    classpathref="test.classpath"
+                    srcExtensions="*.java,*.jcx,*.jcs">
+                </apt>
+        -->
+        <!-- TODO: Currently not used - should remove?
+                <echo message="** Controls Assembly **"/>
+                <assemble moduleDir="${test.controls.classes.dir}"
+                    srcOutputDir="${test.controls.generated.source.dir}"
+                    contextFactoryClassname="org.apache.beehive.controls.runtime.assembly.EJBAssemblyContext$Factory">
+                    <classpath>
+                        <path refid="test.classpath"/>
+                    </classpath>
+                    <fileset dir="${test.controls.classes.dir}">
+                        <include name="**/*.controls.properties"/>
+                    </fileset>
+                </assemble>
+        -->
+        <control-jar destfile="${testcontrols.jar}" basedir="${test.controls.classes.dir}"/>
+
+        <!-- now build the unit tests -->
+        <echo message="** Phase two **"/>
+        <apt srcdir="${test.units.src.dir}"
+            destdir="${test.units.classes.dir}"
+            gendir="${test.units.generated.source.dir}"
+            classpathref="test.classpath"
+            compileByExtension="true"
+            debug="${compiler.debug}"
+            srcExtensions="*.java">
+        </apt>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Produce a JUnit test report from the XML results of a test run.    -->
+    <!-- Params:                                                             -->
+    <!--     test.report.dir == the directory in which the XML test run      -->
+    <!--     results exist the HTML for the repots will be produced in       -->
+    <!--     ${test.report.dir}/html                                         -->
+    <!-- test - run the JUnit tests for the Beeline Database Control         -->
+    <!-- =================================================================== -->
+    <target name="make.report">
+        <echo>test.report.dir: ${test.report.dir}</echo>
+
+        <mkdir dir="${test.report.dir}/html"/>
+
+        <!-- build a report -->
+        <junitreport todir="${test.report.dir}/">
+            <fileset dir="${test.report.dir}/">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="noframes" todir="${test.report.dir}/html"/>
+        </junitreport>
+    </target>
+
+    <target name="usage">
+        <java fork="no" classname="org.apache.tools.ant.Main">
+            <arg line="-projecthelp"/>
+        </java>
+    </target>
+
+</project>

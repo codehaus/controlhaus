@@ -1,0 +1,175 @@
+/*
+ * Copyright 2004 BEA Systems, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.controlhaus.jdbc.test.results;
+
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.controlhaus.jdbc.DatabaseControl;
+import org.controlhaus.jdbc.DefaultRowSetResultSetMapper;
+
+import javax.sql.RowSet;
+
+import test.customerDb.XCustomerRowDocument;
+
+/**
+ * This control is used for unit tests for results returned from the db control.
+ */
+@org.apache.beehive.controls.api.bean.ControlExtension
+@DatabaseControl.ConnectionDriver(databaseDriverClass="org.apache.derby.jdbc.EmbeddedDriver", databaseURL="jdbc:derby:MyDB")
+public interface ResultsTestCtrl extends DatabaseControl {
+
+    public static class Customer {
+        private String fname;
+        public int userid;
+
+        public void setFname(String fname) { this.fname = fname; }
+        public String getFname() { return fname; }
+    }
+
+    //
+    // simple query
+    //
+    @SQL(statement="SELECT fname FROM USERS")
+    public ResultSet getAllUsers() throws SQLException;
+
+    //
+    // simple query with param substitution
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE fname={someUser}")
+    public ResultSet getSomeUser(String someUser) throws SQLException;
+
+    //
+    // simple query with param substitution
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE userid={someUserId}")
+    public ResultSet getSomeUser(int someUserId) throws SQLException;
+
+    //
+    // query with sql substitution
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE {sql: where}")
+    public ResultSet getJustOneUser(String where) throws SQLException;
+
+    //
+    // query returning an array of Object
+    //
+    @SQL(statement="SELECT * FROM USERS")
+    public Customer[] getCustomerArray() throws SQLException;
+
+    //
+    // query returning an array of Object / array size is limited in annotation
+    //
+    @SQL(statement="SELECT * FROM USERS", arrayMaxLength=2)
+    public Customer[] getCustomerArrayLimitedSize() throws SQLException;
+
+    //
+    // query returning a HashMap
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE userid={someUserId}")
+    public HashMap getCustomerHashMap(int someUserId) throws SQLException;
+
+    //
+    // query returning an array of HashMap
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE userid={someUserId}")
+    public HashMap[] getCustomerHashMapArray(int someUserId) throws SQLException;
+
+    //
+    // query returning a Map
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE userid={someUserId}")
+    public Map getCustomerMap(int someUserId) throws SQLException;
+
+    //
+    // query returning an iterator
+    //
+    @SQL(statement="SELECT * FROM USERS", iteratorElementType=Customer.class)
+    public Iterator getCustomerIterator() throws SQLException;
+
+    //
+    // query returning an empty value
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE userid={someUserId}")
+    public int getNoUsers(int someUserId) throws SQLException;
+
+    //
+    // query returning an object
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE userid={someUserId}")
+    public Customer getACustomer(int someUserId) throws SQLException;
+
+    //
+    // query returning a RowSet -- NOTE: uses default row set mapper
+    //
+    @SQL(statement="SELECT * FROM USERS", resultSetMapper=DefaultRowSetResultSetMapper.class)
+    public RowSet getAllUsersINRS() throws SQLException;
+
+    //
+    // query returning an XmlObject
+    //
+    @SQL(statement="SELECT * FROM USERS WHERE fname={someUser}")
+    public XCustomerRowDocument.XCustomerRow getAUserXmlBean(String someUser) throws SQLException;
+
+    //
+    // query returning an array of XmlObjects
+    //
+    @SQL(statement="SELECT * FROM USERS")
+    public XCustomerRowDocument.XCustomerRow[] getAllUserXmlBean() throws SQLException;
+
+    //
+    // query which invokes a stored procedure
+    //
+    @SQL(statement="{call getExpensiveProductSP(?)}")
+    public void getExpensiveProduct(SQLParameter[] results) throws SQLException;
+
+    //
+    // query which invokes a stored procedure
+    //
+    @SQL(statement="{call getExpensiveProductsSP(?)}")
+    public void getExpensiveProducts(SQLParameter[] results) throws SQLException;
+
+    //
+    // query which invokes a stored procedure
+    //
+    @SQL(statement="{call getProductsByColorSP(?,?)}")
+    public void getProductsByColor(SQLParameter[] results) throws SQLException;
+
+    //
+    // creates a stored procedure
+    //
+    @SQL(statement="CREATE PROCEDURE getProductSP(IN color VARCHAR(64), IN sku INT) " +
+                    "PARAMETER STYLE JAVA " +
+                    "READS SQL DATA " +
+                    "LANGUAGE JAVA " +
+                    "EXTERNAL NAME 'org.controlhaus.jdbc.units.utils.StoredProcedures.getProductSP'")
+    public void createStoredProc() throws SQLException;
+
+    //
+    // invokes the stored proc -- with 2 IN params
+    //
+    @SQL(statement="{call getProductSP({inColor},{inSKU})}")
+    public void getProduct(String inColor, int inSKU) throws SQLException;
+
+
+
+}
+

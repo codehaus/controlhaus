@@ -1,0 +1,403 @@
+/*
+ * Copyright 2004 BEA Systems, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.controlhaus.jdbc;
+
+import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.bean.ControlImplementation;
+import org.apache.beehive.controls.api.bean.Extensible;
+import org.apache.beehive.controls.api.context.ControlBeanContext;
+import org.apache.beehive.controls.api.context.ResourceContext;
+import org.apache.beehive.controls.api.context.ResourceContext.ResourceEvents;
+import org.apache.beehive.controls.api.events.EventHandler;
+import org.apache.log4j.Logger;
+import org.apache.xmlbeans.XmlObject;
+import org.controlhaus.jdbc.parser.SqlParser;
+import org.controlhaus.jdbc.parser.SqlStatement;
+
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+import javax.sql.RowSet;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Vector;
+
+/**
+ * The implementation class for the database controller.
+ */
+@ControlImplementation
+public class DatabaseControlImpl implements DatabaseControl, Extensible {
+
+    //
+    // contexts provided by the beehive controls runtime
+    //
+    @org.apache.beehive.controls.api.context.Context ControlBeanContext _context;
+    @org.apache.beehive.controls.api.context.Context ResourceContext _resourceContext;
+
+    private static final String EMPTY_STRING = "";
+    private static final Logger logger = Logger.getLogger(DatabaseControlImpl.class);
+
+    private transient Connection _connection;
+    private transient DataSource _dataSource;
+    private transient Calendar _cal;
+
+    private static SqlParser _sqlParser = new SqlParser();
+    private Vector _resources = new Vector();
+
+    private static final HashMap<Class, ResultSetMapper> _resultMappers;
+    private static final ResultSetMapper DEFAULT_MAPPER = new DefaultObjectResultSetMapper();
+
+    static {
+        _resultMappers = new HashMap<Class, ResultSetMapper>();
+        _resultMappers.put(ResultSet.class, new DefaultResultSetMapper());
+        _resultMappers.put(Iterator.class, new DefaultIteratorResultSetMapper());
+        _resultMappers.put(XmlObject.class, new DefaultXmlObjectResultSetMapper());
+//@todo - Remove this line - not officially supported
+//         _resultMappers.put(RowSet.class, new DefaultRowSetResultSetMapper());
+    }
+
+    /**
+     * Invoked by the controls runtime when a new instance of this class is aquired by the runtime
+     */
+    @EventHandler(field = "_resourceContext", eventSet = ResourceEvents.class, eventName = "onAcquire")
+            public void onAquire() {
+        logger.info("onAcquire() invoked.");
+        try {
+            getConnection();
+        } catch (SQLException se) {
+            logger.error("SQL Exception while attempting to connect to database.", se);
+        }
+    }
+
+    /**
+     * Invoked by the controls runtime when an instance of this class is released by the runtime
+     */
+    @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onRelease")
+            public void onRelease() {
+        logger.info("onRelease() invoked.");
+
+        for (int i = 0; i < _resources.size(); i++) {
+
+            Object o = _resources.get(i);
+            if (o instanceof PreparedStatement) {
+                try {
+                    ((PreparedStatement) o).close();
+                } catch (SQLException sqe) {
+                }
+            } else {
+                throw new ControlException("Unexpected resource type: " + o.getClass().toString());
+            }
+        }
+        _resources.clear();
+
+        if (_connection != null) {
+            try {
+                _connection.close();
+            } catch (SQLException e) {
+                logger.error("SQL Exception while attempting to close database connection.", e);
+            }
+        }
+    }
+
+    /**
+     * Returns a database connection to the server associated with the control.
+     * The connection type is specified by a ConnectionDataSource or ConnectionDriver annotation on the control class
+     * which extends this control.
+     * <p/>
+     * It is typically not necessary to call this method when using the control.
+     */
+    public Connection getConnection() throws SQLException, ControlException {
+
+        if (_connection != null) {
+            return _connection;
+        }
+
+        DatabaseControl.ConnectionDataSource _connSourceProp = _context.getControlPropertySet(ConnectionDataSource.class);
+        if (_connSourceProp != null && _connSourceProp.jndiName() != null) {
+            return getConnectionFromDataSource(_connSourceProp.jndiName(), _connSourceProp.jndiContextFactory());
+        }
+
+        DatabaseControl.ConnectionDriver _connDriver = _context.getControlPropertySet(ConnectionDriver.class);
+        if (_connDriver != null && _connDriver.databaseDriverClass() != null) {
+            return getConnectionFromDriverManager(_connDriver.databaseDriverClass(), _connDriver.databaseURL(),
+                                                  _connDriver.userName(), _connDriver.password(), _connDriver.properties());
+        }
+
+        throw new ControlException("no @\'" + ConnectionDataSource.class.getName()
+                                   + "\' or \'" + ConnectionDriver.class.getName() + "\' property found.");
+    }
+
+
+    /**
+     * Called by the Controls runtime to handle calls to methods of an extensible control.
+     *
+     * @param method The extended operation that was called.
+     * @param args   Parameters of the operation.
+     * @return The value that should be returned by the operation.
+     * @throws Throwable any exception declared on the extended operation may be
+     *                   thrown.  If a checked exception is thrown from the implementation that is not declared
+     *                   on the original interface, it will be wrapped in a ControlException.
+     */
+    public Object invoke(Method method, Object[] args) throws Throwable {
+
+        logger.info("Enter: invoke()");
+        assert _connection.isClosed() == false : "invoke(): JDBC Connection has been closed!!!!";
+
+        // @todo: need to worry about DatabaseFilter ??
+
+        final SQL methodSQL = (SQL) _context.getMethodPropertySet(method, SQL.class);
+        if (methodSQL == null) {
+            throw new ControlException("Method " + method.getName() + " is missing @SQL annotation");
+        }
+
+        final String sqlStatement = methodSQL.statement();
+        if (sqlStatement.length() == 0) {
+            throw new ControlException("Method " + method.getName() + " is missing statement property");
+        }
+
+        PreparedStatement ps = null;
+        try {
+            Class returnType = method.getReturnType();
+
+            SqlStatement parsedSql = _sqlParser.parse(sqlStatement);
+            ps = parsedSql.createPreparedStatement(_context, _connection, _cal, method, args);
+
+            //
+            // process row limits
+            //
+            int maxRows = methodSQL.maxRows();
+            int maxArray = methodSQL.arrayMaxLength();
+
+            // max-rows applies to all queries
+            // array-max-length only applies to array returning methods (v1 compat)
+            // truncation is silent except for RowSet returning methods
+            // for v1 compat we still log truncation due to array-max-length which is why set use maxArray+1
+            boolean isArray = returnType.isArray();
+            boolean isRowSet = returnType.equals(RowSet.class);
+
+            int maxSet = maxRows;
+            if (isArray && maxArray != -1) {
+                maxSet = maxRows == -1 ? maxArray + 1 : Math.min(maxArray + 1, maxRows);
+            } else if (isRowSet && maxRows > 0) {
+                maxSet = maxRows + 1;
+            }
+
+            if (maxSet != -1) {
+                ps.setMaxRows(maxSet);
+            }
+
+            //
+            // execute
+            //
+            boolean hasResults = ps.execute();
+
+            //
+            // process returned data
+            //
+            Object returnObject = null;
+
+/////////////////////////////
+            ResultSet rs = null;
+            int updateCount = ps.getUpdateCount();
+
+            if (hasResults) {
+                rs = ps.getResultSet();
+            }
+
+            if (!hasResults && updateCount > -1) {
+                boolean moreResults = ps.getMoreResults();
+                int tempUpdateCount = ps.getUpdateCount();
+
+                while ((moreResults && rs == null) || tempUpdateCount > -1) {
+                    if (moreResults) {
+                        rs = ps.getResultSet();
+                        hasResults = true;
+                        moreResults = false;
+                        tempUpdateCount = -1;
+                    } else {
+                        moreResults = ps.getMoreResults();
+                        tempUpdateCount = ps.getUpdateCount();
+                    }
+                }
+            }
+///////////////////////////////////////////////
+
+            if (hasResults) {
+
+
+                //
+                // if a result set mapper was specified in the methods annotation, use it
+                // otherwise find the mapper for the return type in the hashmap
+                //
+                final ResultSetMapper rsm;
+                final Class resultSetMapperClass = methodSQL.resultSetMapper();
+                if (!UndefinedResultSetMapper.class.isAssignableFrom(resultSetMapperClass)) {
+                    if (ResultSetMapper.class.isAssignableFrom(resultSetMapperClass)) {
+                        rsm = (ResultSetMapper)resultSetMapperClass.newInstance();
+                    } else {
+                        throw new ControlException("Result set mappers must be subclasses of ResultSetMapper.class!");
+                    }
+                } else {
+                    if (_resultMappers.containsKey(returnType)) {
+                        rsm = _resultMappers.get(returnType);
+                    } else {
+                        if (XmlObject.class.isAssignableFrom(returnType)) {
+                            rsm = _resultMappers.get(XmlObject.class);
+                        } else {
+                            rsm = DEFAULT_MAPPER;
+                        }
+                    }
+                }
+
+                returnObject = rsm.mapToResultType(_context, method, rs, _cal);
+                if (returnObject instanceof ResultSet
+                        || returnObject instanceof RowSet
+                        || returnObject instanceof Iterator) {
+                    _resources.add(ps);
+                }
+
+                //
+                // empty ResultSet
+                //
+            } else {
+                if (returnType.equals(Void.TYPE)) {
+                    returnObject = null;
+                } else if (returnType.equals(Integer.TYPE)) {
+                    returnObject = new Integer(updateCount);
+                } else if (!parsedSql.isCallableStatement()) {
+                    throw new ControlException("Method " + method.getName() + "is DML but does not return void or int");
+                }
+            }
+
+            //
+            // callable statement
+            //
+            if (parsedSql.isCallableStatement()) {
+                SQLParameter[] params = (SQLParameter[]) args[0];
+                for (int i = 0; i < params.length; i++) {
+                    if (params[i].dir != SQLParameter.IN) {
+                        params[i].value = ((CallableStatement) ps).getObject(i + 1);
+                    }
+                }
+            }
+            return returnObject;
+
+        } finally {
+            // Keep statements open that have in-use result sets
+            if (ps != null && !_resources.contains(ps)) {
+                ps.close();
+            }
+        }
+    }
+
+    /**
+     * Returns the annotation type of this annotation.
+     */
+    //@todo: why is this necessary?
+    public Class<? extends Annotation> annotationType() {
+        return null;
+    }
+
+    /**
+     * Sets the calendar used when working with time/date types
+     */
+    public void setDataSourceCalendar(Calendar cal) {
+        _cal = (Calendar) cal.clone();
+    }
+
+    /**
+     * Returns the calendar used when working with time/date types.
+     *
+     * @return
+     */
+    public Calendar getDataSourceCalendar() {
+        return _cal;
+    }
+
+// /////////////////////////////////////////// Private Methods ////////////////////////////////////////////
+
+    /**
+     * Get a connection from a DataSource.
+     *
+     * @param jndiName    Specifed in the subclasse's ConnectionDataSource annotation
+     * @param jndiFactory Specified in the subclasse's ConnectionDataSource Annotation.
+     * @return null if a connection cannot be established
+     */
+    private Connection getConnectionFromDataSource(String jndiName, Class<? extends IJndiContextFactory> jndiFactory) {
+
+        try {
+            IJndiContextFactory jf = (IJndiContextFactory) jndiFactory.newInstance();
+            InitialContext jndiContext = jf.getInitialContext();
+            _dataSource = (DataSource) jndiContext.lookup(jndiName);
+            _connection = _dataSource.getConnection();
+        } catch (IllegalAccessException iae) {
+            logger.error("Jndi illegal access exception!", iae);
+        } catch (InstantiationException ie) {
+            logger.error("Jndi instantiation exception!", ie);
+        } catch (NamingException ne) {
+            logger.error("Jndi nameing exception!", ne);
+        } catch (SQLException sqe) {
+            logger.error("SQL exception!", sqe);
+        }
+        return _connection;
+    }
+
+    /**
+     * Get a JDBC connection from the DriverManager.
+     *
+     * @param dbDriverClassName Specified in the subclasse's ConnectionDriver annotation.
+     * @param dbUrlStr          Specified in the subclasse's ConnectionDriver annotation.
+     * @param userName          Specified in the subclasse's ConnectionDriver annotation.
+     * @param password          Specified in the subclasse's ConnectionDriver annotation.
+     * @return null if a connection cannot be established.
+     */
+    private Connection getConnectionFromDriverManager(String dbDriverClassName, String dbUrlStr,
+                                                      String userName, String password, String propertiesString) {
+
+        try {
+            Class.forName(dbDriverClassName);
+            if (!EMPTY_STRING.equals(userName)) {
+                _connection = DriverManager.getConnection(dbUrlStr, userName, password);
+            } else if (!EMPTY_STRING.equals(propertiesString)) {
+                Properties props = ControlUtils.parseProperties(propertiesString);
+                if (props == null) {
+                    logger.error("Invalide properties annotation value: " + propertiesString);
+                    return null;
+                }
+                _connection = DriverManager.getConnection(dbUrlStr, props);
+            } else {
+                _connection = DriverManager.getConnection(dbUrlStr);
+            }
+        } catch (ClassNotFoundException e) {
+            logger.error("Database driver class not found!", e);
+        } catch (SQLException e) {
+            logger.error("SQL exception while connection to database!", e);
+        }
+        return _connection;
+    }
+}
