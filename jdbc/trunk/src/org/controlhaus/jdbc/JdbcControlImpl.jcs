@@ -56,33 +56,30 @@ import java.util.Map;
     // contexts provided by the beehive controls runtime
     //
     @org.apache.beehive.controls.api.context.Context
-            protected ControlBeanContext _context;
+    protected ControlBeanContext _context;
     @org.apache.beehive.controls.api.context.Context
-            protected ResourceContext _resourceContext;
+    protected ResourceContext _resourceContext;
 
     protected transient Connection _connection;
     protected transient ConnectionDataSource _connectionDataSource;
     protected transient DataSource _dataSource;
     protected transient ConnectionDriver _connectionDriver;
-    protected HashMap<Class, ResultSetMapper> _resultMappers;
-    protected Class _xmlObjectClass;
+
+    private transient Calendar _cal;
+    private transient Vector _resources = new Vector();
 
     private static final String EMPTY_STRING = "";
     private static final Logger logger = Logger.getLogger(JdbcControlImpl.class);
     private static final ResultSetMapper DEFAULT_MAPPER = new DefaultObjectResultSetMapper();
     private static final SqlParser _sqlParser = new SqlParser();
 
-    private transient Calendar _cal;
+    protected static final HashMap<Class, ResultSetMapper> _resultMappers = new HashMap<Class, ResultSetMapper>();
+    protected static Class _xmlObjectClass;
 
-    private Vector _resources = new Vector();
-
-
-    /**
-     * Constructor
-     */
-    public JdbcControlImpl() {
-
-        _resultMappers = new HashMap<Class, ResultSetMapper>();
+    //
+    // initialize the result mapper table
+    //
+    static {
         _resultMappers.put(ResultSet.class, new DefaultResultSetMapper());
         _resultMappers.put(Iterator.class, new DefaultIteratorResultSetMapper());
 
@@ -94,6 +91,10 @@ import java.util.Map;
         }
     }
 
+    /**
+     * Constructor
+     */
+    public JdbcControlImpl() { }
 
     /**
      * Invoked by the controls runtime when a new instance of this class is aquired by the runtime

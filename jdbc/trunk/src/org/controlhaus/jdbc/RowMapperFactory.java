@@ -53,7 +53,6 @@ public final class RowMapperFactory {
         } catch (ClassNotFoundException e) {
             // NOOP if apache xml beans not present
         }
-
     }
 
     /**
@@ -79,22 +78,21 @@ public final class RowMapperFactory {
         return DEFAULT_ROWMAPPING.getMapper(rs, returnTypeClass, cal);
     }
 
-//@todo: either fully implement or remove
-//    /**
-//     * Append a new row mapper to the list of available row mappers
-//     *
-//     * @param returnTypeClass
-//     * @param rowMapperClass
-//     */
-//    public static void appendRowMapping(Class returnTypeClass, Class<? extends RowMapper> rowMapperClass) {
-//        for (RowMapping rm : _rowMappings) {
-//            if (rm._mapperFor == returnTypeClass) {
-//                _rowMappings.set(_rowMappings.indexOf(rm), new RowMapping(rowMapperClass, rowMapperClass));
-//                return;
-//            }
-//        }
-//        _rowMappings.add(new RowMapping(returnTypeClass, rowMapperClass));
-//    }
+    /**
+     * Append a new row mapper to the list of available row mappers
+     *
+     * @param returnTypeClass
+     * @param rowMapperClass
+     */
+    public static void appendRowMapping(Class returnTypeClass, Class<? extends RowMapper> rowMapperClass) {
+        for (RowMapping rm : _rowMappings) {
+            if (rm._mapperFor == returnTypeClass) {
+                _rowMappings.set(_rowMappings.indexOf(rm), new RowMapping(rowMapperClass, rowMapperClass));
+                return;
+            }
+        }
+        _rowMappings.add(new RowMapping(returnTypeClass, rowMapperClass));
+    }
 
     /**
      * Helper class for storing row mappers.

@@ -20,7 +20,7 @@
     <property environment="os"/>
     <dirname property="jdbcc.home" file="${ant.file.jdbccontrol-imports}"/>
 
-    <property name="jdbcc.jar.name" value="jdbccontrol.jar"/>
+    <property name="jdbcc.jar.name" value="jdbc-control.jar"/>
     <property name="compiler.debug" value="true"/>
 
     <property name="ant.home" location="${os.ANT_HOME}"/>
@@ -31,27 +31,12 @@
     <property name="jdbcc.external.dir" location="${jdbcc.home}/external"/>
     <property name="dist.base.dir" location="${jdbcc.home}/build/dist"/>
     <property name="jdbcc.jar" location="${dist.base.dir}/${jdbcc.jar.name}"/>
+    <property name="beehive.common.lib.dir" location="${beehive.home}/lib/common"/>
 
     <!-- ======================================================================== -->
     <!-- Properties for downloading dependency libs from maven respoistory        -->
     <!-- ======================================================================== -->
     <property name="lib.dir" location="${jdbcc.home}/lib"/>
-
-    <!-- velocity -->
-    <property name="velocity.maven.url" value="http://www.ibiblio.org/maven/velocity/jars/velocity-1.4.jar"/>
-    <property name="velocity.jar.dest" location="${lib.dir}/velocity-1.4.jar"/>
-    <property name="velocity.dep.maven.url" value="http://www.ibiblio.org/maven/velocity/jars/velocity-dep-1.4.jar"/>
-    <property name="velocity.dep.jar.dest" location="${lib.dir}/velocity-dep-1.4.jar"/>
-
-    <!-- log4j -->
-    <property name="log4j.maven.url" value="http://www.ibiblio.org/maven/log4j/jars/log4j-1.2.8.jar"/>
-    <property name="log4j.jar.dest" location="${lib.dir}/log4j-1.2.8.jar"/>
-
-    <!-- xmlbeans -->
-    <property name="xmlbean.maven.url" value="http://www.ibiblio.org/maven/xmlbeans/jars/xbean-1.0.3.jar"/>
-    <property name="xmlbean.jar.dest" location="${lib.dir}/xbean-1.0.3.jar"/>
-    <property name="jsr173.maven.url" value="http://www.ibiblio.org/maven/xmlbeans/jars/xmlbeans-jsr173-api-2.0-dev.jar"/>
-    <property name="jsr173.jar.dest" location="${lib.dir}/xmlbeans-jsr173-api-2.0-dev.jar"/>
 
     <!-- junit -->
     <property name="junit.maven.url" value="http://www.ibiblio.org/maven/junit/jars/junit-3.8.1.jar"/>
@@ -61,14 +46,6 @@
     <property name="javacc.maven.url" value="http://www.ibiblio.org/maven/javacc/jars/javacc-3.2.jar"/>
     <property name="javacc.jar.dest" location="${lib.dir}/javacc.jar"/>
     <property name="javacc.home" location="${lib.dir}"/>
-
-    <!-- commons -->
-    <property name="commons.discovery.maven.url" value="http://www.ibiblio.org/maven/commons-discovery/jars/commons-discovery-0.2.jar"/>
-    <property name="commons.discovery.jar.dest" location="${lib.dir}/commons-discovery-0.2.jar"/>
-    <property name="commons.codec.maven.url" value="http://www.ibiblio.org/maven/commons-codec/jars/commons-codec-1.3.jar"/>
-    <property name="commons.codec.jar.dest" location="${lib.dir}/commons-codec-1.3.jar"/>
-    <property name="commons.logging.maven.url" value="http://www.ibiblio.org/maven/commons-logging/jars/commons-logging-1.0.4.jar"/>
-    <property name="commons.logging.jar.dest" location="${lib.dir}/commons-logging-1.0.4.jar"/>
 
     <!-- beehive controls jar -->
     <!-- Not currently available from maven respository -->
@@ -80,22 +57,21 @@
     <!-- Common JdbcControl paths                                                 -->
     <!-- ======================================================================== -->
 
-    <fileset id="controls.fileset" file="${beehive.home}/controls/build/jars/controls.jar"/>
+    <fileset id="controls.fileset" file="${beehive.home}/controls/controls.jar"/>
     <fileset id="jdbccontrol.fileset" file="${jdbcc.jar}"/>
-    <fileset id="log4j.fileset" file="${lib.dir}/log4j-1.2.8.jar"/>
-    <fileset id="xbean.fileset" file="${lib.dir}/xbean-1.0.3.jar"/>
-    <fileset id="jsr173.fileset" file="${lib.dir}/xmlbeans-jsr173-api.2.0-dev.jar"/>
+    <fileset id="log4j.fileset" file="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
+    <fileset id="xbean.fileset" file="${beehive.common.lib.dir}/apache-xbean.jar"/>
+    <fileset id="jsr173.fileset" file="${beehive.common.lib.dir}/jsr173_1.0_api.jar"/>
     <fileset id="junit.fileset" file="${lib.dir}/junit-3.8.1.jar"/>
     <fileset id="derby.fileset" file="${jdbcc.external.dir}/derby/derby-10.0.2.1.jar"/>
     
-    <fileset id="commons.fileset" dir="${lib.dir}">
+    <fileset id="commons.fileset" dir="${beehive.common.lib.dir}">
         <include name="commons-discovery-0.2.jar"/>
         <include name="commons-codec-1.3.jar"/>
-        <include name="commons-logging-1.0.4.jar"/>
+        <include name="commons-logging.jar"/>
     </fileset>
 
-
-    <fileset id="velocity.fileset" dir="${lib.dir}">
+    <fileset id="velocity.fileset" dir="${beehive.common.lib.dir}">
         <include name="velocity-1.4.jar"/>
         <include name="velocity-dep-1.4.jar"/>
     </fileset>
@@ -105,7 +81,7 @@
     </path>
 
     <path id="controls.dependency.path">
-        <pathelement location="${beehive.home}/controls/build/jars/controls.jar"/>
+        <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
     </path>
 
     <path id="derby.dependency.path">
