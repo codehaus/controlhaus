@@ -17,7 +17,7 @@ import com.bea.wlw.netui.pageflow.FormData;
 import com.bea.wlw.netui.pageflow.Forward;
 import com.bea.wlw.netui.pageflow.PageFlowController;
 
-import org.controlhaus.fedex.FedexTrackingControl;
+import org.controlhaus.shipping.fedex.FedexTrackingControl;
 
 /**
  * PageFlow class generated from control FedexTrackingControl
@@ -126,7 +126,7 @@ public class FedexTrackingSampleController extends PageFlowController
         throws Exception
     {
         
-        org.controlhaus.fedex.impl.FedexTrackRequestImpl fedexTrackRequest = new org.controlhaus.fedex.impl.FedexTrackRequestImpl();
+        org.controlhaus.shipping.fedex.impl.FedexTrackRequestImpl fedexTrackRequest = new org.controlhaus.shipping.fedex.impl.FedexTrackRequestImpl();
         
         fedexTrackRequest.setTransactionId(aForm.getTransactionId());
         fedexTrackRequest.setAccountNumber(aForm.getAccountNumber());
