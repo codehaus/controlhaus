@@ -211,9 +211,9 @@ public interface ResultsTestCtrl extends JdbcControl {
     public ResultSet getGenKeys(String aValue);
 
     //
-    // a basic usage of the getGeneratedKeys and generatedKeyColumns annotation members
+    // a basic usage of the getGeneratedKeys and generatedKeyColumnNames members
     //
-    @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true, generatedKeyColumns = {"user_id"})
+    @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true, generatedKeyColumnNames = {"user_id"})
     public ResultSet getGenKeys2(String aValue);
 
     //
@@ -233,5 +233,11 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true)
     public int[] getGenKeys5(String aValue);
+
+    //
+    // a basic usage of the getGeneratedKeys and generatedKeyColumnIndexes annotation members
+    //
+    @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true, generatedKeyColumnIndexes = {1})
+    public ResultSet getGenKeys6(String aValue);
 }
 

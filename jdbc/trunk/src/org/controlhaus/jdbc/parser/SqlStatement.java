@@ -88,13 +88,15 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
      * @param arguments        Method arguments.
      * @param isBatchUpdate
      * @param getGeneratedKeys
-     * @param genKeyColumns
+     * @param genKeyColumnNames
+     * @param genKeyColumnIndexes
      * @return A JDBC PreparedStatement
      * @throws SQLException
      */
     public PreparedStatement createPreparedStatement(ControlBeanContext context, Connection connection,
                                                      Calendar calendar, Method method, Object[] arguments,
-                                                     boolean isBatchUpdate, boolean getGeneratedKeys, String[] genKeyColumns)
+                                                     boolean isBatchUpdate, boolean getGeneratedKeys,
+                                                     String[] genKeyColumnNames, int[] genKeyColumnIndexes)
             throws SQLException {
 
         PreparedStatement preparedStatement = null;
@@ -112,8 +114,10 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
                     throw new ControlException("getGeneratedKeys not supported for CallableStatements");
                 }
 
-                if (genKeyColumns.length > 0) {
-                    preparedStatement = connection.prepareStatement(sql, genKeyColumns);
+                if (genKeyColumnNames.length > 0) {
+                    preparedStatement = connection.prepareStatement(sql, genKeyColumnNames);
+                } else if (genKeyColumnIndexes.length > 0) {
+                        preparedStatement = connection.prepareStatement(sql, genKeyColumnIndexes);
                 } else {
                     preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 }
