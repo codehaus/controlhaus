@@ -408,6 +408,21 @@ public interface JMSControl
         @AnnotationMemberTypes.Optional
         @AnnotationMemberTypes.URL
     	public String jndiProviderURL() default "";
+        
+        /**
+         * The JNDI security principal.
+         */
+        @FeatureInfo(shortDescription="JNDI security principal")      
+        @AnnotationMemberTypes.Optional
+    	public String jndiUsername() default "";
+        
+        
+        /**
+         * The JNDI security credentials.
+         */
+        @FeatureInfo(shortDescription="JNDI security credentials")      
+        @AnnotationMemberTypes.Optional
+    	public String jndiPassword() default "";
     }
 
 

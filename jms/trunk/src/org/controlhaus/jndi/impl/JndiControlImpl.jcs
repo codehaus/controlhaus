@@ -69,8 +69,8 @@ import org.controlhaus.jndi.JndiControl;
     	}
     	Properties props = (Properties) _context
                 .getControlPropertySet(Properties.class);
-        String url = props.url();
-        String factory = props.factory();
+        String url = nullIfEmpty(props.url());
+        String factory = nullIfEmpty(props.factory());
 	    if(url == null && factory == null)
 	    {
 	        try
@@ -83,7 +83,7 @@ import org.controlhaus.jndi.JndiControl;
 	        }
         
 		}
-        if(url == null ||factory == null)
+        if(url == null || factory == null)
         {
             throw new ControlException("Both the provider-url and jndi factory need to be provided");
            
@@ -91,6 +91,16 @@ import org.controlhaus.jndi.JndiControl;
         Hashtable<String,String> env = new Hashtable<String,String>();
         env.put(javax.naming.Context.INITIAL_CONTEXT_FACTORY, factory);
         env.put(javax.naming.Context.PROVIDER_URL,url);
+        String username = nullIfEmpty(props.jndiSecurityPrincipal());
+        if(username != null)
+        {
+        	env.put(javax.naming.Context.SECURITY_PRINCIPAL,username);
+        }
+        String password = nullIfEmpty(props.jndiSecurityCredentials());
+        if(password != null)
+        {
+        	env.put(javax.naming.Context.SECURITY_CREDENTIALS,password);
+        }
         try
         {
         	return _initialContext = new InitialContext(env);
@@ -99,6 +109,19 @@ import org.controlhaus.jndi.JndiControl;
         {        	
         	throw new ControlException("Cannot get JNDI initial context at provider '"+url+"' with factory '"+factory+"'",e);
         }
+    }
+    /**
+     * Return null if the given string is null or an empty string.
+     * @param str a string.
+     * @return null or the string.
+     */
+    protected String nullIfEmpty(String str)
+    {
+    	if(str == null || str.trim().length() == 0)
+    	{
+    		return null;
+    	}
+    	return str;
     }
     /* Control Managed Field(s) */
     @Context ControlBeanContext _context;
