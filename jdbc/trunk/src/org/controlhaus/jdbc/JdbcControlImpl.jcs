@@ -25,7 +25,6 @@ import org.apache.beehive.controls.api.context.ResourceContext;
 import org.apache.beehive.controls.api.context.ResourceContext.ResourceEvents;
 import org.apache.beehive.controls.api.events.EventHandler;
 import org.apache.log4j.Logger;
-import org.apache.xmlbeans.XmlObject;
 import org.controlhaus.jdbc.parser.SqlParser;
 import org.controlhaus.jdbc.parser.SqlStatement;
 
@@ -33,7 +32,6 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.sql.RowSet;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -56,36 +54,49 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
     //
     // contexts provided by the beehive controls runtime
     //
-    @org.apache.beehive.controls.api.context.Context ControlBeanContext _context;
-    @org.apache.beehive.controls.api.context.Context ResourceContext _resourceContext;
+    @org.apache.beehive.controls.api.context.Context protected ControlBeanContext _context;
+    @org.apache.beehive.controls.api.context.Context protected ResourceContext _resourceContext;
+
+    protected transient Connection _connection;
+    protected transient ConnectionDataSource _connectionDataSource;
+    protected transient ConnectionDriver _connectionDriver;
+    protected transient DataSource _dataSource;
+    protected HashMap<Class, ResultSetMapper> _resultMappers;
+    protected Class _xmlObjectClass;
 
     private static final String EMPTY_STRING = "";
     private static final Logger logger = Logger.getLogger(JdbcControlImpl.class);
+    private static final ResultSetMapper DEFAULT_MAPPER = new DefaultObjectResultSetMapper();
+    private static final SqlParser _sqlParser = new SqlParser();
 
-    private transient Connection _connection;
-    private transient DataSource _dataSource;
     private transient Calendar _cal;
 
-    private static SqlParser _sqlParser = new SqlParser();
     private Vector _resources = new Vector();
 
-    private static final HashMap<Class, ResultSetMapper> _resultMappers;
-    private static final ResultSetMapper DEFAULT_MAPPER = new DefaultObjectResultSetMapper();
 
-    static {
+    /**
+     * Constructor
+     */
+    public JdbcControlImpl() {
+
         _resultMappers = new HashMap<Class, ResultSetMapper>();
         _resultMappers.put(ResultSet.class, new DefaultResultSetMapper());
         _resultMappers.put(Iterator.class, new DefaultIteratorResultSetMapper());
-        _resultMappers.put(XmlObject.class, new DefaultXmlObjectResultSetMapper());
-//@todo - Remove this line - not officially supported
-//         _resultMappers.put(RowSet.class, new DefaultRowSetResultSetMapper());
+
+        try {
+            _xmlObjectClass = Class.forName("org.apache.xmlbeans.XmlObject");
+            _resultMappers.put(_xmlObjectClass, new DefaultXmlObjectResultSetMapper());
+        } catch (ClassNotFoundException e) {
+            // noop: OK if not found, just can't support mapping to an XmlObject
+        }
     }
+
 
     /**
      * Invoked by the controls runtime when a new instance of this class is aquired by the runtime
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceEvents.class, eventName = "onAcquire")
-            public void onAquire() {
+    public void onAquire() {
         logger.info("onAcquire() invoked.");
         try {
             getConnection();
@@ -122,6 +133,10 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
                 logger.error("SQL Exception while attempting to close database connection.", e);
             }
         }
+
+        _connection = null;
+        _connectionDataSource = null;
+        _connectionDriver = null;
     }
 
     /**
@@ -137,15 +152,16 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             return _connection;
         }
 
-        JdbcControl.ConnectionDataSource _connSourceProp = _context.getControlPropertySet(ConnectionDataSource.class);
-        if (_connSourceProp != null && _connSourceProp.jndiName() != null) {
-            return getConnectionFromDataSource(_connSourceProp.jndiName(), _connSourceProp.jndiContextFactory());
+        //JdbcControl.ConnectionDataSource _connSourceProp = _context.getControlPropertySet(ConnectionDataSource.class);
+        _connectionDataSource = _context.getControlPropertySet(ConnectionDataSource.class);
+        if (_connectionDataSource != null && _connectionDataSource.jndiName() != null) {
+            return getConnectionFromDataSource(_connectionDataSource.jndiName(), _connectionDataSource.jndiContextFactory());
         }
 
-        JdbcControl.ConnectionDriver _connDriver = _context.getControlPropertySet(ConnectionDriver.class);
-        if (_connDriver != null && _connDriver.databaseDriverClass() != null) {
-            return getConnectionFromDriverManager(_connDriver.databaseDriverClass(), _connDriver.databaseURL(),
-                                                  _connDriver.userName(), _connDriver.password(), _connDriver.properties());
+        _connectionDriver = _context.getControlPropertySet(ConnectionDriver.class);
+        if (_connectionDriver != null && _connectionDriver.databaseDriverClass() != null) {
+            return getConnectionFromDriverManager(_connectionDriver.databaseDriverClass(), _connectionDriver.databaseURL(),
+                                                  _connectionDriver.userName(), _connectionDriver.password(), _connectionDriver.properties());
         }
 
         throw new ControlException("no @\'" + ConnectionDataSource.class.getName()
@@ -180,6 +196,48 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             throw new ControlException("Method " + method.getName() + " is missing statement property");
         }
 
+        final int maxRows = methodSQL.maxRows();
+        final int maxArray = methodSQL.arrayMaxLength();
+        final Class resultSetMapperClass = methodSQL.resultSetMapper();
+
+        return execPreparedStatement(sqlStatement, method, args, maxRows, maxArray, resultSetMapperClass);
+    }
+
+    /**
+     * Sets the calendar used when working with time/date types
+     */
+    public void setDataSourceCalendar(Calendar cal) {
+        _cal = (Calendar) cal.clone();
+    }
+
+    /**
+     * Returns the calendar used when working with time/date types.
+     *
+     * @return
+     */
+    public Calendar getDataSourceCalendar() {
+        return _cal;
+    }
+
+
+// /////////////////////////////////////////// Protected Methods ////////////////////////////////////////////
+
+
+    /**
+     * Create and exec the query
+     * @param sqlStatement
+     * @param method
+     * @param args
+     * @param maxRows
+     * @param maxArray
+     * @param resultSetMapperClass
+     * @return
+     * @throws Throwable
+     */
+    protected Object execPreparedStatement(String sqlStatement, Method method, Object[] args,
+                                           int maxRows, int maxArray, Class resultSetMapperClass)
+            throws Throwable {
+
         PreparedStatement ps = null;
         try {
             Class returnType = method.getReturnType();
@@ -190,13 +248,6 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             //
             // process row limits
             //
-            int maxRows = methodSQL.maxRows();
-            int maxArray = methodSQL.arrayMaxLength();
-
-            // max-rows applies to all queries
-            // array-max-length only applies to array returning methods (v1 compat)
-            // truncation is silent except for RowSet returning methods
-            // for v1 compat we still log truncation due to array-max-length which is why set use maxArray+1
             boolean isArray = returnType.isArray();
             boolean isRowSet = returnType.equals(RowSet.class);
 
@@ -219,9 +270,6 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             //
             // process returned data
             //
-            Object returnObject = null;
-
-/////////////////////////////
             ResultSet rs = null;
             int updateCount = ps.getUpdateCount();
 
@@ -245,8 +293,8 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
                     }
                 }
             }
-///////////////////////////////////////////////
 
+            Object returnObject = null;
             if (hasResults) {
 
 
@@ -255,7 +303,6 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
                 // otherwise find the mapper for the return type in the hashmap
                 //
                 final ResultSetMapper rsm;
-                final Class resultSetMapperClass = methodSQL.resultSetMapper();
                 if (!UndefinedResultSetMapper.class.isAssignableFrom(resultSetMapperClass)) {
                     if (ResultSetMapper.class.isAssignableFrom(resultSetMapperClass)) {
                         rsm = (ResultSetMapper)resultSetMapperClass.newInstance();
@@ -266,8 +313,8 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
                     if (_resultMappers.containsKey(returnType)) {
                         rsm = _resultMappers.get(returnType);
                     } else {
-                        if (XmlObject.class.isAssignableFrom(returnType)) {
-                            rsm = _resultMappers.get(XmlObject.class);
+                        if (_xmlObjectClass != null && _xmlObjectClass.isAssignableFrom(returnType)) {
+                            rsm = _resultMappers.get(_xmlObjectClass);
                         } else {
                             rsm = DEFAULT_MAPPER;
                         }
@@ -275,9 +322,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
                 }
 
                 returnObject = rsm.mapToResultType(_context, method, rs, _cal);
-                if (returnObject instanceof ResultSet
-                        || returnObject instanceof RowSet
-                        || returnObject instanceof Iterator) {
+                if (rsm.canCloseResultSet() == false) {
                     _resources.add(ps);
                 }
 
@@ -313,30 +358,6 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
                 ps.close();
             }
         }
-    }
-
-    /**
-     * Returns the annotation type of this annotation.
-     */
-    //@todo: why is this necessary?
-    public Class<? extends Annotation> annotationType() {
-        return null;
-    }
-
-    /**
-     * Sets the calendar used when working with time/date types
-     */
-    public void setDataSourceCalendar(Calendar cal) {
-        _cal = (Calendar) cal.clone();
-    }
-
-    /**
-     * Returns the calendar used when working with time/date types.
-     *
-     * @return
-     */
-    public Calendar getDataSourceCalendar() {
-        return _cal;
     }
 
 // /////////////////////////////////////////// Private Methods ////////////////////////////////////////////
@@ -384,7 +405,7 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             if (!EMPTY_STRING.equals(userName)) {
                 _connection = DriverManager.getConnection(dbUrlStr, userName, password);
             } else if (!EMPTY_STRING.equals(propertiesString)) {
-                Properties props = ControlUtils.parseProperties(propertiesString);
+                Properties props = parseProperties(propertiesString);
                 if (props == null) {
                     logger.error("Invalide properties annotation value: " + propertiesString);
                     return null;
@@ -399,5 +420,26 @@ public class JdbcControlImpl implements JdbcControl, Extensible {
             logger.error("SQL exception while connection to database!", e);
         }
         return _connection;
+    }
+
+    /**
+     * Parse the propertiesString into a Properties object.  The string must have the format of:
+     * propertyName=propertyValue;propertyName=propertyValue;...
+     *
+     * @param propertiesString
+     * @return A Properties instance or null if parse fails
+     */
+    private Properties parseProperties(String propertiesString) {
+        Properties properties = null;
+        String[] propPairs = propertiesString.split(";");
+        if (propPairs.length > 0) {
+            properties = new Properties();
+            for (String propPair : propPairs) {
+                int eq = propPair.indexOf('=');
+                assert eq > -1 : "Invalid properties syntax: " + propertiesString;
+                properties.put(propPair.substring(0, eq), propPair.substring(eq + 1, propPair.length()));
+            }
+        }
+        return properties;
     }
 }

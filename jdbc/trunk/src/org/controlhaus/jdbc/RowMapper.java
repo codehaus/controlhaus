@@ -34,13 +34,15 @@ public abstract class RowMapper {
 
     protected final ResultSet _resultSet;
     protected final Calendar _cal;
+    protected final Class _returnTypeClass;
 
     /**
      * Constructor
      * @param resultSet
      */
-    protected RowMapper(ResultSet resultSet, Calendar cal) {
+    protected RowMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) {
         _resultSet = resultSet;
+        _returnTypeClass = returnTypeClass;
         _cal = cal;
     }
 
@@ -49,7 +51,7 @@ public abstract class RowMapper {
      * @return
      * @throws ControlException
      */
-    abstract Object mapRowToReturnType() throws ControlException, SQLException;
+    public abstract Object mapRowToReturnType() throws ControlException, SQLException;
 
 
     /**

@@ -38,7 +38,13 @@ public class DefaultResultSetMapper extends ResultSetMapper {
      * @return
      * @throws Exception
      */
-    Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
         return resultSet;
     }
+
+    /**
+     * Can the ResultSet which this mapper uses be closed by the database control?
+     * @return
+     */
+    public boolean canCloseResultSet() { return false; }
 }

@@ -21,6 +21,7 @@ import org.apache.beehive.controls.api.ControlException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 
 /**
  * Map a ResultSet row to a java.util.HashMap object
@@ -35,8 +36,8 @@ public final class RowToHashMapMapper extends RowMapper {
      * @param resultSet
      * @throws SQLException
      */
-    RowToHashMapMapper(ResultSet resultSet) throws SQLException {
-        super(resultSet, null);
+    RowToHashMapMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal ) throws SQLException {
+        super(resultSet, returnTypeClass, cal);
         _keys = getKeysFromResultSet();
     }
 
@@ -45,7 +46,7 @@ public final class RowToHashMapMapper extends RowMapper {
      * @return
      * @throws ControlException
      */
-    Object mapRowToReturnType() throws ControlException {
+    public Object mapRowToReturnType() throws ControlException {
         try {
             return new ResultSetHashMap(_resultSet, _keys);
         } catch (Exception e) {

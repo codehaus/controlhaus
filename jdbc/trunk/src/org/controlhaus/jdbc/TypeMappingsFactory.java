@@ -267,7 +267,7 @@ public final class TypeMappingsFactory {
      * @param classType
      * @return
      */
-    int getTypeId(Class classType) {
+    public int getTypeId(Class classType) {
         while (null != classType) {
             Integer typeObj = (Integer) _typeMap.get(classType);
             if (null != typeObj) {
@@ -281,7 +281,7 @@ public final class TypeMappingsFactory {
    /**
     * Returns a primitive legal value as opposed to null if type is primitive
     */
-   Object fixNull(Class type) {
+   public Object fixNull(Class type) {
        return type.isPrimitive() ? _primitiveDefaults.get(type) : null;
    }
 }

@@ -24,6 +24,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -39,7 +40,6 @@ import java.util.HashMap;
 public class RowToXmlObjectMapper extends RowMapper {
 
     private final int _columnCount;
-    private final Class _returnTypeClass;
     private final SchemaType _schemaType;
 
     private AccessibleObject[] _fields;
@@ -50,28 +50,29 @@ public class RowToXmlObjectMapper extends RowMapper {
 
     /**
      * Constructor
+     *
      * @param resultSet
      * @param returnTypeClass
      * @param cal
      * @throws SQLException
      */
     RowToXmlObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
-        super(resultSet, cal);
+        super(resultSet, returnTypeClass, cal);
 
         _columnCount = resultSet.getMetaData().getColumnCount();
-        _returnTypeClass = returnTypeClass;
-        _schemaType = ControlUtils.getSchemaType(_returnTypeClass);
+        _schemaType = getSchemaType(_returnTypeClass);
 
         getFieldMappings();
     }
 
     /**
      * map a row from the ResultSet to an XmlObject instance
+     *
      * @return
      * @throws ControlException
      * @throws SQLException
      */
-    Object mapRowToReturnType() throws ControlException, SQLException {
+    public Object mapRowToReturnType() throws ControlException, SQLException {
 
         Object resultObject = null;
         if (_columnCount == 1) {
@@ -113,8 +114,12 @@ public class RowToXmlObjectMapper extends RowMapper {
         return resultObject;
     }
 
+
+// ///////////////////////////////////////////////// private methods /////////////////////////////////////////////////
+
     /**
      * Build the necessary structures to do the mapping
+     *
      * @throws SQLException
      */
     private void getFieldMappings() throws SQLException {
@@ -241,5 +246,24 @@ public class RowToXmlObjectMapper extends RowMapper {
             }
         } // for
         // end of special case stuff for returnTypeIsXmlBean
+    }
+
+    /**
+     * @param returnType
+     * @return
+     */
+    private SchemaType getSchemaType(Class returnType) {
+        SchemaType schemaType = null;
+        if (XmlObject.class.isAssignableFrom(returnType)) {
+            try {
+                Field f = returnType.getField("type");
+                if (SchemaType.class.isAssignableFrom(f.getType()) &&
+                        Modifier.isStatic(f.getModifiers()))
+                    schemaType = (SchemaType) f.get(null);
+            } catch (NoSuchFieldException x) {
+            } catch (IllegalAccessException x) {
+            }
+        }
+        return schemaType;
     }
 }

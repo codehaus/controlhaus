@@ -40,19 +40,15 @@ import java.util.Calendar;
  * The Database control handles the work of connecting to the database,
  * which makes it simpler to use than JDBC.
  * <br/><br/>
- * Note that only one of the methods of this interface (acceptChanges) is
- * visible in Design View for a Database control in your application. You will
- * typically not use the others. The best way to use a Database control is to
+ *
+ * The best way to use a Database control is to
  * add it to your design, then add to the control methods that capture the
  * specific SQL expressions you want to execute against the database. Tasks
  * such as getting a database connection are handled for you as you use the
  * control.
- * <br/><br/>
- * For more information about using the Database control, see
- * <a href="../../../../guide/controls/database/navDatabaseControl.html">Database Control</a>.
  */
 @ControlInterface
-public interface JdbcControl extends Control {
+public interface JdbcControl {
 
     public interface IJndiContextFactory {
         public InitialContext getInitialContext() throws NamingException;
@@ -76,8 +72,8 @@ public interface JdbcControl extends Control {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.FIELD})
     public @interface ConnectionDriver {
-        String databaseDriverClass(); // no default, value is required
-        String databaseURL(); // no default, value is required
+        String databaseDriverClass();   // no default, value is required
+        String databaseURL();           // no default, value is required
         String userName() default "";
         String password() default "";
         String properties() default "";
@@ -95,19 +91,6 @@ public interface JdbcControl extends Control {
      * It indicates that all rows should be returned (i.e. no limit)
      */
     public final int MAXROWS_ALL = -1;
-
-// @todo: remove - these are for BEA version of control only?
-//    public enum CommandType {
-//        NONE, // default no-op
-//        GRID,
-//        DETAIL,
-//        UPDATE,
-//        INSERT,
-//        DELETE,
-//        TEMPLATE_ROW,
-//        INSERTED_ROW,
-//        NEW_KEY
-//    }
 
     /**
      * This class acts as a default value for the iteratorElementType member of the
@@ -127,7 +110,6 @@ public interface JdbcControl extends Control {
     // @TODO: Another thing this checker could do would be to enforce the relationship
     //       between the method return type being Iterator and the iteratorElementType
     //       member having a non-default value.
-    //
     @PropertySet
     @Inherited
     @Retention(RetentionPolicy.RUNTIME)
@@ -143,22 +125,9 @@ public interface JdbcControl extends Control {
         @AnnotationMemberTypes.Optional
         Class resultSetMapper()         default UndefinedResultSetMapper.class;
 
-// @todo: verify to remove
-//        @AnnotationMemberTypes.Optional
-//        CommandType commandType()       default CommandType.NONE;
-
-//        @AnnotationMemberTypes.Optional
-//        String rowsetName()             default "";
-
         @AnnotationMemberTypes.Optional
         Class iteratorElementType()     default UndefinedIteratorType.class;
     }
-
-//    /**
-//     * Wrapper for RowSet.acceptChanges().
-//     */
-//    public void acceptChanges(javax.sql.RowSet r) throws SQLException, OptimisticConflictException;
-
 
     /**
      * Sets the Calendar instance that should be used when setting and getting
@@ -185,7 +154,8 @@ public interface JdbcControl extends Control {
     public Calendar getDataSourceCalendar();
 
     /**
-     * Class used for specifing parameters for a callable statement
+     * Class used for specifing parameters for a callable statement,
+     * if used as a method arg, overrides statement subs
      */
     public static class SQLParameter {
         public static final int IN = 1;
