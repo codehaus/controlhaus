@@ -1,6 +1,3 @@
-//
-// Copyright (c) 2001-2002 BEA Systems.  All rights reserved.
-//
 package org.controlhaus.ejb;
 
 /******************************************************************************
@@ -38,41 +35,15 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
-//import weblogic.net.jndi.JndiURLConnection;
 import java.net.URLConnection;
 
 /**
  * The Enterprise Java Bean Control implementation class
- * @jcs:jc-jar
- *       group-priority="-900"
- *       group-name="Main"
- *       display-in-palette="false"
- *       requires-extension="true"
  */
-
-/* knex resource
- * The EJB tag specifies the jndi name of the EJB to be used by this control.
- * name: EJBControl.tag.ejb
- */
-
-/* knex resource
- * The home-jndi-name attribute specifies the name of the EJB's home interface. The interface
- * must be specified in the JNDI naming service in WebLogic Server before it may be used here.
- * Contact your system administrator or the author of the EJB for this information.
- * name: EJBControl.attribute.home-jndi-name
- */
-
-/* knex resource
- * The ejb-link attribute provides a reference to a target EJB in your application.
- * name: EJBControl.attribute.ejb-link
- */
-
 @ControlImplementation
 abstract public class EJBControlImpl implements EJBControl, Extensible
 {
     static final long serialVersionUID = 1L;
-    /* knex log4j */
-    //static private  final com.bea.wlw.util.Logger _log = new com.bea.wlw.runtime.core.util.InternalLogger("com.bea.wlw.runtime.core.control.EJBControlImpl");//51dab727ddb214d1917f32979a87e94c
 
     static public final int     SESSION_BEAN      = 1;
     static public final int     ENTITY_BEAN       = 2;
@@ -210,10 +181,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
         }
         catch (java.rmi.RemoteException re)
         {
-            /* knex logerror Unable to convert handle
-             * throwable: re
-             */
-             //if (_log.isErrorEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Unable to convert handle",__args));_log.error(__msg, re);}//5d49ffd79593898f63107bca7d549a67
             throw new ControlException("Unable to convert EJB handle to object", re);
         }
     }
@@ -239,15 +206,9 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
             }
             catch (java.rmi.RemoteException re)
             {
-                /*
-                 * knex logerror Unable to get bean instance from handle
-                 * throwable: re
-                 */
                 throw new ControlException("Unable to get bean instance from handle", re);
             }
 
-            /* knex logdebug Saved bean instance using Handle */
-            //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Saved bean instance using Handle",__args));_log.debug(__msg);}//b1d12a1854f6e816c3126d1a81c0f02c
             return true;
         }
         return false;
@@ -260,8 +221,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
     //
     protected void releaseBeanInstance(boolean alreadyRemoved)
     {
-        /* knex logdebug Releasing bean instance */
-        //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Releasing bean instance",__args));_log.debug(__msg);}//0751f6cff68c66f02d70843921f38043
         _beanInstance = null;
         _beanHandle = null;
     }
@@ -269,9 +228,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
     @EventHandler(field="resourceContext", eventSet=ResourceEvents.class, eventName="onAcquire")
     public void onAcquire()
     {
-        /* knex logdebug onAcquire() called */
-        //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("onAcquire() called",__args));_log.debug(__msg);}//e5f3f348b3bf604cde533590f1fa215d
-
         // Compute the home instance cache lookup key.  The Service URI must
         // be taken into account because different services use different
         // class loaders.  The JNDI home must be taken into account because
@@ -280,9 +236,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
         //
         if (_homeInstance == null)
         {
-            /* knex logdebug Looking up home instance: {_jndiName} */
-            //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=_jndiName;String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Looking up home instance: {0}",__args));_log.debug(__msg);}//0ddfa4855aaa3de5ba0d38f332c36fa2
-
             // Convert basic local name to JNDI URL syntax
             if (!_jndiName.toLowerCase().startsWith(JNDI_GLOBAL_PREFIX))
                 _jndiName = JNDI_GLOBAL_PREFIX + _jndiName;
@@ -310,10 +263,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
                 catch (RuntimeException re) { throw re; }
                 catch (Exception e)
                 {
-                    /* knex logerror JNDI cleanup error:
-                     * throwable: e
-                     */
-                     //if (_log.isErrorEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("JNDI cleanup error:",__args));_log.error(__msg, e);}//f54d39727d9c53a909ca0378e008fd49
                 }
             }
 
@@ -324,19 +273,11 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
                             _homeInterface);
             }
         }
-        else
-        {
-            /* knex logdebug Found home instance in cache */
-            //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Found home instance in cache",__args));_log.debug(__msg);}//8650b258a048d7aaa8783946db35d0c1
-        }
     }
 
     @EventHandler(field="resourceContext", eventSet=ResourceEvents.class, eventName="onRelease")
     public void onRelease()
     {
-        /* knex logdebug onRelease() called */
-        //if (_log.isDebugEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("onRelease() called",__args));_log.debug(__msg);}//b2016d094aefd8f44fb91710ca1797c3
-
         //
         // If conversational, attempt to save the bean reference,
         // else always release it if stateless or not persistable.
@@ -362,17 +303,12 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
      */
     public Object invoke(Method m, Object[] args) throws Throwable
     {
-        /* knex logdebug Calling extended method: {m.getName()} */
-        //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=m.getName();String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Calling extended method: {0}",__args));_log.debug(__msg);}//b380b169c01ec4c330e3d9d18955c09e
-
         Object retval = null;
 
         if (isHomeMethod(m))
         {
             try
             {
-                /* knex logdebug Invoking home interface method: {m.getName()} */
-                //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=m.getName();String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Invoking home interface method: {0}",__args));_log.debug(__msg);}//12187245a0c3973085bb68bfce0e597b
                 retval = m.invoke(_homeInstance, args);
             }
             catch (Exception e)
@@ -393,8 +329,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
                 releaseBeanInstance(false);
                 retval = beanNarrow(retval);
                 _beanInstance = retval;
-                /* knex logdebug Selecting new target instance: {_beanInstance} */
-                //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=_beanInstance;String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Selecting new target instance: {0}",__args));_log.debug(__msg);}//84a470222159a71157f23c4f487a2b16
             }
 
 
@@ -410,13 +344,8 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
             // that is more specific.  This is a safety net.
             if (_beanInstance == null)
             {
-                /* knex logerror Unable to resolve bean instance */
-                //if (_log.isErrorEnabled()){Object __args[]=new Object[0];String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Unable to resolve bean instance",__args));_log.error(__msg);}//2a95ad19d773c2ab1c7ce4604b82692f
                 throw new ControlException("Unable to resolve bean instance");
             }
-
-            /* knex logdebug Invoking bean interface method: {m.getName()} */
-            //if (_log.isDebugEnabled()){Object __args[]=new Object[1];__args[0]=m.getName();String __msg=com.bea.wlw.runtime.core.util.Wiki.wikiToPlainText(java.text.MessageFormat.format("Invoking bean interface method: {0}",__args));_log.debug(__msg);}//31683ff7353c141d5cab21520b0d3cae
 
             try
             {
@@ -442,8 +371,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
 
     /**
      * EJBControl.getEJBHomeInstance()
-     * @common:operation
-     * @jcs:ide hide=true
      */
     public Object getEJBHomeInstance()
     {
@@ -452,8 +379,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
 
     /**
      * EJBControl.getEJBBeanInstance()
-     * @common:operation
-     * @jcs:ide hide=true
      */
     public boolean hasEJBBeanInstance()
     {
@@ -462,8 +387,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
 
     /**
      * EJBControl.getEJBBeanInstance()
-     * @common:operation
-     * @jcs:ide hide=true
      */
     public Object getEJBBeanInstance()
     {
@@ -472,8 +395,6 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
 
     /**
      * EJBControl.getEJBException()
-     * @common:operation
-     * @jcs:ide hide=true
      */
     public Throwable getEJBException()
     {

@@ -12,10 +12,9 @@ import org.apache.beehive.controls.api.properties.PropertySet;
 //import org.apache.beehive.controls.api.bean.AnnotationConstraints.MembershipRuleValues;
 
 /**
- * @exclude
- * Enterprise Java Bean Control base interface 
+ * Enterprise Java Bean Control base interface
  */
-@ControlInterface (defaultBinding="com.bea.wlw.runtime.core.control.EJBControlImpl")
+@ControlInterface (defaultBinding="org.controlhaus.ejb.EJBControlImpl")
 public interface EJBControl
 {
 
@@ -26,8 +25,8 @@ public interface EJBControl
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.FIELD})  // allow override on declaration
     //@MembershipRule(MembershipRuleValues.EXACTLY_ONE)
-    public @interface EJBHome  
-    { 
+    public @interface EJBHome
+    {
         String JNDIName() default "";
         String EJBLink()  default "";
     }
@@ -46,11 +45,11 @@ public interface EJBControl
      * by the control on the control users behalf.  This provides a simple
      * way to procedurally check the status of explicit or implicit
      * bean instance creation or find operations.
-     */ 
+     */
     public boolean  hasEJBBeanInstance();
 
     /**
-     * Returns the current target instance of the bean business interface 
+     * Returns the current target instance of the bean business interface
      * used for business interface method invocations.  This API is
      * provided for advanced use cases were direct access to the local/
      * remote interfaces outside of the control is required.  It will
