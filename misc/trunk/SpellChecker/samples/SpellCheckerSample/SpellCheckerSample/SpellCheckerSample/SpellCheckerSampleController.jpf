@@ -1,0 +1,218 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+package SpellCheckerSample;
+
+import com.bea.wlw.netui.pageflow.FormData;
+import com.bea.wlw.netui.pageflow.Forward;
+import com.bea.wlw.netui.pageflow.PageFlowController;
+import java.util.ArrayList;
+import org.controlhaus.misc.spellchecker.SpellChecker;
+
+/**
+ * PageFlow class generated from control SpellChecker
+ * @jpf:controller
+ * @jpf:view-properties view-properties::
+ * <!-- This data is auto-generated. Hand-editing this section is not recommended. -->
+ * <view-properties>
+ * <pageflow-object id="pageflow:/SpellCheckerSample/SpellCheckerSampleController.jpf"/>
+ * <pageflow-object id="action:begin.do">
+ *   <property value="240" name="x"/>
+ *   <property value="100" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="action:checkSpelling.do#SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm">
+ *   <property value="560" name="x"/>
+ *   <property value="180" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:checkSpelling.jsp">
+ *   <property value="560" name="x"/>
+ *   <property value="300" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:results.jsp">
+ *   <property value="720" name="x"/>
+ *   <property value="420" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="page:/error.jsp">
+ *   <property value="60" name="x"/>
+ *   <property value="40" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#checkSpelling.jsp#@action:begin.do@">
+ *   <property value="276,400,400,524" name="elbowsX"/>
+ *   <property value="92,92,281,281" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_0" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="forward:path#success#results.jsp#@action:checkSpelling.do#SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm@">
+ *   <property value="596,640,640,684" name="elbowsX"/>
+ *   <property value="172,172,412,412" name="elbowsY"/>
+ *   <property value="East_1" name="fromPort"/>
+ *   <property value="West_1" name="toPort"/>
+ *   <property value="success" name="label"/>
+ * </pageflow-object>
+ * <pageflow-object id="control:org.controlhaus.misc.spellchecker.SpellChecker#myControl">
+ *   <property value="28" name="x"/>
+ *   <property value="34" name="y"/>
+ * </pageflow-object>
+ * <pageflow-object id="formbeanprop:SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm#words#java.util.List"/>
+ * <pageflow-object id="formbeanprop:SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm#word1#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm#word2#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm#word3#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm#word4#java.lang.String"/>
+ * <pageflow-object id="formbeanprop:SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm#word5#java.lang.String"/>
+ * <pageflow-object id="formbean:SpellCheckerSample.SpellCheckerSampleController.CheckSpellingForm"/>
+ * </view-properties>
+ * ::
+ */
+public class SpellCheckerSampleController extends PageFlowController
+{
+    /**
+     * This is the control used to generate this pageflow
+     *  @common:control
+     */
+    private SpellChecker myControl;
+
+
+    // Uncomment this declaration to access Global.app.
+    // 
+    //     protected global.Global globalApp;
+    // 
+
+    // For an example of page flow exception handling see the example "catch" and "exception-handler"
+    // annotations in {project}/WEB-INF/src/global/Global.app
+
+    /**
+     * This method represents the point of entry into the pageflow
+     * @jpf:action
+     * @jpf:forward name="success" path="checkSpelling.jsp"
+     */
+    protected Forward begin()
+    {
+        return new Forward("success");
+    }
+
+    /**
+     * Action encapsulating the control method :checkSpelling
+     * @jpf:action
+     * @jpf:forward name="success" path="results.jsp"
+     * @jpf:catch method="exceptionHandler" type="Exception"
+     */
+    public Forward checkSpelling(CheckSpellingForm aForm)
+        throws Exception
+    {
+        org.controlhaus.misc.spellcheck.SpellingError[] var = myControl.checkSpelling(aForm.getWords());
+        getRequest().setAttribute("results", var);
+        getRequest().setAttribute("formBean",aForm);
+
+        return new Forward("success");
+    }
+
+    /**
+     * @jpf:exception-handler
+     * @jpf:forward name="errorPage" path="/error.jsp"
+     */
+    protected Forward exceptionHandler(Exception ex,String actionName,String message,FormData form)
+    {
+        String displayMessage = "An exception occurred in the action " + actionName;
+        getRequest().setAttribute("errorMessage", displayMessage);
+        return new Forward("errorPage");
+    }
+
+
+
+    /**
+     * FormData class CheckSpellingForm
+     * FormData get and set methods may be overwritten by the Form Bean editor.
+     */
+    public static class CheckSpellingForm extends FormData
+    {
+        private java.util.List words = new ArrayList();
+        
+        private String word1 ;
+        private String word2 ;
+        private String word3 ;
+        private String word4 ;
+        private String word5 ;
+
+        public void reset(org.apache.struts.action.ActionMapping mapping,javax.servlet.http.HttpServletRequest request)
+        {
+            // Todo - allocate the object <beanName> here.
+            // <beanName> = new <BeanName>();
+        }        
+
+        public java.util.List getWords()
+        {
+            addToWordList(this.word1);
+            addToWordList(this.word2);
+            addToWordList(this.word3);
+            addToWordList(this.word4);
+            addToWordList(this.word5);
+            if(words.isEmpty()) throw new RuntimeException("You have not provided any word(s). \n Please provide some word(s) to do spell check.");
+            return words;
+        }
+        
+        public String getWord1(){
+            return evalString(this.word1);
+        }
+        
+        public void setWord1(String word1){
+            this.word1 = word1;
+        }
+        
+        public String getWord2(){
+            return evalString(this.word2);
+        }
+        
+        public void setWord2(String word2){
+            this.word2 = word2;
+        }
+        
+        public String getWord3(){
+            return evalString(this.word3);
+        }
+        
+        public void setWord3(String word3){
+            this.word3 = word3;
+        }
+        
+        public String getWord4(){
+            return evalString(this.word4);
+        }
+        
+        public void setWord4(String word4){
+            this.word4 = word4;
+        }
+        
+        public String getWord5(){
+            return evalString(this.word5);
+        }
+        
+        public void setWord5(String word5){
+            this.word5 = word5;
+        }
+        
+        private void addToWordList(String word){
+            if(word != null && !word.equals("")){
+                this.words.add(word);
+            }
+        }
+        
+        private String evalString(String s){
+            if(s == null) return "";
+            return s;            
+        }
+    }
+
+}

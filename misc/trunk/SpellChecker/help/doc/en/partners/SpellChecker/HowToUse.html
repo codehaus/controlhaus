@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+  <title>Using the SpellChecker Control</title>
+  <link href="workshop.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Using the SpellChecker Control</h2>
+SpellChecker Control provides a simple java interface
+com.bea.powertoys.spellchecker.SpellChecker. The interface is mentioned
+below. <br>
+<pre>com.bea.powertoys.spellcheck.SpellingError[] checkSpelling(java.util.List words) throws java.io.IOException;<br><br></pre>
+<h3>Input Parameter<br>
+</h3>
+SpellChecker interface takes only one parameter<br>
+<table style="text-align: left; width: 100%;" border="1" cellspacing="2"
+ cellpadding="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">java.util.List words<br>
+      </td>
+      <td style="vertical-align: top;">List of words (as
+java.lang.String objects) to be cheked for spelling errors. This
+parameter cannot be null.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<h3>Invoking the control<br>
+</h3>
+checkSpelling method of the SpellChecker is invoked as follows:<br>
+<pre>List words = new ArrayList();<br>words.add("helli");<br>SpellingError[] spellingErrors = control.checkSpelling(words);</pre>
+<br>
+<h3>Using the result</h3>
+Control returns a array of com.bea.powertoys.spellcheck.SpellingError
+objects.&nbsp;
+If the returned array is zero length,&nbsp; it means that there are no
+errors identified for the words provided to the control. Incase the
+word(s) contains error&nbsp; the returned array will not be of zero
+length.<br>
+<br>
+com.bea.powertoys.spellcheck.SpellingError provides a simple interface
+to extract the result of 'word' failing spell check. It provides four
+methods as described below:<br>
+<pre><br>public int getErrorIndex();<br></pre>
+Failing word is located at this index, in the word list provided.<br>
+<br>
+<pre>public String getOrignalWord();<br></pre>
+Failing word, which has failed for spell check.<br>
+<br>
+<pre>public String[] getSuggestions();<br></pre>
+Suggestions for the failing word as string array.<br>
+<br>
+<pre>public String suggestionsAsString();<br></pre>
+Suggestions for the failing word as comma delimited string.<br>
+<br>
+<h4>Note<br>
+</h4>
+Presently SpellChecker only uses english dictionary, hence can only
+check spellings for english words.<br>
+<br>
+The Java Page Flow sample that accompanies the SpellChecker Control
+demonstrates
+how to use the control.
+</body>
+</html>
