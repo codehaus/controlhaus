@@ -181,6 +181,9 @@ public class XFireClientControlImpl
                                      String serviceUrl,
                                      EndInvokeCallback callback )
         {
+            if (callback == null)
+                throw new IllegalArgumentException("Callback cannot be null.");
+
             this.callback = callback;
             
             handler = new XMLBeansClientHandler(options);
