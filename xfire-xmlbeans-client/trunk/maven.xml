@@ -10,11 +10,28 @@
       <ant:pathelement path="${maven.build.dest}"/>
     </ant:path>
     
-    <ant:taskdef name="apt" 
-                classname="org.apache.beehive.controls.runtime.generator.AptTask" 
-                classpathref="task.path" 
-                onerror="report" />
+  <ant:taskdef name="apt" 
+               classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+               classpathref="task.path" 
+               onerror="report" />
+                
+  <goal name="beehive:compile">
 
+    <ant:mkdir dir="target/beehive-generated-test"/>
+
+    <apt destdir="${basedir}/target/classes" 
+         gendir="${basedir}/target/beehive-generated-main"
+         classpathref="task.path"
+         debug="on"
+         compileByExtension="true"
+         srcExtensions="*.java,*.jcx,*.jcs"
+       	 nocompile="true"
+         target="1.5">
+      <src path="${basedir}/src/main"/>
+    </apt>
+         
+  </goal>
+  
   <goal name="beehive:test-compile">
 
     <ant:mkdir dir="target/beehive-generated-test"/>
@@ -73,6 +90,10 @@
                    refid="xfire.xmlbeans.generated.test"/>
   </goal>
   
+  <preGoal name="java:compile">
+    <attainGoal name="beehive:compile"/>
+  </preGoal>
+    
   <preGoal name="test:compile">
     <attainGoal name="xfire:test-generate"/>
     <attainGoal name="beehive:test-compile"/>

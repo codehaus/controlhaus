@@ -4,7 +4,8 @@
 import java.io.IOException;
 
 import org.apache.beehive.controls.api.bean.Control;
-import org.apache.beehive.controls.api.bean.ControlImplementation;
+
+import org.controlhaus.xfire.client.XFireClientControlImpl;
 
 import org.codehaus.xfire.client.ClientHandler;
 #if ( $service.isRest() ) 
@@ -26,8 +27,8 @@ import $import.FullJavaName;
  *
  * TODO: Use correct SOAP version from WSDL
  */
-@ControlImplementation
 public class ${implType}
+extends XFireClientControlImpl
 	implements ${interfaceType}
 {
     private static final String URL = "$service.Url";
