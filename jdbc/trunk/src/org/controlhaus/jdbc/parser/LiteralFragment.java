@@ -22,15 +22,16 @@ import org.apache.beehive.controls.api.context.ControlBeanContext;
 import java.lang.reflect.Method;
 
 /**
- * Fragement handler for literal values.
+ * Represents a portion of the SQL annotation's statement member which is not within substitution delimiters.
+ * The parser creates LiteralFragements for portions of the SQL statement which do not require any special processing.
  */
 public final class LiteralFragment extends SqlFragment {
 
     private final String _value;
 
     /**
-     * Constructor
-     * @param value
+     * Create an new LiteralFragment with the specified value.
+     * @param value Value of this fragment.
      */
     LiteralFragment(String value) {
         _value = value;
@@ -38,18 +39,18 @@ public final class LiteralFragment extends SqlFragment {
 
     /**
      * Get the text for a PreparedStatement
-     * @param context
-     * @param m
-     * @param args
-     * @return
+     * @param context A ControlBeanContext instance
+     * @param m The annotated method.
+     * @param args The method's parameters.
+     * @return A String containing the literal value for this fragment.
      */
     String getPreparedStatementText(ControlBeanContext context, Method m, Object[] args) {
        return _value;
     }
 
     /**
-     * For JUnit testing.
-     * @return
+     * Required for JUnit testing.
+     * @return The String value of this fragment.
      */
     public String toString() {
         return _value;

@@ -30,15 +30,15 @@ import java.util.Iterator;
 public class DefaultIteratorResultSetMapper extends ResultSetMapper {
 
     /**
-     * Map a ResultSet to an Iterator type.
+     * Map a ResultSet to an object type
      * Type of object to interate over is defined in the SQL annotation for the method.
      *
-     * @param context
-     * @param m         Method assoicated with this call
-     * @param resultSet Result set to map
-     * @param cal
-     * @return
-     * @throws Exception
+     * @param context   A ControlBeanContext instance, see Beehive controls javadoc for additional information
+     * @param m         Method assoicated with this call.
+     * @param resultSet Result set to map.
+     * @param cal       A Calendar instance for time/date value resolution.
+     * @return          The Iterator object instance resulting from the ResultSet
+     * @throws Exception On error.
      */
     public Iterator mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
         return new ResultSetIterator(context, m, resultSet, cal);
@@ -46,7 +46,7 @@ public class DefaultIteratorResultSetMapper extends ResultSetMapper {
 
     /**
      * Can the ResultSet which this mapper uses be closed by the database control?
-     * @return
+     * @return defaults to false
      */
     public boolean canCloseResultSet() { return false; }
 }

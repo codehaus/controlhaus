@@ -24,27 +24,29 @@ import java.sql.ResultSet;
 import java.util.Calendar;
 
 /**
- * Extend this class to create new ResultSet mappers.
- * ResultSet mappers can be specified on a per method basis using the SQL annotation's resultSetMapperField
+ * Extend this class to create new ResultSet mappers. The extended class will be invoked by the JdbcController
+ * when it is time to map a ResultSet to a method's return type.
+ *
+ * ResultSet mappers must be specified on a per method basis using the SQL annotation's resultSetMapper field
  */
 public abstract class ResultSetMapper {
 
     /**
      * Map a ResultSet to an object type
      *
-     * @param context
-     * @param m         Method assoicated with this call
-     * @param resultSet Result set to map
-     * @param cal
-     * @return
-     * @throws Exception
+     * @param context   A ControlBeanContext instance, see Beehive controls javadoc for additional information
+     * @param m         Method assoicated with this call.
+     * @param resultSet Result set to map.
+     * @param cal       A Calendar instance for time/date value resolution.
+     * @return          The Object resulting from the ResultSet
+     * @throws Exception On error.
      */
     public abstract Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal)
             throws Exception;
 
     /**
-     * Can the ResultSet which this mapper uses be closed by the database control?
-     * @return
+     * Can the ResultSet which this mapper uses be closed by the Jdbc control?
+     * @return true if the ResultSet can be closed by the JdbcControl
      */
     public boolean canCloseResultSet() { return true; }
 }

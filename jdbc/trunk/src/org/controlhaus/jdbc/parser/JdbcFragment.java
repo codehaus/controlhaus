@@ -23,22 +23,25 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
- * - JDBC fragments, supported types include:
- * <p/>
- * {call
- * {?=
- * {d
- * {t
- * {ts
- * {fn
- * {escape
- * {oj
- * <p/>
+ * Represents an SQL escape sequence found in the SQL annotation's statement member. A JdbcFragment may
+ * contain child SqlFragments, typically these fragments consist of LiteralFragments and ReflectionFragments.
+ * Parameter substitutions may occur within the SQL escape delimiters {}.
+ *
+ * Syntactically an SQL escape sequence must match one of the following forms, where <i>_space_</i> is a whitespace character:
+ *
+ * <UL><LI>{call_space_.....}</LI>
+ * <LI>{?=_space_.....}</LI>
+ * <LI>{d_space_.....}</LI>
+ * <LI>{t_space_.....}</LI>
+ * <LI>{ts_space_.....}</LI>
+ * <LI>{fn_space_.....}</LI>
+ * <LI>{escape_space_.....}</LI>
+ * <LI>{oj_space_.....}</LI>
  */
 public final class JdbcFragment extends SqlFragmentContainer {
 
     /**
-     * constructor
+     * Create a new JdbcFragment
      */
     JdbcFragment() {
         super();
@@ -47,9 +50,10 @@ public final class JdbcFragment extends SqlFragmentContainer {
     /**
      * Get the prepared statement parameter value(s) contained within this fragment.
      *
-     * @param context
-     * @param method
-     * @param args
+     * @param context A ControlBeanContext instance.
+     * @param method The annotated method.
+     * @param args The method's arguments.
+     *
      * @return null if this fragment doesn't contain a parameter value.
      */
     Object[] getParameterValues(ControlBeanContext context, Method method, Object[] args) {
