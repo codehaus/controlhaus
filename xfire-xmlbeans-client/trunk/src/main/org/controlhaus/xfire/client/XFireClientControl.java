@@ -25,7 +25,18 @@ import java.lang.annotation.ElementType;
  *  {@literal @}ServiceUrl("http://some.service.com")
  *  {@literal @}Control XFireClientControl client;
  * </pre>
- * 
+ * <p>
+ * It is possible to set the service url on a per invocation basis
+ * if you declare the control "Bean" instead of just XFireClientControl. For
+ * example in your class you would declare,
+ * <pre>
+ * {@literal @}Control XFireClientControlBean xfire;
+ * </pre>
+ * <p>
+ * You could then set the URL like so:
+ * <pre>
+ * xfire.setServiceUrl("http://your/url");
+ * </pre>
  * @author <a href="mailto:dan@envoisolutions.com">Dan Diephouse</a>
  * @since Nov 5, 2004
  */
@@ -69,8 +80,20 @@ public interface XFireClientControl
     @EventSet
     public interface EndInvokeCallback 
     {
+        /**
+         * Called at the end of an asynchronous request which has completed successfully
+         * (i.e. there was no fault).
+         * 
+         * @param response
+         * @param responseHeaders
+         */
         public void endInvoke( XmlObject[] response, XmlObject[] responseHeaders );
         
+        /**
+         * Called if a fault occurs during the service invocation.
+         * 
+         * @param fault The fault.
+         */
         public void handleFault( XFireFault fault );
     }
     
@@ -90,6 +113,10 @@ public interface XFireClientControl
         String value();
     }
     
+    /**
+     * Declares a parameter in an control a Soap Header in a control
+     * which extends the XFireClientControl.
+     */
     @PropertySet(prefix="SoapHeader")
     @Target( {ElementType.TYPE, ElementType.PARAMETER, ElementType.METHOD} )
     @Retention(RetentionPolicy.RUNTIME)
@@ -97,6 +124,11 @@ public interface XFireClientControl
     {
     }
 
+    /**
+     * Marks a method on a control which extends the XFireClientControl
+     * as ansynchronous.  As a result, a new thread to invoke the service
+     * will be launced and the method will return immediately.
+     */
     @Target( {ElementType.TYPE, ElementType.FIELD, ElementType.METHOD} )
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Asynchronous
