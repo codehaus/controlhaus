@@ -302,7 +302,7 @@ Built on Nov 16, 2004 (12:19:44 EST)-->
 
       <wsdl:port binding="impl:ServiceSoapBinding" name="Service">
 
-         <wsdlsoap:address location="http://localhost:8080/sctestServer/web/Service.jws"/>
+         <wsdlsoap:address location="http://localhost:8080/ServiceControlDRT/web/Service.jws"/>
 
       </wsdl:port>
 

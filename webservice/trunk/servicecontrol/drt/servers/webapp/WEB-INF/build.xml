@@ -18,7 +18,7 @@
    $Header:$
  -->
 
-<project name="AddressBookWS" default="build" basedir=".">
+<project name="Web Service Control DRT" default="build" basedir=".">
 
 	<property environment="env" />
 
@@ -37,10 +37,6 @@
 	</path>
 
 
-	<target name="monitor"> 
-		<java classname="org.apache.axis.utils.SOAPMonitor"  classpathref="jars">
-		</java>
-	</target>
 	<!-- ========================================= -->
 	<!-- build - build jar-file                    -->
 	<!-- ========================================= -->

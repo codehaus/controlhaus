@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
 <!--
    Copyright 2004 The Apache Software Foundation 
  
@@ -15,125 +17,129 @@
  
    $Header:$
  -->
-<project name="ServiceControl" default="jar" basedir=".">
+ 
+<project name="Service Control Build" default="jar" basedir=".">
+
   <property environment="env"/>
-  <property file="servicecontrol.properties"/>
-  <!-- THE SERVICE CONTROL BUILD REQUIRES JDK5 AND LATER.
-  ATTEMPTS TO BUILD ON JDK EALRIER THAN 5.0 WILL BE A NOOP -->
+
+  <property name="beehive.home" value="${env.BEEHIVE_HOME}" />
+
+  <property file="servicecontrol.properties" />
+
+  <!--
+      THE SERVICE CONTROL BUILD REQUIRES JDK5 AND LATER.
+      ATTEMPTS TO BUILD ON JDK EALRIER THAN 5.0 WILL BE A NOOP.
+  -->
   <condition property="isJDKOver5">
     <equals arg1="${ant.java.version}" arg2="1.5"/>
   </condition>
+
+  <property name="src.dir" value="src" />
+  <property name="build.dir" value="build" />
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="jars.dir" value="${build.dir}/jars" />
+  <property name="scgen.dir" value="${build.dir}/gen" />
+  <property name="lib.dir" value="lib" />
 	
+  <path id="beehive.classpath">
+    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar" />
+    <fileset dir="${beehive.home}/lib/controls" includes="*.jar" />
+    <pathelement location="${lib.dir}/junit-3.8.1.jar" />
+    <pathelement location="${lib.dir}/servlet-api-2.4-20040521.jar" />
+    <pathelement location="${lib.dir}/jsp-api-2.0-20040521.jar" />
+    <pathelement location="${beehive.home}/lib/common/apache-xbean.jar" />
+    <pathelement location="${beehive.home}/lib/common/log4j-1.2.8.jar" />
+    <pathelement location="${beehive.home}/lib/common/velocity-dep-1.4.jar" />
+    <pathelement location="${beehive.home}/lib/common/jsr173_1.0_api.jar" />
+  </path>
 
-  <property name="build.dir" value="build"/>
-  <property name="classes.dir" value="${build.dir}/classes"/>
-  <property name="jars.dir" value="${build.dir}/jars"/>
-<!-- <property name="lib.dir" value="lib"/>  -->
-  <property name="src.dir" value="src"/>
-  <property name="scgen.dir" value="${build.dir}/gen"/>
-  <property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
-  <property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
-
-<!--
+  <path id="project.classpath">
+    <path refid="beehive.classpath" />
+    <pathelement location="${classes.dir}" />
+    <pathelement location="${lib.dir}/commons-cli-1.0.jar" />
+  </path>
   
-  <path id="beehive.class.path">
-    <fileset dir="${os.BEEHIVE_HOME}/wsm/build/jars" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/controls/build/jars" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/wsm/lib" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/wsm/external" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/xmlbeans" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/junit" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/log4j" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/servlet" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/external/velocity" includes="*.jar"/>
-    <fileset dir="${os.BEEHIVE_HOME}/installed/jsr173" includes="*.jar"/>      
-  </path>
--->
-	
-	  <path id="beehive.class.path">
-	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
-	    <fileset dir="${beehive.home}/lib/controls" includes="*.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/apache-xbean.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/velocity-dep-1.4.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/jsr173_1.0_api.jar"/>
-	    <pathelement location="${lib.dir}/junit-3.8.1.jar"/>
-	    <pathelement location="${basedir}/lib/servlet-api-2.4-20040521.jar"/>
-	    <pathelement location="${basedir}/lib/jsp-api-2.0-20040521.jar"/>
-	  </path>
-
-  <path id="project.class.path">
-    <pathelement location="${classes.dir}"/>
-<!--    <fileset dir="${lib.dir}"/>  -->
-    <path refid="beehive.class.path"/>
-    <pathelement location="${basedir}/lib/commons-cli-1.0.jar"/>
- 	
-  </path>
-
-  <!-- APT Task -->
-  <taskdef name="apt" 
-    classname="org.apache.beehive.controls.runtime.generator.AptTask" 
-    onerror="report">
+  <taskdef
+      name="apt" 
+      classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+      onerror="report">
     <classpath>
-      <path refid="project.class.path"/>
+      <path refid="project.classpath" />
     </classpath>
   </taskdef>
 
-
-	 <target name="gatherDeps" description="Gathers Dependencies">
-	      <get src="http://www.ibiblio.org/maven/junit/jars/junit-3.8.1.jar"
-	           dest="${basedir}/lib/junit-3.8.1.jar"
-	           usetimestamp="true"/>
-	      <get src="http://www.ibiblio.org/maven/servletapi/jars/servlet-api-2.4-20040521.jar"
-	           dest="${basedir}/lib/servlet-api-2.4-20040521.jar"
-	           usetimestamp="true"/>
-	      <get src="http://www.ibiblio.org/maven/jspapi/jars/jsp-api-2.0-20040521.jar"
-	           dest="${basedir}/lib/jsp-api-2.0-20040521.jar"
-	           usetimestamp="true"/>
-	  </target>
+  
+  <!-- ========================================= -->
+  <!-- drt - run the DRTs                        -->
+  <!-- ========================================= -->
 
   <target name="drt" depends="jar">
-  	<ant antfile="build.xml" dir="drt" inheritall="false"/>
-   </target>
+    <ant antfile="build.xml" dir="drt" inheritall="false" />
+  </target>
 
+  
+  <!-- ========================================= -->
+  <!-- jar - create a JAR for the SC             -->
+  <!-- ========================================= -->
+
+  <target name="jar" depends="clean, build">
+    <mkdir dir="${jars.dir}"/>
+    <jar destfile="${jars.dir}/webservice-control.jar">
+      <fileset dir="${classes.dir}" />
+    </jar>
+  </target>
+
+  
+  <!-- ========================================= -->
+  <!-- build - build all binaries for the SC     -->
+  <!-- ========================================= -->
+  
+  <target name="build" depends="gather.deps">
+    <mkdir dir="${classes.dir}"/>
+    <apt
+        srcdir="${src.dir}" 
+        destdir="${classes.dir}" 
+        gendir="${scgen.dir}" 
+        classpathref="project.classpath" 
+        compileByExtension="true" 
+        srcExtensions="*.java,*.jcx,*.jcs,*.jws" 
+        debug="true" />
+    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}">
+        <include name="**/*properties" />
+      </fileset>
+    </copy>
+  </target>
+
+  
+  <!-- ========================================= -->
+  <!-- gather.deps - download dependencies       -->
+  <!-- ========================================= -->
+
+  <target name="gather.deps" description="Gather dependencies">
+    <get
+        src="http://www.ibiblio.org/maven/junit/jars/junit-3.8.1.jar"
+        dest="${basedir}/lib/junit-3.8.1.jar"
+	usetimestamp="true" />
+    <get
+        src="http://www.ibiblio.org/maven/servletapi/jars/servlet-api-2.4-20040521.jar"
+        dest="${basedir}/lib/servlet-api-2.4-20040521.jar"
+	usetimestamp="true" />
+    <get
+        src="http://www.ibiblio.org/maven/jspapi/jars/jsp-api-2.0-20040521.jar"
+        dest="${basedir}/lib/jsp-api-2.0-20040521.jar"
+	usetimestamp="true" />
+  </target>
+
+  
+  <!-- ========================================= -->
+  <!-- clean - delete all binaries and artifacts -->
+  <!-- ========================================= -->
  
   <target name="clean">
     <delete dir="${build.dir}"/>
     <delete file="velocity.log"/>
     <ant antfile="drt/build.xml" target="clean"/>  
   </target>
-
-
-	<target name="jar" depends="clean,build">
-	    <mkdir dir="${jars.dir}"/>
-	    <jar destfile="${jars.dir}/webservice-control.jar">
-	      <fileset dir="${classes.dir}" >
-	      
-	      </fileset>
-	    </jar>
-	</target>
   
-  <target name="build"  depends="gatherDeps">
-    <mkdir dir="${classes.dir}"/>
-    <!-- Java and Controls build -->
-    <!-- Since some .java files have annotations, we want to make sure we compile them using apt. -->
-    <apt srcdir="${src.dir}" 
-      destdir="${classes.dir}" 
-      gendir="${scgen.dir}" 
-      classpathref="project.class.path" 
-      compileByExtension="true" 
-      srcExtensions="*.java,*.jcx,*.jcs,*.jws" 
-      debug="true"/>
-  	
-  	<!-- update properties (e.g. log4j.properties) -->
-  	<copy todir="${classes.dir}">
-        <fileset dir="${src.dir}">
-            <include name="**/*properties"/>
-        </fileset>
-  	</copy>
- 
-  </target>
 </project>
-  
-
-
