@@ -3,7 +3,9 @@
 <project name="jms-control" default="usage">
 
     <property name="source.dir" value="${basedir}/src"/>
+    <property name="sample.source.dir" value="${basedir}/samples"/>
     <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="api.dir" value="${basedir}/docs/api"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
@@ -40,15 +42,20 @@
         <get src="http://www.ibiblio.org/maven/geronimo-spec/jars/geronimo-spec-jms-1.0-M1.jar"
               dest="${basedir}/lib/jms.jar"
               usetimestamp="true"/>              
-        <path id="build.classpath">
-            <fileset dir="lib">
-                <include name="**/*.jar" />
-            </fileset>
-            <pathelement path="${build.classes}" />
-            <pathelement path="${controls.jar}" />
-        </path>
-
-        <taskdef name="apt" 
+        <get src="http://www.ibiblio.org/maven/xmlbeans/jars/xbean-1.0.3.jar"
+              dest="${basedir}/lib/xbean.jar"
+              usetimestamp="true"/> 
+   </target>
+   <target name="init">
+    	<path id="build.classpath">
+        	<fileset dir="lib">
+            	<include name="**/*.jar" />
+        	</fileset>
+        	<pathelement path="${build.classes}" />
+        	<pathelement path="../play/classes" />
+        	<pathelement path="${controls.jar}" />
+    	</path>
+   		<taskdef name="apt" 
                  classname="org.apache.beehive.controls.runtime.generator.AptTask" 
                  onerror="report"
                  classpathref="build.classpath"/>
@@ -72,7 +79,7 @@
         <mkdir dir="${lib.dir}" />
     </target>
 
-    <target name="build" depends="dirs,gatherDeps" description="Builds controls sources">
+    <target name="build" depends="dirs,gatherDeps,init" description="Builds controls sources">
         <apt srcdir="${source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
              classpathref="build.classpath"
              debug="on"
@@ -82,5 +89,25 @@
         </apt>
         <control-jar destfile="${build.dir}/${build.jar}"  basedir="${build.classes}" />
     </target>
-
+	
+    <target name="samples" depends="init" description="Build samples">
+        <apt srcdir="${sample.source.dir}" destdir="${build.classes}" gendir="${build.beansrc}"
+             classpathref="build.classpath"
+             debug="on"
+             compileByExtension="true"
+             srcExtensions="*.java,*.jcx,*.jcs"
+             target="1.5">
+        </apt>
+    </target>
+    <target name="docs" depends="init">
+    	<property name="classpath" refid="build.classpath"/>
+    	<echo message="${classpath}"/>
+        <mkdir dir="${api.dir}" />
+        <javadoc destdir="${api.dir}" maxmemory="256M" windowtitle="JMS Control Documentation" doctitle="Java Controls" version="true" author="false" use="true" additionalparam="-breakiterator -noqualifier all -notimestamp" useexternalfile="true" classpathref="build.classpath">
+            <packageset dir="${source.dir}" defaultexcludes="yes">
+                <include name="**/**"/>
+            </packageset>
+        </javadoc>
+	 <fixcrlf srcDir="${api.dir}" includes="**/*.html"/>        
+    </target>
 </project>
