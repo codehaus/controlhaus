@@ -54,22 +54,10 @@ import java.sql.SQLException;
     public ResultSet getAllUsersBad1() throws SQLException;
 
     //
-    //  Missing statement in @SQL annotation
-    //
-    @SQL(statement = "SELECT * FROM USERS WHERE FNAME = {name}")
-    public ResultSet getAllUsersBad3() throws SQLException;
-
-    //
     //  BadCustomer contains improper field / method names for mapping the result
     //
     @SQL(statement = "SELECT * FROM USERS WHERE FNAME = {name}")
     public BadCustomer getAUserBad1(String name) throws SQLException;
-
-    //
-    //  Param name in SQL annotation does not match method parameter name
-    //
-    @SQL(statement = "SELECT * FROM USERS WHERE FNAME = {fname}")
-    public BadCustomer getAUserBad2(String name) throws SQLException;
 
     //
     //  fname in BadCustomer2 is an int when it should be a String

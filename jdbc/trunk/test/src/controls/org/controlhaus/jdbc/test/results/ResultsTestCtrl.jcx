@@ -65,6 +65,13 @@ public interface ResultsTestCtrl extends JdbcControl {
         public CustomerInput2 c;
     }
 
+    public static class CustomerInput3 extends CustomerInput1 {
+        private int foo;
+    }
+
+    public static class CustomerInput4 extends CustomerInput2 {
+        private int foo;
+    }
 
     public static class BlobInfo {
         private Blob blb;
@@ -112,6 +119,18 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="SELECT fname FROM USERS WHERE userid={customer.userid}")
     public String getSomeUser(CustomerInput2 customer) throws SQLException;
+
+    //
+    // from a object getField
+    //
+    @SQL(statement="SELECT fname FROM USERS WHERE userid={customer.userid}")
+    public String getSomeUser(CustomerInput3 customer) throws SQLException;
+
+    //
+    // from a object getField
+    //
+    @SQL(statement="SELECT fname FROM USERS WHERE userid={customer.userid}")
+    public String getSomeUser(CustomerInput4 customer) throws SQLException;
 
     //
     // from a object getField

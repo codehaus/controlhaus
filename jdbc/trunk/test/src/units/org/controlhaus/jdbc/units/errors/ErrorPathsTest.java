@@ -49,7 +49,6 @@ public final class ErrorPathsTest extends TestCase {
     private ErrorsTestCtrl testCtrl_ds;
 
     public void setUp() throws Exception {
-//        BasicConfigurator.configure();
         super.setUp();
 
         Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -95,18 +94,6 @@ public final class ErrorPathsTest extends TestCase {
             fail("A ControlException should be raised when the @SQL annoation is missing from a dbControl method.");
         } catch (ControlException ce) {
            assertTrue(true);
-        }
-    }
-
-    //
-    // test for a failed SQL param -> method param mapping
-    //
-    public void testFailedSQLParamToMethodMapping() throws Exception {
-        try {
-            testCtrl.getAUserBad2("tester1");
-            fail("A ControlException should be raised when an SQL annotation param -> method param mapping fails.");
-        } catch (ControlException ce) {
-            assertTrue(true);
         }
     }
 

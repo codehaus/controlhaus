@@ -63,7 +63,8 @@ public abstract class SqlFragmentContainer extends SqlFragment {
      * @return An array of SqlFragments.
      */
     SqlFragment[] getChildren() {
-        return (SqlFragment[]) _children.toArray();
+        SqlFragment[] fragments = new SqlFragment[_children.size()];
+        return _children.toArray(fragments);
     }
 
     /**

@@ -178,6 +178,27 @@ public class DBSingleRowResultsTest extends TestCase {
     }
 
     //
+    // param sub from object getter method, inherited from base class
+    //
+    public void testGetUserWithObj5() throws Exception {
+        ResultsTestCtrl.CustomerInput3 ci = new ResultsTestCtrl.CustomerInput3();
+        ci.setUserid(22);
+        String c = testCtrl.getSomeUser(ci);
+        assertEquals("tester2",c);
+    }
+
+    //
+    // param sub from object getter method, inherited from base class
+    //
+    public void testGetUserWithObj6() throws Exception {
+        ResultsTestCtrl.CustomerInput4 ci = new ResultsTestCtrl.CustomerInput4();
+        ci.userid = 22;
+        String c = testCtrl.getSomeUser(ci);
+        assertEquals("tester2",c);
+    }
+
+
+    //
     // test HashMap return type
     //
     public void testHashMapReturnType() throws Exception {

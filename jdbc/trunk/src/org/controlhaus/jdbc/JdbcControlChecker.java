@@ -22,6 +22,7 @@ import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.FieldDeclaration;
+import com.sun.mirror.declaration.ClassDeclaration;
 import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.DeclaredType;
 import com.sun.mirror.type.InterfaceType;
@@ -31,6 +32,8 @@ import com.sun.mirror.type.TypeMirror;
 import org.apache.beehive.controls.api.ControlException;
 import org.apache.beehive.controls.api.bean.ControlChecker;
 import org.controlhaus.jdbc.parser.SqlParser;
+import org.controlhaus.jdbc.parser.ParameterChecker;
+import org.controlhaus.jdbc.parser.SqlStatement;
 
 import java.util.Collection;
 
@@ -146,10 +149,24 @@ public class JdbcControlChecker implements ControlChecker {
         //
         //
         SqlParser _p = new SqlParser();
+        SqlStatement _statement = null;
         try {
-            _p.parse(methodSQL.statement());
+            _statement = _p.parse(methodSQL.statement());
         } catch (ControlException ce) {
             env.getMessager().printError(method.getPosition(), "Error parsing SQL statment on method: " + method.getSimpleName() + ": " + ce.toString());
+            return;
+        }
+
+        //
+        // Check that the any statement element params (delimited by '{' and '}' can be
+        // matched to method parameter names. NOTE: This check is only valid on non-compiled files,
+        // once compiled to a class file method parameter names are replaced with 'arg0', 'arg1', etc.
+        // and cannot be used for this check.
+        //
+        try {
+            ParameterChecker.checkReflectionParameters(_statement, method);
+        } catch (Exception e) {
+            env.getMessager().printError(method.getPosition(),  e.getMessage());
             return;
         }
 
