@@ -151,9 +151,13 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
             } else {
                 
                 if (_holdability == JdbcControl.HoldabilityType.DRIVER_DEFAULT) {
-                    preparedStatement = (_callableStatement)
+                    if (_scrollType == JdbcControl.ScrollType.DRIVER_DEFAULT) {
+                        preparedStatement = (_callableStatement) ? connection.prepareCall(sql) : connection.prepareStatement(sql);
+                    } else {
+                        preparedStatement = (_callableStatement)
                             ? connection.prepareCall(sql, _scrollType.getType(), _scrollType.getConcurrencyType())
                             : connection.prepareStatement(sql, _scrollType.getType(), _scrollType.getConcurrencyType());
+                    }
                 } else {
                     preparedStatement = (_callableStatement)
                             ? connection.prepareCall(sql, _scrollType.getType(), _scrollType.getConcurrencyType(), _holdability.getHoldability())
@@ -432,7 +436,8 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
             throw new ControlException("The database does not support batchUpdates.");
         }
 
-        if (!metaData.supportsResultSetConcurrency(_scrollType.getType(), _scrollType.getConcurrencyType())) {
+        if (_scrollType != JdbcControl.ScrollType.DRIVER_DEFAULT
+              && !metaData.supportsResultSetConcurrency(_scrollType.getType(), _scrollType.getConcurrencyType())) {
             throw new ControlException("The database does not support the ResultSet concurrecy type: " + _scrollType.toString());
         }
 

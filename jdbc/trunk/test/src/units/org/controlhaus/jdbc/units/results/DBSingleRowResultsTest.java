@@ -220,7 +220,7 @@ public class DBSingleRowResultsTest extends TestCase {
     //
     public void testGenKeysWithColumnNames() throws Exception {
         try {
-            ResultSet rs = testCtrl.getGenKeys2("genmeanotherkey2");
+            /* ResultSet rs = */testCtrl.getGenKeys2("genmeanotherkey2");
             fail("This feature has not been impelented in Derby yet (1/1/2005), need to add test case once it has.");
         } catch (Exception e) {
             assertTrue(true);
@@ -256,7 +256,7 @@ public class DBSingleRowResultsTest extends TestCase {
     //
     public void testGenKeysReturnTypeMapping4() throws Exception {
         try {
-            ResultSet rs = testCtrl.getGenKeys6("genmeanotherkey6");
+            /*ResultSet rs = */testCtrl.getGenKeys6("genmeanotherkey6");
             fail("This feature has not been impelented in Derby yet (1/1/2005), need to add test case once it has.");
         } catch (Exception e) {
             assertTrue(true);

@@ -83,7 +83,7 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
         Class componentType = arrayClass.getComponentType();
         ResultSetMetaData md = rs.getMetaData();
 
-        ArrayList list = new ArrayList();
+        ArrayList<Object> list = new ArrayList<Object>();
         int numRows;
 
         boolean hasMoreRows = rs.next();

@@ -110,6 +110,35 @@ public class DBMultiRowResultsTest extends TestCase {
         assertEquals(customers.length, 2);
     }
 
+    //
+    // test array return type, restricted array size returned (2), restricted maxrows (1)
+    //
+    public void testArrayReturnTypeMaxSize2() throws Exception {
+
+        ResultsTestCtrl.Customer[] customers = testCtrl.getCustomerArrayLimitedSize2();
+        assertNotNull(customers);
+        assertEquals(customers.length, 1);
+    }
+
+    //
+    // test array return type, restricted array size returned (2), restricted maxrows (4)
+    //
+    public void testArrayReturnTypeMaxSize3() throws Exception {
+
+        ResultsTestCtrl.Customer[] customers = testCtrl.getCustomerArrayLimitedSize3();
+        assertNotNull(customers);
+        assertEquals(customers.length, 2);
+    }
+
+    //
+    // test max rows, value of 1
+    //
+    public void testMaxRows1() throws Exception {
+
+        ResultsTestCtrl.Customer[] customers = testCtrl.getCustomerArrayLimitedSize4();
+        assertNotNull(customers);
+        assertEquals(customers.length, 1);
+    }
 
     //
     // test array of HashMap return type

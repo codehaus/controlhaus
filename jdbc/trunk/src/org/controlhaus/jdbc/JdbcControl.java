@@ -213,11 +213,11 @@ public interface JdbcControl {
      * The mapper class element must implement the java.sql.SQLData interface.
      */
     @PropertySet(prefix = "TypeMapper")
-            @Inherited
-            @AnnotationConstraints.AllowExternalOverride
-            @Retention(RetentionPolicy.RUNTIME)
-            @Target({ElementType.TYPE, ElementType.METHOD})
-            public @interface TypeMapper {
+    @Inherited
+    @AnnotationConstraints.AllowExternalOverride
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE, ElementType.METHOD})
+    public @interface TypeMapper {
         String UDTName();
         Class<? extends SQLData> mapperClass();
     }
@@ -261,6 +261,7 @@ public interface JdbcControl {
      * Enumeration of supported types of scrolling ResultSets
      */
     public enum ScrollType {
+        DRIVER_DEFAULT (-1, -1),
         FORWARD_ONLY (ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY),
         SCROLL_INSENSITIVE (ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY),
         SCROLL_SENSITIVE (ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY),
@@ -286,14 +287,18 @@ public interface JdbcControl {
                 sb.append("Foward Only, ");
             } else if (_type == ResultSet.TYPE_SCROLL_INSENSITIVE) {
                 sb.append("Scroll Insensitive, ");
-            } else {
+            } else if (_type == ResultSet.TYPE_SCROLL_SENSITIVE) {
                 sb.append("Scroll Sensitive, ");
+            } else {
+                sb.append("Jdbc Driver Default Direction");
             }
 
             if (_concurrencyType == ResultSet.CONCUR_READ_ONLY) {
                 sb.append("Read Only");
-            } else {
+            } else if (_concurrencyType == ResultSet.CONCUR_UPDATABLE) {
                 sb.append("Updatable");
+            } else {
+                sb.append("Jdbc Driver Default");
             }
             return sb.toString();
         }
@@ -466,10 +471,10 @@ public interface JdbcControl {
          * Specify that the ResultSet returned by the method is scrollable. Valid only for methods which
          * return a ResultSet, otherwise a compile-time error will occur.  Valid element values
          * are defined by the ScrollType enumeration.
-         * Optional element, defaults to non-scrollable.
+         * Optional element, defaults to JDBC driver's default setting.
          */
         @AnnotationMemberTypes.Optional
-        ScrollType scrollableResultSet()                default ScrollType.FORWARD_ONLY;
+        ScrollType scrollableResultSet()                default ScrollType.DRIVER_DEFAULT;
     } // SQL annotation declaration
 
 

@@ -21,9 +21,12 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Blob;
 import java.sql.Clob;
+import java.sql.Time;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
+import java.math.BigDecimal;
 
 import org.controlhaus.jdbc.JdbcControl;
 import org.controlhaus.jdbc.DefaultRowSetResultSetMapper;
@@ -53,6 +56,21 @@ public interface ResultsTestCtrl extends JdbcControl {
         public void setBlb(Blob blb) { this.blb = blb; }
         public Blob getBlb() { return blb; }
 
+    }
+
+    public static class Binary {
+        private byte[] _bytes;
+        private byte[] _varbytes;
+        private byte[] _lvarbytes;
+
+        public void setBin(byte[] bytes) { _bytes = bytes; }
+        public byte[] getBin() { return _bytes; }
+
+        public void setVarbin(byte[] varbytes) { _varbytes = varbytes; }
+        public byte[] getVarbin() { return _varbytes; }
+
+        public void setLvarbin(byte[] lvarbytes) { _lvarbytes = lvarbytes; }
+        public byte[] getLvarbin() { return _lvarbytes; }
     }
 
 
@@ -91,6 +109,24 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="SELECT * FROM USERS", arrayMaxLength=2)
     public Customer[] getCustomerArrayLimitedSize() throws SQLException;
+
+    //
+    // query returning an array of Object / array size is limited in annotation
+    //
+    @SQL(statement="SELECT * FROM USERS", arrayMaxLength=2, maxRows=1)
+    public Customer[] getCustomerArrayLimitedSize2() throws SQLException;
+
+    //
+    // query returning an array of Object / array size is limited in annotation
+    //
+    @SQL(statement="SELECT * FROM USERS", arrayMaxLength=2, maxRows=4)
+    public Customer[] getCustomerArrayLimitedSize3() throws SQLException;
+
+    //
+    // query returning an array of Object / array size is limited in annotation by maxRows
+    //
+    @SQL(statement="SELECT * FROM USERS", maxRows=1)
+    public Customer[] getCustomerArrayLimitedSize4() throws SQLException;
 
     //
     // query returning a HashMap
@@ -187,24 +223,6 @@ public interface ResultsTestCtrl extends JdbcControl {
     public int[] doABatchUpdate(String[] fname, int[] userid);
 
     //
-    // insert a blob
-    //
-    @SQL(statement="INSERT INTO blob_table VALUES ({id}, {blob})")
-    public int insertABlob(int id, Blob blob);
-
-    //
-    // select a blob
-    //
-    @SQL(statement="SELECT blb FROM blob_table WHERE id={id}")
-    public BlobInfo getABlob(int id);
-
-    //
-    // select a clob
-    //
-    @SQL(statement="SELECT clb FROM clob_table WHERE id={id}")
-    public Clob getAClob(int id);
-
-    //
     // a basic usage of the getGeneratedKeys annotation member
     //
     @SQL(statement="INSERT INTO usergen (person) VALUES ({aValue})", getGeneratedKeys=true)
@@ -270,5 +288,161 @@ public interface ResultsTestCtrl extends JdbcControl {
     //
     @SQL(statement="SELECT fname FROM users")
     public String[] getFnameColumn();
+
+    //
+    // /////////////////////////////// methods for JDBC types tests ////////////////////////////////////////
+    //
+
+    //
+    // insert a blob
+    //
+    @SQL(statement="INSERT INTO blob_table VALUES ({id}, {blob})")
+    public int insertABlob(int id, Blob blob);
+
+    //
+    // select a blob
+    //
+    @SQL(statement="SELECT blb FROM blob_table WHERE id={id}")
+    public BlobInfo getABlob(int id);
+
+    //
+    // select a clob
+    //
+    @SQL(statement="SELECT clb FROM clob_table WHERE id={id}")
+    public Clob getAClob(int id);
+
+    //
+    // get a char
+    //
+    @SQL(statement="SELECT c FROM basic_types")
+    public String getChar();
+
+    //
+    // get a char string
+    //
+    @SQL(statement="SELECT ca FROM basic_types")
+    public String getChar2();
+
+    //
+    // varchar test
+    //
+    @SQL(statement="SELECT vc FROM basic_types")
+    public String getVarchar();
+
+    //
+    // long varchar test
+    //
+    @SQL(statement="SELECT lvc FROM basic_types")
+    public String getLongvarchar();
+
+    //
+    // fixed length binary
+    //
+    @SQL(statement="SELECT bin FROM basic_types")
+    public Binary getFixedLengthBinary();
+
+    //
+    // var length binary
+    //
+    @SQL(statement="SELECT varbin FROM basic_types")
+    public Binary getVarLengthBinary();
+
+    //
+    // long binary
+    //
+    @SQL(statement="SELECT lvarbin FROM basic_types")
+    public Binary getLongVarLengthBinary();
+
+    //
+    // small int
+    //
+    @SQL(statement="SELECT sint FROM basic_types")
+    public short getSmallIntValue();
+
+    //
+    // small int
+    //
+    @SQL(statement="SELECT sint FROM basic_types")
+    public Short getSmallIntValue2();
+
+    //
+    // int
+    //
+    @SQL(statement="SELECT i FROM basic_types")
+    public Integer getIntValue2();
+
+    //
+    // int
+    //
+    @SQL(statement="SELECT i FROM basic_types")
+    public int getIntValue();
+
+    //
+    // bigint
+    //
+    @SQL(statement="SELECT bint FROM basic_types")
+    public long getBigIntValue();
+
+    //
+    // bigint
+    //
+    @SQL(statement="SELECT bint FROM basic_types")
+    public Long getBigIntValue2();
+
+    //
+    // real
+    //
+    @SQL(statement="SELECT r FROM basic_types")
+    public float getRealValue();
+
+    //
+    // real
+    //
+    @SQL(statement="SELECT r FROM basic_types")
+    public Float getRealValue2();
+
+    //
+    // double precision
+    //
+    @SQL(statement="SELECT dp FROM basic_types")
+    public double getDoubleValue();
+
+    //
+    // double precision
+    //
+    @SQL(statement="SELECT dp FROM basic_types")
+    public Double getDoubleValue2();
+
+    //
+    // decimal
+    //
+    @SQL(statement="SELECT d FROM basic_types")
+    public BigDecimal getDecimalValue();
+
+    //
+    // numeric
+    //
+    @SQL(statement="SELECT nu FROM basic_types")
+    public BigDecimal getNumericValue();
+
+    //
+    // date
+    //
+    @SQL(statement="SELECT dt FROM basic_types")
+    public Date getDateValue();
+
+    //
+    // time
+    //
+    @SQL(statement="SELECT t FROM basic_types")
+    public Time getTimeValue();
+
+    //
+    // timestamp
+    //
+    @SQL(statement="SELECT ts FROM basic_types")
+    public Date getTimestampValue();
+
+
 }
 

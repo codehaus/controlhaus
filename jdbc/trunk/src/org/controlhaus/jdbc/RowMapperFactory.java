@@ -101,7 +101,7 @@ public final class RowMapperFactory {
     private static final class RowMapping {
 
         private final static Class[] _params = {ResultSet.class, Class.class, Calendar.class};
-        private final Class _mapperFor;
+        private final Class<?> _mapperFor;
         private final Class _rowMapper;
 
         /**
