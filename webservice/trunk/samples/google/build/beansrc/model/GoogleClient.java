@@ -34,7 +34,7 @@ import org.controlhaus.webservice.ServiceControl.WSDL;
  */
 @ControlExtension
 @Location(urls = {"http://api.google.com/search/beta2"})
-@WSDL(path = "d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl",
+@WSDL(path = "GoogleSearch.wsdl",  //"d:/dev/workspace/NEW_Control_Haus_Service_Controler/samples/google/src/model/GoogleSearch.wsdl",
       service = "GoogleSearchService")
 public interface GoogleClient extends ServiceControl {
 

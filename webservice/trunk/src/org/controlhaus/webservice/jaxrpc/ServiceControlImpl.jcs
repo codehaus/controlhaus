@@ -78,7 +78,7 @@ public class ServiceControlImpl implements
 		ServiceControl, Extensible, Serializable {
 	static Logger logger = Logger.getLogger(ServiceControlImpl.class);
 
-	@Context public ControlBeanContext mContext;
+	@Context public ControlBeanContext cbContext;
 
 	BindingLookupService lookupService = null;
 
@@ -322,7 +322,7 @@ public class ServiceControlImpl implements
 
 	private String getAlternateOperationName(Method method) {
 
-		ServiceControl.OperationName opName = mContext.getMethodPropertySet(
+		ServiceControl.OperationName opName = cbContext.getMethodPropertySet(
 				method, ServiceControl.OperationName.class);
 		if (opName != null) {
 			return opName.value();
@@ -345,16 +345,14 @@ public class ServiceControlImpl implements
 			wsdlStream = url.openStream();
 		} else { // it is a local file name
 
-			ServletContext servletContext = mContext.getService(
+			ServletContext servletContext = cbContext.getService(
 					ServletContext.class, null);
 			if (servletContext != null) {
 				wsdlStream = servletContext.getResourceAsStream(pathToWSDL);
 			} 
-//			else {
-//				System.out.println("The class is: " + getClass().getCanonicalName());
-//				wsdlStream = getClass().getResourceAsStream(pathToWSDL);
-//
-//			}
+			else {
+				wsdlStream = cbContext.getControlInterface().getResourceAsStream(pathToWSDL);
+			}
 
 			if (wsdlStream == null) {
 				File f = new File(pathToWSDL);
@@ -391,7 +389,7 @@ public class ServiceControlImpl implements
 	private Jsr181TypeMetadata loadObjectModel() throws Exception {
 
 		if (mWSTM == null) {
-			ServiceControl.WSDL wsdl = (ServiceControl.WSDL) mContext
+			ServiceControl.WSDL wsdl = (ServiceControl.WSDL) cbContext
 					.getControlPropertySet(ServiceControl.WSDL.class);
 
 			if (wsdl != null) {
@@ -422,7 +420,7 @@ public class ServiceControlImpl implements
 			throws Exception {
 
 		if (null == getEndPoint()) {
-			ServiceControl.Location location = (ServiceControl.Location) mContext
+			ServiceControl.Location location = (ServiceControl.Location) cbContext
 					.getControlPropertySet(ServiceControl.Location.class);
 
 			if (location != null) {
