@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="http://webparam.web" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="http://webparam.web" xmlns:intf="http://webparam.web" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by Apache Axis version: 1.2RC3
+Built on Feb 28, 2005 (10:15:14 EST)-->
+ <wsdl:types>
+  <schema elementFormDefault="qualified" targetNamespace="http://webparam.web" xmlns="http://www.w3.org/2001/XMLSchema">
+   <element name="area_code" type="xsd:int"/>
+   <complexType name="Phone">
+    <sequence>
+     <element name="areaCode" type="xsd:int"/>
+     <element name="exchange" type="xsd:string"/>
+     <element name="number" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <element name="phone_in" type="impl:Phone"/>
+   <element name="createPhoneNumberInHeader">
+    <complexType>
+     <sequence/>
+    </complexType>
+   </element>
+   <element name="createPhoneNumberInHeaderResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="impl:Phone"/>
+     </sequence>
+    </complexType>
+   </element>
+   <complexType name="StateType">
+    <sequence>
+     <element name="state" type="xsd:string"/>
+    </sequence>
+   </complexType>
+   <complexType name="Address">
+    <sequence>
+     <element name="city" type="xsd:string"/>
+     <element name="phoneNumber" type="impl:Phone"/>
+     <element name="state" type="impl:StateType"/>
+     <element name="streetName" type="xsd:string"/>
+     <element name="streetNum" type="xsd:int"/>
+     <element name="zip" type="xsd:int"/>
+    </sequence>
+   </complexType>
+   <element name="address" type="impl:Address"/>
+   <element name="getPhoneNumberInHeader">
+    <complexType>
+     <sequence/>
+    </complexType>
+   </element>
+   <element name="getPhoneNumberInHeaderResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="impl:Phone"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="sayHelloInBody">
+    <complexType>
+     <sequence>
+      <element name="name_in" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="sayHelloInBodyResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="name_in" type="xsd:string"/>
+   <element name="sayHelloInHeader">
+    <complexType>
+     <sequence/>
+    </complexType>
+   </element>
+   <element name="sayHelloInHeaderResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="xsd:string"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getPhoneNumberInBody">
+    <complexType>
+     <sequence>
+      <element name="address" type="impl:Address"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="getPhoneNumberInBodyResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="impl:Phone"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="address1" type="impl:Address"/>
+   <element name="updatePhoneNumbers">
+    <complexType>
+     <sequence>
+      <element name="phone" type="impl:Phone"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="address2" type="impl:Address"/>
+   <element name="address3" type="impl:Address"/>
+   <element name="updatePhoneNumbersResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="xsd:int"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="phone_in1" type="impl:Phone"/>
+   <element name="createPhoneNumberInBodyHeader">
+    <complexType>
+     <sequence>
+      <element name="areaCode" type="xsd:int"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="createPhoneNumberInBodyHeaderResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="impl:Phone"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="createPhoneNumberInBody">
+    <complexType>
+     <sequence>
+      <element name="areaCode" type="xsd:int"/>
+     </sequence>
+    </complexType>
+   </element>
+   <element name="createPhoneNumberInBodyResponse">
+    <complexType>
+     <sequence>
+      <element name="result" type="impl:Phone"/>
+     </sequence>
+    </complexType>
+   </element>
+  </schema>
+ </wsdl:types>
+
+   <wsdl:message name="getPhoneNumberInHeaderRequest">
+
+      <wsdl:part element="impl:address" name="address"/>
+
+      <wsdl:part element="impl:getPhoneNumberInHeader" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="sayHelloInHeaderResponse">
+
+      <wsdl:part element="impl:sayHelloInHeaderResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="createPhoneNumberInHeaderRequest">
+
+      <wsdl:part element="impl:area_code" name="area_code"/>
+
+      <wsdl:part element="impl:phone_in" name="phone_in"/>
+
+      <wsdl:part element="impl:createPhoneNumberInHeader" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="updatePhoneNumbersRequest">
+
+      <wsdl:part element="impl:address1" name="address1"/>
+
+      <wsdl:part element="impl:updatePhoneNumbers" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="createPhoneNumberInBodyHeaderResponse">
+
+      <wsdl:part element="impl:createPhoneNumberInBodyHeaderResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="updatePhoneNumbersResponse">
+
+      <wsdl:part element="impl:address2" name="address1"/>
+
+      <wsdl:part element="impl:address3" name="address2"/>
+
+      <wsdl:part element="impl:updatePhoneNumbersResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPhoneNumberInBodyRequest">
+
+      <wsdl:part element="impl:getPhoneNumberInBody" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="createPhoneNumberInBodyResponse">
+
+      <wsdl:part element="impl:createPhoneNumberInBodyResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="sayHelloInBodyResponse">
+
+      <wsdl:part element="impl:sayHelloInBodyResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="sayHelloInHeaderRequest">
+
+      <wsdl:part element="impl:name_in" name="name_in"/>
+
+      <wsdl:part element="impl:sayHelloInHeader" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPhoneNumberInHeaderResponse">
+
+      <wsdl:part element="impl:getPhoneNumberInHeaderResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPhoneNumberInBodyResponse">
+
+      <wsdl:part element="impl:getPhoneNumberInBodyResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="createPhoneNumberInHeaderResponse">
+
+      <wsdl:part element="impl:createPhoneNumberInHeaderResponse" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="createPhoneNumberInBodyHeaderRequest">
+
+      <wsdl:part element="impl:phone_in1" name="phone_in"/>
+
+      <wsdl:part element="impl:createPhoneNumberInBodyHeader" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="sayHelloInBodyRequest">
+
+      <wsdl:part element="impl:sayHelloInBody" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="createPhoneNumberInBodyRequest">
+
+      <wsdl:part element="impl:createPhoneNumberInBody" name="parameters"/>
+
+   </wsdl:message>
+
+   <wsdl:portType name="WebParamDocumentLiteralSample">
+
+      <wsdl:operation name="createPhoneNumberInHeader">
+
+         <wsdl:input message="impl:createPhoneNumberInHeaderRequest" name="createPhoneNumberInHeaderRequest"/>
+
+         <wsdl:output message="impl:createPhoneNumberInHeaderResponse" name="createPhoneNumberInHeaderResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPhoneNumberInHeader">
+
+         <wsdl:input message="impl:getPhoneNumberInHeaderRequest" name="getPhoneNumberInHeaderRequest"/>
+
+         <wsdl:output message="impl:getPhoneNumberInHeaderResponse" name="getPhoneNumberInHeaderResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="sayHelloInBody">
+
+         <wsdl:input message="impl:sayHelloInBodyRequest" name="sayHelloInBodyRequest"/>
+
+         <wsdl:output message="impl:sayHelloInBodyResponse" name="sayHelloInBodyResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="sayHelloInHeader">
+
+         <wsdl:input message="impl:sayHelloInHeaderRequest" name="sayHelloInHeaderRequest"/>
+
+         <wsdl:output message="impl:sayHelloInHeaderResponse" name="sayHelloInHeaderResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPhoneNumberInBody">
+
+         <wsdl:input message="impl:getPhoneNumberInBodyRequest" name="getPhoneNumberInBodyRequest"/>
+
+         <wsdl:output message="impl:getPhoneNumberInBodyResponse" name="getPhoneNumberInBodyResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="updatePhoneNumbers">
+
+         <wsdl:input message="impl:updatePhoneNumbersRequest" name="updatePhoneNumbersRequest"/>
+
+         <wsdl:output message="impl:updatePhoneNumbersResponse" name="updatePhoneNumbersResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="createPhoneNumberInBodyHeader">
+
+         <wsdl:input message="impl:createPhoneNumberInBodyHeaderRequest" name="createPhoneNumberInBodyHeaderRequest"/>
+
+         <wsdl:output message="impl:createPhoneNumberInBodyHeaderResponse" name="createPhoneNumberInBodyHeaderResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="createPhoneNumberInBody">
+
+         <wsdl:input message="impl:createPhoneNumberInBodyRequest" name="createPhoneNumberInBodyRequest"/>
+
+         <wsdl:output message="impl:createPhoneNumberInBodyResponse" name="createPhoneNumberInBodyResponse"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="WebParamDocumentLiteralSampleSoapBinding" type="impl:WebParamDocumentLiteralSample">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="createPhoneNumberInHeader">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="createPhoneNumberInHeaderRequest">
+
+            <wsdlsoap:body parts="parameters" use="literal"/>
+
+            <wsdlsoap:header message="impl:createPhoneNumberInHeaderRequest" namespace="http://webparam.web" part="area_code" use="literal">
+
+            </wsdlsoap:header>
+
+            <wsdlsoap:header message="impl:createPhoneNumberInHeaderRequest" namespace="http://webparam.web" part="phone_in" use="literal">
+
+            </wsdlsoap:header>
+
+         </wsdl:input>
+
+         <wsdl:output name="createPhoneNumberInHeaderResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPhoneNumberInHeader">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getPhoneNumberInHeaderRequest">
+
+            <wsdlsoap:body parts="parameters" use="literal"/>
+
+            <wsdlsoap:header message="impl:getPhoneNumberInHeaderRequest" namespace="http://webparam.web" part="address" use="literal">
+
+            </wsdlsoap:header>
+
+         </wsdl:input>
+
+         <wsdl:output name="getPhoneNumberInHeaderResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="sayHelloInBody">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="sayHelloInBodyRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="sayHelloInBodyResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="sayHelloInHeader">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="sayHelloInHeaderRequest">
+
+            <wsdlsoap:body parts="parameters" use="literal"/>
+
+            <wsdlsoap:header message="impl:sayHelloInHeaderRequest" namespace="http://webparam.web" part="name_in" use="literal">
+
+            </wsdlsoap:header>
+
+         </wsdl:input>
+
+         <wsdl:output name="sayHelloInHeaderResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPhoneNumberInBody">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getPhoneNumberInBodyRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getPhoneNumberInBodyResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="updatePhoneNumbers">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="updatePhoneNumbersRequest">
+
+            <wsdlsoap:body parts="parameters" use="literal"/>
+
+            <wsdlsoap:header message="impl:updatePhoneNumbersRequest" namespace="http://webparam.web" part="address1" use="literal">
+
+            </wsdlsoap:header>
+
+         </wsdl:input>
+
+         <wsdl:output name="updatePhoneNumbersResponse">
+
+            <wsdlsoap:body parts="parameters" use="literal"/>
+
+            <wsdlsoap:header message="impl:updatePhoneNumbersResponse" namespace="http://webparam.web" part="address1" use="literal">
+
+            </wsdlsoap:header>
+
+            <wsdlsoap:header message="impl:updatePhoneNumbersResponse" namespace="http://webparam.web" part="address2" use="literal">
+
+            </wsdlsoap:header>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="createPhoneNumberInBodyHeader">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="createPhoneNumberInBodyHeaderRequest">
+
+            <wsdlsoap:body parts="parameters" use="literal"/>
+
+            <wsdlsoap:header message="impl:createPhoneNumberInBodyHeaderRequest" namespace="http://webparam.web" part="phone_in" use="literal">
+
+            </wsdlsoap:header>
+
+         </wsdl:input>
+
+         <wsdl:output name="createPhoneNumberInBodyHeaderResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="createPhoneNumberInBody">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="createPhoneNumberInBodyRequest">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="createPhoneNumberInBodyResponse">
+
+            <wsdlsoap:body use="literal"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="WebParamDocumentLiteralSampleService">
+
+      <wsdl:port binding="impl:WebParamDocumentLiteralSampleSoapBinding" name="WebParamDocumentLiteralSample">
+
+         <wsdlsoap:address location="http://localhost:8080/wsm-samplesWS/web/webparam/WebParamDocumentLiteralSample.jws"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>
