@@ -272,7 +272,7 @@ public final class TypeMappingsFactory {
      *
      * @param val
      * @param args
-     * @return
+     * @return type
      * @throws Exception
      */
     public Object lookupType(Object val, Object[] args) throws Exception {

@@ -104,6 +104,8 @@ limitations under the License.
         </apt>
 
         <mkdir dir="${dist.base.dir}"/>
+	<echo message="dist.base.dir is ${dist.base.dir}"/>
+	<echo message="jdbcc.home is ${jdbcc.home}"/>
         <jar jarfile="${jdbcc.jar}" basedir="${build.classes.dir}">
             <metainf dir="${aptmeta.dir}">
                 <filename name="services/${aptmeta.file}"/>
@@ -300,26 +302,6 @@ limitations under the License.
 
         <mkdir dir="${lib.dir}"/>
 
-        <get src="${velocity.maven.url}"
-            dest="${velocity.jar.dest}"
-            usetimestamp="true" ignoreerrors="true"/>
-
-        <get src="${velocity.dep.maven.url}"
-            dest="${velocity.dep.jar.dest}"
-            usetimestamp="true" ignoreerrors="true"/>
-
-        <get src="${log4j.maven.url}"
-            dest="${log4j.jar.dest}"
-            usetimestamp="true" ignoreerrors="true"/>
-
-        <get src="${xmlbean.maven.url}"
-            dest="${xmlbean.jar.dest}"
-            usetimestamp="true" ignoreerrors="true"/>
-
-        <get src="${jsr173.maven.url}"
-            dest="${jsr173.jar.dest}"
-            usetimestamp="true" ignoreerrors="true"/>
-
         <get src="${junit.maven.url}"
             dest="${junit.jar.dest}"
             usetimestamp="true" ignoreerrors="true"/>
@@ -328,17 +310,6 @@ limitations under the License.
             dest="${javacc.jar.dest}"
             usetimestamp="true" ignoreerrors="true"/>
 
-        <get src="${commons.discovery.maven.url}"
-            dest="${commons.discovery.jar.dest}"
-            usetimestamp="true" ignoreerrors="true"/>
-
-        <get src="${commons.codec.maven.url}"
-            dest="${commons.codec.jar.dest}"
-            usetimestamp="true" ignoreerrors="true"/>
-
-        <get src="${commons.logging.maven.url}"
-            dest="${commons.logging.jar.dest}"
-            usetimestamp="true" ignoreerrors="true"/>
     </target>
 
     <!-- =================================================================== -->
@@ -364,92 +335,16 @@ will be downloaded by Ant from the Maven repository.
 Download files manually and add them to the lib directory.  The following external
 libraries are required to build the Jdbc Control:
 
-   ${velocity.jar.dest}
-   ${velocity.dep.jar.dest}
-   ${log4j.jar.dest}
-   ${xmlbean.jar.dest}
-   ${jsr173.jar.dest}
    ${junit.jar.dest}
    ${javacc.jar.dest}
-   ${commons.discovery.jar.dest}
-   ${commons.codec.jar.dest}
-   ${commons.logging.jar.dest}
 
 ********************************************************************************
 ********************************************************************************
         </fail>
 
-        <available file="${velocity.jar.dest}" type="file" property="velocity.jar.present"/>
-        <available file="${velocity.dep.jar.dest}" type="file" property="velocity.dep.jar.present"/>
-        <available file="${log4j.jar.dest}" type="file" property="log4j.jar.present"/>
-        <available file="${xmlbean.jar.dest}" type="file" property="xmlbean.jar.present"/>
-        <available file="${jsr173.jar.dest}" type="file" property="jsr173.jar.present"/>
         <available file="${junit.jar.dest}" type="file" property="junit.jar.present"/>
         <available file="${javacc.jar.dest}" type="file" property="javacc.jar.present"/>
-        <available file="${commons.discovery.jar.dest}" type="file" property="commons.discovery.jar.present"/>
-        <available file="${commons.codec.jar.dest}" type="file" property="commons.codec.jar.present"/>
-        <available file="${commons.logging.jar.dest}" type="file" property="commons.logging.jar.present"/>
 
-        <fail unless="velocity.jar.present">
-********************************************************************************
-********************************************************************************
-            
-Missing ${velocity.jar.dest}.
-            
-Run ant target 'download-dependencies' to automatically download from Maven
-repostiory or download manually.            
-            
-********************************************************************************
-********************************************************************************
-        </fail>
-        <fail unless="velocity.dep.jar.present">
-********************************************************************************
-********************************************************************************
-
-Missing ${velocity.dep.jar.dest}.
-
-Run ant target 'download-dependencies' to automatically download from Maven
-repostiory or download manually.
-
-********************************************************************************
-********************************************************************************
-        </fail>
-        <fail unless="log4j.jar.present">
-********************************************************************************
-********************************************************************************
-
-Missing ${log4j.jar.dest}.
-
-Run ant target 'download-dependencies' to automatically download from Maven
-repostiory or download manually.
-
-********************************************************************************
-********************************************************************************
-        </fail>
-        <fail unless="xmlbean.jar.present">
-********************************************************************************
-********************************************************************************
-
-Missing ${xmlbean.jar.dest}.
-
-Run ant target 'download-dependencies' to automatically download from Maven
-repostiory or download manually.
-
-********************************************************************************
-********************************************************************************
-        </fail>
-        <fail unless="jsr173.jar.present">
-********************************************************************************
-********************************************************************************
-
-Missing ${jsr173.jar.dest}.
-
-Run ant target 'download-dependencies' to automatically download from Maven
-repostiory or download manually.
-
-********************************************************************************
-********************************************************************************
-        </fail>
         <fail unless="junit.jar.present">
 ********************************************************************************
 ********************************************************************************
@@ -467,42 +362,6 @@ repostiory or download manually.
 ********************************************************************************
 
 Missing ${javacc.jar.dest}.
-
-Run ant target 'download-dependencies' to automatically download from Maven
-repostiory or download manually.
-
-********************************************************************************
-********************************************************************************
-        </fail>
-        <fail unless="commons.discovery.jar.present">
-********************************************************************************
-********************************************************************************
-
-Missing ${commons.discovery.jar.dest}.
-
-Run ant target 'download-dependencies' to automatically download from Maven
-repostiory or download manually.
-
-********************************************************************************
-********************************************************************************
-        </fail>
-        <fail unless="commons.codec.jar.present">
-********************************************************************************
-********************************************************************************
-
-Missing ${commons.codec.jar.dest}.
-
-Run ant target 'download-dependencies' to automatically download from Maven
-repostiory or download manually.
-
-********************************************************************************
-********************************************************************************
-        </fail>
-        <fail unless="commons.logging.jar.present">
-********************************************************************************
-********************************************************************************
-
-Missing ${commons.logging.jar.dest}.
 
 Run ant target 'download-dependencies' to automatically download from Maven
 repostiory or download manually.
