@@ -83,7 +83,9 @@
             </j:forEach>
             
             <!-- copy the binaries from the control application to all the extensions -->
-	<!--
+            
+            <!--
+            <j:if test="${extensionApplicationWorkFiles}">
             <j:forEach var="extensionApplicationWorkFile" items="${extensionApplicationWorkFiles.iterator()}">
                 <j:set var="extensionApplicationRoot" value="${extensionApplicationWorkFile.parent}"/>
                 <j:set var="controlApplicationRoot" value="${controlApplicationWorkFile.parent}"/>
@@ -93,17 +95,38 @@
                     </fileset>
                 </ant:copy>
             </j:forEach>
-	-->
+            </j:if>
+            -->
         </j:forEach>
+
+        <!-- if there are extensions, for each extension application, build it -->
+        <!--<j:if test="${extensionApplicationWorkFiles}">-->
+        <j:forEach var="extensionApplicationWorkFile" items="${extensionApplicationWorkFiles.iterator()}">
+            
+            <!-- build the extension application -->
+            <wlwBuild work="${extensionApplicationWorkFile}" serverclasspath="${server.classpath}">
+                <build noear="true"/>
+            </wlwBuild>
+        
+        </j:forEach>
+        <!--</j:if>-->
 
     </goal>
 
-    <goal name="control:dist" description="Build all controls and samples and bundle the result into a zip file for distribution" prereqs="control:build">
+    <goal name="control:dist" description="Build all controls and samples and optional extensions and bundle the result into a zip file for distribution" prereqs="control:build">
         <ant:zip destfile="${context.getVariable('maven.jcx.control.name')}.zip">
             <j:forEach var="controlApplicationWorkFile" items="${controlApplicationWorkFiles.iterator()}">
                 <j:set var="controlApplicationRoot" value="${controlApplicationWorkFile.parent}"/>
                 <zipfileset dir="${controlApplicationRoot}/APP-INF/lib" prefix="controls"/>
             </j:forEach>
+
+            <j:if test="${extensionApplicationWorkFiles}">
+            <j:forEach var="extensionApplicationWorkFile" items="${extensionApplicationWorkFiles.iterator()}">
+                <j:set var="extensionApplicationRoot" value="${extensionApplicationWorkFile.parent}"/>
+                <zipfileset dir="${extensionApplicationRoot}" includes="*.jar" prefix="extensions"/>
+            </j:forEach>
+            </j:if>
+
             <zipfileset dir="samples" prefix="samples/partners/controlhaus_${context.getVariable('maven.jcx.partner.name')}"/>
             <fileset dir="${basedir}">
                 <include name="help/**"/>
