@@ -138,7 +138,7 @@
   <target name="axisbean" depends="checkaxisbean" unless="noaxisrebuild">
     <!-- AXIS Bean build -->
     <taskdef name="axisbeanbuild" 
-      classname="org.controlhaus.webservice.util.AxisTypeGeneratorTask">
+      classname="org.apache.beehive.wsm.axis.ant.AxisTypeGeneratorTask">
       <classpath>
         <path refid="project.class.path"/>
       </classpath>    
