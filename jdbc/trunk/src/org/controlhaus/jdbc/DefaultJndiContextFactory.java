@@ -23,7 +23,7 @@ import javax.naming.NamingException;
 /**
  * Default context factory implementation.  Overridden in classe's ConnectionDataSource annotation.
  */
-public class DefaultJndiContextFactory implements DatabaseControl.IJndiContextFactory {
+public class DefaultJndiContextFactory implements JdbcControl.IJndiContextFactory {
 
     public InitialContext getInitialContext() throws NamingException {
         return new InitialContext();

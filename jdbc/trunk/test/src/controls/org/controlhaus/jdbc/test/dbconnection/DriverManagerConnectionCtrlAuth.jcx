@@ -19,17 +19,17 @@ package org.controlhaus.jdbc.test.dbconnection;
 
 import java.sql.SQLException;
 
-import org.controlhaus.jdbc.DatabaseControl;
+import org.controlhaus.jdbc.JdbcControl;
 
 /**
  * For testing username and password params on a connection.
  */
 @org.apache.beehive.controls.api.bean.ControlExtension
-@DatabaseControl.ConnectionDriver(databaseDriverClass="org.apache.derby.jdbc.EmbeddedDriver",
+@JdbcControl.ConnectionDriver(databaseDriverClass="org.apache.derby.jdbc.EmbeddedDriver",
                                    databaseURL="jdbc:derby:MyDBAuth",
                                    userName="foo",
                                    password="bar")
-public interface DriverManagerConnectionCtrlAuth extends DatabaseControl {
+public interface DriverManagerConnectionCtrlAuth extends JdbcControl {
 
     @SQL(statement = "CREATE TABLE FOO2 (BAR VARCHAR(3))")
     public void createTable() throws SQLException;

@@ -40,7 +40,7 @@ public class ResultSetIterator implements java.util.Iterator {
     ResultSetIterator(ControlBeanContext context, Method method, ResultSet rs, Calendar cal) throws Exception {
         _rs = rs;
 
-        DatabaseControl.SQL methodSQL = (DatabaseControl.SQL) context.getMethodPropertySet(method, DatabaseControl.SQL.class);
+        JdbcControl.SQL methodSQL = (JdbcControl.SQL) context.getMethodPropertySet(method, JdbcControl.SQL.class);
         _returnClass = methodSQL.iteratorElementType();
 
         if (_returnClass == null) {

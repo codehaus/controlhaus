@@ -19,7 +19,7 @@ package org.controlhaus.jdbc;
 
 import com.sun.rowset.CachedRowSetImpl;
 import org.apache.beehive.controls.api.context.ControlBeanContext;
-import org.controlhaus.jdbc.DatabaseControl.SQL;
+import org.controlhaus.jdbc.JdbcControl.SQL;
 
 import javax.sql.RowSet;
 import java.lang.reflect.Method;

@@ -52,7 +52,7 @@ import java.util.Calendar;
  * <a href="../../../../guide/controls/database/navDatabaseControl.html">Database Control</a>.
  */
 @ControlInterface
-public interface DatabaseControl extends Control {
+public interface JdbcControl extends Control {
 
     public interface IJndiContextFactory {
         public InitialContext getInitialContext() throws NamingException;

@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.controlhaus.jdbc.DatabaseControl;
+import org.controlhaus.jdbc.JdbcControl;
 import org.controlhaus.jdbc.DefaultRowSetResultSetMapper;
 
 import javax.sql.RowSet;
@@ -34,8 +34,8 @@ import test.customerDb.XCustomerRowDocument;
  * This control is used for unit tests for results returned from the db control.
  */
 @org.apache.beehive.controls.api.bean.ControlExtension
-@DatabaseControl.ConnectionDriver(databaseDriverClass="org.apache.derby.jdbc.EmbeddedDriver", databaseURL="jdbc:derby:MyDB")
-public interface ResultsTestCtrl extends DatabaseControl {
+@JdbcControl.ConnectionDriver(databaseDriverClass="org.apache.derby.jdbc.EmbeddedDriver", databaseURL="jdbc:derby:MyDB")
+public interface ResultsTestCtrl extends JdbcControl {
 
     public static class Customer {
         private String fname;
