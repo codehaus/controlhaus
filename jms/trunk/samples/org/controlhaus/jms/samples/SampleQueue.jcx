@@ -1,0 +1,33 @@
+package org.controlhaus.jms.samples;
+
+import java.util.Date;
+
+import org.controlhaus.jms.JMSControl;
+import org.apache.beehive.controls.api.bean.ControlExtension;
+import org.apache.xmlbeans.XmlObject;
+
+@ControlExtension
+@JMSControl.Destination(sendJndiName="jms.SampleQueue",jndiConnectionFactory="weblogic.jws.jms.QueueConnectionFactory")
+public interface SampleQueue extends JMSControl
+{
+	/**
+	 * Submit an xml object (org.apache.xmlbeans) as a text message.
+	 * @param document the document.
+	 * @param type the message JMS type.
+	 */
+    public void submitXml(XmlObject document,@Type String type);
+    
+    /**
+	 * Submit an xml object (org.apache.xmlbeans) with JMS type "xmlObject".
+	 * @param document the document.
+	 */
+	@Message(MessageType.Text)
+	@Type("xmlObject")
+    public void submitXml(XmlObject document);
+    
+    /**
+	 * Submit an already constructed message
+	 * @param message the jms-message.
+	 */
+    public void submitMessage(Message message);
+}
