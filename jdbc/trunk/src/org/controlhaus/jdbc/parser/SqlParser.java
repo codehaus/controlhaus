@@ -23,12 +23,22 @@ import java.util.HashMap;
 import java.io.StringReader;
 
 /**
- * The SqlParser class is a thread-safe class which parses a string containing a sql statement with substitituion
- * delimiters.
+ * The SqlParser class is a thread-safe class which parses a string containing a SQL statement
+ * with JdbcControl substitituion delimiters. It is important to note that the SQL is not parsed/validated - only
+ * the sections within the SQL string which are delimited by '{' and '}' are parsed.
  * <p/>
- * The start and end delimiters are '{' and '}' respectively.
+ * Parsing is accomplished using the JavaCC grammar file <tt>SqlGrammer.jj</tt>.  As the string is parsed it is broken
+ * into fragments by the parser.  Any portion of the string which is not between '{' and '}' delimiters becomes a
+ * <tt>LiteralFragment</tt>.  The portions of the SQL string which fall between the start and end delimiters are categorized as
+ * either <tt>JdbcFragment</tt>, <tt>ReflectionFragment</tt>, or <tt>SqlSubstitutionFragment</tt>.
  * <p/>
- * This parser will also cache all parsed SQLStatements which contain non-volitale SQL.
+ * Fragments which subclass <tt>SqlFragmentContainer</tt> may contain other fragments as children.  Fragements subclassed
+ * from <tt>SqlFragment</tt> my not contain child fragments. Upon completion of parsing a <tt>SqlStatement</tt> is
+ * returned to the caller.  The <tt>SqlStatement</tt> contains the heirarchary of fragments which have been derived
+ * from the orignal SQL string.
+ * <p/>
+ * The parser will also cache all <tt>SqlStatements</tt> which contain non-volitale SQL. Only <tt>SqlEscapeFragments</tt>
+ * contain volitile SQL at this point.
  */
 public final class SqlParser {
 
@@ -36,7 +46,7 @@ public final class SqlParser {
     private HashMap<String, SqlStatement> _cachedSqlStatements;
 
     /**
-     * Constructor
+     * Create a new instance of the SqlParser.
      */
     public SqlParser() {
         _cachedSqlStatements = new HashMap<String, SqlStatement>();
@@ -46,8 +56,8 @@ public final class SqlParser {
      * Parse the sql and return an SqlStatement.
      *
      * @param sql A String contianing the sql to parse.
-     * @return A SQLStatement instance.
-     * @throws org.apache.beehive.controls.api.ControlException If statement cannot be parsed.
+     * @return A SqlStatement instance.
+     * @throws org.apache.beehive.controls.api.ControlException If parsing error occures.
      */
     public SqlStatement parse(String sql) throws ControlException {
 

@@ -23,13 +23,22 @@ import org.controlhaus.jdbc.TypeMappingsFactory;
 import java.lang.reflect.Method;
 
 /**
- * Respresents a fragement from the SQL annotation's statement member which begins with '{sql:'.
+ * Represents a fragement from the SQL annotation's statement member which begins with '{sql:'.
+ * Substitution fragements are unique in that they are fully evaluated BEFORE a PreparedStatement
+ * is generated.
+ * <p/>
  * Supported 'sql:' escapes are subst and fn. subst is the default mode, and will be used if 'sql: ' 
  * is specified.
  *
- * fn must specify 'in' as the function name.
+ * The <tt>fn</tt> variant of this construct has a very ridgid syntax at this point.  It must conform to:
+ *
+ * <pre>
+ *   {sql:fn in(x,{y})}
+ * </pre>
+ *
+ * where the '{y}' could also be some literal term.
  */
-public class SqlEscapeFragment extends SqlFragmentContainer {
+public class SqlSubstitutionFragment extends SqlFragmentContainer {
 
     private static final String NULL_VALUE = "NULL";
 
@@ -38,7 +47,7 @@ public class SqlEscapeFragment extends SqlFragmentContainer {
      *
      * @param child An child which is contained in this fragment.
      */
-    SqlEscapeFragment(SqlFragment child) {
+    SqlSubstitutionFragment(SqlFragment child) {
         super();
         addChild(child);
     }
@@ -50,7 +59,7 @@ public class SqlEscapeFragment extends SqlFragmentContainer {
      * @param rf The ReflectionFragment containing the parameter substitution
      * @param lff A LiteralFragment which contains any text which occures after the parameter substitution.
      */
-    SqlEscapeFragment(LiteralFragment lf, ReflectionFragment rf, LiteralFragment lff) {
+    SqlSubstitutionFragment(LiteralFragment lf, ReflectionFragment rf, LiteralFragment lff) {
         super();
         addChild(lf);
         addChild(rf);

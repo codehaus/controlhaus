@@ -36,14 +36,14 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
     protected static final TypeMappingsFactory _tmf = TypeMappingsFactory.getInstance();
 
     /**
-     * Map a ResultSet to an Object.  Object type is defined by the return type of the method.
+     * Map a ResultSet to an object type. The object type returned is defined by the return type of the method.
      *
-     * @param context
-     * @param m         Method assoicated with this call
-     * @param resultSet Result set to map
-     * @param cal
-     * @return
-     * @throws Exception
+     * @param context   A ControlBeanContext instance, see Beehive controls javadoc for additional information
+     * @param m         Method assoicated with this call.
+     * @param resultSet Result set to map.
+     * @param cal       A Calendar instance for time/date value resolution.
+     * @return          The Object resulting from the ResultSet
+     * @throws Exception On error.
      */
     public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
 
@@ -66,6 +66,16 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
     // ////////////////////////////////// PRIVATE METHODS //////////////////////////////////////////
     //
 
+    /**
+     * This method is called when the return type of the method is an array type.
+     *
+     * @param rs         ResultSet to process.
+     * @param maxRows    The maximum size of array to create
+     * @param arrayClass The class of object contained within the array
+     * @param cal        A calendar instance to use for date/time values
+     * @return           An array of the specified class type
+     * @throws Exception On error.
+     */
     protected Object arrayFromResultSet(ResultSet rs, int maxRows, Class arrayClass, Calendar cal)
             throws Exception {
 

@@ -41,13 +41,18 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- *
+ * The JdbcControlAnnotationProcessorFactory creates a JdbcControlAnnotationProcessor. This apt is the annotation
+ * processor which validates SQL annotations at compile time for the JdbcControl.  It checks basic
+ * constraints for the annotation member values and also parses the SQL contained within the
+ * statement member.
  */
 public class JdbcControlAnnotationProcessorFactory implements AnnotationProcessorFactory {
 
+    // define the collection of supported annotations
     private static final Collection<String> _supportedAnnotations =
             Collections.unmodifiableCollection(Arrays.asList("org.controlhaus.jdbc.JdbcControl.SQL"));
 
+    // define any supported apt options
     private static final Collection<String> _supportedOptions = Collections.emptySet();
 
     /**
@@ -87,34 +92,24 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
     }
 
     /**
-     * Returns an annotation processor for a set of annotation
-     * types. The set will be empty if the factory supports
-     * &quot;<tt>*</tt>&quot; and the specified type declarations have
-     * no annotations.  Note that the set of annotation types may be
-     * empty for other reasons, such as giving the factory an
-     * opportunity to register a listener.  An
-     * <tt>AnnotationProcessorFactory</tt> must gracefully handle an
-     * empty set of annotations; an appropriate response to an empty
-     * set will often be returning {@link com.sun.mirror.apt.AnnotationProcessors#NO_OP}.
+     * Returns an JdbcControlAnnotationProcessor
      *
      * @param atds type declarations of the annotation types to be processed
      * @param env  environment to use during processing
-     * @return an annotation processor for the given annotation types,
-     *         or <tt>null</tt> if the types are not supported or the
-     *         processor cannot be created
+     * @return an JdbcControlAnnotationProcessor
      */
     public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> atds, AnnotationProcessorEnvironment env) {
-        return new SqlAnnotationProcessor(env);
+        return new JdbcControlAnnotationProcessor(env);
     }
 
     /**
      * Annotation processor for SQL annotations
      */
-    private static class SqlAnnotationProcessor implements AnnotationProcessor {
+    private static class JdbcControlAnnotationProcessor implements AnnotationProcessor {
 
         final AnnotationProcessorEnvironment _env;
 
-        SqlAnnotationProcessor(AnnotationProcessorEnvironment env) {
+        JdbcControlAnnotationProcessor(AnnotationProcessorEnvironment env) {
             _env = env;
         }
 
@@ -134,14 +129,26 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
         private static class SqlVisitor extends SimpleDeclarationVisitor {
             final AnnotationProcessorEnvironment _env;
 
+            /**
+             * Constructor
+             * @param env an apt env instance
+             */
             public SqlVisitor(AnnotationProcessorEnvironment env) {
                 _env = env;
             }
 
+            /**
+             * Visitor method for class level annotation declarations
+             * @param d ClassDeclaration which annotation occured.
+             */
             public void visitClassDeclaration(ClassDeclaration d) {
                 //      System.out.println(d.getQualifiedName());
             }
 
+            /**
+             * Visitor method for method level annotation declarations.
+             * @param m Method declaration which annotation occured.::
+             */
             public void visitMethodDeclaration(MethodDeclaration m) {
 
                 final JdbcControl.SQL methodSQL = m.getAnnotation(JdbcControl.SQL.class);
@@ -234,11 +241,9 @@ public class JdbcControlAnnotationProcessorFactory implements AnnotationProcesso
 
                         }
                     }
-
                 }
             } // visitMethodDeclaration
         } // SqlVisitor
 
-    } // SqlAnnotationProcessor
-
+    } // JdbcControlAnnotationProcessor
 } // JdbcControlAnnotationProcessorFactory
