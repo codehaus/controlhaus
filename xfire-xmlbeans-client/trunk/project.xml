@@ -3,7 +3,7 @@
   <name>Controlhaus XFire XMLBeans Control</name>
   <groupId>controlhaus</groupId>
   <artifactId>controlhaus-xfire-client</artifactId>
-  <currentVersion>1.0-alpha-1</currentVersion>
+  <currentVersion>1.0-SNAPSHOT</currentVersion>
   <organization>
     <name>Controlhaus</name>
     <url>http://www.controlhaus.org/</url>
@@ -61,13 +61,13 @@
     <dependency>
       <groupId>xfire</groupId>
       <artifactId>xfire</artifactId>
-      <version>1.0-alpha-2</version>
+      <version>1.0-alpha-3-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>xfire</groupId>
       <artifactId>xfire-xmlbeans</artifactId>
-      <version>1.0-alpha-2</version>
+      <version>1.0-alpha-3-SNAPSHOT</version>
     </dependency>
 
     <!-- Use a patched version in the XFire dir until XMLBEANS-78 is in -->
