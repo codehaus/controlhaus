@@ -13,7 +13,12 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 
 /**
- * To use this control:
+ * An XFire client control.  Included are two annotations which
+ * can be used to configure the control.  Encoding, which will specify
+ * the encoding. It defaults to UTF-8.  Also the ServiceUrl annotation
+ * will specify which url to invoke for the service.
+ * <p>
+ * A typical usage would look like so:
  * <pre>
  * @Encoding("UTF-8")
  * @ServiceUrl("http://some.service.com")
