@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Specification-Title: sforce Schema Extension 02/03/2004
-Specification-Vendor: salesforce.com
-Specification-Version: 3.0
-Implementation-Title: sforce Schema Extension 02/03/2004
-Implementation-Vendor: salesforce.com
-Implementation-Version: 3.0
-Implementation-URL: http://www.sforce.com/
