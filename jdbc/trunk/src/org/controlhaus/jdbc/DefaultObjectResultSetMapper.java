@@ -45,7 +45,7 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
      * @return
      * @throws Exception
      */
-    Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
 
         final Class returnType = m.getReturnType();
         final boolean isArray = returnType.isArray();
@@ -53,7 +53,7 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
         if (isArray) {
             final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
             return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType,
-                                      ControlUtils.getSchemaType(returnType.getComponentType()), cal);
+                                      /*ControlUtils.getSchemaType(returnType.getComponentType()),*/ cal);
         } else {
             if (!resultSet.next()) {
                 return _tmf.fixNull(m.getReturnType());
@@ -67,7 +67,7 @@ public class DefaultObjectResultSetMapper extends ResultSetMapper {
     // ////////////////////////////////// PRIVATE METHODS //////////////////////////////////////////
     //
 
-    protected Object arrayFromResultSet(ResultSet rs, int maxRows, Class arrayClass, SchemaType schemaType, Calendar cal)
+    protected Object arrayFromResultSet(ResultSet rs, int maxRows, Class arrayClass, /*SchemaType schemaType,*/ Calendar cal)
             throws Exception {
 
         Class componentType = arrayClass.getComponentType();

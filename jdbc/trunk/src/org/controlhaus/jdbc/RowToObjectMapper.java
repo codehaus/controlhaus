@@ -36,7 +36,6 @@ import java.util.HashMap;
 public class RowToObjectMapper extends RowMapper {
 
     private final int _columnCount;
-    private final Class _returnTypeClass;
 
     private AccessibleObject[] _fields;
     private int[] _fieldTypes;
@@ -52,11 +51,9 @@ public class RowToObjectMapper extends RowMapper {
      * @throws SQLException
      */
     RowToObjectMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
-        super(resultSet, cal);
+        super(resultSet, returnTypeClass, cal);
 
         _columnCount = resultSet.getMetaData().getColumnCount();
-        _returnTypeClass = returnTypeClass;
-
         getFieldMappings();
     }
 
@@ -68,7 +65,7 @@ public class RowToObjectMapper extends RowMapper {
      * @throws ControlException
      * @throws SQLException
      */
-    Object mapRowToReturnType() throws ControlException, SQLException {
+    public Object mapRowToReturnType() throws ControlException, SQLException {
 
         Object resultObject = null;
         if (_columnCount == 1) {

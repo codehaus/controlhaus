@@ -18,7 +18,6 @@
 package org.controlhaus.jdbc;
 
 import org.apache.beehive.controls.api.context.ControlBeanContext;
-import org.apache.xmlbeans.SchemaType;
 import org.controlhaus.jdbc.JdbcControl.SQL;
 
 import java.lang.reflect.Method;
@@ -40,15 +39,14 @@ public class DefaultXmlObjectResultSetMapper extends DefaultObjectResultSetMappe
      * @return
      * @throws Exception
      */
-    Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public Object mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
 
         final Class returnType = m.getReturnType();
         final boolean isArray = returnType.isArray();
 
         if (isArray) {
             final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
-            return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType,
-                                      ControlUtils.getSchemaType(returnType.getComponentType()), cal);
+            return arrayFromResultSet(resultSet, methodSQL.arrayMaxLength(), returnType, cal);
         } else {
 
             if (!resultSet.next()) {

@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.Calendar;
 
 /**
  * Map a ResultSet row to a java.util.Map object
@@ -37,8 +38,8 @@ public final class RowToMapMapper extends RowMapper {
      * @param resultSet
      * @throws SQLException
      */
-    RowToMapMapper(ResultSet resultSet) throws SQLException {
-        super(resultSet, null);
+    RowToMapMapper(ResultSet resultSet, Class returnTypeClass, Calendar cal) throws SQLException {
+        super(resultSet, returnTypeClass, cal);
         _keys = getKeysFromResultSet();
     }
 
@@ -47,7 +48,7 @@ public final class RowToMapMapper extends RowMapper {
      * @return
      * @throws ControlException
      */
-    Object mapRowToReturnType() throws ControlException {
+    public Object mapRowToReturnType() throws ControlException {
         try {
         return Collections.unmodifiableMap(new ResultSetHashMap(_resultSet, _keys));
         } catch (Exception e) {

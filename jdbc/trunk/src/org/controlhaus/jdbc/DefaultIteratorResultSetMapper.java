@@ -40,7 +40,13 @@ public class DefaultIteratorResultSetMapper extends ResultSetMapper {
      * @return
      * @throws Exception
      */
-    Iterator mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public Iterator mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
         return new ResultSetIterator(context, m, resultSet, cal);
     }
+
+    /**
+     * Can the ResultSet which this mapper uses be closed by the database control?
+     * @return
+     */
+    public boolean canCloseResultSet() { return false; }
 }

@@ -43,7 +43,7 @@ public class DefaultRowSetResultSetMapper extends ResultSetMapper {
      * @return
      * @throws Exception
      */
-    RowSet mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
+    public RowSet mapToResultType(ControlBeanContext context, Method m, ResultSet resultSet, Calendar cal) throws Exception {
         final SQL methodSQL = (SQL) context.getMethodPropertySet(m, SQL.class);
         final int maxrows = methodSQL.maxRows();
         CachedRowSetImpl rows = new CachedRowSetImpl();
@@ -55,4 +55,10 @@ public class DefaultRowSetResultSetMapper extends ResultSetMapper {
         rows.populate(resultSet);
         return rows;
     }
+
+    /**
+     * Can the ResultSet which this mapper uses be closed by the database control?
+     * @return
+     */
+    public boolean canCloseResultSet() { return false; }
 }
