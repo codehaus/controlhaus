@@ -34,6 +34,7 @@ public class XFireClientControlTest
         assertEquals("UTF-8", bean.getEncodingValue());
         assertEquals("http://soap.amazon.com/onca/soap?Service=AWSECommerceService", 
                      bean.getServiceUrlValue());
+        
     }
     
     public void testInvoke() 
