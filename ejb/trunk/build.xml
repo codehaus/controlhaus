@@ -2,7 +2,9 @@
 
 <project name="ejb-control" default="usage">
 
+    <property environment="os"/>
     <property name="source.dir" value="${basedir}/src"/>
+    <property name="beehive.home" location="${os.BEEHIVE_HOME}"/>
     <property name="lib.dir" value="${basedir}/lib"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.classes" value="${build.dir}/classes"/>
@@ -10,9 +12,10 @@
     <property name="build.xbeansrc" value="${build.dir}/xbeansrc"/>
     <property name="build.xbeanclasses" value="${build.dir}/xbeanclasses"/>
     <property name="ejbXMLbeans.jar" value="ejbXMLBeans.jar"/>	
-    <property name="build.jar" value="ejbControl.jar"/>
+    <property name="build.jar" value="ejb-control.jar"/>
     <property name="xbean.marker" location="${build.xbeansrc}/XBEAN" />
     <property name="schema.dir" value="${basedir}/schema" />
+    <property name="beehive.common.lib.dir" location="${beehive.home}/lib/common"/>
     
     <target name="usage">
         <echo message=""/>
@@ -30,30 +33,22 @@
     </target>
 
     <target name="gatherDeps" depends="generate_xbean" description="Gathers Dependencies">
-        <get src="http://www.ibiblio.org/maven/velocity/jars/velocity-1.4.jar"
-              dest="${basedir}/lib/velocity-1.4.jar"
-              usetimestamp="true"/>
-        <get src="http://www.ibiblio.org/maven/beehive/jars/controls-1.0-alpha.jar"
-              dest="${basedir}/lib/controls-1.0-alpha.jar"
-              usetimestamp="true"/>
-        <get src="http://www.ibiblio.org/maven/commons-collections/jars/commons-collections-3.0.jar"
-              dest="${basedir}/lib/commons-collections-3.0.jar"
-              usetimestamp="true"/>
-        <get src="http://www.ibiblio.org/maven/log4j/jars/log4j-1.2.8.jar"
-              dest="${basedir}/lib/log4j-1.2.8.jar"
-              usetimestamp="true"/>
         <get src="http://www.ibiblio.org/maven/geronimo-spec/jars/geronimo-spec-j2ee-1.4-rc2.jar"
               dest="${basedir}/lib/geronimo-spec-j2ee-1.4-rc2.jar"
               usetimestamp="true"/>
-        <get src="http://www.ibiblio.org/maven/xmlbeans/jars/xbean-1.0.3.jar"
-              dest="${basedir}/lib/xbean-1.0.3.jar"
-              usetimestamp="true"/>
-              
               
         <path id="build.classpath">
-            <fileset dir="lib">
-                <include name="**/*.jar" />
+            <fileset dir="${beehive.common.lib.dir}">
+                <include name="velocity-1.4.jar"/>
+                <include name="log4j-1.2.8.jar"/>
+                <include name="apache-xbean.jar"/>
+                <include name="jsr173_1.0_api.jar"/>
             </fileset>
+	    <pathelement location="${beehive.home}/lib/netui/commons-collections.jar"/>
+            <fileset dir="${lib.dir}">
+                <include name="*.jar" />
+            </fileset>
+	    <pathelement location="${beehive.home}/controls/controls.jar"/>
             <pathelement path="${build.classes}" />
         </path>
 
@@ -69,9 +64,9 @@
 
     </target>
 
-
     <target name="clean" description="Deletes all generated files">
         <delete dir="${build.dir}"/>
+        <delete file="${lib.dir}/${ejbXMLBeans.jar}"/>
         <delete file="velocity.log"/>
     </target>
 
