@@ -1,3 +1,11 @@
+Make sure to download beehive V1 distribution.  (For now you need to download
+the beehive from subversion and build the distribution target).  See Beehive 
+Documentation for building the distribution.
+
+
+BEEHIVE_HOME must be set to the root of the distribution.
+
+
 TO RUN DRT:  
 
 You need to set up a context for "sctestServer" in the servlet that 
@@ -18,4 +26,5 @@ Make sure the
 	<ServiceControl-TRUNK>/samples/google/src/model/GoogleClient.jcx
 	
 Should point to the Googlewsdl.  The wsdl is in the same dir as the .jcx.
+
 
