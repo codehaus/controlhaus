@@ -1,18 +1,21 @@
 <?xml version="1.0" ?>
 
-<project name="timer-control" default="usage">
+<project name="jms-control" default="usage">
 
     <property name="source.dir" value="${basedir}/src"/>
     <property name="lib.dir" value="${basedir}/lib"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.classes" value="${build.dir}/classes"/>
     <property name="build.beansrc" value="${build.dir}/beansrc"/>
-    <property name="build.jar" value="timerControl.jar"/>
+    <property name="build.jar" value="jmsControl.jar"/>
+    <property environment="env"/>
+	<property name="controls.jar" location="${env.BEEHIVE_HOME}/trunk/controls/build/jars/controls.jar"/>
+
 
     <target name="usage">
         <echo message=""/>
         <echo message=""/>
-        <echo message="Timer Control Build file"/>
+        <echo message="Jms Control Build file"/>
         <echo message="================================================================"/>
         <echo message="|                          Usage                               |"/>
         <echo message="================================================================"/>
@@ -28,9 +31,6 @@
         <get src="http://www.ibiblio.org/maven/velocity/jars/velocity-1.4.jar"
               dest="${basedir}/lib/velocity.jar"
               usetimestamp="true"/>
-    <!--    <get src="http://www.ibiblio.org/maven/beehive/jars/controls-1.0-alpha.jar"
-              dest="${basedir}/lib/controls-1.0-alpha.jar"
-              usetimestamp="true"/> -->
         <get src="http://www.ibiblio.org/maven/commons-collections/jars/commons-collections-3.0.jar"
               dest="${basedir}/lib/commons-collections.jar"
               usetimestamp="true"/>
@@ -45,6 +45,7 @@
                 <include name="**/*.jar" />
             </fileset>
             <pathelement path="${build.classes}" />
+            <pathelement path="${controls.jar}" />
         </path>
 
         <taskdef name="apt" 
