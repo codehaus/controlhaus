@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+<!-- Generated from /GoogleSampleController.jpf on Thu May 13 16:47:58 PDT 2004 -->
+<struts-config>
+  <form-beans>
+    <form-bean type="GoogleSampleController$GoogleSearchForm" name="googleSearchForm"/>
+  </form-beans>
+  <global-exceptions/>
+  <global-forwards/>
+  <action-mappings>
+    <action validate="false" scope="request" type="GoogleSampleController" path="/begin">
+      <forward path="/googleSearchLink.do" name="success"/>
+    </action>
+    <action validate="false" scope="request" type="GoogleSampleController" name="googleSearchForm" path="/googleSearch">
+      <exception className="com.bea.wlw.netui.pageflow.config.PageFlowExceptionConfig" handler="exceptionHandler" key="" type="java.lang.Exception">
+        <set-property value="true" property="isHandlerMethod"/>
+      </exception>
+      <forward path="/searchResults.jsp" name="success"/>
+      <!-- forward "errorPage" from exception-handler exceptionHandler -->
+      <forward contextRelative="true" path="/error.jsp" name="errorPage"/>
+    </action>
+    <action validate="false" scope="request" type="GoogleSampleController" path="/googleSearchLink">
+      <forward path="/googleSearch.jsp" name="success"/>
+    </action>
+  </action-mappings>
+  <controller className="com.bea.wlw.netui.pageflow.config.PageFlowControllerConfig" inputForward="true" processorClass="com.bea.wlw.netui.pageflow.PageFlowRequestProcessor">
+    <set-property value="true" property="isReturnToPageDisabled"/>
+    <set-property value="true" property="isReturnToActionDisabled"/>
+  </controller>
+</struts-config>

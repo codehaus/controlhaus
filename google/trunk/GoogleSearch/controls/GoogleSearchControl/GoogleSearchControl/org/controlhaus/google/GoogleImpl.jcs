@@ -1,0 +1,86 @@
+/*   Copyright 2004 BEA Systems, Inc.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
+
+
+package org.controlhaus.google; 
+
+import com.bea.control.*;
+import org.controlhaus.google.ActualGoogleControl.GoogleSearchResult;
+/**
+ * @jcs:jc-jar icon-32="icon-32.gif" icon-16="icon-16.gif" description="Perform a search of the internet using Google" version="1.0" label="Google Search"
+ * @editor-info:code-gen control-interface="true"
+ * @jcs:control-tags file="GoogleSearchProperties.xml"
+ */
+public class GoogleImpl implements Google, ControlSource
+{ 
+
+    /**
+     * Some of the Google Search API parameters are deprecated and ignored.
+     * So it matters not what value you pass for these params.  So we'll use this.
+     */
+    private static final String DEPRECATED_AND_IGNORED = "ignored";
+    
+    /** 
+     * @common:context 
+     */
+    ControlContext context;
+    
+    /**
+     * @common:control
+     */
+    private ActualGoogleControl actualGoogleControl;
+
+    static final long serialVersionUID = 1L;
+
+    /**
+     * @common:operation
+     */
+    public GoogleSearchResult googleSearch(String query, int start)
+    {
+        final int maxResults = Integer.parseInt(context.getControlAttribute("jc:googleProperties", "maxResults"));
+        final boolean filter = Boolean.getBoolean(context.getControlAttribute("jc:googleProperties", "filter"));
+        final String restrict = context.getControlAttribute("jc:googleProperties", "restrict"); 
+        final boolean safeSearch = Boolean.getBoolean(context.getControlAttribute("jc:googleProperties", "safeSearch"));
+        final String languageRestrict = context.getControlAttribute("jc:googleProperties", "languageRestrict"); 
+        
+        return googleSearchExtended(query,start,maxResults,filter,restrict, safeSearch,languageRestrict);
+    }
+
+    /**
+     * @common:operation
+     */
+    public GoogleSearchResult googleSearchExtended( String query, 
+                                                    int start, 
+                                                    int maxResults, 
+                                                    boolean filter, 
+                                                    String restrict, 
+                                                    boolean safeSearch, 
+                                                    String languageRestrict)
+    {
+        final String key = context.getControlAttribute("jc:googleProperties", "googleKey");
+        return actualGoogleControl.doGoogleSearch(
+            key,
+            query,
+            start,
+            maxResults,
+            filter,
+            restrict,
+            safeSearch,
+            languageRestrict,
+            DEPRECATED_AND_IGNORED,
+            DEPRECATED_AND_IGNORED);
+    }
+
+} 

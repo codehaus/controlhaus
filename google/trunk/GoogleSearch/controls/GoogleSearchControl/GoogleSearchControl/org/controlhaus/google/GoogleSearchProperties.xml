@@ -1,0 +1,66 @@
+<?xml version="1.0" ?>
+<control-tags xmlns="http://www.bea.com/2003/03/controls/">
+    <control-tag name="googleProperties">
+        <description>Properties relating to the Google Search Control.</description>
+        
+        <attribute name="googleKey" required="true">
+            <description>
+                Key provided when you register with Google, required to use their Web Services.
+            </description>
+            <type>
+                <text/>
+            </type>            
+        </attribute>
+        
+        <attribute name="maxResults" required="false">
+            <description>
+                Number of results desired per query. The maximum value per query is 10, the minimum is 1.
+            </description>
+            <type>
+                <integer min-value="1" max-value="10"/>
+            </type> 
+            <default-value>10</default-value>           
+        </attribute>        
+        
+        <attribute name="filter" required="false">
+            <description>
+                Activates or deactivates automatic results filtering, which hides very similar results and results that all come from the same Web host. Filtering tends to improve the end user experience on Google, but for your application you may prefer to turn it off
+            </description>
+            <type>
+                <boolean/>
+            </type> 
+            <default-value>true</default-value>           
+        </attribute>                
+        
+        <attribute name="restrict" required="false">
+            <description>
+                Restricts the search to a subset of the Google Web index, such as a country like "Ukraine" or a topic like "Linux." .  See Control documentation for details.
+            </description>
+            <type>
+                <text/>
+            </type> 
+            <default-value></default-value>           
+        </attribute>                
+        
+        <attribute name="safeSearch" required="false">
+            <description>
+                A Boolean value which enables filtering of adult content in the search results.
+            </description>
+            <type>
+                <boolean/>
+            </type> 
+            <default-value>true</default-value>           
+        </attribute>       
+                 
+        <attribute name="languageRestrict" required="false">
+            <description>
+                Restricts the search to documents within one or more languages. See Control documentation for details.
+            </description>
+            <type>
+                <text/>
+            </type> 
+            <default-value></default-value>           
+        </attribute>                
+        
+    </control-tag>
+</control-tags>
