@@ -36,7 +36,8 @@ public interface WebServiceInvocationTarget {
     
     public Object invokeWebService(Method method,
                                    Object[] args,
-                                   PluggableServiceControl serviceControl,
+                                   PluggableServiceControl serviceControl,  // NOTE: This is IN/OUT
+                                   											// OUT: Recieved headers must be set
                                    Jsr181TypeMetadata wstm,
                                    String alternateOperationName)
         throws Exception;

@@ -364,7 +364,7 @@ public class ServiceControlImpl
         }
     }
 
-    private WebServiceInvocationTarget getInvocationTarget() throws Exception {
+    public WebServiceInvocationTarget getInvocationTarget() throws Exception {
 
         if (null == mWebServiceInvoker) {
 
@@ -378,5 +378,13 @@ public class ServiceControlImpl
         }        
         return mWebServiceInvoker;
     }
+    
+	/**
+	 * @param webServiceInvoker The mWebServiceInvoker to set.
+	 */
+	public void setInvocationTarget(
+			WebServiceInvocationTarget webServiceInvoker) {
+		mWebServiceInvoker = webServiceInvoker;
+	}
 }
 

@@ -99,6 +99,8 @@ public class AxisInvocationTarget
 
         // NOTE jcolwell@bea.com 2005-Jan-04 -- 
         // convert holder classes to underlying type to retrieve the method metadata
+        // NOTE: You can use GenericHolder<T> to make a holder for any class T.
+        // For now the extension maker doesn't use this... This should be fixed.
         Type[] genericParamTypes = method.getGenericParameterTypes();
         Class[] paramTypes = new Class[genericParamTypes.length];
         int paramIndex = 0;
@@ -126,6 +128,9 @@ public class AxisInvocationTarget
             }
         }
 
+        // note the obejct model doesn't store holders, rather the underlying types, so to get the method
+        // we need to get the underlying types.  After the loop above the paramTypes have the underlying types
+        // for any holders in the arg list.
         Jsr181MethodMetadata wmm = wstm.getMethod(operationName, paramTypes);
 
         if (wmm == null) {
@@ -147,16 +152,22 @@ public class AxisInvocationTarget
 
         }
         else {
-         
+        	// list of arguments to the call.
             List<Object> argList = new ArrayList<Object>(Arrays.asList(args));
+            //out list is the list of arguments that are OUT or IN/OUT the createOperationDesc figures out
+            //the list.  The list is used after the Call.invoke() to actaully set the result values.
             List<Object> outList = new ArrayList<Object>(argList.size());
+            
+            //NOTE:  Look into this call, it may be possible to replace this with
+            // straight JAX-RPC interface.  This way this code would remain unchanged
+            // if internal axis code was changed.
             OperationDesc od = createOperationDesc(wmm,
                                                    method,
                                                    paramTypes,
                                                    tm,
                                                    wstm.getWsTargetNamespace(),
-                                                   argList,
-                                                   outList);
+                                                   argList,  // arglist contains in and in/out parameters, this list gets populated by this call
+                                                   outList); // outList is the list of out parameters and in/out that gets populated by this call.
 
             //System.out.println(od);
             configureSoapBinding(od, wstm.getSoapBinding());
@@ -355,6 +366,8 @@ public class AxisInvocationTarget
                                   param.getWpName()));
 
             QName expectedType = null;
+            // Just to be safe, the param should always be the ClientParameterMetadata
+            // This is to make sure the model came from a wsdl processing...
             if (param instanceof ClientParameterMetadata) {
                 expectedType = ((ClientParameterMetadata)param).getXmlType();
             }

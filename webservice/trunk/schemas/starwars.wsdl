@@ -70,9 +70,9 @@ Built on Oct 29, 2004 (04:30:47 EDT)-->
    </element>
    <element name="stashCharResponse">
     <complexType>
-     <sequence>
+     <!--<sequence>
       <element name="result" type="tns1:character"/>
-     </sequence>
+     </sequence>-->
     </complexType>
    </element>
   </schema>

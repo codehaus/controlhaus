@@ -135,6 +135,8 @@ public class ExtensionMaker {
         }
     }
 
+    
+    //NOTE: For OUT and IN/OUT parameters this method can use the GenericHolder class...TBD
     private void printParameters(List<Jsr181ParameterMetadata> params,
                                  PrintWriter pw) {
         int paramPos = 0;

@@ -71,12 +71,16 @@ public interface PluggableServiceControl extends ServiceControl {
         Class<? extends WebServiceInvocationTarget> invoker()
             default AxisInvocationTarget.class;
     }
+    
+    public WebServiceInvocationTarget getInvocationTarget() throws Exception;    	
+    	
+    public void setInvocationTarget(WebServiceInvocationTarget wsit);
+    
+    public Element[] xObj2Elements(XmlObject xObj);  //utility
 
-    public Element[] xObj2Elements(XmlObject xObj);
+    public XmlObject elements2XmlObject(Element[] elements) throws XmlException; //utility
 
-    public XmlObject elements2XmlObject(Element[] elements) throws XmlException;
-
-    public boolean insertChild(XmlObject parent, XmlObject child);
+    public boolean insertChild(XmlObject parent, XmlObject child); //utility
 
     public XmlObject getInputHeadersAsXmlBean();
 
