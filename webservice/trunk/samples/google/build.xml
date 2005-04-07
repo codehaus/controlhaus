@@ -25,11 +25,10 @@
 	  <path id="beehive.class.path">
 	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
 	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/apache-xbean.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/velocity-dep-1.4.jar"/>
-	    <pathelement location="${beehive.common.lib.dir}/jsr173_1.0_api.jar"/>
-	    <pathelement location="${lib.dir}/junit-3.8.1.jar"/>
+	    <fileset dir="${beehive.common.lib.dir}">
+	       <include name="**/*.jar"/>
+	     </fileset>
+	  	<pathelement location="${lib.dir}/junit-3.8.1.jar"/>
 	    <pathelement location="${basedir}/lib/servlet-api-2.4-20040521.jar"/>
 	    <pathelement location="${basedir}/lib/jsp-api-2.0-20040521.jar"/>
 	  </path>
@@ -79,7 +78,7 @@
 	    </taskdef>
 	    <mkdir dir="${axisbeangen.dir}"/>
 	    <axisbeanbuild
-	      wsdldir="./wsdl"
+	      wsdldir="${wsdl.dir}"
 	      outputdir="${axisbeangen.dir}"/>
 	    <javac srcdir="${axisbeangen.dir}" 
 	      destdir="${build.classes}" 
