@@ -429,53 +429,56 @@ import org.apache.xmlbeans.XmlObject;
 	         * Set the properties/headers of the message from
 	         * the parameters to the invoke.
 	         */
-	        for (int i= 0; i< args.length; i++)
+	        if(hasAnnotation)
 	        {
-	            Property jmsProp =
-	                (Property)_context.getParameterPropertySet(method,i, Property.class);
-	            if (jmsProp != null)
-	            {
-	                m.setObjectProperty(jmsProp.name(), args[i]);
-	            }
-	            Priority jmsPriority = 
-	                (Priority)_context.getParameterPropertySet(method,i, Priority.class);
-	            if (jmsPriority != null)
-	            {
-	            	Integer p = valueAsInteger(args[i]);
-	            	if(p != null)
-	            	{	            	
-	            		priority = p.intValue();
-	            	}
-	            }
-	            Expiration jmsExpiration = 
-	                (Expiration)_context.getParameterPropertySet(method,i, Expiration.class);
-	            if (jmsExpiration != null)
-	            {
-	            	Long e = valueAsLong(args[i]);
-	            	if(e != null)
-	            	{
-	            		expiration = e.longValue();
-	            	}
-	            }
-	            Delivery jmsDelivery = 
-	                (Delivery)_context.getParameterPropertySet(method,i, Delivery.class);
-	            if (jmsDelivery != null && args[i] != null)
-	            {
-	            	deliveryMode = deliveryModeToJmsMode(args[i]);
-	            }
-	            t = 
-	                (Type)_context.getParameterPropertySet(method,i, Type.class);
-	            if (t != null && args[i] != null)
-	            {
-	            	jmsType = (String)args[i];
-	            }
-	            CorrelationId jmsId = 
-	                (CorrelationId)_context.getParameterPropertySet(method,i, CorrelationId.class);
-	            if (jmsId != null && args[i] != null)
-	            {
-	            	correlationId = (String)args[i];
-	            }
-	        }
+		        for (int i= 0; i< args.length; i++)
+		        {
+		            Property jmsProp =
+		                (Property)_context.getParameterPropertySet(method,i, Property.class);
+		            if (jmsProp != null)
+		            {
+		                m.setObjectProperty(jmsProp.name(), args[i]);
+		            }
+		            Priority jmsPriority = 
+		                (Priority)_context.getParameterPropertySet(method,i, Priority.class);
+		            if (jmsPriority != null)
+		            {
+		            	Integer p = valueAsInteger(args[i]);
+		            	if(p != null)
+		            	{	            	
+		            		priority = p.intValue();
+		            	}
+		            }
+		            Expiration jmsExpiration = 
+		                (Expiration)_context.getParameterPropertySet(method,i, Expiration.class);
+		            if (jmsExpiration != null)
+		            {
+		            	Long e = valueAsLong(args[i]);
+		            	if(e != null)
+		            	{
+		            		expiration = e.longValue();
+		            	}
+		            }
+		            Delivery jmsDelivery = 
+		                (Delivery)_context.getParameterPropertySet(method,i, Delivery.class);
+		            if (jmsDelivery != null && args[i] != null)
+		            {
+		            	deliveryMode = deliveryModeToJmsMode(args[i]);
+		            }
+		            t = 
+		                (Type)_context.getParameterPropertySet(method,i, Type.class);
+		            if (t != null && args[i] != null)
+		            {
+		            	jmsType = (String)args[i];
+		            }
+		            CorrelationId jmsId = 
+		                (CorrelationId)_context.getParameterPropertySet(method,i, CorrelationId.class);
+		            if (jmsId != null && args[i] != null)
+		            {
+		            	correlationId = (String)args[i];
+		            }
+		        }
+		    }
 	        if(correlationProp != null)
 	        {
 	        	m.setStringProperty(correlationProp,correlationId);
@@ -492,7 +495,9 @@ import org.apache.xmlbeans.XmlObject;
 	        setMessageProperties(m);
 	        _headers = null;
 	        _properties = null;
-	        
+	        m.setJMSExpiration(expiration);
+	        m.setJMSDeliveryMode(deliveryMode);
+	        m.setJMSPriority(priority);
 	        /*
 	         * Send the message.
 	         */
