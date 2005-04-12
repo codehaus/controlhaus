@@ -23,7 +23,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 
-import org.controlhaus.schemas.j2ee.*;
+import org.controlhaus.ejb.schemas.j2ee.*;
 
 import java.io.IOException;
 import java.io.File;
@@ -115,12 +115,12 @@ public class EJBControlAssembler implements ControlAssembler
             for (int i=0; i<sessionArray.length; i++)
             {
                 SessionBeanType sessionBean = sessionArray[i];
-                
+
                 if (ei._isLocal)
                 	insertEJBLocalRefInEJBJar(sessionBean, ei, ejbLinkValue);
                 else
                 	insertEJBRefInEJBJar(sessionBean, ei, ejbLinkValue);
-                
+
             }
 
             // overwrite existing ejb-jar.xml file with new document
@@ -155,7 +155,7 @@ public class EJBControlAssembler implements ControlAssembler
             }
         }
     }
-    
+
     protected void insertEJBRefInEJBJar(SessionBeanType sessionBean, EJBInfo ei, String ejbLinkValue)
     {
         System.err.println("EJBControlAssembler.insertEJBRefInEJBJar() called");
@@ -163,7 +163,7 @@ public class EJBControlAssembler implements ControlAssembler
         EjbRefType[] ejbRefArray = sessionBean.getEjbRefArray();
         String insertedEjbRefName = ei._refName;
         XmlCursor ejbJarXmlCursor = null;
-        
+
         try {
 			for (int j=ejbRefArray.length-1; j>=0; j--)
 			{
@@ -192,7 +192,7 @@ public class EJBControlAssembler implements ControlAssembler
 
 		    EjbLinkType ejbLink = insertedEjbRef.addNewEjbLink();
 		    ejbLink.setStringValue(ejbLinkValue);
-		}         
+		}
         finally
         {
             if (ejbJarXmlCursor != null)
@@ -200,7 +200,7 @@ public class EJBControlAssembler implements ControlAssembler
                 ejbJarXmlCursor.dispose();
             }
         }
-    	
+
     }
 
     protected void insertEJBLocalRefInEJBJar(SessionBeanType sessionBean, EJBInfo ei, String ejbLinkValue)
@@ -210,7 +210,7 @@ public class EJBControlAssembler implements ControlAssembler
         EjbLocalRefType[] ejbLocalRefArray = sessionBean.getEjbLocalRefArray();
         String insertedEjbRefName = ei._refName;
         XmlCursor ejbJarXmlCursor = null;
-        
+
         try {
 			for (int j=ejbLocalRefArray.length-1; j>=0; j--)
 			{
@@ -239,7 +239,7 @@ public class EJBControlAssembler implements ControlAssembler
 
             EjbLinkType ejbLink = insertedEJBLocalRef.addNewEjbLink();
             ejbLink.setStringValue(ejbLinkValue);
-		}         
+		}
         finally
         {
             if (ejbJarXmlCursor != null)
@@ -247,7 +247,7 @@ public class EJBControlAssembler implements ControlAssembler
                 ejbJarXmlCursor.dispose();
             }
         }
-    	
+
     }
 
     protected void updateWebApp( ControlAssemblyContext.WebAppModule webAppCcc,
@@ -328,7 +328,7 @@ public class EJBControlAssembler implements ControlAssembler
         EjbRefType[] ejbRefArray = webAppType.getEjbRefArray();
         String insertedEjbRefName = ei._refName;
         XmlCursor webXmlCursor = null;
-        
+
         try {
 			for (int j=ejbRefArray.length-1; j>=0; j--)
 			{
@@ -357,7 +357,7 @@ public class EJBControlAssembler implements ControlAssembler
 
 		    EjbLinkType ejbLink = insertedEjbRef.addNewEjbLink();
 		    ejbLink.setStringValue(ejbLinkValue);
-		}         
+		}
         finally
         {
             if (webXmlCursor != null)
@@ -365,7 +365,7 @@ public class EJBControlAssembler implements ControlAssembler
                 webXmlCursor.dispose();
             }
         }
-    	
+
     }
 
     protected void insertEJBLocalRefInWebApp(WebAppType webAppType, EJBInfo ei, String ejbLinkValue)
@@ -376,7 +376,7 @@ public class EJBControlAssembler implements ControlAssembler
         EjbLocalRefType[] ejbLocalRefArray = webAppType.getEjbLocalRefArray();
         String insertedEjbRefName = ei._refName;
         XmlCursor webXmlCursor = null;
-        
+
         try {
 			for (int j=ejbLocalRefArray.length-1; j>=0; j--)
 			{
@@ -405,7 +405,7 @@ public class EJBControlAssembler implements ControlAssembler
 
             EjbLinkType ejbLink = insertedEJBLocalRef.addNewEjbLink();
             ejbLink.setStringValue(ejbLinkValue);
-		}         
+		}
         finally
         {
             if (webXmlCursor != null)
@@ -413,6 +413,6 @@ public class EJBControlAssembler implements ControlAssembler
             	webXmlCursor.dispose();
             }
         }
-    	
+
     }
 }
