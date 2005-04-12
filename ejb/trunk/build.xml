@@ -62,6 +62,7 @@
             </fileset>
             <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
             <pathelement path="${build.classes}" />
+            <pathelement path="${build.xbeanclasses}" />
             <pathelement path="${build.samples.classes}" />
         </path>
 
