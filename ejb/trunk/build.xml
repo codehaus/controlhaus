@@ -22,7 +22,6 @@
     <property name="dist.dir" value="${build.dir}/dist"/>
     <property name="docs.dir" value="${build.dir}/docs"/>
     <property name="api.dir" value="${docs.dir}/api"/>
-    <property name="ejbXMLbeans.jar" value="ejbXMLBeans.jar"/>  
     <property name="build.jar" value="ejb-control.jar"/>
     <property name="build.samples.jar" value="ejb-control-samples.jar"/>
     <property name="xbean.marker" location="${build.xbeansrc}/XBEAN" />
@@ -85,7 +84,6 @@
 
     <target name="clean" description="Deletes all generated files">
         <delete dir="${build.dir}"/>
-        <delete file="${lib.dir}/${ejbXMLBeans.jar}"/>
         <delete file="velocity.log"/>
     </target>
 
@@ -107,7 +105,9 @@
              srcExtensions="*.java,*.jcx,*.jcs"
              target="1.5">
         </apt>
-        <control-jar destfile="${build.dir}/${build.jar}"  basedir="${build.classes}" />
+        <jar destfile="${build.dir}/${build.jar}"  basedir="${build.classes}" />
+        <jar destfile="${build.dir}/${build.jar}" basedir="${build.xbeanclasses}" update="true"/>     
+        
     </target>
 
     <target name="build_samples_ejb" depends="dirs" description="Builds sample control ejb">
@@ -171,17 +171,11 @@
                 <include name="${build.jar}"/>
                 <include name="docs/**"/>
             </tarfileset>
-            <tarfileset dir="${lib.dir}">
-                <include name="${ejbXMLbeans.jar}"/>
-            </tarfileset>
         </tar>
         <zip destfile="${dist.dir}/${dist.name}.zip">
             <zipfileset dir="${build.dir}">
                 <include name="${build.jar}"/>
                 <include name="docs/**"/>
-            </zipfileset>
-            <zipfileset dir="${lib.dir}">
-                <include name="${ejbXMLbeans.jar}"/>
             </zipfileset>
         </zip>
         <gzip src="${dist.dir}/${dist.name}.tar" destfile="${dist.dir}/${dist.name}.tar.gz"/>
@@ -205,7 +199,6 @@
         </uptodate>
         <pathconvert property="xbean.args" pathsep=" " refid="xbean.sources"/>
         <antcall target="xbean_schema_compiler"/>
-        <jar destfile="${lib.dir}/${ejbXMLbeans.jar}" basedir="${build.xbeanclasses}"/>     
     </target>
 
     <!-- ==================================================================== -->
