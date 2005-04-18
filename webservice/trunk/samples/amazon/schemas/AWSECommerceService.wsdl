@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://webservices.amazon.com/AWSECommerceService/2005-01-19" targetNamespace="http://webservices.amazon.com/AWSECommerceService/2005-01-19">
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://webservices.amazon.com/AWSECommerceService/2005-03-23" targetNamespace="http://webservices.amazon.com/AWSECommerceService/2005-03-23">
     <types>
-	<xs:schema targetNamespace="http://webservices.amazon.com/AWSECommerceService/2005-01-19" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://webservices.amazon.com/AWSECommerceService/2005-01-19" elementFormDefault="qualified">
+	<xs:schema targetNamespace="http://webservices.amazon.com/AWSECommerceService/2005-03-23" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://webservices.amazon.com/AWSECommerceService/2005-03-23" elementFormDefault="qualified">
 		<xs:element name="Help">
 			<xs:complexType>
 				<xs:sequence>
@@ -174,7 +174,7 @@
 					<xs:element name="Validate" type="xs:string" minOccurs="0"/>
 					<xs:element name="XMLEscaping" type="xs:string" minOccurs="0"/>
 					<xs:element name="Shared" type="tns:ListLookupRequest" minOccurs="0"/>
-					<xs:element name="Request" type="tns:ListLookupRequest" maxOccurs="unbounded"/>
+					<xs:element name="Request" type="tns:ListLookupRequest" minOccurs="0" maxOccurs="unbounded"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -189,6 +189,7 @@
 						<xs:restriction base="xs:string">
 							<xs:enumeration value="WishList"/>
 							<xs:enumeration value="Listmania"/>
+							<xs:enumeration value="WeddingRegistry"/>
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
@@ -334,6 +335,7 @@
 										<xs:element name="OfferListingId" type="xs:string" minOccurs="0"/>
 										<xs:element name="Quantity" type="xs:positiveInteger" minOccurs="0"/>
 										<xs:element name="AssociateTag" type="xs:string" minOccurs="0"/>
+										<xs:element name="ListItemId" type="xs:string" minOccurs="0"/>
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>
@@ -368,6 +370,7 @@
 										<xs:element name="OfferListingId" type="xs:string" minOccurs="0"/>
 										<xs:element name="Quantity" type="xs:positiveInteger" minOccurs="0"/>
 										<xs:element name="AssociateTag" type="xs:string" minOccurs="0"/>
+										<xs:element name="ListItemId" type="xs:string" minOccurs="0"/>
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>
@@ -572,6 +575,11 @@
 					<xs:enumeration value="NC-17"/>
 					<xs:enumeration value="NR"/>
 					<xs:enumeration value="Unrated"/>
+					<xs:enumeration value="6"/>
+					<xs:enumeration value="12"/>
+					<xs:enumeration value="16"/>
+					<xs:enumeration value="18"/>
+					<xs:enumeration value="FamilyViewing"/>
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:element>
@@ -889,7 +897,9 @@
 					<xs:element ref="tns:Request" minOccurs="0"/>
 					<xs:element name="CartId" type="xs:string"/>
 					<xs:element name="HMAC" type="xs:string"/>
+				        <xs:element name="URLEncodedHMAC" type="xs:string"/>
 					<xs:element name="PurchaseURL" type="xs:string"/>
+				        <xs:element name="SubTotal" type="tns:Price" minOccurs="0"/>
 					<xs:element ref="tns:CartItems" minOccurs="0"/>
 					<xs:element ref="tns:SavedForLaterItems" minOccurs="0"/>
 					<xs:element ref="tns:SimilarProducts" minOccurs="0"/>
@@ -1157,6 +1167,7 @@
 					<xs:element name="Availability" type="xs:string" minOccurs="0"/>
 					<xs:element name="ISPUStoreAddress" type="tns:Address" minOccurs="0"/>
 					<xs:element name="ISPUStoreHours" type="xs:string" minOccurs="0"/>
+					<xs:element name="IsEligibleForSuperSaverShipping" type="xs:boolean" minOccurs="0"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -1357,6 +1368,7 @@
 		<xs:element name="CartItems">
 			<xs:complexType>
 				<xs:sequence>
+					<xs:element name="SubTotal" type="tns:Price" minOccurs="0"/>
 					<xs:element name="CartItem" type="tns:CartItem" maxOccurs="unbounded"/>
 				</xs:sequence>
 			</xs:complexType>
@@ -1364,6 +1376,7 @@
 		<xs:element name="SavedForLaterItems">
 			<xs:complexType>
 				<xs:sequence>
+					<xs:element name="SubTotal" type="tns:Price" minOccurs="0"/>
 					<xs:element name="SavedForLaterItem" type="tns:CartItem" maxOccurs="unbounded"/>
 				</xs:sequence>
 			</xs:complexType>
@@ -1375,10 +1388,14 @@
 				<xs:element name="ExchangeId" type="xs:string" minOccurs="0"/>
 				<xs:element name="MerchantId" type="xs:string" minOccurs="0"/>
 				<xs:element name="SellerId" type="xs:string" minOccurs="0"/>
+				<xs:element name="SellerNickname" type="xs:string" minOccurs="0"/>
 				<xs:element name="Quantity" type="xs:string"/>
 				<xs:element name="Title" type="xs:string" minOccurs="0"/>
 				<xs:element name="ProductGroup" type="xs:string" minOccurs="0"/>
+				<xs:element name="ListOwner" type="xs:string" minOccurs="0"/>
+				<xs:element name="ListType" type="xs:string" minOccurs="0"/>
 				<xs:element name="Price" type="tns:Price" minOccurs="0"/>
+	                        <xs:element name="ItemTotal" type="tns:Price" minOccurs="0"/>
 			</xs:sequence>
 		</xs:complexType>
 		<xs:element name="Transaction">
@@ -1390,6 +1407,26 @@
 					<xs:element name="TransactionDate" type="xs:string"/>
 					<xs:element name="TransactionDateEpoch" type="xs:string"/>
 					<xs:element name="SellerName" type="xs:string" minOccurs="0"/>
+	                                <xs:element name="PayingCustomerId" type="xs:string" minOccurs="0">
+	                                    <xs:annotation>
+						        <xs:appinfo>
+							        <aws-se:restricted xmlns:aws-se="http://webservices.amazon.com/AWS-SchemaExtensions">
+								        <aws-se:excludeFrom>public</aws-se:excludeFrom>
+								        <aws-se:excludeFrom>partner</aws-se:excludeFrom>
+							        </aws-se:restricted>
+						        </xs:appinfo>
+					        </xs:annotation>
+	                                </xs:element>	    
+	                                <xs:element name="OrderingCustomerId" type="xs:string" minOccurs="0">
+					        <xs:annotation>
+						        <xs:appinfo>
+							        <aws-se:restricted xmlns:aws-se="http://webservices.amazon.com/AWS-SchemaExtensions">
+								        <aws-se:excludeFrom>public</aws-se:excludeFrom>
+								        <aws-se:excludeFrom>partner</aws-se:excludeFrom>
+							        </aws-se:restricted>
+						        </xs:appinfo>
+					        </xs:annotation>
+	                                </xs:element>
 					<xs:element name="Totals" minOccurs="0">
 						<xs:complexType>
 							<xs:sequence>
@@ -1573,8 +1610,8 @@
 				<xs:sequence>
 					<xs:element name="Actor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="Address" type="tns:Address" minOccurs="0"/>
-					<xs:element name="AmazonMaximumAge" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
-					<xs:element name="AmazonMinimumAge" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="AmazonMaximumAge" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="AmazonMinimumAge" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="ApertureModes" type="xs:string" minOccurs="0"/>
 					<xs:element name="Artist" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="AspectRatio" type="xs:string" minOccurs="0"/>
@@ -1592,9 +1629,9 @@
 					<xs:element name="Brand" type="xs:string" minOccurs="0"/>
 					<xs:element name="CalendarType" type="xs:string" minOccurs="0"/>
 					<xs:element name="CameraManualFeatures" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="CaseDiameter" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="CaseDiameter" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="CaseMaterialType" type="xs:string" minOccurs="0"/>
-					<xs:element name="CaseThickness" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="CaseThickness" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="CaseType" type="xs:string" minOccurs="0"/>
 					<xs:element name="CDRWDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="ChainType" type="xs:string" minOccurs="0"/>
@@ -1605,10 +1642,10 @@
 					<xs:element name="ComputerHardwareType" type="xs:string" minOccurs="0"/>
 					<xs:element name="ComputerPlatform" type="xs:string" minOccurs="0"/>
 					<xs:element name="Connectivity" type="xs:string" minOccurs="0"/>
-					<xs:element name="ContinuousShootingSpeed" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="ContinuousShootingSpeed" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="Country" type="xs:string" minOccurs="0"/>
 					<xs:element name="CPUManufacturer" type="xs:string" minOccurs="0"/>
-					<xs:element name="CPUSpeed" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="CPUSpeed" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="CPUType" type="xs:string" minOccurs="0"/>
 					<xs:element name="Creator" minOccurs="0" maxOccurs="unbounded">
 						<xs:complexType>
@@ -1620,18 +1657,20 @@
 						</xs:complexType>
 					</xs:element>
 					<xs:element name="Cuisine" type="xs:string" minOccurs="0"/>
-					<xs:element name="DelayBetweenShots" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="DelayBetweenShots" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="Department" type="xs:string" minOccurs="0"/>
 					<xs:element name="DeweyDecimalNumber" type="xs:string" minOccurs="0"/>
 					<xs:element name="DialColor" type="xs:string" minOccurs="0"/>
 					<xs:element name="DialWindowMaterialType" type="xs:string" minOccurs="0"/>
-					<xs:element name="DigitalZoom" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="DigitalZoom" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="Director" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="DisplaySize" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="DisplaySize" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="DrumSetPieceQuantity" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="DVDLayers" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="DVDRWDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="DVDSides" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="EAN" type="xs:string" minOccurs="0"/>
+					<xs:element name="Edition" type="xs:string" minOccurs="0"/>
 					<xs:element name="ESRBAgeRating" type="xs:string" minOccurs="0"/>
 					<xs:element name="ExternalDisplaySupportDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="FabricType" type="xs:string" minOccurs="0"/>
@@ -1643,7 +1682,11 @@
 					<xs:element name="GemType" type="xs:string" minOccurs="0"/>
 					<xs:element name="GraphicsCardInterface" type="xs:string" minOccurs="0"/>
 					<xs:element name="GraphicsDescription" type="xs:string" minOccurs="0"/>
-					<xs:element name="GraphicsMemorySize" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="GraphicsMemorySize" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="GuitarAttribute" type="xs:string" minOccurs="0"/>
+					<xs:element name="GuitarBridgeSystem" type="xs:string" minOccurs="0"/>
+					<xs:element name="GuitarPickThickness" type="xs:string" minOccurs="0"/>
+					<xs:element name="GuitarPickupConfiguration" type="xs:string" minOccurs="0"/>
 					<xs:element name="HardDiskCount" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="HardDiskSize" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="HasAutoFocus" type="xs:boolean" minOccurs="0"/>
@@ -1654,11 +1697,11 @@
 					<xs:element name="HasTripodMount" type="xs:boolean" minOccurs="0"/>
 					<xs:element name="HasVideoOut" type="xs:boolean" minOccurs="0"/>
 					<xs:element name="HasViewfinder" type="xs:boolean" minOccurs="0"/>
-					<xs:element name="Height" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="HoursOfOperation" type="xs:string" minOccurs="0"/>
 					<xs:element name="IncludedSoftware" type="xs:string" minOccurs="0"/>
 					<xs:element name="IncludesMp3Player" type="xs:boolean" minOccurs="0"/>
 					<xs:element name="Ingredients" type="xs:string" minOccurs="0"/>
+					<xs:element name="InstrumentKey" type="xs:string" minOccurs="0"/>
 					<xs:element name="IsAutographed" type="xs:boolean" minOccurs="0"/>
 					<xs:element name="ISBN" type="xs:string" minOccurs="0"/>
 					<xs:element name="IsFragile" type="xs:boolean" minOccurs="0"/>
@@ -1666,6 +1709,16 @@
 					<xs:element name="IsMemorabilia" type="xs:boolean" minOccurs="0"/>
 					<xs:element name="ISOEquivalent" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="IssuesPerYear" type="xs:string" minOccurs="0"/>
+					<xs:element name="ItemDimensions" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+	       							<xs:sequence>
+	       								<xs:element name="Height" type="tns:DecimalWithUnits" minOccurs="0"/>
+	       								<xs:element name="Length" type="tns:DecimalWithUnits" minOccurs="0"/>
+	       								<xs:element name="Weight" type="tns:DecimalWithUnits" minOccurs="0"/>
+	       								<xs:element name="Width" type="tns:DecimalWithUnits" minOccurs="0"/>
+	       							</xs:sequence>
+	       						</xs:complexType>
+	       					</xs:element>
 					<xs:element name="KeyboardDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="Label" type="xs:string" minOccurs="0"/>
 					<xs:element name="Languages" minOccurs="0">
@@ -1684,38 +1737,40 @@
 						</xs:complexType>
 					</xs:element>
 					<xs:element name="LegalDisclaimer" type="xs:string" minOccurs="0"/>
-					<xs:element name="Length" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="LineVoltage" type="xs:string" minOccurs="0"/>
 					<xs:element name="ListPrice" type="tns:Price" minOccurs="0"/>
 					<xs:element name="MacroFocusRange" type="xs:string" minOccurs="0"/>
 					<xs:element name="MagazineType" type="xs:string" minOccurs="0"/>
+					<xs:element name="MalletHardness" type="xs:string" minOccurs="0"/>
 					<xs:element name="Manufacturer" type="xs:string" minOccurs="0"/>
 					<xs:element name="ManufacturerLaborWarrantyDescription" type="xs:string" minOccurs="0"/>
-					<xs:element name="ManufacturerMaximumAge" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
-					<xs:element name="ManufacturerMinimumAge" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="ManufacturerMaximumAge" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="ManufacturerMinimumAge" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="ManufacturerPartsWarrantyDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="MaterialType" type="xs:string" minOccurs="0"/>
-					<xs:element name="MaximumAperture" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="MaximumAperture" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="MaximumColorDepth" type="xs:string" minOccurs="0"/>
 					<xs:element name="MaximumFocalLength" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="MaximumHighResolutionImages" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="MaximumHorizontalResolution" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="MaximumLowResolutionImages" type="xs:string" minOccurs="0"/>
-					<xs:element name="MaximumResolution" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
-					<xs:element name="MaximumShutterSpeed" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="MaximumResolution" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="MaximumShutterSpeed" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="MaximumVerticalResolution" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
-					<xs:element name="MaximumWeightRecommendation" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="MaximumWeightRecommendation" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="MemorySlotsAvailable" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="MetalStamp" type="xs:string" minOccurs="0"/>
 					<xs:element name="MetalType" type="xs:string" minOccurs="0"/>
 					<xs:element name="MiniMovieDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="MinimumFocalLength" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
-					<xs:element name="MinimumShutterSpeed" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="MinimumShutterSpeed" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="Model" type="xs:string" minOccurs="0"/>
+					<xs:element name="ModelYear" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="ModemDescription" type="xs:string" minOccurs="0"/>
-					<xs:element name="MonitorSize" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
-					<xs:element name="MonitorViewableDiagonalSize" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="MonitorSize" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="MonitorViewableDiagonalSize" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="MouseDescription" type="xs:string" minOccurs="0"/>
+					<xs:element name="MusicalStyle" type="xs:string" minOccurs="0"/>
 					<xs:element name="NativeResolution" type="xs:string" minOccurs="0"/>
 					<xs:element name="Neighborhood" type="xs:string" minOccurs="0"/>
 					<xs:element name="NetworkInterfaceDescription" type="xs:string" minOccurs="0"/>
@@ -1724,12 +1779,25 @@
 					<xs:element name="NumberOfDiscs" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="NumberOfIssues" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="NumberOfItems" type="xs:nonNegativeInteger" minOccurs="0"/>
+					<xs:element name="NumberOfKeys" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="NumberOfPages" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="NumberOfPearls" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="NumberOfRapidFireShots" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="NumberOfStones" type="xs:nonNegativeInteger" minOccurs="0"/>
+					<xs:element name="NumberOfStrings" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="NumberOfTracks" type="xs:nonNegativeInteger" minOccurs="0"/>
-					<xs:element name="OpticalZoom" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="OpticalZoom" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="OutputWattage" type="xs:nonNegativeInteger" minOccurs="0"/>
+					<xs:element name="PackageDimensions" minOccurs="0" maxOccurs="1">
+							<xs:complexType>
+	       							<xs:sequence>
+	       								<xs:element name="Height" type="tns:DecimalWithUnits" minOccurs="0"/>
+	       								<xs:element name="Length" type="tns:DecimalWithUnits" minOccurs="0"/>
+	       								<xs:element name="Weight" type="tns:DecimalWithUnits" minOccurs="0"/>
+	       								<xs:element name="Width" type="tns:DecimalWithUnits" minOccurs="0"/>
+	       							</xs:sequence>
+	       						</xs:complexType>
+	       				</xs:element>
 					<xs:element name="PearlLustre" type="xs:string" minOccurs="0"/>
 					<xs:element name="PearlMinimumColor" type="xs:string" minOccurs="0"/>
 					<xs:element name="PearlShape" type="xs:string" minOccurs="0"/>
@@ -1748,7 +1816,9 @@
 					<xs:element name="PublicationDate" type="xs:string" minOccurs="0"/>
 					<xs:element name="Publisher" type="xs:string" minOccurs="0"/>
 					<xs:element name="ReadingLevel" type="xs:string" minOccurs="0"/>
+					<xs:element name="RecorderTrackCount" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="RegionCode" type="xs:string" minOccurs="0"/>
+					<xs:element name="RegionOfOrigin" type="xs:string" minOccurs="0"/>
 					<xs:element name="ReleaseDate" type="xs:string" minOccurs="0"/>
 					<xs:element name="RemovableMemory" type="xs:string" minOccurs="0"/>
 					<xs:element name="ResolutionModes" type="xs:string" minOccurs="0"/>
@@ -1756,20 +1826,22 @@
 					<xs:element name="RunningTime" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="SecondaryCacheSize" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="SettingType" type="xs:string" minOccurs="0"/>
-					<xs:element name="SizePerPearl" type="xs:string" minOccurs="0"/>
 					<xs:element name="Size" type="xs:string" minOccurs="0"/>
+					<xs:element name="SizePerPearl" type="xs:string" minOccurs="0"/>
+					<xs:element name="SkillLevel" type="xs:string" minOccurs="0"/>
 					<xs:element name="SoundCardDescription" type="xs:string" minOccurs="0"/>
+					<xs:element name="SpeakerCount" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="SpeakerDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="SpecialFeatures" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 					<xs:element name="StoneClarity" type="xs:string" minOccurs="0"/>
 					<xs:element name="StoneColor" type="xs:string" minOccurs="0"/>
 					<xs:element name="StoneCut" type="xs:string" minOccurs="0"/>
 					<xs:element name="StoneShape" type="xs:string" minOccurs="0"/>
-					<xs:element name="StoneWeight" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="StoneWeight" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="Studio" type="xs:string" minOccurs="0"/>
 					<xs:element name="SubscriptionLength" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="SupportedImageType" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-					<xs:element name="SystemBusSpeed" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="SystemBusSpeed" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="SystemMemorySizeMax" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="SystemMemorySize" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
 					<xs:element name="SystemMemoryType" type="xs:string" minOccurs="0"/>
@@ -1780,7 +1852,7 @@
 					<xs:element name="TotalFirewirePorts" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="TotalGemWeight" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="TotalInternalBaysFree" type="xs:nonNegativeInteger" minOccurs="0"/>
-					<xs:element name="TotalMetalWeight" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
+					<xs:element name="TotalMetalWeight" type="tns:DecimalWithUnits" minOccurs="0"/>
 					<xs:element name="TotalNTSCPALPorts" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="TotalParallelPorts" type="xs:nonNegativeInteger" minOccurs="0"/>
 					<xs:element name="TotalPCCardSlots" type="xs:nonNegativeInteger" minOccurs="0"/>
@@ -1795,9 +1867,8 @@
 					<xs:element name="VariationDescription" type="xs:string" minOccurs="0"/>
 					<xs:element name="Warranty" type="xs:string" minOccurs="0"/>
 					<xs:element name="WatchMovementType" type="xs:string" minOccurs="0"/>
-					<xs:element name="WaterResistanceDepth" type="tns:NonNegativeIntegerWithUnits" minOccurs="0"/>
-					<xs:element name="Weight" type="tns:DecimalWithUnits" minOccurs="0"/>
-					<xs:element name="Width" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="WaterResistanceDepth" type="tns:DecimalWithUnits" minOccurs="0"/>
+					<xs:element name="WirelessMicrophoneFrequency" type="xs:nonNegativeInteger" minOccurs="0"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>

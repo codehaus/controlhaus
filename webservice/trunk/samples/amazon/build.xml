@@ -105,8 +105,18 @@
 	    		<path refid="build.classpath"/>
 	    		<pathelement location="${build.classes}"/>
 	    	</classpath>
-	      <arg line="-pkg amazonWS -gen_root ${jcxgen.dir} -wsdl ${schema.dir} "/>
+		      <arg line="-gen_root ${jcxgen.dir} 
+		      	-wsdl ${schema.dir}
+		      	-pkg amazonWS
+		      	-wsdl_path_annotation ."/>
 	    </java>
+	  	
+	  	<!-- have the wsdls, next to the jcx files -->
+	    <copy todir="${jcxgen.dir}/amazonWS">
+	       <fileset dir="${schema.dir}" >
+	         <include name="**/*.wsdl"/>       
+	       </fileset>
+	     </copy>	
 
 	  </target>
 
@@ -120,6 +130,15 @@
 	      compileByExtension="true" 
 	      srcExtensions="*.jcx,*.java" 
 	      debug="true"/>
+	  	
+	  	<!-- copy wsdls to the classes --> 
+	    <copy todir="${build.classes}">
+	       <fileset dir="${jcxgen.dir}" >
+	         <include name="**/*.wsdl"/>       
+	         <include name="**/*.properties"/>       
+	       </fileset>
+	     </copy>
+	       	
 	  </target>
 
 

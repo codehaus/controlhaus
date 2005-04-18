@@ -20,62 +20,109 @@
  * Original author: Jonathan Colwell
  */
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.beehive.controls.api.bean.Control;
+import org.apache.beehive.wsm.databinding.GenericHolder;
 import org.apache.xmlbeans.XmlCursor;
 import org.controlhaus.controlunit.ControlTestCase;
 import amazonWS.AWSECommerceService;
-import com.amazon.webservices.awseCommerceService.x20050119.ErrorsDocument.Errors;
-import com.amazon.webservices.awseCommerceService.x20050119.ItemsDocument.Items;
-import com.amazon.webservices.awseCommerceService.x20050119.OperationRequestDocument.OperationRequest;
-import com.amazon.webservices.awseCommerceService.x20050119.ItemSearchDocument;
-import com.amazon.webservices.awseCommerceService.x20050119.ItemSearchDocument.ItemSearch;
-import com.amazon.webservices.awseCommerceService.x20050119.ItemSearchResponseDocument.ItemSearchResponse;
-import com.amazon.webservices.awseCommerceService.x20050119.ItemSearchRequest;
+
+import com.amazon.webservices.awsAlexa.x20040915.OperationRequestDocument;
+import com.amazon.webservices.awseCommerceService.x20050323.ErrorsDocument.Errors;
+import com.amazon.webservices.awseCommerceService.x20050323.ItemsDocument.Items;
+import com.amazon.webservices.awseCommerceService.x20050323.OperationRequestDocument.OperationRequest;
+import com.amazon.webservices.awseCommerceService.x20050323.ItemSearchDocument;
+import com.amazon.webservices.awseCommerceService.x20050323.ItemSearchResponseDocument;
+import com.amazon.webservices.awseCommerceService.x20050323.ItemSearchDocument.ItemSearch;
+import com.amazon.webservices.awseCommerceService.x20050323.ItemSearchResponseDocument.ItemSearchResponse;
+import com.amazon.webservices.awseCommerceService.x20050323.ItemSearchRequest;
 
 /*******************************************************************************
  * 
- *
+ * 
  * @author Jonathan Colwell
  */
 public class AmazonCommerceTest extends ControlTestCase {
+	String subId = "1QZP1NHPQW2XT7SJ9AG2";
 
-    @Control public AWSECommerceService mAmazonECS;
+	String validate = "False";
 
-    public void testItemSearch() throws Exception {
+	@Control
+	public AWSECommerceService mAmazonECS;
 
-        String subId = "1QZP1NHPQW2XT7SJ9AG2";
-        String validate = "False";
+	public void testItemSearch() throws Exception {
 
-        ItemSearchDocument isd = ItemSearchDocument.Factory.newInstance();
-        ItemSearch is = isd.addNewItemSearch();
-        is.setSubscriptionId(subId);
-        is.setValidate(validate);
-        ItemSearchRequest isr = is.addNewRequest();
-        isr.setArtist("Sting");
-        isr.setSearchIndex("Music");
-        //  isr.setResponseGroupArray(new String[]{"Request"});
-        
-        ItemSearchResponse searchResults = mAmazonECS
-            .ItemSearch(is);
-   
-        Items[]  items = searchResults.getItemsArray();
-        //OperationRequest opReq = searchResults.getOperationRequest();
-        assertNotNull(items);
-        //assertNotNull(opReq);
-        assertTrue("Invalid Item length... Make sure your WSDL is up to date!", items.length > 0);
-        if (items[0].getRequest().isSetErrors()) {
-            Errors errs = items[0].getRequest().getErrors();
-            Errors.Error[] errArray = errs.getErrorArray();
-            for (Errors.Error err : errArray) {
-                System.out.println(err.getMessage());
-            }
-        }
-        assertEquals("True", items[0].getRequest().getIsValid());
+		String subId = "1QZP1NHPQW2XT7SJ9AG2";
+		String validate = "False";
 
-    }
+		ItemSearchRequest isr = ItemSearchRequest.Factory.newInstance();
+		isr.setSearchIndex("SportingGoods");
+		isr.setManufacturer("Callaway");
+
+		GenericHolder<Items[]> itemsHolder = new GenericHolder<Items[]>(
+				new Items[0]);
+		GenericHolder<OperationRequest> operationRequestHolder = new GenericHolder<OperationRequest>(
+				OperationRequest.Factory.newInstance());
+
+		mAmazonECS.ItemSearch(subId, "", "", validate, isr, null, itemsHolder,
+				operationRequestHolder);
+
+		Items[] items = itemsHolder.value;
+		// OperationRequest opReq = searchResults.getOperationRequest();
+		assertNotNull(items);
+		// assertNotNull(opReq);
+		assertTrue("Invalid Item length... Make sure your WSDL is up to date!",
+				items.length > 0);
+		if (items[0].getRequest().isSetErrors()) {
+			Errors errs = items[0].getRequest().getErrors();
+			Errors.Error[] errArray = errs.getErrorArray();
+			for (Errors.Error err : errArray) {
+				System.out.println(err.getMessage());
+			}
+		}
+		assertEquals("True", items[0].getRequest().getIsValid());
+
+	}
+
+	public void testBatchedItemSearch() throws Exception {
+
+		ItemSearchRequest shared = ItemSearchRequest.Factory.newInstance();
+		ItemSearchRequest item1 = ItemSearchRequest.Factory.newInstance();
+		ItemSearchRequest item2 = ItemSearchRequest.Factory.newInstance();
+
+		shared.setSearchIndex("Books");
+		item1.setAuthor("Larson");
+		item2.setTitle("Horton Hearts");
+
+		ItemSearchRequest[] requests = new ItemSearchRequest[2];
+		requests[0] = item1;
+		requests[1] = item2;
+
+		GenericHolder<Items[]> itemsHolder = new GenericHolder<Items[]>(
+				new Items[0]);
+		GenericHolder<OperationRequest> operationRequestHolder = new GenericHolder<OperationRequest>(
+				OperationRequest.Factory.newInstance());
+
+		mAmazonECS.ItemSearch(subId, "", "", validate, shared, requests,
+				itemsHolder, operationRequestHolder);
+
+		Items[] items = itemsHolder.value;
+		// OperationRequest opReq = searchResults.getOperationRequest();
+		assertNotNull(items);
+		// assertNotNull(opReq);
+		assertTrue("Invalid Item length... Make sure your WSDL is up to date!",
+				items.length > 0);
+		if (items[0].getRequest().isSetErrors()) {
+			Errors errs = items[0].getRequest().getErrors();
+			Errors.Error[] errArray = errs.getErrorArray();
+			for (Errors.Error err : errArray) {
+				System.out.println(err.getMessage());
+			}
+		}
+		assertEquals("True", items[0].getRequest().getIsValid());
+
+	}
 
 }
