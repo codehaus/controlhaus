@@ -74,6 +74,7 @@ import org.apache.beehive.wsm.registration.TypeRegistrar;
 import org.apache.log4j.Logger;
 
 import org.controlhaus.webservice.ServiceControl;
+import org.controlhaus.webservice.utils.HolderUtils;
 
 import javax.xml.namespace.QName;
 
@@ -127,7 +128,7 @@ import org.w3c.dom.Element;
 
         Call call = buildCallObject(method, wmm);
         
-        Object[] callArgs = extractHolders(method, wmm, args);
+        Object[] callArgs = prepareArgsForSend(method, wmm, args);
         // // Invoke the operation
         Object res = call.invoke(callArgs);
         fillHolders(method, wmm, call, args);
@@ -139,28 +140,32 @@ import org.w3c.dom.Element;
     }
     
     // create a new copy of the args where holders value have been extracted.
-    private Object[] extractHolders(Method method, BeehiveWsMethodMetadata wmm, Object[] args) {
+	// ignore the out values
+    private Object[] prepareArgsForSend(Method method, BeehiveWsMethodMetadata wmm, Object[] args) {
       
-        Object[] res = new Object[args.length];
+ 		ArrayList argsList = new ArrayList();
         Class[] methodParameterTypes = method.getParameterTypes();
         Iterator<BeehiveWsParameterMetadata> it = wmm.getParams().iterator();  // size of the param list must be the size of the args array
         for (int i = 0; i < methodParameterTypes.length; i++) {
             Class javaTypeFromClass = methodParameterTypes[i];
             BeehiveWsParameterMetadata nxtParamMetaData = it.next();
-            if((nxtParamMetaData.getWpMode() == WebParam.Mode.INOUT || nxtParamMetaData.getWpMode() == WebParam.Mode.OUT) && 
+			if( nxtParamMetaData.getWpMode() == WebParam.Mode.OUT) continue;  // don't send OUT parameters.
+           if((nxtParamMetaData.getWpMode() == WebParam.Mode.INOUT ) && 
                     Holder.class.isAssignableFrom(javaTypeFromClass )) {
                 try {
                     Holder holder = (Holder)args[i];
                     Field valueField = holder.getClass().getField("value");
-                    res[i] = valueField.get(holder);
+                    argsList.add( valueField.get(holder));
                 } catch (Exception e) {
                   throw new RuntimeException("failed in getting holder value for: " + nxtParamMetaData.getWpName());
                 }
                 
             } else {
-                res[i]=args[i];
+                argsList.add(args[i]);
             }
         }
+	   Object[] res = (Object[]) argsList.toArray(new Object[argsList.size()]);
+
        return res;
     }
     
@@ -176,7 +181,7 @@ import org.w3c.dom.Element;
                     + nxtOutParamKey
                     + " value: "
                     + outParam.get(nxtOutParamKey)
-                    + " Stuff this into the holders.... TBD!");
+                    + " Stuff this into the holders");
         }
         
         Class[] methodParameterTypes = method.getParameterTypes();
@@ -189,19 +194,17 @@ import org.w3c.dom.Element;
                 try {
                     logger.info("Fill the holder object: " + nxtParamMetaData.getWpName());
                     Holder holder = (Holder)args[i];
-                    
-                    Object value = outParam.get(new QName(nxtParamMetaData.getWpName()));
-                    Field valueField = holder.getClass().getField("value");
-                    if (valueField.getType().isPrimitive()) {
-                            if (value == null)
-                                ;  // Don't need to set anything
-                            else
-                                valueField.set(holder, value);  // Automatically
-                                                                // unwraps
-                                                        // value to primitive
-                    } else {
-                        valueField.set(holder, value);
-                    }               
+					Object value = null;  // find the value, only check for localpart of the name, as the namespace
+					// may not be filled
+					boolean hasReturnValue = false;
+				    for (Object nxtOutParamKey : outParam.keySet()) {
+						if(((QName)nxtOutParamKey).getLocalPart().equals(nxtParamMetaData.getWpName())) {
+							value = outParam.get(nxtOutParamKey);
+							hasReturnValue = true;
+							break;
+						}
+				    }
+					if( hasReturnValue)  stuffHolderValue(holder, value);               
                 } catch (Exception e) {
                   throw new RuntimeException("failed in getting holder value for: " + nxtParamMetaData.getWpName());
                 }
@@ -211,6 +214,10 @@ import org.w3c.dom.Element;
             }
         }
      }
+
+	private void stuffHolderValue(Holder holder, Object value) throws NoSuchFieldException, IllegalAccessException {
+		HolderUtils.stuffHolderValue(holder, value);
+	}
 
     /**
      * @param method
