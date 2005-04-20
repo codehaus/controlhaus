@@ -156,6 +156,7 @@ limitations under the License.
             <lib file="${beehive.home}/lib/controls/controls.jar"/>
             <lib file="${beehive.home}/lib/common/apache-xbean.jar"/>
             <lib file="${beehive.home}/lib/common/commons-codec-1.3.jar"/>
+            <lib file="${beehive.home}/lib/common/commons-discovery-0.2.jar"/>
             <lib file="${beehive.home}/lib/common/jsr173_1.0_api.jar"/>
             <lib file="${beehive.home}/lib/common/log4j-1.2.8.jar"/>
             <lib file="${jdbcc.external.dir}/derby/derby-10.0.2.1.jar"/>
