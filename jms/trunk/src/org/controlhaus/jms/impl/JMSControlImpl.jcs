@@ -17,7 +17,7 @@ import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.Destination;
-import javax.jms.StreamMessage;
+import javax.jms.BytesMessage;
 import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
 import javax.jms.Topic;
@@ -356,9 +356,9 @@ import org.apache.xmlbeans.XmlObject;
 	        	    m = session.createObjectMessage((Serializable)body);
 	        		break;
 	        	case Bytes:
-	        	    StreamMessage sm;
+	        	    BytesMessage sm;
 	        	    checkBody(body,byte[].class);
-	        		m = sm = session.createStreamMessage();
+	        		m = sm = session.createBytesMessage();
 	        		sm.writeBytes((byte[])body);
 	        		break;
 	        	case Text:
