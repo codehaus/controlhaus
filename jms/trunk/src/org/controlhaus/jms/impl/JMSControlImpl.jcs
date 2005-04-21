@@ -1,3 +1,6 @@
+/*
+ * todo: ASF license
+ */
 package org.controlhaus.jms.impl;
 
 import java.io.Serializable;
