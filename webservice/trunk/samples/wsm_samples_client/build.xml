@@ -25,13 +25,13 @@
 	<property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
 	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
 	
-	<property name="controls.jar" value="${beehive.home}/lib/controls/controls.jar" />
+	<property name="controls.jar" value="${beehive.home}/lib/controls/beehive-controls.jar" />
 	<property name="schema.dir" value="doc_schemas" />
  
     <property name="testmodel.client.jcxgen.packageName" value="test" />	
 	  <path id="beehive.class.path">
 	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
-	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
+	    <pathelement location="${beehive.home}/lib/controls/beehive-controls.jar"/>
 	    <pathelement location="${lib.dir}/junit-3.8.1.jar"/>
 	    <pathelement location="${basedir}/lib/servlet-api-2.4-20040521.jar"/>
 	    <pathelement location="${basedir}/lib/jsp-api-2.0-20040521.jar"/>

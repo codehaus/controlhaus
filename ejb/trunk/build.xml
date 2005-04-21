@@ -62,7 +62,7 @@
             <fileset dir="${lib.dir}">
                 <include name="*.jar" />
             </fileset>
-            <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
+            <pathelement location="${beehive.home}/lib/controls/beehive-controls.jar"/>
             <pathelement path="${build.classes}" />
             <pathelement path="${build.xbeanclasses}" />
             <pathelement path="${build.samples.classes}" />

@@ -18,13 +18,13 @@
 	<property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
 	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
 	
-	<property name="controls.jar" value="${beehive.home}/lib/controls/controls.jar" />
+	<property name="controls.jar" value="${beehive.home}/lib/controls/beehive-controls.jar" />
 	
  
 	
 	  <path id="beehive.class.path">
 	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
-	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
+	    <pathelement location="${beehive.home}/lib/controls/beehive-controls.jar"/>
 	    <fileset dir="${beehive.common.lib.dir}">
 	       <include name="**/*.jar"/>
 	     </fileset>

@@ -25,13 +25,13 @@
 	<property name="beehive.home" value="${env.BEEHIVE_HOME}"/>
 	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
 	
-	<property name="controls.jar" value="${beehive.home}/lib/controls/controls.jar" />
+	<property name="controls.jar" value="${beehive.home}/lib/controls/beehive-controls.jar" />
 	<property name="schema.dir" value="schemas" />
  
 	
 	  <path id="beehive.class.path">
 	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar"/>
-	    <pathelement location="${beehive.home}/lib/controls/controls.jar"/>
+	    <pathelement location="${beehive.home}/lib/controls/beehive-controls.jar"/>
 	    <pathelement location="${beehive.common.lib.dir}/apache-xbean.jar"/>
 	    <pathelement location="${beehive.common.lib.dir}/log4j-1.2.8.jar"/>
 	    <pathelement location="${beehive.common.lib.dir}/velocity-dep-1.4.jar"/>
