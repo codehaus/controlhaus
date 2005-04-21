@@ -2,6 +2,8 @@
 
 <project name="ejb-control" default="usage">
 
+    <!-- test change -->
+
     <property environment="env"/>
     <property name="source.dir" value="${basedir}/src"/>
     <property name="samples.dir" value="${basedir}/samples"/>    
