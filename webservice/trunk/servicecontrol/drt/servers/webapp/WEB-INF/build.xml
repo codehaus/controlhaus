@@ -55,7 +55,7 @@
 	
 <!--	<target name="compile" depends="update_jars, dirs" if="isJDK15" >   use the new update model in the beehive samples  .. TBD-->
 		<target name="compile" depends="dirs" if="isJDK15" >
-		<taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask" classpath="lib/controls.jar" onerror="report" />
+		<taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask" classpath="lib/beehive-controls.jar" onerror="report" />
 
 		<apt srcdir="./src" destdir="${classes.dir}" gendir="${gen.dir}" compileByExtension="true" 
 			classpathref="jars" srcExtensions="*.java,*.jcx,*.jcs,*.jws" >
@@ -97,7 +97,7 @@
 				<include name="wsm-axis.jar"/>
 			</fileset>
 			<fileset dir="${env.BEEHIVE_HOME}/controls/build/jars">
-				<include name="controls.jar"/>
+				<include name="beehive-controls.jar"/>
 			</fileset>
 		</copy>
 	</target>

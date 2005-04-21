@@ -55,7 +55,7 @@
   <property name="context.path" value="ServiceControlDRT" />
   <property name="waitfor.url" value="http://localhost:8080/index.jsp" />
   <property name="waitfor.timeout" value="100" />
-  <property name="controls.jar" value="${beehive.home}/lib/controls/controls.jar" />
+  <property name="controls.jar" value="${beehive.home}/lib/controls/beehive-controls.jar" />
   
   <!-- paths -->
   <path id="beehive.classpath">
@@ -310,7 +310,7 @@
   <target name="deploy.beehive" depends="dirs">
     <copy todir="${server.lib}">
       <fileset file="${beehive.home}/lib/common/*.jar" />
-      <fileset file="${beehive.home}/lib/controls/controls.jar" />
+      <fileset file="${beehive.home}/lib/controls/beehive-controls.jar" />
       <fileset file="${beehive.home}/lib/wsm/*.jar" />
     </copy>
   </target>
