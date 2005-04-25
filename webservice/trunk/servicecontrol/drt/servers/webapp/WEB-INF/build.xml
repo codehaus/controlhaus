@@ -80,7 +80,7 @@
 			<fileset file="${velocity14.jar}" />
 			<fileset file="${velocitydep14.jar}"/>
 			<fileset dir="${env.BEEHIVE_HOME}/wsm/lib">
-				<include name="wsdltypes.jar"/>
+				<include name="beehive-wsdltypes.jar"/>
 			</fileset>
 
 			<fileset dir="${env.BEEHIVE_HOME}/wsm/external">
@@ -95,6 +95,8 @@
 			<fileset dir="${env.BEEHIVE_HOME}/wsm/build/jars">
 				<include name="wsm.jar"/>
 				<include name="wsm-axis.jar"/>
+				<include name="beehive-wsm.jar"/>
+				<include name="beehive-wsm-axis.jar"/>
 			</fileset>
 			<fileset dir="${env.BEEHIVE_HOME}/controls/build/jars">
 				<include name="beehive-controls.jar"/>
