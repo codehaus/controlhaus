@@ -28,10 +28,10 @@ import javax.xml.namespace.QName;
 import org.apache.axis.wsdl.toJava.Namespaces;
 import org.apache.axis.wsdl.toJava.Utils;
 import org.apache.beehive.wsm.axis.ant.WSDLFilter;
-import org.apache.beehive.wsm.jsr181.model.BeehiveWsMethodMetadata;
-import org.apache.beehive.wsm.jsr181.model.BeehiveWsParameterMetadata;
-import org.apache.beehive.wsm.jsr181.model.BeehiveWsTypeMetadata;
-import org.apache.beehive.wsm.jsr181.model.wsdl.XmlBeanWSDLProcessor;
+import org.apache.beehive.wsm.model.BeehiveWsMethodMetadata;
+import org.apache.beehive.wsm.model.BeehiveWsParameterMetadata;
+import org.apache.beehive.wsm.model.BeehiveWsTypeMetadata;
+import org.apache.beehive.wsm.model.wsdl.XmlBeanWSDLProcessor;
 import org.apache.beehive.wsm.wsdl.WSDLParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -43,7 +43,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.xmlbeans.XmlException;
 
-;
 
 /*******************************************************************************
  * 

@@ -66,10 +66,10 @@ import org.apache.beehive.controls.api.context.ControlBeanContext;
 import org.apache.beehive.wsm.axis.databinding.SystemTypeLookupService;
 import org.apache.beehive.wsm.axis.registration.AxisTypeRegistrar;
 import org.apache.beehive.wsm.databinding.BindingLookupService;
-import org.apache.beehive.wsm.jsr181.model.BeehiveWsMethodMetadata;
-import org.apache.beehive.wsm.jsr181.model.BeehiveWsParameterMetadata;
-import org.apache.beehive.wsm.jsr181.model.BeehiveWsTypeMetadata;
-import org.apache.beehive.wsm.jsr181.model.wsdl.XmlBeanWSDLProcessor;
+import org.apache.beehive.wsm.model.BeehiveWsMethodMetadata;
+import org.apache.beehive.wsm.model.BeehiveWsParameterMetadata;
+import org.apache.beehive.wsm.model.BeehiveWsTypeMetadata;
+import org.apache.beehive.wsm.model.wsdl.XmlBeanWSDLProcessor;
 import org.apache.beehive.wsm.registration.TypeRegistrar;
 import org.apache.log4j.Logger;
 
