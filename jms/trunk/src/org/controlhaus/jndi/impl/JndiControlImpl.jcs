@@ -16,28 +16,25 @@ package org.controlhaus.jndi.impl;
  *
  * $Header:$
  */
-
 import java.util.Hashtable;
-
-
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.beehive.controls.api.ControlException;
-import org.apache.beehive.controls.api.context.*;
-import org.apache.beehive.controls.api.bean.*;
-import org.apache.beehive.controls.api.events.*;
-import org.apache.beehive.controls.api.properties.*;
+import org.apache.beehive.controls.api.context.ControlBeanContext;
+import org.apache.beehive.controls.api.context.Context;
+import org.apache.beehive.controls.api.bean.ControlImplementation;
 import org.controlhaus.jndi.JndiControl;
 
 /**
  * Implementation of the jndi control.
  */
-@ControlImplementation public class JndiControlImpl implements
-        JndiControl
-{
+@ControlImplementation
+public class JndiControlImpl
+    implements JndiControl, java.io.Serializable {
+
     /**
-     * @see JndiControl#getResource(String,resourceClass)
+     * @see JndiControl#getResource(String, Class)
      */
     public Object getResource(String resource,Class resourceClass) throws ControlException
     {
@@ -67,8 +64,7 @@ import org.controlhaus.jndi.JndiControl;
     	{
     		return _initialContext;
     	}
-    	Properties props = (Properties) _context
-                .getControlPropertySet(Properties.class);
+    	Properties props = (Properties) _context.getControlPropertySet(Properties.class);
         String url = nullIfEmpty(props.url());
         String factory = nullIfEmpty(props.factory());
 	    if(url == null && factory == null)
@@ -125,8 +121,8 @@ import org.controlhaus.jndi.JndiControl;
     }
     /* Control Managed Field(s) */
     @Context ControlBeanContext _context;
+
     /* Private Field(s) */
     /** The initial context. */
     private transient InitialContext _initialContext;
-    
 }

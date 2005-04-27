@@ -17,15 +17,17 @@ package org.controlhaus.jndi;
  * $Header:$
  */
 
-import java.lang.annotation.*;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
 import javax.naming.InitialContext;
 
 import org.apache.beehive.controls.api.ControlException;
-import org.apache.beehive.controls.api.context.*;
-import org.apache.beehive.controls.api.bean.*;
-import org.apache.beehive.controls.api.events.*;
-import org.apache.beehive.controls.api.properties.*;
-import org.apache.beehive.controls.api.packaging.*;
+import org.apache.beehive.controls.api.packaging.FeatureInfo;
+import org.apache.beehive.controls.api.properties.PropertySet;
+import org.apache.beehive.controls.api.bean.ControlInterface;
+import org.apache.beehive.controls.api.bean.AnnotationMemberTypes;
 
 /**
  * The Jndi Control encapsulates access to the JNDI context. It
