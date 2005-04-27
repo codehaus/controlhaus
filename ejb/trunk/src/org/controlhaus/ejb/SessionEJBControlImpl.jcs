@@ -34,7 +34,9 @@ import org.apache.beehive.controls.api.bean.ControlImplementation;
  *
  */
 @ControlImplementation( assembler = EJBControlAssembler.class )
-public class SessionEJBControlImpl extends EJBControlImpl implements SessionEJBControl
+public class SessionEJBControlImpl
+    extends EJBControlImpl
+    implements SessionEJBControl, java.io.Serializable
 {
     static final long serialVersionUID = 1L;
     //

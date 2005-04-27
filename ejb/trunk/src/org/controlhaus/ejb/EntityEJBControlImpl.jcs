@@ -16,9 +16,6 @@
  */
 package org.controlhaus.ejb;
 
-import org.apache.beehive.controls.api.ControlException;
-import org.apache.beehive.controls.api.bean.ControlImplementation;
-
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -28,13 +25,18 @@ import java.util.Iterator;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
+import org.apache.beehive.controls.api.ControlException;
+import org.apache.beehive.controls.api.bean.ControlImplementation;
+
 /**
  * The EntityEJBControlImpl class is the control implementation class for
  * Entity EJBs.
  */
 @ControlImplementation( assembler = EJBControlAssembler.class )
-public class EntityEJBControlImpl extends EJBControlImpl implements EntityEJBControl
-{
+public class EntityEJBControlImpl
+    extends EJBControlImpl
+    implements EntityEJBControl, java.io.Serializable {
+    
     static final long serialVersionUID = 1L;
 
     public EntityEJBControlImpl()
