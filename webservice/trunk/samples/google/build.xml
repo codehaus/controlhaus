@@ -1,4 +1,3 @@
-
 <?xml version="1.0" ?>
 
 <project name="google_sample" default="run.test">
