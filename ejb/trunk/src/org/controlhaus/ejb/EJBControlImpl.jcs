@@ -41,10 +41,6 @@ import org.apache.beehive.controls.api.context.ControlBeanContext.LifeCycle;
 import org.apache.beehive.controls.api.context.ResourceContext;
 import org.apache.beehive.controls.api.context.ResourceContext.ResourceEvents;
 import org.apache.beehive.controls.api.events.EventHandler;
-import org.apache.beehive.controls.api.ControlException;
-import org.apache.beehive.controls.api.bean.Extensible;
-import org.apache.beehive.controls.api.context.ControlBeanContext;
-import org.apache.beehive.controls.api.context.ResourceContext;
 
 import org.controlhaus.ejb.EJBControl.EJBHome;
 import org.controlhaus.ejb.EJBControl.JNDIContextEnv;
@@ -53,8 +49,8 @@ import org.controlhaus.ejb.EJBControl.JNDIContextEnv;
  * The Enterprise Java Bean Control implementation class
  */
 @ControlImplementation
-abstract public class EJBControlImpl implements EJBControl, Extensible
-{
+abstract public class EJBControlImpl
+    implements EJBControl, Extensible, java.io.Serializable {
     static final long serialVersionUID = 1L;
 
     static public final int     SESSION_BEAN      = 1;
@@ -458,8 +454,8 @@ abstract public class EJBControlImpl implements EJBControl, Extensible
     protected int    _beanType;
     protected String _jndiName;
     protected Handle _beanHandle;
-    protected javax.naming.Context _context;
-    transient protected Throwable _lastException; // don't persist
-    transient protected Object _beanInstance;     // don't persist
-    transient protected Object _homeInstance;     // don't persist
+    protected transient javax.naming.Context _context; // don't persist
+    protected transient Throwable _lastException;      // don't persist
+    protected transient Object _beanInstance;          // don't persist
+    protected transient Object _homeInstance;          // don't persist
 }

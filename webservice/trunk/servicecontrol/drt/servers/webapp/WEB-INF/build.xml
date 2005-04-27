@@ -93,8 +93,8 @@
 			</fileset>
 
 			<fileset dir="${env.BEEHIVE_HOME}/wsm/build/jars">
-				<include name="wsm.jar"/>
-				<include name="wsm-axis.jar"/>
+				<include name="beehive-wsm.jar"/>
+				<include name="beehive-wsm-axis.jar"/>
 				<include name="beehive-wsm.jar"/>
 				<include name="beehive-wsm-axis.jar"/>
 			</fileset>

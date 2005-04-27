@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 
-import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.MessageProducer;
@@ -19,7 +18,6 @@ import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.jms.Destination;
 import javax.jms.BytesMessage;
 import javax.jms.TopicConnection;
 import javax.jms.TopicConnectionFactory;
@@ -27,25 +25,27 @@ import javax.jms.Topic;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 
-
 import org.apache.beehive.controls.api.ControlException;
-import org.apache.beehive.controls.api.context.*;
-import org.apache.beehive.controls.api.bean.*;
-import org.apache.beehive.controls.api.events.*;
-import org.apache.beehive.controls.api.packaging.*;
-import org.controlhaus.jndi.*;
+import org.apache.beehive.controls.api.events.EventHandler;
+import org.apache.beehive.controls.api.context.ControlBeanContext;
+import org.apache.beehive.controls.api.context.Context;
+import org.apache.beehive.controls.api.context.ResourceContext;
+import org.apache.beehive.controls.api.bean.ControlImplementation;
+import org.apache.beehive.controls.api.bean.Extensible;
+import org.apache.beehive.controls.api.bean.Control;
 import org.controlhaus.jms.JMSControl;
+import org.controlhaus.jndi.JndiControlBean;
 import org.apache.xmlbeans.XmlObject;
 
 /**
  * Implementation of the jms control.
  */
-@ControlImplementation public class JMSControlImpl implements
-        JMSControl, Extensible
-{
+@ControlImplementation
+public class JMSControlImpl
+    implements JMSControl, Extensible, java.io.Serializable {
 
     /**
-     * @see JMSControl.getSession()
+     * @see JMSControl.getSession() 
      */
     public Session getSession() throws ControlException
     {
@@ -87,7 +87,7 @@ import org.apache.xmlbeans.XmlObject;
     /**
      * Get the jms-destination.
      * 
-     * @see JMSControl#getDestination.
+     * @see org.controlhaus.jms.JMSControl#getDestination()
      */
     public javax.jms.Destination getDestination() throws ControlException
     {
@@ -523,7 +523,7 @@ import org.apache.xmlbeans.XmlObject;
     }  
 
     
-    @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onAcquire") 
+    @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onAcquire")
     public void onAcquire()
     {
     }
@@ -985,7 +985,6 @@ import org.apache.xmlbeans.XmlObject;
     
     @Control
     private JndiControlBean _jndiControl;
-    
     
     /** The destination */
     private transient javax.jms.Destination _destination;

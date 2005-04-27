@@ -50,7 +50,7 @@ import java.util.Vector;
  * The implementation class for the database controller.
  */
 @ControlImplementation
-public class JdbcControlImpl implements JdbcControl, Extensible {
+public class JdbcControlImpl implements JdbcControl, Extensible, java.io.Serializable {
 
     //
     // contexts provided by the beehive controls runtime
