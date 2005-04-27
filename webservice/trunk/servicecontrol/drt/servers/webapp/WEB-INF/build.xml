@@ -22,6 +22,8 @@
 
 	<property environment="env" />
 
+
+	<property name="beehive.home" value="${env.BEEHIVE_HOME}" />
 	<property name="build.dir" location="build" />
 	<property name="gen.dir" location="${build.dir}/gen" />
 	<property name="classes.dir" location="${build.dir}/classes" />
@@ -52,10 +54,31 @@
 	<!-- compile - compile sources                 -->
 	<!-- ========================================= -->
 
-	
+	  <path id="beehive.classpath">
+	    <fileset dir="${beehive.home}/lib/wsm" includes="*.jar" />
+	    <fileset dir="${beehive.home}/lib/controls" includes="*.jar" />
+	    <pathelement location="${lib.dir}/junit-3.8.1.jar" />
+	    <pathelement location="${lib.dir}/servlet-api-2.4-20040521.jar" />
+	    <pathelement location="${lib.dir}/jsp-api-2.0-20040521.jar" />
+	    <pathelement location="${beehive.home}/lib/common/apache-xbean.jar" />
+	    <pathelement location="${beehive.home}/lib/common/log4j-1.2.8.jar" />
+	    <pathelement location="${beehive.home}/lib/common/velocity-dep-1.4.jar" />
+	    <pathelement location="${beehive.home}/lib/common/jsr173_1.0_api.jar" />
+	  </path>
+
+
+	  
+	  <taskdef
+	      name="apt" 
+	      classname="org.apache.beehive.controls.runtime.generator.AptTask" 
+	      onerror="report">
+	    <classpath>
+	      <path refid="beehive.classpath" />
+	    </classpath>
+	  </taskdef>
+
 <!--	<target name="compile" depends="update_jars, dirs" if="isJDK15" >   use the new update model in the beehive samples  .. TBD-->
 		<target name="compile" depends="dirs" if="isJDK15" >
-		<taskdef name="apt" classname="org.apache.beehive.controls.runtime.generator.AptTask" classpath="lib/beehive-controls.jar" onerror="report" />
 
 		<apt srcdir="./src" destdir="${classes.dir}" gendir="${gen.dir}" compileByExtension="true" 
 			classpathref="jars" srcExtensions="*.java,*.jcx,*.jcs,*.jws" >
@@ -93,10 +116,10 @@
 			</fileset>
 
 			<fileset dir="${env.BEEHIVE_HOME}/wsm/build/jars">
+
 				<include name="beehive-wsm.jar"/>
-				<include name="beehive-wsm-axis.jar"/>
-				<include name="beehive-wsm.jar"/>
-				<include name="beehive-wsm-axis.jar"/>
+				<include name="beehivewsm-axis.jar"/>
+
 			</fileset>
 			<fileset dir="${env.BEEHIVE_HOME}/controls/build/jars">
 				<include name="beehive-controls.jar"/>

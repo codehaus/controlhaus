@@ -1,3 +1,4 @@
+
 <?xml version="1.0" ?>
 
 <project name="xmlbea _service_control_sample" default="run.test">
@@ -26,7 +27,8 @@
 	<property name="beehive.common.lib.dir" value="${beehive.home}/lib/common"/>
 	
 	<property name="controls.jar" value="${beehive.home}/lib/controls/beehive-controls.jar" />
-	<property name="schema.dir" value="doc_schemas" />
+	<property name="doc.schema.dir" value="doc_schemas" />
+	<property name="rpc.schema.dir" value="rpc_schemas" />
  
     <property name="testmodel.client.jcxgen.packageName" value="test" />	
 	  <path id="beehive.class.path">
@@ -70,6 +72,7 @@
         <delete dir="${test.logs}" />
 	    <delete dir="${extgen.dir}"/>
 	    <delete dir="${jcxgen.dir}"/>
+	    <delete dir="${axisbeangen.dir}"/>
    </target>
 
     <target name="dirs">
@@ -78,13 +81,14 @@
          <mkdir dir="${test.logs}" />
 	    <mkdir dir="${extgen.dir}"/>
 	    <mkdir dir="${jcxgen.dir}"/>
-     </target>
+	    <mkdir dir="${axisbeangen.dir}"/>
+   </target>
 
     <target name="build" depends="gen_jcx, build_junit" description="Builds source, and servlets" />
    	
 
 
-	  <target name="gen_jcx" depends="gen_xmlbeans" unless="noxbeanrebuild">
+	  <target name="gen_jcx" depends="gen_types" unless="noxbeanrebuild">
 
 	    <java classname="org.controlhaus.webservice.generator.ExtensionMaker">
 	    	<classpath> 
@@ -92,20 +96,81 @@
 	    		<pathelement location="${build.classes}"/>
 	    	</classpath>
 	      <arg line="-gen_root ${jcxgen.dir} 
-	      	-wsdl ${schema.dir}
+	      	-wsdl ${doc.schema.dir}
 	      	-pkg ${testmodel.client.jcxgen.packageName}
 	      	-wsdl_path_annotation ."/>
+		    </java>
+	  	<!-- have the wsdls, next to the jcx files -->
+	    <copy todir="${jcxgen.dir}/${testmodel.client.jcxgen.packageName}">
+	       <fileset dir="${doc.schema.dir}" >
+	         <include name="**/*.wsdl"/>       
+	       </fileset>
+	     </copy>	
+	  	
+	    	<java classname="org.controlhaus.webservice.generator.ExtensionMaker">
+		    	<classpath> 
+		    		<path refid="build.classpath"/>
+		    		<pathelement location="${build.classes}"/>
+		    	</classpath>
+		      <arg line="-gen_root ${jcxgen.dir} 
+		      	-wsdl ${rpc.schema.dir}
+		      	-pkg ${testmodel.client.jcxgen.packageName}
+		      	-wsdl_path_annotation ."/>
 
 	    </java>
 	  	
 	  	<!-- have the wsdls, next to the jcx files -->
 	    <copy todir="${jcxgen.dir}/${testmodel.client.jcxgen.packageName}">
-	       <fileset dir="${schema.dir}" >
+	       <fileset dir="${rpc.schema.dir}" >
 	         <include name="**/*.wsdl"/>       
 	       </fileset>
 	     </copy>	
 
 	  </target>
+	
+	 <target name="do_gen_axis_types" depends="dirs" unless="noaxisrebuild">
+	    <!-- AXIS Bean build -->
+	    <taskdef name="axisbeanbuild" 
+	      classname="org.apache.beehive.wsm.axis.ant.AxisTypeGeneratorTask">
+	      <classpath>
+	        <path refid="build.classpath"/>
+	      </classpath>    
+	    </taskdef>
+
+	 	<axisbeanbuild
+	      wsdldir="${rpc.schema.dir}"
+	      outputdir="${axisbeangen.dir}"/>
+	    <javac srcdir="${axisbeangen.dir}" 
+	      destdir="${build.classes}" 
+	      classpathref="build.classpath" 
+	      debug="true"/>
+	  </target>	
+
+	  <target name="do_gen_xmlbeans" depends="dirs" unless="noxbeanrebuild">
+	  	
+	    <xmlbeanbuild
+	      schema="${doc.schema.dir}" 
+	      srcgendir="${xbeangen.dir}"
+	      classgendir="${build.classes}"
+	      failonerror="true" ignoreduplicatesinnamespaces="http://webparam.web,http://webservice.web,http://complex.web,http://webmethod.web">
+	      <classpath>
+	        <path refid="build.classpath"/>
+	      </classpath>
+	    </xmlbeanbuild>
+	  </target>
+	
+	 <target name="gen_types" >
+	    <uptodate property="noaxisrebuild" targetfile="${axisbeangen.dir}">
+	      <srcfiles dir="${rpc.schema.dir}" includes="*.wsdl"/> 
+	    </uptodate>
+	    <uptodate property="noxbeanrebuild" targetfile="${xbeangen.dir}">
+	      <srcfiles dir="${doc.schema.dir}" includes="*.wsdl,*.xsd"/> 
+	    </uptodate>
+	 	
+	  	<antcall target="do_gen_xmlbeans"></antcall>	 	
+	  	<antcall target="do_gen_axis_types"></antcall>
+	  </target>
+	
 
 	  <target name="build_jcx" depends="gen_jcx">
 	    <apt srcdir="${jcxgen.dir}" 
@@ -128,25 +193,9 @@
 
 	
 	
-	  <target name="gen_xmlbeans">
-	    <uptodate property="noxbeanrebuild" targetfile="${xbeangen.dir}">
-	      <srcfiles dir="${schema.dir}" includes="*.wsdl,*.xsd"/> 
-	    </uptodate>
-	  	<antcall target="do_gen_xmlbeans"></antcall>
-	  </target>
 
-	  <target name="do_gen_xmlbeans" depends="dirs" unless="noxbeanrebuild">
-	  	
-	    <xmlbeanbuild
-	      schema="${schema.dir}" 
-	      srcgendir="${xbeangen.dir}"
-	      classgendir="${build.classes}"
-	      failonerror="true" ignoreduplicatesinnamespaces="http://webparam.web,http://webservice.web,http://complex.web,http://webmethod.web">
-	      <classpath>
-	        <path refid="build.classpath"/>
-	      </classpath>
-	    </xmlbeanbuild>
-	  </target>
+
+
 
 
 
