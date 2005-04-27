@@ -27,7 +27,6 @@ import java.io.InputStreamReader;
 import org.apache.beehive.controls.api.bean.Control;
 import org.apache.beehive.controls.api.context.ControlContainerContext;
 import org.apache.beehive.controls.api.context.ControlThreadContext;
-import model.GoogleClient;
 import org.controlhaus.controlunit.ControlTestCase;
 
 /*******************************************************************************
@@ -38,7 +37,7 @@ import org.controlhaus.controlunit.ControlTestCase;
 
 public class GoogleControlTest extends ControlTestCase {
 
-	@Control public GoogleClient google;
+	@Control public test.GoogleSearchService google;
 
 	private String mKey;
 
@@ -58,13 +57,13 @@ public class GoogleControlTest extends ControlTestCase {
 
 	public void testSpelling() throws Exception {
 		String thermonukular = google
-				.suggestSpelling(mKey, "thermonukular");
+				.doSpellingSuggestion(mKey, "thermonukular");
 		assertEquals("thermonuclear", thermonukular);
 	}
 
 	public void testCache() throws Exception {
 		byte[] pageData = google
-				.getCachedPage(mKey, "http://www.bea.com");
+				.doGetCachedPage(mKey, "http://www.bea.com");
 		assertTrue(pageData.length > 0);
 		assertTrue(new String(pageData).indexOf("BEA") > 0);
 	}
@@ -72,7 +71,7 @@ public class GoogleControlTest extends ControlTestCase {
 	public void testSearch() throws Exception {
 
 		GoogleSearch.GoogleSearchResult results = google
-				.search(mKey, "BEA", 0, 5, false, null, false, null, null, null);
+				.doGoogleSearch(mKey, "BEA", 0, 5, false, null, false, null, null, null);
 
 		assertTrue(results.getSearchTime() > 0);
 		assertTrue(results.getEstimatedTotalResultsCount() > 0x10000);

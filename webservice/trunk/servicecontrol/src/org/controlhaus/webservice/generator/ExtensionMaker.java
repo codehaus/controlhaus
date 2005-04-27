@@ -25,13 +25,20 @@ import java.util.List;
 
 import javax.jws.WebParam;
 import javax.xml.namespace.QName;
+import javax.xml.rpc.Service;
+import javax.xml.rpc.ServiceFactory;
+import javax.xml.rpc.encoding.TypeMapping;
+
 import org.apache.axis.wsdl.toJava.Namespaces;
 import org.apache.axis.wsdl.toJava.Utils;
 import org.apache.beehive.wsm.axis.ant.WSDLFilter;
+
+import org.apache.beehive.wsm.axis.databinding.SystemTypeLookupService;
 import org.apache.beehive.wsm.model.BeehiveWsMethodMetadata;
 import org.apache.beehive.wsm.model.BeehiveWsParameterMetadata;
 import org.apache.beehive.wsm.model.BeehiveWsTypeMetadata;
 import org.apache.beehive.wsm.model.wsdl.XmlBeanWSDLProcessor;
+
 import org.apache.beehive.wsm.wsdl.WSDLParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -341,8 +348,12 @@ public class ExtensionMaker {
 //        }
 
        serviceURL = parser.getSoapAddressLocation();
-       writeJCX(new XmlBeanWSDLProcessor()
-                .createObjectModel(new FileInputStream(wsdlFile)));
+	   
+	   
+	   XmlBeanWSDLProcessor wsdlProcessor =  new XmlBeanWSDLProcessor( new FileInputStream(wsdlFile));
+
+	   
+       writeJCX(wsdlProcessor.getObjectModel( new SystemTypeLookupService()));
     }
 
     /**
