@@ -1,8 +1,8 @@
 /*
  * ServiceControl.java
- * 
+ *
  * Copyright 2004 BEA Systems, Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package org.controlhaus.webservice;
 
@@ -60,20 +60,29 @@ public interface ServiceControl
      * Multiple URLs may be specified and first URL of the appropriate scheme
      * will be used.
      */
-    @PropertySet(prefix="Location")
+    @PropertySet(
+        prefix = "Location",
+        externalConfig = true,
+        optional = true,
+        hasSetters = false
+    )
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE, ElementType.FIELD})  // allowed on declaration
-    @AllowExternalOverride
     public @interface Location
     {
         String[] urls();
     }
 
     /**
-     * OperationName is only used when the target WSDL defines operations 
+     * OperationName is only used when the target WSDL defines operations
      * with names that are invalid as Java Method names.
      */
-    @PropertySet(prefix="OperationName")
+    @PropertySet(
+        prefix="OperationName",
+        externalConfig = false,
+        optional = true,
+        hasSetters = false
+    )
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
     public @interface OperationName {
@@ -82,16 +91,19 @@ public interface ServiceControl
     }
 
     /**
-     * Path to WSDL.
+     * Path to WSDL - mandatory annotation.
      */
-    @PropertySet(prefix="WSDL")
+    @PropertySet(
+        prefix="WSDL",
+        externalConfig = false,
+        optional = false,
+        hasSetters = false
+    )
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})  // JCX only
+    @Target({ElementType.TYPE})
     public @interface WSDL
     {
-        //   @AnnotationMemberTypes.FilePath
-        // File path checking is removed for now because the controls checker
-        // can't deal with realtive path.  -- Daryoush 
+        @AnnotationMemberTypes.FilePath
         String path();
         String service() default "";
     }
@@ -111,8 +123,20 @@ public interface ServiceControl
     public URL getEndPoint();
 
 
+    /**
+     * Specifies the QName for the port within the WSDL
+     * which the Service Control should use.
+     *
+     * @param wsdlPortName The QName of the port to use.
+     */
     public void setWsdlPort( QName wsdlPortName );
 
+    /**
+     * Returns the QName of the port that will be used
+     * by the Service Control to call the webservice.
+     *
+     * @return The QName of the port that will be used.
+     */
     public QName getWsdlPort();
 
 
@@ -167,26 +191,6 @@ public interface ServiceControl
      * elements.
      */
     public void setOutputHeaders( Element[] headers );
-
-    /**
-     * Retrieves the SOAP headers that were included in the most recent
-     * arriving callback from this Service control.
-     *
-     * @return An array of the SOAP input header elements for this
-     * control's most recently receive callback.
-
-    public XmlObject getInputHeadersAsXmlBean();
-     */
-
-    /**
-     * Sets the SOAP headers that will be included in the next outgoing
-     * method invocation message to the Service control.
-     *
-     * @param headers An array of the new SOAP output header
-     * elements.
-
-    public void setOutputHeadersAsXmlBean( XmlObject headers );
-     */
 
     /**
      * Sets the timeout for the underlying HttpURLConnection (in millisecs,
