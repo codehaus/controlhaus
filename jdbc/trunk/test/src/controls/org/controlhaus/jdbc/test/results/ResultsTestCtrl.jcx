@@ -96,6 +96,25 @@ public interface ResultsTestCtrl extends JdbcControl {
         public byte[] getLvarbin() { return _lvarbytes; }
     }
 
+    public static class TrackedTest  {
+        public Integer id;
+
+        public Integer getId() { return id; }
+
+        public void setId(Integer id) { this.id = id; }
+
+        public String tracked;
+
+        public boolean isTracked() { return (tracked.equals("Y")); }
+
+        public String getTracked() { return tracked; }
+
+        public void setTracked(String tracked) { this.tracked = tracked; }
+    }
+
+
+
+
     //
     // simple query
     //
@@ -517,5 +536,12 @@ public interface ResultsTestCtrl extends JdbcControl {
     public Date getTimestampValue();
 
 
+
+
+    @SQL(statement="INSERT INTO TRACKED_TEST values({tt.id}, {tt.tracked})")
+    public void updateTracked(TrackedTest tt) throws SQLException;
+
+    @SQL(statement="SELECT * FROM TRACKED_TEST")
+    public TrackedTest[] retreiveTracked() throws SQLException;
 }
 

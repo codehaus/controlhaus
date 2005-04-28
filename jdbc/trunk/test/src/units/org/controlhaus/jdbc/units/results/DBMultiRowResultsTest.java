@@ -69,6 +69,7 @@ public class DBMultiRowResultsTest extends TestCase {
         Statement s = conn.createStatement();
         try {
             s.executeUpdate("DROP TABLE USERS");
+            s.executeUpdate("DROP TABLE tracked_test");
         } catch (Exception e) {
         }
 
@@ -77,6 +78,9 @@ public class DBMultiRowResultsTest extends TestCase {
         s.executeUpdate("INSERT INTO USERS VALUES ('tester2', 22)");
         s.executeUpdate("INSERT INTO USERS VALUES ('tester3', 23)");
         s.executeUpdate("INSERT INTO USERS VALUES ('tester4', 24)");
+
+        s.executeUpdate("CREATE TABLE tracked_test (id INT, tracked CHAR(1))");
+        s.executeUpdate("INSERT INTO tracked_test VALUES (999, 'Y')");
         conn = null;
     }
 
@@ -233,6 +237,24 @@ public class DBMultiRowResultsTest extends TestCase {
         ResultSet rs = testCtrl.getFetchOptmizedResultSet();
         rs.next();
         assertEquals(rs.getInt(2), 21);
+    }
+
+    public void testTrackedInsert() throws Exception {
+        ResultsTestCtrl.TrackedTest tt = new ResultsTestCtrl.TrackedTest();
+        tt.setId(11);
+        tt.setTracked("Y");
+        try {
+            testCtrl.updateTracked(tt);
+            fail("Control Exception should be raised for this ambigous test case.");
+        } catch (ControlException ce) {
+            assertTrue(true);
+        }
+    }
+
+    public void testTrackedSelect() throws Exception {
+        ResultsTestCtrl.TrackedTest[] tt = testCtrl.retreiveTracked();
+        assertEquals(999, tt[0].getId().intValue());
+        assertEquals("Y", tt[0].getTracked());
     }
 
     //
