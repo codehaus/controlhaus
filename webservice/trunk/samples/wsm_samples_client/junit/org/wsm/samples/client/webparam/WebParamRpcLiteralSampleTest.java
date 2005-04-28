@@ -74,13 +74,13 @@ public class WebParamRpcLiteralSampleTest extends ControlTestCase {
 
     }
  
-    public void testcreatePhoneNumberInHeader() throws Exception {
-		GenericHolder<Address> addressHolder = new GenericHolder<Address>(new Address());
-		javax.xml.rpc.holders.IntHolder res = new IntHolder();
-       client.createAddressInHeader(addressHolder, res);
-        assertTrue(addressHolder.value.getState().getState().equals("CA") );
-
-    }
+//    public void testcreatePhoneNumberInHeader() throws Exception {
+//		GenericHolder<Address> addressHolder = new GenericHolder<Address>(new Address());
+//		javax.xml.rpc.holders.IntHolder res = new IntHolder();
+//       client.createAddressInHeader(addressHolder, res);
+//        assertTrue(addressHolder.value.getState().getState().equals("CA") );
+//
+//    }
 
 
 }
