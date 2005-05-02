@@ -494,13 +494,16 @@ public class JMSControlImpl
 	         * Set the headers and properties from maps provided
 	         * by setProperties() and setHeaders()
 	         */
-	        setMessageHeaders(m);
-	        setMessageProperties(m);
-	        _headers = null;
-	        _properties = null;
 	        m.setJMSExpiration(expiration);
 	        m.setJMSDeliveryMode(deliveryMode);
 	        m.setJMSPriority(priority);
+	        setMessageHeaders(m);
+	        setMessageProperties(m);
+	        expiration = m.getJMSExpiration();
+	        deliveryMode = m.getJMSDeliveryMode();
+	        priority = m.getJMSPriority();
+	        _headers = null;
+	        _properties = null;
 	        /*
 	         * Send the message.
 	         */
