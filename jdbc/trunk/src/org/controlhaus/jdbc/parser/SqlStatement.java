@@ -263,7 +263,7 @@ public final class SqlStatement extends SqlFragmentContainer implements Serializ
                     for (Object value : values) {
 
                         if (!first) sqlString.append(", "); else first = false;
-                        sqlString.append(value.toString());
+                        sqlString.append(value);
                     }
                 }
             }

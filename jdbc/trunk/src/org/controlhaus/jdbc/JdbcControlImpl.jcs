@@ -113,7 +113,10 @@ public class JdbcControlImpl implements JdbcControl, Extensible, java.io.Seriali
      */
     @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onRelease")
     public void onRelease() {
-        logger.debug("onRelease() invoked.");
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("onRelease() invoked.");
+        }
 
         for (PreparedStatement ps : _resources) {
             try {
@@ -207,7 +210,9 @@ public class JdbcControlImpl implements JdbcControl, Extensible, java.io.Seriali
      */
     public Object invoke(Method method, Object[] args) throws Throwable {
 
-        logger.debug("Enter: invoke()");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Enter: invoke()");
+        }
         assert _connection.isClosed() == false : "invoke(): JDBC Connection has been closed!!!!";
         return execPreparedStatement(method, args);
     }
@@ -261,8 +266,10 @@ public class JdbcControlImpl implements JdbcControl, Extensible, java.io.Seriali
             SqlStatement sqlStatement = _sqlParser.parse(methodSQL.statement());
             ps = sqlStatement.createPreparedStatement(_context, _connection, _cal, method, args);
 
-            //logger.info("PreparedStatement: " + sqlStatement.toString() );
-            logger.info("PreparedStatement: " + sqlStatement.createPreparedStatementString(_context, _connection,  method, args));
+            if (logger.isInfoEnabled()) {
+                logger.info("PreparedStatement: "
+                            + sqlStatement.createPreparedStatementString(_context, _connection,  method, args));
+            }
 
             //
             // special processing for batch updates
