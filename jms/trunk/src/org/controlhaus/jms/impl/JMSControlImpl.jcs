@@ -15,6 +15,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
+import javax.jms.ConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
@@ -52,21 +53,12 @@ public class JMSControlImpl
         if (_session == null)
         {
             try
-            {
-
-	            
+            {	            
 	            switch(getDestinationType())
 	            {
 	            	case Auto:
-	            		try
-	            		{
-	            			createQueueSession();
-	            		}
-	            		catch(JMSException e)
-	            		{
-	            			createTopicSession();
-	            		}
-	            		break;
+	            		determineDestination();
+	            		return getSession();
 	            	case Topic:
 	            		createTopicSession();
 	            		break;
@@ -114,6 +106,7 @@ public class JMSControlImpl
      */
     public void setHeaders(Map headers) 
     {
+    	Map map = new HashMap();
         Iterator i = headers.keySet().iterator();
         while (i.hasNext()) 
         {
@@ -167,7 +160,13 @@ public class JMSControlImpl
 			        	throw new IllegalArgumentException("Invalid JMS header type '"+name+"'");
 			        }
             }
-            headers.put(type,value);
+            map.put(type,value);
+        }
+        Iterator iter = map.keySet().iterator();
+        while(iter.hasNext())
+        {
+            Object key = iter.next();
+            headers.put(key,map.get(key));
         }
     }
     
@@ -537,6 +536,16 @@ public class JMSControlImpl
     @EventHandler(field = "_resourceContext", eventSet = ResourceContext.ResourceEvents.class, eventName = "onRelease") 
     public void onRelease()
     {
+    	close();
+    }
+    
+    /* Protected Method(s) */
+    
+    /**
+     * Close any resources.
+     */
+    protected void close()
+    {
         try
         {
             if (_producer != null)
@@ -559,7 +568,59 @@ public class JMSControlImpl
             throw new ControlException("Unable to release JMS resource", jmse);
         }
     }
-    /* Protected Method(s) */
+    
+    /**
+     * Deterimine whether we are working with a queue or a topic.
+     */
+    protected void determineDestination()
+    {
+    	Destination props = getDestinationProperties();
+		String factory = props.jndiConnectionFactory();	            	
+		ConnectionFactory cfactory = (ConnectionFactory) getJndiControl().getResource(factory,ConnectionFactory.class);
+		if(cfactory instanceof QueueConnectionFactory && cfactory instanceof TopicConnectionFactory)
+		{
+   			javax.jms.Destination dest = getDestination();
+	    	if(dest instanceof Queue && dest instanceof Topic)
+			{
+				/* Try to create a topic producer...if fail then assume that it is a queue */
+				try
+				{
+				    createTopicSession();
+				    _producer = ((TopicSession)getSession()).createPublisher((Topic) getDestination());
+				}
+				catch(Exception e)
+				{
+					close();
+	    			_destinationType = DestinationType.Queue;
+	    			return;
+	    		}
+	    		_destinationType = DestinationType.Topic;
+			}
+			else
+			{
+	    		if(dest instanceof javax.jms.Queue)
+	    		{
+	    			_destinationType = DestinationType.Queue;
+	    		}
+	    		if(dest instanceof javax.jms.Topic)
+	    		{
+	    			_destinationType = DestinationType.Topic;
+	    		}
+	    	}
+		}
+		else
+		{
+    		if(cfactory instanceof QueueConnectionFactory)
+    		{
+    			_destinationType = DestinationType.Queue;
+    		}
+    		if(cfactory instanceof TopicConnectionFactory)
+    		{
+    			_destinationType = DestinationType.Topic;
+    		}
+    	}     	
+    }
+    
     /**
      * Get the queue/topic producer.
      * @return the JMS producer.
@@ -576,6 +637,16 @@ public class JMSControlImpl
 	        	javax.jms.Session sess = getSession();
 		        switch(getDestinationType())
 		        {
+		        	case Auto:
+		        		try
+		        		{
+		            		_producer = ((QueueSession)sess).createSender((Queue) getDestination());
+		        		}
+		        		catch(Exception e)
+		        		{
+		            		_producer = ((TopicSession)sess).createPublisher((Topic) getDestination());
+		        		}
+		        		break;
 		        	case Topic:
 		            	_producer = ((TopicSession)sess).createPublisher((Topic) getDestination());
 		        		break;
@@ -601,7 +672,6 @@ public class JMSControlImpl
 	    String factory = props.jndiConnectionFactory();
 	    boolean transacted = props.transacted();
 	    AcknowledgeMode ackMode = props.acknowledgeMode();
-    	_destinationType = DestinationType.Topic;
         TopicConnectionFactory connFactory = (TopicConnectionFactory) getJndiControl()
                 .getResource(factory,
                         TopicConnectionFactory.class);
@@ -610,10 +680,7 @@ public class JMSControlImpl
                 transacted, modeToJmsMode(ackMode));
 
     }
-    
-
-    
-    
+        
         
     /**
      * Creates a queue session.
@@ -624,7 +691,6 @@ public class JMSControlImpl
 	    String factory = props.jndiConnectionFactory();
 	    boolean transacted = props.transacted();
 	    AcknowledgeMode ackMode = props.acknowledgeMode();
-    	_destinationType = DestinationType.Queue;
         QueueConnectionFactory connFactory = (QueueConnectionFactory) getJndiControl()
                 .getResource(factory,
                         QueueConnectionFactory.class);
